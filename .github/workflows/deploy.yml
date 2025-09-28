@@ -1,10 +1,15 @@
-name: Deploy to Namecheap
+name: Deploy iSpora Frontend to Namecheap
 
 on:
   push:
     branches: [ main, master ]
+    paths:
+      - 'iSpora-frontend/**'
+      - '.github/workflows/deploy.yml'
   pull_request:
     branches: [ main, master ]
+    paths:
+      - 'iSpora-frontend/**'
 
 jobs:
   build-and-deploy:
@@ -12,18 +17,21 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       
     - name: Setup Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: '18'
         cache: 'npm'
+        cache-dependency-path: 'iSpora-frontend/package-lock.json'
         
     - name: Install dependencies
+      working-directory: ./iSpora-frontend
       run: npm ci
       
     - name: Build application
+      working-directory: ./iSpora-frontend
       run: npm run build
       
     - name: Deploy to Namecheap via FTP
@@ -32,7 +40,7 @@ jobs:
         server: ${{ secrets.FTP_SERVER }}
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
-        local-dir: ./dist/
+        local-dir: ./iSpora-frontend/dist/
         server-dir: ./public_html/
         exclude: |
           **/.git*
