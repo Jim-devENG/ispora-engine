@@ -1315,10 +1315,13 @@ function DashboardContent() {
           <div className="flex items-center justify-between mb-4">
             <div>
               <h1 className="text-2xl font-bold text-gradient mb-1">
-                Welcome back, {userName}
+                Welcome back, {userName} 🚀
               </h1>
               <p className="text-gray-600 text-sm">
                 Here's what's happening in your diaspora community today
+              </p>
+              <p className="text-xs text-green-600 mt-1">
+                ✨ Auto-deployment active - Updates live instantly!
               </p>
             </div>
             <div className="flex items-center gap-2">
