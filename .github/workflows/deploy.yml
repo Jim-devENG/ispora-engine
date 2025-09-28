@@ -24,14 +24,12 @@ jobs:
       with:
         node-version: '18'
         cache: 'npm'
-        cache-dependency-path: 'iSpora-frontend/package-lock.json'
+        cache-dependency-path: 'package.json'
         
     - name: Install dependencies
-      working-directory: ./iSpora-frontend
       run: npm ci
       
     - name: Build application
-      working-directory: ./iSpora-frontend
       run: npm run build
       
     - name: Deploy to Namecheap via FTP
@@ -40,7 +38,7 @@ jobs:
         server: ${{ secrets.FTP_SERVER }}
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
-        local-dir: ./iSpora-frontend/dist/
+        local-dir: ./dist/
         server-dir: ./public_html/
         exclude: |
           **/.git*
