@@ -44,32 +44,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Check if user is authenticated
   const isAuthenticated = !!user;
 
-  // Initialize auth state from localStorage and validate token
+  // Initialize auth state from localStorage
   useEffect(() => {
     const initializeAuth = async () => {
       try {
         const token = localStorage.getItem('token');
         
         if (token) {
-          // Validate token by fetching user data
-          const response = await fetch(`${API_BASE_URL}/auth/me`, {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
-          });
-          
-          if (response.ok) {
-            const data = await response.json();
-            setUser(data.user);
+          // For mock authentication, create a basic user from stored data
+          const storedUser = localStorage.getItem('user');
+          if (storedUser) {
+            setUser(JSON.parse(storedUser));
           } else {
-            // Token is invalid, remove it
-            localStorage.removeItem('token');
+            // Create a default user for existing tokens
+            const defaultUser = {
+              id: '1',
+              email: 'user@example.com',
+              firstName: 'User',
+              lastName: 'Name',
+              userType: 'student' as const,
+              username: 'user'
+            };
+            setUser(defaultUser);
           }
         }
       } catch (error) {
         console.error('Auth initialization error:', error);
         localStorage.removeItem('token');
+        localStorage.removeItem('user');
       } finally {
         setIsLoading(false);
       }
@@ -82,18 +84,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       setIsLoading(true);
       
-      // For development: simple mock login
-      if (email === 'demo@ispora.com' && password === 'demo123') {
+      // Mock authentication - accept any email/password for development
+      if (email && password && password.length >= 6) {
         const mockUser = {
           id: '1',
-          email: 'demo@ispora.com',
-          firstName: 'Demo',
+          email: email,
+          firstName: email.split('@')[0] || 'User',
           lastName: 'User',
           userType: 'student' as const,
-          username: 'demo_user'
+          username: email.split('@')[0] || 'user'
         };
         
         localStorage.setItem('token', 'mock-token-' + Date.now());
+        localStorage.setItem('user', JSON.stringify(mockUser));
         setUser(mockUser);
         return { success: true };
       }
@@ -129,27 +132,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       setIsLoading(true);
       
-      const response = await fetch(`${API_BASE_URL}/auth/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(userData),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        // Store token and user data
-        localStorage.setItem('token', data.token);
-        setUser(data.user);
+      // Mock registration - accept any valid data
+      if (userData.email && userData.password && userData.firstName && userData.lastName) {
+        const mockUser = {
+          id: '1',
+          email: userData.email,
+          firstName: userData.firstName,
+          lastName: userData.lastName,
+          userType: userData.userType || 'student',
+          username: userData.username || userData.email.split('@')[0]
+        };
+        
+        localStorage.setItem('token', 'mock-token-' + Date.now());
+        localStorage.setItem('user', JSON.stringify(mockUser));
+        setUser(mockUser);
         return { success: true };
-      } else {
-        return { success: false, error: data.error || 'Registration failed' };
       }
+      
+      return { success: false, error: 'Please fill in all required fields' };
     } catch (error) {
       console.error('Registration error:', error);
-      return { success: false, error: 'Network error. Please try again.' };
+      return { success: false, error: 'Registration failed. Please try again.' };
     } finally {
       setIsLoading(false);
     }
@@ -157,24 +160,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async (): Promise<void> => {
     try {
-      const token = localStorage.getItem('token');
-      
-      if (token) {
-        // Call logout endpoint to update user status
-        await fetch(`${API_BASE_URL}/auth/logout`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
-      }
+      // Clear local state
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      setUser(null);
     } catch (error) {
       console.error('Logout error:', error);
-    } finally {
-      // Clear local state regardless of API call success
-      localStorage.removeItem('token');
-      setUser(null);
     }
   };
 
