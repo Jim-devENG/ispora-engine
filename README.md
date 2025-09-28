@@ -1,6 +1,8 @@
-﻿# iSpora - Diaspora Community Platform
+﻿# iSpora - Diaspora Community Platform 🚀
 
 A comprehensive platform connecting diaspora communities through mentorship, collaboration, and shared initiatives.
+
+> **Auto-deployment active** - Changes deploy automatically to ispora.app
 
 ## 🚀 Features
 
@@ -41,6 +43,11 @@ This project is automatically deployed to Namecheap hosting via GitHub Actions w
 2. GitHub Actions builds the application
 3. Built files are automatically deployed to Namecheap hosting
 4. Website is live at [ispora.app](https://ispora.app)
+
+### 🟢 Deployment Status
+- **Last updated**: $(date)
+- **Status**: Auto-deployment active
+- **Live URL**: https://ispora.app
 
 ## 🔧 Environment Variables
 
