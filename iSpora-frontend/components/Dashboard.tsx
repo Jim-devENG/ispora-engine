@@ -186,7 +186,7 @@ function CommentsDialog({
       <Tooltip>
         <DialogTrigger asChild>
           <TooltipTrigger asChild>
-            <button className="flex items-center gap-1 text-gray-500 hover:text-blue-500 transition-colors text-sm btn-hover-lift">
+            <button className="flex items-center gap-1 text-gray-500 hover:text-[#021ff6] transition-colors text-sm btn-hover-lift">
               <MessageCircle className="h-4 w-4" />
               <span>Comment</span>
             </button>
@@ -199,7 +199,7 @@ function CommentsDialog({
       <DialogContent className="max-w-xl max-h-[75vh] flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <MessageCircle className="h-5 w-5 text-blue-600" />
+            <MessageCircle className="h-5 w-5 text-[#021ff6]" />
             Comments on "{postTitle.substring(0, 50)}..."
           </DialogTitle>
           <DialogDescription>
@@ -212,7 +212,7 @@ function CommentsDialog({
           <div className="p-4 bg-gray-50 rounded-lg mb-4">
             <div className="flex gap-3">
               <Avatar className="h-8 w-8">
-                <AvatarFallback className="bg-blue-600 text-white text-sm">
+                <AvatarFallback className="bg-[#021ff6] text-white text-sm">
                   {userName.charAt(0)}
                 </AvatarFallback>
               </Avatar>
@@ -321,7 +321,7 @@ function ShareDialog({
     {
       name: 'LinkedIn',
       icon: Linkedin,
-      color: 'text-blue-600',
+      color: 'text-[#021ff6]',
       action: () => {
         window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`, '_blank');
         setIsOpen(false);
@@ -330,7 +330,7 @@ function ShareDialog({
     {
       name: 'Twitter',
       icon: Twitter,
-      color: 'text-blue-400',
+      color: 'text-[#021ff6]/70',
       action: () => {
         window.open(`https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`, '_blank');
         setIsOpen(false);
@@ -339,7 +339,7 @@ function ShareDialog({
     {
       name: 'Facebook',
       icon: Facebook,
-      color: 'text-blue-800',
+      color: 'text-[#021ff6]',
       action: () => {
         window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`, '_blank');
         setIsOpen(false);
@@ -361,7 +361,7 @@ function ShareDialog({
       <Tooltip>
         <DialogTrigger asChild>
           <TooltipTrigger asChild>
-            <button className="flex items-center gap-1 text-gray-500 hover:text-blue-500 transition-colors text-sm btn-hover-lift">
+            <button className="flex items-center gap-1 text-gray-500 hover:text-[#021ff6] transition-colors text-sm btn-hover-lift">
               <Share2 className="h-4 w-4" />
               <span>Share</span>
             </button>
@@ -374,7 +374,7 @@ function ShareDialog({
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Share2 className="h-5 w-5 text-blue-600" />
+            <Share2 className="h-5 w-5 text-[#021ff6]" />
             Share this story
           </DialogTitle>
           <DialogDescription>
@@ -512,14 +512,14 @@ function PullToRefresh({
             transform: `translateY(${isPulling ? 0 : isRefreshing ? 0 : -60}px)`,
           }}
         >
-          <div className="flex items-center gap-2 text-blue-600 font-medium">
+          <div className="flex items-center gap-2 text-[#021ff6] font-medium">
             <RefreshCw 
               className={`h-5 w-5 transition-transform duration-200 ${getRefreshIconRotation()}`}
             />
             <span className="text-sm">{getRefreshText()}</span>
           </div>
           {pullDistance > PULL_THRESHOLD && !isRefreshing && (
-            <div className="mt-1 text-xs text-blue-500">
+            <div className="mt-1 text-xs text-[#021ff6]">
               Ready to refresh feed
             </div>
           )}
@@ -901,7 +901,7 @@ function DashboardContent() {
   
   const getPostIcon = (type: string) => {
     switch (type) {
-      case 'project': return <Rocket className="h-5 w-5 text-blue-500" />;
+      case 'project': return <Rocket className="h-5 w-5 text-[#021ff6]" />;
       case 'campaign': return <Megaphone className="h-5 w-5 text-purple-500" />;
       case 'opportunity': return <Target className="h-5 w-5 text-green-500" />;
       case 'milestone': return <Trophy className="h-5 w-5 text-yellow-500" />;
@@ -913,7 +913,7 @@ function DashboardContent() {
       case 'project_closing': return <Clock className="h-5 w-5 text-red-600" />;
       case 'admin_highlight': return <Megaphone className="h-5 w-5 text-orange-600" />;
       case 'achievement': return <Award className="h-5 w-5 text-purple-600" />;
-      case 'certification': return <Trophy className="h-5 w-5 text-blue-600" />;
+      case 'certification': return <Trophy className="h-5 w-5 text-[#021ff6]" />;
       case 'collaboration': return <Users className="h-5 w-5 text-teal-500" />;
       default: return <Globe className="h-5 w-5 text-gray-500" />;
     }
@@ -931,7 +931,7 @@ function DashboardContent() {
             : `${post.authorName} is building something impactful in ${post.category.toLowerCase()}, creating opportunities for diaspora professionals to make a difference. This initiative represents the kind of collaboration that strengthens our global network.`,
           ctaText: isOwnContent ? "Manage Your Project" : "Join This Mission",
           impact: `Seeking ${post.metadata?.seekingSupport?.length || 0} types of support`,
-          visual: "bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200"
+          visual: "bg-gradient-to-br from-blue-50 to-indigo-50 border-[#021ff6]/20"
         };
       
       case 'opportunity':
@@ -1326,7 +1326,7 @@ function DashboardContent() {
             </div>
             <div className="flex items-center gap-2">
               <LiveSessionsWidget />
-              <Badge className="glass-effect border-white/30 text-blue-700 px-2 py-1 text-xs">
+              <Badge className="glass-effect border-white/30 text-[#021ff6] px-2 py-1 text-xs">
                 <Users className="h-3 w-3 mr-1" />
                 Global Community
               </Badge>
@@ -1406,7 +1406,7 @@ function DashboardContent() {
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-lg font-bold text-gradient mb-1 flex items-center gap-2">
-                  <Activity className="h-4 w-4 text-blue-600" />
+                  <Activity className="h-4 w-4 text-[#021ff6]" />
                   Live Feed
                 </h2>
                 <p className="text-gray-600 text-sm">
@@ -1474,7 +1474,7 @@ function DashboardContent() {
                                 <h3 className="font-semibold text-gray-900 truncate">
                                   {post.authorName}
                                   {isOwnContent && (
-                                    <span className="text-blue-600 text-sm ml-2 font-normal">(You)</span>
+                                    <span className="text-[#021ff6] text-sm ml-2 font-normal">(You)</span>
                                   )}
                                 </h3>
                                 {post.isAdminCurated && (
@@ -1556,7 +1556,7 @@ function DashboardContent() {
                                   <span className="font-medium">{currentLikes}</span>
                                 </div>
                                 <div className="flex items-center gap-1">
-                                  <MessageCircle className="h-4 w-4 text-blue-500" />
+                                  <MessageCircle className="h-4 w-4 text-[#021ff6]" />
                                   <span className="font-medium">{currentComments}</span>
                                 </div>
                                 <div className="flex items-center gap-1">
@@ -1579,8 +1579,8 @@ function DashboardContent() {
                               <button 
                                 className={`flex items-center gap-1 transition-colors text-sm ${
                                   isLiked 
-                                    ? 'text-blue-500' 
-                                    : 'text-gray-500 hover:text-blue-500'
+                                    ? 'text-[#021ff6]' 
+                                    : 'text-gray-500 hover:text-[#021ff6]'
                                 }`}
                                 onClick={(e) => {
                                   e.stopPropagation();
@@ -1688,7 +1688,7 @@ function DashboardContent() {
                   >
                     <CardContent className="p-3 text-center">
                       <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform duration-300">
-                        <Search className="h-5 w-5 text-blue-600" />
+                        <Search className="h-5 w-5 text-[#021ff6]" />
                       </div>
                       <h3 className="font-semibold text-gray-900 mb-1 text-sm">Explore Projects</h3>
                       <p className="text-xs text-gray-600">Find impactful initiatives to join</p>
@@ -1752,7 +1752,7 @@ function DashboardContent() {
               {/* Global Impact Statistics */}
               <div className="card-gradient p-4">
                 <div className="flex items-center gap-2 mb-4">
-                  <Trophy className="h-4 w-4 text-blue-600" />
+                  <Trophy className="h-4 w-4 text-[#021ff6]" />
                   <h2 className="text-lg font-bold text-gradient">
                     Our Collective Impact
                   </h2>
@@ -1761,7 +1761,7 @@ function DashboardContent() {
                   <StatCard
                     title="Active Projects"
                     value={mockGlobalStats.totalProjects}
-                    color="text-blue-600"
+                    color="text-[#021ff6]"
                     delay={0}
                   />
                   <StatCard
@@ -1835,8 +1835,8 @@ function MentorshipContent() {
         <div className="grid gap-4 md:grid-cols-4">
           <div className="bg-white p-6 rounded-lg border shadow-sm">
             <div className="flex items-center space-x-2">
-              <div className="h-8 w-8 bg-blue-100 rounded-full flex items-center justify-center">
-                <MessageSquare className="h-4 w-4 text-blue-600" />
+              <div className="h-8 w-8 bg-[#021ff6]/10 rounded-full flex items-center justify-center">
+                <MessageSquare className="h-4 w-4 text-[#021ff6]" />
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Pending Requests</p>
@@ -1888,8 +1888,8 @@ function MentorshipContent() {
           <div className="grid gap-4 md:grid-cols-3">
             <button className="p-4 text-left border rounded-lg hover:shadow-md transition-shadow">
               <div className="flex items-center space-x-3">
-                <div className="h-8 w-8 bg-blue-100 rounded-full flex items-center justify-center">
-                  <MessageSquare className="h-4 w-4 text-blue-600" />
+                <div className="h-8 w-8 bg-[#021ff6]/10 rounded-full flex items-center justify-center">
+                  <MessageSquare className="h-4 w-4 text-[#021ff6]" />
                 </div>
                 <div>
                   <h4 className="font-medium">Review Requests</h4>
@@ -1928,8 +1928,8 @@ function MentorshipContent() {
         <div className="bg-white p-6 rounded-lg border shadow-sm">
           <h3 className="text-lg font-semibold mb-4">Recent Activity</h3>
           <div className="space-y-4">
-            <div className="flex items-start space-x-3 p-3 bg-blue-50 rounded-lg">
-              <div className="h-2 w-2 bg-blue-500 rounded-full mt-2"></div>
+            <div className="flex items-start space-x-3 p-3 bg-[#021ff6]/5 rounded-lg">
+              <div className="h-2 w-2 bg-[#021ff6]/50 rounded-full mt-2"></div>
               <div className="flex-1">
                 <p className="text-sm font-medium">New mentorship request from Amara Okafor</p>
                 <p className="text-xs text-muted-foreground">AI/ML Career Guidance • 2 hours ago</p>
@@ -1980,7 +1980,7 @@ function MentorshipContent() {
                 <span className="font-semibold">32 hours</span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
-                <div className="bg-blue-600 h-2 rounded-full" style={{ width: '75%' }}></div>
+                <div className="bg-[#021ff6] h-2 rounded-full" style={{ width: '75%' }}></div>
               </div>
             </div>
             

@@ -110,8 +110,8 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
       label: 'Student',
       description: 'Currently studying or learning',
       icon: GraduationCap,
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-50',
+      color: 'text-[#021ff6]',
+      bgColor: 'bg-[#021ff6]/5',
     },
     {
       value: 'professional',
@@ -132,14 +132,14 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-[#021ff6]/5 via-white to-[#021ff6]/10 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Logo/Brand */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-blue-600 to-green-600 rounded-3xl mb-6 shadow-lg">
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-[#021ff6] rounded-3xl mb-6 shadow-lg">
             <Globe className="w-10 h-10 text-white" />
           </div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent mb-3">iSpora</h1>
+          <h1 className="text-4xl font-bold text-[#021ff6] mb-3">iSpora</h1>
           <p className="text-gray-600 text-lg">Connect, Learn, and Grow Together</p>
         </div>
 
@@ -169,7 +169,7 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
                   <div className="space-y-3">
                     <Label htmlFor="login-email" className="text-sm font-medium text-gray-700">Email Address</Label>
                     <div className="relative group">
-                      <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors">
+                      <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-[#021ff6] transition-colors">
                         <Mail className="h-5 w-5" />
                       </div>
                       <Input
@@ -178,7 +178,7 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
                         placeholder="Enter your email"
                         value={loginData.email}
                         onChange={(e) => setLoginData(prev => ({ ...prev, email: e.target.value }))}
-                        className="pl-12 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500/20 rounded-xl transition-all"
+                        className="pl-12 h-12 border-gray-200 focus:border-[#021ff6] focus:ring-[#021ff6]/20 rounded-xl transition-all"
                         required
                       />
                     </div>
@@ -187,7 +187,7 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
                   <div className="space-y-3">
                     <Label htmlFor="login-password" className="text-sm font-medium text-gray-700">Password</Label>
                     <div className="relative group">
-                      <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors">
+                      <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-[#021ff6] transition-colors">
                         <Lock className="h-5 w-5" />
                       </div>
                       <Input
@@ -196,7 +196,7 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
                         placeholder="Enter your password"
                         value={loginData.password}
                         onChange={(e) => setLoginData(prev => ({ ...prev, password: e.target.value }))}
-                        className="pl-12 pr-12 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500/20 rounded-xl transition-all"
+                        className="pl-12 pr-12 h-12 border-gray-200 focus:border-[#021ff6] focus:ring-[#021ff6]/20 rounded-xl transition-all"
                         required
                       />
                       <button
@@ -211,7 +211,7 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
 
                   <Button 
                     type="submit" 
-                    className="w-full h-12 bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5" 
+                    className="w-full h-12 bg-[#021ff6] hover:bg-[#021ff6]/90 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5" 
                     disabled={isLoading}
                   >
                     {isLoading ? (
@@ -240,7 +240,7 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
                         placeholder="First name"
                         value={registerData.firstName}
                         onChange={(e) => setRegisterData(prev => ({ ...prev, firstName: e.target.value }))}
-                        className="h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500/20 rounded-xl transition-all"
+                        className="h-12 border-gray-200 focus:border-[#021ff6] focus:ring-[#021ff6]/20 rounded-xl transition-all"
                         required
                       />
                     </div>
@@ -252,7 +252,7 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
                         placeholder="Last name"
                         value={registerData.lastName}
                         onChange={(e) => setRegisterData(prev => ({ ...prev, lastName: e.target.value }))}
-                        className="h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500/20 rounded-xl transition-all"
+                        className="h-12 border-gray-200 focus:border-[#021ff6] focus:ring-[#021ff6]/20 rounded-xl transition-all"
                         required
                       />
                     </div>
@@ -261,7 +261,7 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
                   <div className="space-y-3">
                     <Label htmlFor="register-email" className="text-sm font-medium text-gray-700">Email Address</Label>
                     <div className="relative group">
-                      <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors">
+                      <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-[#021ff6] transition-colors">
                         <Mail className="h-5 w-5" />
                       </div>
                       <Input
@@ -270,7 +270,7 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
                         placeholder="Enter your email"
                         value={registerData.email}
                         onChange={(e) => setRegisterData(prev => ({ ...prev, email: e.target.value }))}
-                        className="pl-12 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500/20 rounded-xl transition-all"
+                        className="pl-12 h-12 border-gray-200 focus:border-[#021ff6] focus:ring-[#021ff6]/20 rounded-xl transition-all"
                         required
                       />
                     </div>
@@ -279,7 +279,7 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
                   <div className="space-y-3">
                     <Label htmlFor="register-username" className="text-sm font-medium text-gray-700">Username (Optional)</Label>
                     <div className="relative group">
-                      <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors">
+                      <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-[#021ff6] transition-colors">
                         <User className="h-5 w-5" />
                       </div>
                       <Input
@@ -288,7 +288,7 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
                         placeholder="Choose a username"
                         value={registerData.username}
                         onChange={(e) => setRegisterData(prev => ({ ...prev, username: e.target.value }))}
-                        className="pl-12 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500/20 rounded-xl transition-all"
+                        className="pl-12 h-12 border-gray-200 focus:border-[#021ff6] focus:ring-[#021ff6]/20 rounded-xl transition-all"
                       />
                     </div>
                   </div>
@@ -303,7 +303,7 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
                             key={option.value}
                             className={`relative flex items-center p-4 rounded-xl border-2 cursor-pointer transition-all hover:shadow-md ${
                               registerData.userType === option.value
-                                ? 'border-blue-500 bg-blue-50 shadow-md'
+                                ? 'border-[#021ff6] bg-[#021ff6]/5 shadow-md'
                                 : 'border-gray-200 hover:border-gray-300 bg-white'
                             }`}
                           >
@@ -329,7 +329,7 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
                   <div className="space-y-3">
                     <Label htmlFor="register-password" className="text-sm font-medium text-gray-700">Password</Label>
                     <div className="relative group">
-                      <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors">
+                      <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-[#021ff6] transition-colors">
                         <Lock className="h-5 w-5" />
                       </div>
                       <Input
@@ -338,7 +338,7 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
                         placeholder="Create a password"
                         value={registerData.password}
                         onChange={(e) => setRegisterData(prev => ({ ...prev, password: e.target.value }))}
-                        className="pl-12 pr-12 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500/20 rounded-xl transition-all"
+                        className="pl-12 pr-12 h-12 border-gray-200 focus:border-[#021ff6] focus:ring-[#021ff6]/20 rounded-xl transition-all"
                         required
                       />
                       <button
@@ -354,7 +354,7 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
                   <div className="space-y-3">
                     <Label htmlFor="register-confirmPassword" className="text-sm font-medium text-gray-700">Confirm Password</Label>
                     <div className="relative group">
-                      <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors">
+                      <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-[#021ff6] transition-colors">
                         <Lock className="h-5 w-5" />
                       </div>
                       <Input
@@ -363,7 +363,7 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
                         placeholder="Confirm your password"
                         value={registerData.confirmPassword}
                         onChange={(e) => setRegisterData(prev => ({ ...prev, confirmPassword: e.target.value }))}
-                        className="pl-12 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500/20 rounded-xl transition-all"
+                        className="pl-12 h-12 border-gray-200 focus:border-[#021ff6] focus:ring-[#021ff6]/20 rounded-xl transition-all"
                         required
                       />
                     </div>
@@ -371,7 +371,7 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
 
                   <Button 
                     type="submit" 
-                    className="w-full h-12 bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5" 
+                    className="w-full h-12 bg-[#021ff6] hover:bg-[#021ff6]/90 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5" 
                     disabled={isLoading}
                   >
                     {isLoading ? (
@@ -394,7 +394,7 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
 
         {/* Footer */}
         <div className="text-center mt-8 text-sm text-gray-500">
-          <p>By signing in, you agree to our <span className="text-blue-600 hover:text-blue-700 cursor-pointer">Terms of Service</span> and <span className="text-blue-600 hover:text-blue-700 cursor-pointer">Privacy Policy</span></p>
+          <p>By signing in, you agree to our <span className="text-[#021ff6] hover:text-[#021ff6]/80 cursor-pointer">Terms of Service</span> and <span className="text-[#021ff6] hover:text-[#021ff6]/80 cursor-pointer">Privacy Policy</span></p>
         </div>
       </div>
     </div>
