@@ -32,6 +32,12 @@ export function UserProfileDropdown({ isCollapsed = false }: UserProfileDropdown
   const { navigate } = useNavigation();
   const { user, logout } = useAuth();
 
+  // Safety check for user data
+  const userInitials = user ? 
+    `${user.firstName?.[0] || ''}${user.lastName?.[0] || ''}`.toUpperCase() || user.email?.[0]?.toUpperCase() || 'U' : 'U';
+  const userDisplayName = user ? 
+    `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email?.split('@')[0] || 'User' : 'User';
+
   const handleMenuAction = (action: string) => {
     switch (action) {
       case 'profile':
@@ -86,7 +92,7 @@ export function UserProfileDropdown({ isCollapsed = false }: UserProfileDropdown
             </DropdownMenuTrigger>
           </TooltipTrigger>
           <TooltipContent side="right" className="font-medium">
-            <span className="text-xs">John Doe • john.doe@aspora.co</span>
+            <span className="text-xs">{userDisplayName} • {user?.email || 'user@example.com'}</span>
           </TooltipContent>
         </Tooltip>
         <DropdownMenuContent 
@@ -95,19 +101,21 @@ export function UserProfileDropdown({ isCollapsed = false }: UserProfileDropdown
           side="right"
           sideOffset={12}
         >
-          {/* User Info Header */}
-          <div className="p-5 bg-gradient-to-br from-gray-50 to-white border-b border-gray-100">
-            <div className="flex items-center space-x-3">
-              <Avatar className="h-10 w-10 ring-2 ring-[#021ff6]/10">
-                <AvatarImage src="/api/placeholder/40/40" />
-                <AvatarFallback className="bg-[#021ff6] text-white font-semibold">JD</AvatarFallback>
-              </Avatar>
-              <div>
-                <p className="font-semibold text-gray-900 text-sm">John Doe</p>
-                <p className="text-xs text-gray-500">john.doe@aspora.co</p>
-              </div>
+        {/* User Info Header */}
+        <div className="p-5 bg-gradient-to-br from-gray-50 to-white border-b border-gray-100">
+          <div className="flex items-center space-x-3">
+            <Avatar className="h-10 w-10 ring-2 ring-[#021ff6]/10">
+              <AvatarImage src={user?.avatar || "/api/placeholder/40/40"} />
+              <AvatarFallback className="bg-[#021ff6] text-white font-semibold">
+                {userInitials}
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <p className="font-semibold text-gray-900 text-sm">{userDisplayName}</p>
+              <p className="text-xs text-gray-500">{user?.email || 'user@example.com'}</p>
             </div>
           </div>
+        </div>
           
           {/* Menu Items */}
           <div className="p-2">
@@ -185,12 +193,12 @@ export function UserProfileDropdown({ isCollapsed = false }: UserProfileDropdown
           <Avatar className="h-9 w-9 transition-all duration-200 group-hover:scale-105 ring-2 ring-transparent group-hover:ring-[#021ff6]/20">
             <AvatarImage src={user?.avatar || "/api/placeholder/40/40"} />
             <AvatarFallback className="bg-[#021ff6] text-white text-sm font-semibold transition-all duration-200">
-              {user ? `${user.firstName[0]}${user.lastName[0]}` : 'U'}
+              {userInitials}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0 text-left">
             <p className="text-sm font-semibold text-gray-800 group-hover:text-[#021ff6] truncate transition-all duration-200">
-              {user ? `${user.firstName} ${user.lastName}` : 'User'}
+              {userDisplayName}
             </p>
             <p className="text-xs text-gray-500 truncate transition-all duration-200">
               {user?.email || 'user@example.com'}
@@ -209,12 +217,14 @@ export function UserProfileDropdown({ isCollapsed = false }: UserProfileDropdown
         <div className="p-5 bg-gradient-to-br from-gray-50 to-white border-b border-gray-100">
           <div className="flex items-center space-x-3">
             <Avatar className="h-10 w-10 ring-2 ring-[#021ff6]/10">
-              <AvatarImage src="/api/placeholder/40/40" />
-              <AvatarFallback className="bg-[#021ff6] text-white font-semibold">JD</AvatarFallback>
+              <AvatarImage src={user?.avatar || "/api/placeholder/40/40"} />
+              <AvatarFallback className="bg-[#021ff6] text-white font-semibold">
+                {userInitials}
+              </AvatarFallback>
             </Avatar>
             <div>
-              <p className="font-semibold text-gray-900 text-sm">John Doe</p>
-              <p className="text-xs text-gray-500">john.doe@aspora.co</p>
+              <p className="font-semibold text-gray-900 text-sm">{userDisplayName}</p>
+              <p className="text-xs text-gray-500">{user?.email || 'user@example.com'}</p>
             </div>
           </div>
         </div>

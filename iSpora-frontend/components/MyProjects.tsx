@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -12,6 +12,7 @@ import { Separator } from "./ui/separator";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import { useNavigation } from "./NavigationContext";
+import { useAuth } from "./AuthContext";
 import { toast } from "sonner";
 import {
   Plus,
@@ -186,7 +187,8 @@ const mockProjects: Project[] = [
   }
 ];
 
-const mockUpdates: Update[] = [
+// This will be replaced with dynamic data based on the logged-in user
+const getMockUpdates = (userName: string): Update[] => [
   {
     id: "1",
     projectId: "1",
@@ -194,7 +196,7 @@ const mockUpdates: Update[] = [
     title: "Completed Module 3: Bias in AI Systems",
     content: "Successfully completed the third module of our AI Ethics curriculum focusing on identifying and mitigating bias in AI systems. 45 mentor-mentee pairs participated in intensive workshops.",
     date: "2024-06-15",
-    author: "Dr. Sarah Chen",
+    author: userName,
     likes: 23,
     comments: 8,
     isPublished: true
@@ -206,7 +208,7 @@ const mockUpdates: Update[] = [
     title: "Reached 75% of Fundraising Goal",
     content: "Excited to announce that our healthcare innovation campaign has reached 75% of our $50,000 fundraising goal! Thank you to all our supporters.",
     date: "2024-06-10",
-    author: "Campaign Team",
+    author: userName,
     likes: 67,
     comments: 15,
     isPublished: true
@@ -218,7 +220,7 @@ const mockUpdates: Update[] = [
     title: "New Industry Partnership with TechCorp",
     content: "We're thrilled to announce a new partnership with TechCorp, which will provide guaranteed internships for our top-performing bootcamp graduates.",
     date: "2024-06-08",
-    author: "Project Director",
+    author: userName,
     likes: 34,
     comments: 12,
     isPublished: true
@@ -539,6 +541,7 @@ function UpdateCard({ update }: { update: Update }) {
 
 export function MyProjects() {
   const { navigate } = useNavigation();
+  const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [filterCategory, setFilterCategory] = useState<string>("all");
   const [filterStatus, setFilterStatus] = useState<string>("all");
@@ -555,6 +558,10 @@ export function MyProjects() {
   const handleNewUpdate = () => {
     toast.info("New update functionality coming soon!");
   };
+
+  // Get user's display name for updates
+  const userName = user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email?.split('@')[0] || 'User' : 'User';
+  const mockUpdates = getMockUpdates(userName);
 
   const filteredProjects = mockProjects
     .filter(project => {
@@ -609,7 +616,7 @@ export function MyProjects() {
           <div>
             <h1 className="text-2xl font-semibold text-foreground flex items-center gap-2">
               <FolderOpen className="h-6 w-6 text-[#021ff6]" />
-              My Projects
+              {userName}'s Projects
             </h1>
             <p className="text-sm text-muted-foreground">Manage and track your created projects and initiatives</p>
           </div>

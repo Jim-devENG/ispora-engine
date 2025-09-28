@@ -7,6 +7,7 @@ import { LiveSessionsWidget } from "./LiveSessionsWidget";
 import { CreditsPage } from "./CreditsPage";
 import { MyNetwork } from "./MyNetwork";
 import { useNavigation } from "./NavigationContext";
+import { useAuth } from "./AuthContext";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Input } from "./ui/input";
@@ -79,7 +80,6 @@ import {
 
 // Mock current user for demo
 const CURRENT_USER_ID = 'user_001';
-const CURRENT_USER_NAME = 'Dr. Amina';
 
 // Mock global impact stats
 const mockGlobalStats = {
@@ -114,6 +114,8 @@ function CommentsDialog({
   initialComments?: number;
   onCommentAdded?: (count: number) => void;
 }) {
+  const { user } = useAuth();
+  const userName = user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email?.split('@')[0] || 'User' : 'User';
   const [isOpen, setIsOpen] = useState(false);
   const [comments, setComments] = useState<SocialInteraction[]>([]);
   const [newComment, setNewComment] = useState('');
@@ -166,7 +168,7 @@ function CommentsDialog({
     const comment: SocialInteraction = {
       postId,
       userId: CURRENT_USER_ID,
-      userName: CURRENT_USER_NAME,
+      userName: userName,
       type: 'comment',
       content: newComment.trim(),
       timestamp: 'just now'
@@ -211,7 +213,7 @@ function CommentsDialog({
             <div className="flex gap-3">
               <Avatar className="h-8 w-8">
                 <AvatarFallback className="bg-blue-600 text-white text-sm">
-                  {CURRENT_USER_NAME.charAt(0)}
+                  {userName.charAt(0)}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1">
@@ -869,6 +871,8 @@ function StatCard({
 }
 
 function DashboardContent() {
+  const { user } = useAuth();
+  const userName = user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email?.split('@')[0] || 'User' : 'User';
   const [searchQuery, setSearchQuery] = useState("");
   const [userType] = useState("participant"); // Could be "diasporan" or "participant"
   const [displayedPosts, setDisplayedPosts] = useState(6); // Show 6 posts initially
@@ -1273,7 +1277,7 @@ function DashboardContent() {
     if (actionData) {
       recordUserAction({
         userId: CURRENT_USER_ID,
-        userName: CURRENT_USER_NAME,
+        userName: userName,
         userLocation: 'Global',
         actionType: actionData.actionType,
         entityId: actionData.entityId,
@@ -1311,7 +1315,7 @@ function DashboardContent() {
           <div className="flex items-center justify-between mb-4">
             <div>
               <h1 className="text-2xl font-bold text-gradient mb-1">
-                Welcome back, {CURRENT_USER_NAME}
+                Welcome back, {userName}
               </h1>
               <p className="text-gray-600 text-sm">
                 Here's what's happening in your diaspora community today
@@ -1804,11 +1808,14 @@ function DashboardContent() {
 }
 
 function MentorshipContent() {
+  const { user } = useAuth();
+  const userName = user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email?.split('@')[0] || 'User' : 'User';
+  
   return (
     <div className="min-h-full">
       {/* Header for Mentorship */}
       <DashboardHeader 
-        userName="Dr. Amina" 
+        userName={userName} 
         userTitle="Mentoring the next generation of innovators"
       />
       
@@ -1994,11 +2001,14 @@ function MentorshipContent() {
 }
 
 function PlaceholderContent({ title }: { title: string }) {
+  const { user } = useAuth();
+  const userName = user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email?.split('@')[0] || 'User' : 'User';
+  
   return (
     <div className="min-h-full">
       {/* Header for other sections */}
       <DashboardHeader 
-        userName="Dr. Amina" 
+        userName={userName} 
         userTitle={`Explore ${title.toLowerCase()} features`}
       />
       
