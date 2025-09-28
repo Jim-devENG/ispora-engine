@@ -45,9 +45,10 @@ This project is automatically deployed to Namecheap hosting via GitHub Actions w
 4. Website is live at [ispora.app](https://ispora.app)
 
 ### 🟢 Deployment Status
-- **Last updated**: $(date)
-- **Status**: Auto-deployment active
+- **Last updated**: Just now
+- **Status**: Auto-deployment active ✅
 - **Live URL**: https://ispora.app
+- **FTP Secrets**: Configured ✅
 
 ## 🔧 Environment Variables
 
