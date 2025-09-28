@@ -35,7 +35,7 @@ interface RegisterData {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // API base URL - you can move this to a config file
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://ispora-backend.railway.app/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://ispora-backend.onrender.com/api';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
