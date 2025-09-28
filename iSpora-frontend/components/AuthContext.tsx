@@ -35,7 +35,7 @@ interface RegisterData {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // API base URL - you can move this to a config file
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://ispora-backend.railway.app/api';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -84,24 +84,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       setIsLoading(true);
       
-      // Mock authentication - accept any email/password for development
-      if (email && password && password.length >= 6) {
-        const mockUser = {
-          id: '1',
-          email: email,
-          firstName: email.split('@')[0] || 'User',
-          lastName: 'User',
-          userType: 'student' as const,
-          username: email.split('@')[0] || 'user'
-        };
-        
-        localStorage.setItem('token', 'mock-token-' + Date.now());
-        localStorage.setItem('user', JSON.stringify(mockUser));
-        setUser(mockUser);
-        return { success: true };
-      }
-      
-      // For other users, try backend API
+      // Try backend API first
       const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: {
@@ -113,11 +96,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const data = await response.json();
 
       if (response.ok) {
-        // Store token and user data
         localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
         setUser(data.user);
         return { success: true };
       } else {
+        // Fallback to mock authentication for development
+        if (email && password && password.length >= 6) {
+          const mockUser = {
+            id: '1',
+            email: email,
+            firstName: email.split('@')[0] || 'User',
+            lastName: 'User',
+            userType: 'student' as const,
+            username: email.split('@')[0] || 'user'
+          };
+          
+          localStorage.setItem('token', 'mock-token-' + Date.now());
+          localStorage.setItem('user', JSON.stringify(mockUser));
+          setUser(mockUser);
+          return { success: true };
+        }
         return { success: false, error: data.error || 'Login failed' };
       }
     } catch (error) {
