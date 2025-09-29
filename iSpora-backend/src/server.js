@@ -56,6 +56,7 @@ const adminRoutes = require('./routes/admin');
 // Import middleware
 const errorHandler = require('./middleware/errorHandler');
 const authMiddleware = require('./middleware/auth');
+const comingSoon = require('./middleware/comingSoon');
 
 // Import services
 const socketService = require('./services/socketService');
@@ -173,6 +174,11 @@ app.use('/api/notification-analytics', notificationAnalyticsRoutes);
 app.use('/api/notification-batches', notificationBatchesRoutes);
 app.use('/api/feed', feedRoutes);
 app.use('/api/admin', adminRoutes);
+
+// Coming Soon gate (place after auth route so login/register still works, 
+// and after protect can set req.user on routes that use it). We mount it late
+// so earlier middleware like CORS and JSON parsing have already run.
+app.use(comingSoon());
 
 // Socket.IO setup
 socketService.initialize(io);
