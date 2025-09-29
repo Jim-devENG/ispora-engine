@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Layout } from "./components/Layout";
 import { ComingSoon } from "./components/ComingSoon";
+import AdminConsole from "./components/AdminConsole";
 import { FeedProvider } from "./components/FeedService";
 import { ProfileProvider } from "./components/ProfileContext";
 import { OnboardingProvider } from "./components/OnboardingContext";
@@ -24,8 +25,11 @@ function DevelopmentMode() {
     const unlockKey = params.get('unlock');
     const configuredKey = import.meta.env.VITE_DEV_KEY;
 
-    const setDevModeAndCleanUrl = () => {
+    const setDevModeAndCleanUrl = (key?: string) => {
       localStorage.setItem('devMode', 'true');
+      if (key) {
+        localStorage.setItem('devKey', key);
+      }
       const url = new URL(window.location.href);
       url.searchParams.delete('unlock');
       window.history.replaceState({}, '', url.toString());
@@ -49,7 +53,7 @@ function DevelopmentMode() {
           headers: { 'X-Dev-Key': key }
         });
         if (res.ok) {
-          setDevModeAndCleanUrl();
+          setDevModeAndCleanUrl(key);
           return true;
         }
       } catch {}
@@ -64,7 +68,7 @@ function DevelopmentMode() {
       }
 
       if (unlockKey && configuredKey && unlockKey === configuredKey) {
-        setDevModeAndCleanUrl();
+        setDevModeAndCleanUrl(unlockKey);
       }
     })();
 
@@ -84,6 +88,13 @@ function DevelopmentMode() {
       } catch {}
     }
   }, []);
+
+  // Route: /admin-console
+  if (window.location.pathname.startsWith('/admin-console')) {
+    return (
+      <AdminConsole />
+    );
+  }
 
   if (showComingSoon) {
     return <ComingSoon />;
