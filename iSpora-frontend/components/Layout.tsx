@@ -16,6 +16,7 @@ import { ProjectDetail } from "./ProjectDetail";
 import { CreateProject } from "./CreateProject";
 import { MyProjects } from "./MyProjects";
 import { OpportunitiesPage } from "./OpportunitiesPage";
+import { AdminDashboard } from "./AdminDashboard";
 import { NavigationProvider, useNavigation } from "./NavigationContext";
 import { ThemeProvider } from "./ThemeProvider";
 import { SessionNotifications } from "./SessionNotifications";
@@ -137,6 +138,8 @@ function MainContent() {
       );
     case 'Opportunities':
       return <OpportunitiesPage />;
+    case 'Admin Dashboard':
+      return <AdminDashboard />;
     case 'Impact Feed':
     case 'Dashboard':
     default:

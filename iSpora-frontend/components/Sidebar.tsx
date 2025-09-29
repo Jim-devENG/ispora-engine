@@ -12,9 +12,11 @@ import {
   ChevronRight,
   Menu,
   Target,
-  UserCheck
+  UserCheck,
+  Shield
 } from "lucide-react";
 import { useNavigation } from "./NavigationContext";
+import { useAuth } from "./AuthContext";
 import { UserProfileDropdown } from "./UserProfileDropdown";
 import { AccountSwitcher } from "./AccountSwitcher";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
@@ -75,6 +77,7 @@ interface SidebarProps {
 
 export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
   const { activeItem, navigate } = useNavigation();
+  const { user } = useAuth();
 
   const mainNavItems = [
     { 
@@ -111,6 +114,15 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
       icon: <Bell className="h-4 w-4" />, 
       label: "Notifications",
       description: "Stay updated with important alerts and messages"
+    },
+  ];
+
+  // Add admin navigation if user is admin
+  const adminNavItems = [
+    { 
+      icon: <Shield className="h-4 w-4" />, 
+      label: "Admin Dashboard",
+      description: "Manage platform, users, and system settings"
     },
   ];
 
@@ -196,6 +208,37 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
           ))}
         </div>
       </nav>
+
+      {/* Admin Navigation - Only show for admin users */}
+      {user?.userType === 'admin' && (
+        <>
+          <div className="px-3">
+            <div className="h-px bg-white/30 w-full"></div>
+          </div>
+          <nav className={`py-3 transition-all duration-300 ${isCollapsed ? 'px-1' : 'px-2'}`}>
+            <div className="space-y-2">
+              {adminNavItems.map((item, index) => (
+                <div
+                  key={index}
+                  className="transition-all duration-200"
+                  style={{
+                    animationDelay: `${(mainNavItems.length + index) * 50}ms`,
+                  }}
+                >
+                  <SidebarItem
+                    icon={item.icon}
+                    label={item.label}
+                    description={item.description}
+                    isActive={activeItem === item.label}
+                    isCollapsed={isCollapsed}
+                    onClick={() => navigate(item.label)}
+                  />
+                </div>
+              ))}
+            </div>
+          </nav>
+        </>
+      )}
 
       {/* Bottom Navigation */}
       <div className={`border-t border-white/20 transition-all duration-300 ${isCollapsed ? 'p-1' : 'p-2'}`}>
