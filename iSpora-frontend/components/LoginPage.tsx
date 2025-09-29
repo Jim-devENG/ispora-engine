@@ -134,14 +134,9 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
       <div className="w-full max-w-sm">
         {/* Logo/Brand */}
         <div className="text-center mb-4">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-[#021ff6] to-[#021ff6]/80 rounded-2xl mb-3 shadow-lg">
-            <div className="flex items-center justify-center">
-              <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
-                <span className="text-[#021ff6] font-bold text-lg">i</span>
-              </div>
-            </div>
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-[#021ff6] rounded-full mb-3 shadow-lg">
+            <span className="text-white font-semibold text-lg">iSpora</span>
           </div>
-          <h1 className="text-2xl font-bold text-[#021ff6] mb-1">iSpora</h1>
           <p className="text-gray-600 text-sm">Connect, Learn, and Grow Together</p>
         </div>
 
