@@ -1,7 +1,32 @@
 import { useState, useEffect, useContext, createContext } from 'react';
 
-// Import the real data from existing components
-const realProjects = [
+// API base URL
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://ispora-backend.onrender.com/api';
+
+// Real-time feed service using backend API
+const fetchFeedItems = async (page = 1, limit = 20) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/feed?page=${page}&limit=${limit}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.success ? data.data : [];
+  } catch (error) {
+    console.error('Failed to fetch feed items:', error);
+    return []; // Return empty array if API fails
+  }
+};
+
+// Mock data fallback (only used if API is completely unavailable)
+const fallbackProjects = [
   {
     id: "proj_stanford_ai_ethics",
     title: "Stanford AI Ethics Mentorship Program",
@@ -1158,24 +1183,47 @@ export function useFeedService() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Initialize feed
-    const items = feedService.getFeedItems();
-    setFeedItems(items);
+    // Load real-time data from API
+    const loadFeedData = async () => {
+      setLoading(true);
+      try {
+        const realData = await fetchFeedItems(1, 50);
+        if (realData.length > 0) {
+          // Use real data from backend
+          setFeedItems(realData);
+        } else {
+          // If no real data, show empty feed
+          setFeedItems([]);
+        }
+      } catch (error) {
+        console.error('Failed to load feed data:', error);
+        // On error, show empty feed instead of mock data
+        setFeedItems([]);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    // Subscribe to updates
-    const unsubscribe = feedService.subscribe(() => {
-      const updatedItems = feedService.getFeedItems();
-      setFeedItems(updatedItems);
-    });
+    loadFeedData();
 
-    return unsubscribe;
-  }, [feedService]);
+    // Set up polling for real-time updates (every 30 seconds)
+    const interval = setInterval(loadFeedData, 30000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const refreshFeed = async (options?: Parameters<typeof feedService.getFeedItems>[0]) => {
     setLoading(true);
     try {
-      const items = feedService.getFeedItems(options);
-      setFeedItems(items);
+      const realData = await fetchFeedItems(1, 50);
+      if (realData.length > 0) {
+        setFeedItems(realData);
+      } else {
+        setFeedItems([]);
+      }
+    } catch (error) {
+      console.error('Failed to refresh feed:', error);
+      setFeedItems([]);
     } finally {
       setLoading(false);
     }

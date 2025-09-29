@@ -1450,6 +1450,43 @@ function DashboardContent() {
             <PullToRefresh onRefresh={handleRefresh} isRefreshing={isRefreshing}>
               <div className="h-full w-full overflow-y-auto scrollbar-thin">
                 <div className="space-y-6 p-6">
+                  {/* Empty state when no real data */}
+                  {filteredFeedItems.length === 0 && !loading && (
+                    <div className="flex flex-col items-center justify-center py-16 text-center">
+                      <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-6">
+                        <BookOpen className="h-12 w-12 text-gray-400" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2">No Stories Yet</h3>
+                      <p className="text-gray-600 mb-6 max-w-md">
+                        The feed is empty because there's no real data yet. Once users start creating projects and opportunities, 
+                        their stories will appear here in real-time.
+                      </p>
+                      <div className="flex gap-3">
+                        <Button 
+                          onClick={() => navigate('Create Project')}
+                          className="bg-[#021ff6] hover:bg-[#021ff6]/90"
+                        >
+                          <Plus className="h-4 w-4 mr-2" />
+                          Create First Project
+                        </Button>
+                        <Button 
+                          variant="outline"
+                          onClick={() => navigate('Opportunities')}
+                        >
+                          Browse Opportunities
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Loading state */}
+                  {loading && (
+                    <div className="flex flex-col items-center justify-center py-16">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#021ff6] mb-4"></div>
+                      <p className="text-gray-600">Loading real-time stories...</p>
+                    </div>
+                  )}
+
                   {filteredFeedItems.slice(0, displayedPosts).map((post) => {
                     const story = getStoryNarrative(post);
                     const isOwnContent = post.authorId === CURRENT_USER_ID;
