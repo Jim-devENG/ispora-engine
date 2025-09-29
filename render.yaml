@@ -11,11 +11,17 @@ services:
         value: production
       - key: PORT
         value: 10000
+      - key: COMING_SOON
+        value: true
+      - key: DEV_ACCESS_KEY
+        value: CHANGE_ME_STRONG_KEY
       - key: DB_CLIENT
         value: sqlite3
       - key: DB_FILENAME
         value: ./data/ispora.db
       - key: JWT_SECRET
         generateValue: true
+      - key: FRONTEND_URL
+        value: https://ispora.app
       - key: CORS_ORIGIN
         value: https://ispora.app
