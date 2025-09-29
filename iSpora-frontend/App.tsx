@@ -24,13 +24,38 @@ function DevelopmentMode() {
     const unlockKey = params.get('unlock');
     const configuredKey = import.meta.env.VITE_DEV_KEY;
 
-    if (unlockKey && configuredKey && unlockKey === configuredKey) {
+    const setDevModeAndCleanUrl = () => {
       localStorage.setItem('devMode', 'true');
-      // remove query from URL without reload
       const url = new URL(window.location.href);
       url.searchParams.delete('unlock');
       window.history.replaceState({}, '', url.toString());
-    }
+      setShowComingSoon(false);
+    };
+
+    const tryBackendVerify = async (key) => {
+      try {
+        const res = await fetch((import.meta.env.VITE_API_URL || 'https://ispora-backend.onrender.com/api').replace(/\/$/, '') + '/dev/verify', {
+          headers: { 'X-Dev-Key': key }
+        });
+        if (res.ok) {
+          setDevModeAndCleanUrl();
+          return true;
+        }
+      } catch {}
+      return false;
+    };
+
+    (async () => {
+      if (unlockKey) {
+        // Prefer backend verification using header so frontend env key is not required
+        const ok = await tryBackendVerify(unlockKey);
+        if (ok) return;
+      }
+
+      if (unlockKey && configuredKey && unlockKey === configuredKey) {
+        setDevModeAndCleanUrl();
+      }
+    })();
 
     const isDevMode = localStorage.getItem('devMode') === 'true';
     if (isDevMode) {
