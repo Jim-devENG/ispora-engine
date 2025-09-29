@@ -899,6 +899,21 @@ function DashboardContent() {
   // Use the feed service for dynamic feed management
   const { feedItems, loading, refreshFeed, recordUserAction } = useFeedService();
   
+  // Filter feed items based on search query
+  const filteredFeedItems = feedItems.filter(post => {
+    if (!searchQuery.trim()) return true;
+    
+    const query = searchQuery.toLowerCase();
+    return (
+      post.title.toLowerCase().includes(query) ||
+      post.description.toLowerCase().includes(query) ||
+      post.authorName.toLowerCase().includes(query) ||
+      post.category.toLowerCase().includes(query) ||
+      post.location.toLowerCase().includes(query) ||
+      post.type.toLowerCase().includes(query)
+    );
+  });
+  
   const getPostIcon = (type: string) => {
     switch (type) {
       case 'project': return <Rocket className="h-5 w-5 text-[#021ff6]" />;
@@ -1231,7 +1246,7 @@ function DashboardContent() {
     
     // Simulate loading delay
     setTimeout(() => {
-      setDisplayedPosts(prev => Math.min(prev + 6, feedItems.length));
+      setDisplayedPosts(prev => Math.min(prev + 6, filteredFeedItems.length));
       setIsLoadingMore(false);
     }, 1000);
   };
@@ -1435,7 +1450,7 @@ function DashboardContent() {
             <PullToRefresh onRefresh={handleRefresh} isRefreshing={isRefreshing}>
               <div className="h-full w-full overflow-y-auto scrollbar-thin">
                 <div className="space-y-6 p-6">
-                  {feedItems.slice(0, displayedPosts).map((post) => {
+                  {filteredFeedItems.slice(0, displayedPosts).map((post) => {
                     const story = getStoryNarrative(post);
                     const isOwnContent = post.authorId === CURRENT_USER_ID;
                     const isLiked = likedPosts.has(post.id);
@@ -1627,7 +1642,7 @@ function DashboardContent() {
                   })}
                   
                   {/* Load more indicator */}
-                  {displayedPosts < feedItems.length && (
+                  {displayedPosts < filteredFeedItems.length && (
                     <div className="flex justify-center py-8">
                       <Button 
                         variant="outline" 
@@ -1643,7 +1658,7 @@ function DashboardContent() {
                         ) : (
                           <>
                             <BookOpen className="h-4 w-4 mr-2" />
-                            Discover More Stories ({feedItems.length - displayedPosts} remaining)
+                            Discover More Stories ({filteredFeedItems.length - displayedPosts} remaining)
                           </>
                         )}
                       </Button>
@@ -1651,7 +1666,7 @@ function DashboardContent() {
                   )}
                   
                   {/* End of feed indicator */}
-                  {displayedPosts >= feedItems.length && (
+                  {displayedPosts >= filteredFeedItems.length && (
                     <div className="flex justify-center py-8">
                       <div className="text-center text-gray-500">
                         <CheckCircle2 className="h-8 w-8 mx-auto mb-3 text-green-500" />
