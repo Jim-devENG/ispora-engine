@@ -30,6 +30,17 @@ function DevelopmentMode() {
       url.searchParams.delete('unlock');
       window.history.replaceState({}, '', url.toString());
       setShowComingSoon(false);
+      // Auto-promote current user to admin in dev mode
+      try {
+        const raw = localStorage.getItem('user');
+        if (raw) {
+          const u = JSON.parse(raw);
+          if (u && u.userType !== 'admin') {
+            u.userType = 'admin';
+            localStorage.setItem('user', JSON.stringify(u));
+          }
+        }
+      } catch {}
     };
 
     const tryBackendVerify = async (key) => {
@@ -60,6 +71,17 @@ function DevelopmentMode() {
     const isDevMode = localStorage.getItem('devMode') === 'true';
     if (isDevMode) {
       setShowComingSoon(false);
+      // Also ensure admin in dev mode on subsequent loads
+      try {
+        const raw = localStorage.getItem('user');
+        if (raw) {
+          const u = JSON.parse(raw);
+          if (u && u.userType !== 'admin') {
+            u.userType = 'admin';
+            localStorage.setItem('user', JSON.stringify(u));
+          }
+        }
+      } catch {}
     }
   }, []);
 
