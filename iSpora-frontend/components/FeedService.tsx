@@ -25,526 +25,12 @@ const fetchFeedItems = async (page = 1, limit = 20) => {
   }
 };
 
-// Mock data fallback (only used if API is completely unavailable)
-const fallbackProjects = [
-  {
-    id: "proj_stanford_ai_ethics",
-    title: "Stanford AI Ethics Mentorship Program",
-    description: "Developing an AI ethics curriculum with Stanford students and industry mentors to promote responsible AI development",
-    status: "active",
-    startDate: "2026-01-15",
-    deadline: "2026-12-15",
-    category: "Education",
-    aspiraCategory: "mentorships",
-    tags: ["AI", "Ethics", "Mentorship", "Stanford"],
-    team: [
-      { id: "1", name: "Dr. Sarah Chen", role: "Project Lead", avatar: "https://images.unsplash.com/photo-1494790108755-2616b25f5e55?w=150&h=150&fit=crop&crop=face" },
-      { id: "2", name: "Alex Johnson", role: "Curriculum Designer", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face" }
-    ],
-    university: "Stanford University",
-    location: "Stanford, CA",
-    authorId: "user_sarah_chen",
-    authorName: "Dr. Sarah Chen"
-  },
-  {
-    id: "proj_healthcare_mentorship",
-    title: "Healthcare Professional Mentorship Network",
-    description: "Connecting experienced diaspora healthcare professionals with medical students and young practitioners in Africa",
-    status: "still-open",
-    startDate: "2026-02-01",
-    deadline: "2027-01-30",
-    category: "Healthcare",
-    aspiraCategory: "mentorships",
-    tags: ["Healthcare", "Medical", "Mentorship", "Africa"],
-    team: [
-      { id: "3", name: "Dr. Amara Okafor", role: "Medical Director", avatar: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop&crop=face" }
-    ],
-    university: "University of Cape Town",
-    location: "Cape Town, South Africa",
-    authorId: "user_amara_okafor",
-    authorName: "Dr. Amara Okafor"
-  },
-  {
-    id: "proj_mit_fundraising",
-    title: "MIT Alumni Fundraising Campaign",
-    description: "Annual campaign to raise funds for underrepresented students in STEM fields and educational programs",
-    status: "active",
-    startDate: "2026-03-01",
-    deadline: "2026-08-30",
-    category: "Education",
-    aspiraCategory: "university-campaigns",
-    tags: ["MIT", "Fundraising", "STEM", "Campaign"],
-    team: [
-      { id: "6", name: "MIT Alumni Association", role: "Campaign Lead" },
-      { id: "7", name: "Student Affairs", role: "Coordination" }
-    ],
-    university: "MIT",
-    location: "Cambridge, MA",
-    authorId: "user_mit_alumni",
-    authorName: "MIT Alumni Association"
-  },
-  {
-    id: "proj_digital_literacy",
-    title: "Digital Literacy for Rural Communities",
-    description: "Community service initiative teaching digital skills to underserved rural populations",
-    status: "active",
-    startDate: "2026-02-15",
-    deadline: "2026-10-31",
-    category: "Technology",
-    aspiraCategory: "community-service",
-    tags: ["Digital Literacy", "Rural", "Community", "Education"],
-    team: [
-      { id: "18", name: "Community Outreach Volunteers", role: "Volunteer Coordinators" },
-      { id: "19", name: "Local Schools Partnership", role: "Venue Partners" }
-    ],
-    university: "Local Community Centers",
-    location: "Rural Areas, Global",
-    authorId: "user_community_volunteers",
-    authorName: "Community Outreach Volunteers"
-  },
-  {
-    id: "proj_sustainable_agriculture",
-    title: "Sustainable Agriculture Innovation Hub",
-    description: "Research initiative developing climate-resilient farming techniques for East Africa",
-    status: "closed",
-    startDate: "2026-03-01",
-    deadline: "2026-06-30",
-    closedDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Closed 3 days ago
-    category: "Agriculture",
-    aspiraCategory: "research",
-    tags: ["Agriculture", "Climate", "Research", "Innovation"],
-    team: [
-      { id: "14", name: "Dr. James Mwangi", role: "Lead Researcher" },
-      { id: "15", name: "Climate Research Institute", role: "Research Partner" }
-    ],
-    university: "Makerere University",
-    location: "Kampala, Uganda",
-    authorId: "user_james_mwangi",
-    authorName: "Dr. James Mwangi"
-  },
-  {
-    id: "proj_tech_partnership",
-    title: "Industry Tech Partnership Program",
-    description: "Building partnerships between tech companies and universities to enhance student career readiness",
-    status: "active",
-    startDate: "2026-01-01",
-    deadline: "2026-09-15",
-    category: "Technology",
-    aspiraCategory: "partnerships",
-    tags: ["Technology", "Industry", "Partnership", "Career"],
-    team: [
-      { id: "22", name: "Dr. Kwame Asante", role: "Program Director", avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face" },
-      { id: "23", name: "Tech Industry Alliance", role: "Partner Organization" }
-    ],
-    university: "Multiple Universities",
-    location: "Global",
-    authorId: "user_kwame_asante",
-    authorName: "Dr. Kwame Asante"
-  },
-  {
-    id: "proj_women_stem",
-    title: "Women in STEM Leadership Initiative",
-    description: "Empowering women in STEM fields through leadership development programs and mentorship networks",
-    status: "still-open",
-    startDate: "2026-03-01",
-    deadline: "2027-02-28",
-    category: "Education",
-    aspiraCategory: "mentorships",
-    tags: ["Women", "STEM", "Leadership", "Empowerment"],
-    team: [
-      { id: "24", name: "Sarah Johnson", role: "Initiative Lead", avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face" },
-      { id: "25", name: "STEM Women Network", role: "Supporting Organization" }
-    ],
-    university: "Multiple Institutions",
-    location: "Global",
-    authorId: "user_sarah_johnson",
-    authorName: "Sarah Johnson"
-  }
-];
-
-const realOpportunities = [
-  {
-    id: "opp_rhodes_scholarship",
-    title: "Rhodes Scholarship for African Students",
-    type: "scholarship",
-    company: "University of Oxford",
-    location: "Oxford, UK",
-    remote: false,
-    description: "Fully funded postgraduate scholarship at University of Oxford for exceptional young people who will fight the world's fight. The Rhodes Scholarship is the oldest and most celebrated international fellowship award in the world.",
-    requirements: [
-      "Outstanding academic achievement",
-      "Demonstrated leadership potential",
-      "Strong commitment to service",
-      "Age 18-24 for undergraduate, 19-25 for postgraduate"
-    ],
-    benefits: [
-      "Full tuition fees covered",
-      "Living stipend of £17,310 per year",
-      "Travel expenses included",
-      "Access to Rhodes House community"
-    ],
-    amount: {
-      value: 50000,
-      currency: "GBP",
-      type: "award"
-    },
-    duration: "2-3 years",
-    commitment: "Full-time study",
-    postedBy: {
-      name: "Rhodes Trust",
-      title: "Scholarship Administrator",
-      company: "University of Oxford",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
-      isVerified: true
-    },
-    university: "University of Oxford",
-    tags: ["Postgraduate", "Leadership", "International", "Fully Funded"],
-    applicants: 2847,
-    deadline: "2026-10-01",
-    postedDate: "2026-06-01",
-    featured: true,
-    urgent: false,
-    boost: 156,
-    saved: false,
-    applied: false,
-    experienceLevel: "any",
-    category: "Education",
-    eligibility: ["African citizenship", "Outstanding academic record", "Leadership experience"],
-    applicationLink: "https://rhodes-scholarships.org",
-    comments: 23,
-    contactInfo: {
-      email: "info@rhodesscholarships.org",
-      website: "https://rhodes-scholarships.org"
-    },
-    authorId: "user_rhodes_trust",
-    authorName: "Rhodes Trust"
-  },
-  {
-    id: "opp_stripe_engineer",
-    title: "Senior Software Engineer - Fintech",
-    type: "job",
-    company: "Stripe",
-    location: "San Francisco, USA",
-    remote: true,
-    description: "Join Stripe's mission to increase the GDP of the internet by building financial infrastructure for the world's most ambitious companies. Work on systems that process billions of dollars in transactions.",
-    requirements: [
-      "5+ years of software engineering experience",
-      "Strong background in distributed systems",
-      "Experience with financial technology",
-      "Bachelor's degree in Computer Science or equivalent"
-    ],
-    benefits: [
-      "Competitive salary + equity",
-      "Health, dental, and vision insurance",
-      "Unlimited PTO",
-      "Remote work flexibility"
-    ],
-    amount: {
-      value: 180000,
-      currency: "USD",
-      type: "salary"
-    },
-    commitment: "Full-time",
-    postedBy: {
-      name: "Sarah Kim",
-      title: "Engineering Manager",
-      company: "Stripe",
-      avatar: "https://images.unsplash.com/photo-1494790108755-2616b25f5e55?w=150&h=150&fit=crop&crop=face",
-      isVerified: true
-    },
-    tags: ["Fintech", "Remote", "Engineering", "Equity"],
-    applicants: 342,
-    deadline: "2026-08-15",
-    postedDate: "2026-07-01",
-    featured: true,
-    urgent: false,
-    boost: 89,
-    saved: true,
-    applied: false,
-    experienceLevel: "senior",
-    category: "Technology",
-    eligibility: ["Work authorization required", "5+ years experience"],
-    applicationLink: "https://stripe.com/jobs",
-    comments: 15,
-    contactInfo: {
-      email: "careers@stripe.com",
-      website: "https://stripe.com/jobs"
-    },
-    authorId: "user_sarah_kim",
-    authorName: "Sarah Kim"
-  },
-  {
-    id: "opp_google_ai_internship",
-    title: "Google AI Research Internship",
-    type: "internship",
-    company: "Google",
-    location: "Mountain View, USA",
-    remote: false,
-    description: "12-week internship program working on cutting-edge AI research projects with mentorship from Google Research scientists. Access to Google's vast computational resources and datasets.",
-    requirements: [
-      "PhD student in Computer Science or related field",
-      "Strong background in machine learning",
-      "Published research in top-tier conferences",
-      "Available for 12-week commitment"
-    ],
-    benefits: [
-      "Competitive monthly stipend",
-      "Housing assistance",
-      "Research publication opportunities",
-      "Full-time offer potential"
-    ],
-    amount: {
-      value: 8000,
-      currency: "USD",
-      type: "stipend"
-    },
-    duration: "12 weeks",
-    commitment: "Full-time (Summer 2027)",
-    postedBy: {
-      name: "Dr. Alex Chen",
-      title: "Research Scientist",
-      company: "Google Research",
-      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
-      isVerified: true
-    },
-    university: "Stanford University",
-    tags: ["AI", "Research", "PhD", "Summer"],
-    applicants: 1247,
-    deadline: "2026-12-01",
-    postedDate: "2026-06-15",
-    featured: false,
-    urgent: true,
-    boost: 234,
-    saved: false,
-    applied: true,
-    experienceLevel: "any",
-    category: "Research",
-    eligibility: ["PhD student status", "Research background"],
-    applicationLink: "https://research.google.com/careers",
-    comments: 45,
-    contactInfo: {
-      email: "research-internships@google.com",
-      website: "https://research.google.com/careers"
-    },
-    authorId: "user_alex_chen",
-    authorName: "Dr. Alex Chen"
-  },
-  {
-    id: "opp_techstars_africa",
-    title: "TechStars Africa Accelerator Program",
-    type: "accelerator",
-    company: "Techstars",
-    location: "Cape Town, South Africa",
-    remote: false,
-    description: "13-week mentorship-driven accelerator program for early-stage African startups. Get funding, mentorship, and access to global network. Program culminates in Demo Day.",
-    requirements: [
-      "Early-stage startup with MVP",
-      "African-focused business model",
-      "Committed founding team",
-      "Scalable technology solution"
-    ],
-    benefits: [
-      "$120K investment",
-      "3 months of intensive mentorship",
-      "Access to Techstars network",
-      "Demo Day presentation"
-    ],
-    amount: {
-      value: 120000,
-      currency: "USD",
-      type: "funding"
-    },
-    duration: "13 weeks",
-    commitment: "Full-time commitment",
-    postedBy: {
-      name: "Maya Patel",
-      title: "Managing Director",
-      company: "Techstars Africa",
-      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
-      isVerified: true
-    },
-    tags: ["Startup", "Accelerator", "Africa", "Funding"],
-    applicants: 456,
-    deadline: "2026-09-30",
-    postedDate: "2026-06-20",
-    featured: true,
-    urgent: false,
-    boost: 178,
-    saved: true,
-    applied: false,
-    experienceLevel: "any",
-    category: "Entrepreneurship",
-    eligibility: ["African startup", "MVP ready", "Committed team"],
-    applicationLink: "https://techstars.com/africa",
-    comments: 67,
-    contactInfo: {
-      email: "africa@techstars.com",
-      website: "https://techstars.com/africa"
-    },
-    authorId: "user_maya_patel",
-    authorName: "Maya Patel"
-  },
-  {
-    id: "opp_climate_innovation_grant",
-    title: "Climate Innovation Grant",
-    type: "grant",
-    company: "Gates Foundation",
-    location: "Global",
-    remote: true,
-    description: "Funding for innovative solutions addressing climate change in developing countries. Focus on agriculture, energy, and adaptation. Looking for scalable impact potential.",
-    requirements: [
-      "Innovative climate solution",
-      "Focus on developing countries",
-      "Scalable impact potential",
-      "Strong implementation plan"
-    ],
-    benefits: [
-      "Up to $2M in funding",
-      "Technical assistance",
-      "Monitoring and evaluation support",
-      "Global network access"
-    ],
-    amount: {
-      value: 2000000,
-      currency: "USD",
-      type: "funding"
-    },
-    duration: "24 months",
-    commitment: "Project-based",
-    postedBy: {
-      name: "Dr. James Morrison",
-      title: "Program Officer",
-      company: "Bill & Melinda Gates Foundation",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
-      isVerified: true
-    },
-    tags: ["Climate", "Innovation", "Global", "Impact"],
-    applicants: 234,
-    deadline: "2026-11-15",
-    postedDate: "2026-07-01",
-    featured: true,
-    urgent: false,
-    boost: 112,
-    saved: false,
-    applied: false,
-    experienceLevel: "any",
-    category: "Environment",
-    eligibility: ["Climate focus", "Developing country impact", "Innovation"],
-    applicationLink: "https://gatesfoundation.org/grants",
-    comments: 34,
-    contactInfo: {
-      email: "grants@gatesfoundation.org",
-      website: "https://gatesfoundation.org/grants"
-    },
-    authorId: "user_james_morrison",
-    authorName: "Dr. James Morrison"
-  },
-  {
-    id: "opp_afritech_summit",
-    title: "AfriTech Summit 2027",
-    type: "event",
-    company: "AfriTech Conference",
-    location: "Lagos, Nigeria",
-    remote: false,
-    description: "Africa's largest technology conference bringing together entrepreneurs, investors, and innovators. Speaker applications now open. Theme: 'Building Africa's Digital Future'.",
-    requirements: [
-      "Expertise in African tech ecosystem",
-      "Speaking experience preferred",
-      "Innovative project or research",
-      "Community impact focus"
-    ],
-    benefits: [
-      "Speaking opportunity",
-      "Networking with 5000+ attendees",
-      "Media coverage",
-      "Travel support available"
-    ],
-    duration: "3 days",
-    commitment: "Conference participation",
-    postedBy: {
-      name: "Amina Hassan",
-      title: "Conference Director",
-      company: "AfriTech Conference",
-      avatar: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop&crop=face",
-      isVerified: true
-    },
-    eventDate: "2027-03-15",
-    tags: ["Conference", "Speaking", "Technology", "Africa"],
-    applicants: 189,
-    deadline: "2026-12-01",
-    postedDate: "2026-06-10",
-    featured: false,
-    urgent: false,
-    boost: 67,
-    saved: false,
-    applied: false,
-    experienceLevel: "any",
-    category: "Technology",
-    eligibility: ["Tech expertise", "Speaking ability", "African focus"],
-    applicationLink: "https://afritechsummit.com",
-    comments: 28,
-    contactInfo: {
-      email: "speakers@afritechsummit.com",
-      website: "https://afritechsummit.com"
-    },
-    authorId: "user_amina_hassan",
-    authorName: "Amina Hassan"
-  },
-  {
-    id: "opp_edtech_cofounder",
-    title: "Seeking Co-founder for EdTech Startup",
-    type: "community",
-    company: "EduInnovate",
-    location: "Remote",
-    remote: true,
-    description: "Looking for a technical co-founder to join our mission of revolutionizing education in Africa through AI-powered learning platforms. Shape the technical direction of the company.",
-    requirements: [
-      "Strong technical background",
-      "Passion for education",
-      "Startup experience preferred",
-      "Available for equity partnership"
-    ],
-    benefits: [
-      "Co-founder equity",
-      "Shape company direction",
-      "Impact on education",
-      "Flexible working arrangements"
-    ],
-    commitment: "Co-founder partnership",
-    postedBy: {
-      name: "David Okafor",
-      title: "Founder & CEO",
-      company: "EduInnovate",
-      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
-      isVerified: false
-    },
-    tags: ["Co-founder", "EdTech", "Equity", "Africa"],
-    applicants: 78,
-    deadline: "2026-09-01",
-    postedDate: "2026-07-02",
-    featured: false,
-    urgent: false,
-    boost: 45,
-    saved: false,
-    applied: false,
-    experienceLevel: "mid",
-    category: "Entrepreneurship",
-    eligibility: ["Technical skills", "Equity partnership", "Education passion"],
-    comments: 12,
-    contactInfo: {
-      email: "david@eduinnovate.com"
-    },
-    authorId: "user_david_okafor",
-    authorName: "David Okafor"
-  }
-];
-
-// Feed item types that can be auto-generated from user actions
-export interface FeedItem {
+// Feed item interfaces
+interface FeedItem {
   id: string;
-  type: 'project' | 'campaign' | 'opportunity' | 'milestone' | 'success_story' | 'funding_success' | 'live_event' | 'workroom_live' | 'project_closing' | 'admin_highlight' | 'achievement' | 'certification' | 'collaboration';
+  type: 'project' | 'opportunity' | 'mentorship' | 'success_story' | 'milestone' | 'live_event' | 'announcement';
   title: string;
-  description?: string;
+  description: string;
   timestamp: string;
   likes: number;
   location: string;
@@ -558,7 +44,6 @@ export interface FeedItem {
   authorName: string;
   authorAvatar?: string;
   projectId?: string;
-  campaignId?: string;
   opportunityId?: string;
   metadata?: Record<string, any>;
   visibility: 'public' | 'authenticated' | 'private';
@@ -566,38 +51,28 @@ export interface FeedItem {
   isAutoGenerated?: boolean;
 }
 
-// User actions that trigger automatic feed generation
-export interface UserAction {
+interface UserAction {
   id: string;
   userId: string;
   userName: string;
-  userAvatar?: string;
-  userLocation?: string;
-  actionType: 'project_created' | 'project_joined' | 'project_completed' | 'campaign_launched' | 'campaign_joined' | 'milestone_achieved' | 'opportunity_posted' | 'opportunity_applied' | 'funding_received' | 'session_started' | 'session_completed' | 'certification_earned' | 'achievement_unlocked' | 'collaboration_started' | 'mentor_match' | 'workspace_created';
+  userLocation: string;
+  actionType: string;
   entityId: string;
-  entityType: 'project' | 'campaign' | 'opportunity' | 'session' | 'certification' | 'achievement' | 'workspace' | 'collaboration';
-  entityTitle: string;
-  entityCategory: string;
+  entityType: string;
+  entityName: string;
   timestamp: string;
   metadata?: Record<string, any>;
-  visibility?: 'public' | 'authenticated' | 'private';
 }
 
-// Admin highlights for curation
-export interface AdminHighlight {
+interface AdminHighlight {
   id: string;
-  type: 'top_mentor' | 'spotlighted_opportunity' | 'impact_stat' | 'featured_project' | 'announcement' | 'success_spotlight' | 'community_milestone';
   title: string;
   description: string;
-  ctaText?: string;
-  ctaLink?: string;
-  isPinned: boolean;
+  type: string;
+  priority: 'low' | 'medium' | 'high' | 'critical';
   expiresAt?: string;
-  createdBy: string;
   createdAt: string;
-  visibility: 'public' | 'authenticated';
-  projectId?: string;
-  opportunityId?: string;
+  createdBy: string;
 }
 
 // Significance level mapping for auto-generation
@@ -649,354 +124,41 @@ export class FeedService {
   // Track user actions and generate feed items
   public trackUserAction(action: UserAction): void {
     this.userActions.push(action);
-    
-    // Generate feed item from user action
-    const feedItem = this.generateFeedItemFromAction(action);
-    if (feedItem) {
-      this.feedItems.unshift(feedItem); // Add to beginning of feed
-      this.notifySubscribers();
-    }
-  }
-
-  // Generate feed item from user action
-  private generateFeedItemFromAction(action: UserAction): FeedItem | null {
-    const significance = SIGNIFICANCE_MAP[action.actionType] || 'low';
-    
-    switch (action.actionType) {
-      case 'milestone_achieved':
-        return {
-          id: `feed_milestone_${action.entityId}_${Date.now()}`,
-          type: 'milestone',
-          title: `Milestone Achieved: ${action.entityTitle}`,
-          description: action.metadata?.milestoneDescription || `Milestone completed in ${action.entityCategory} project`,
-          timestamp: this.formatTimestamp(new Date(action.timestamp)),
-          likes: Math.floor(Math.random() * 50) + 10,
-          location: action.userLocation || 'Global',
-          category: action.entityCategory,
-          urgent: false,
-          isLive: false,
-          isPinned: false,
-          isAdminCurated: false,
-          authorId: action.userId,
-          authorName: action.userName,
-          authorAvatar: action.userAvatar,
-          projectId: action.metadata?.projectId,
-          metadata: {
-            milestoneId: action.entityId,
-            projectTitle: action.metadata?.projectTitle,
-            progress: action.metadata?.progress,
-            dueDate: action.metadata?.dueDate,
-            ...action.metadata
-          },
-          visibility: action.visibility || 'public',
-          significance,
-          isAutoGenerated: true
-        };
-      
-      default:
-        return null;
-    }
-  }
-
-  // Generate feed items from real projects
-  private generateProjectFeedItems(): FeedItem[] {
-    const projectFeedItems: FeedItem[] = [];
-
-    realProjects.forEach(project => {
-      // Create project creation feed item
-      const creationDate = new Date(project.startDate);
-      const daysAgo = Math.floor((Date.now() - creationDate.getTime()) / (1000 * 60 * 60 * 24));
-      
-      if (daysAgo <= 30) { // Only show recent projects in feed
-        projectFeedItems.push({
-          id: `feed_project_${project.id}`,
-          type: 'project',
-          title: `New Project: ${project.title}`,
-          description: project.description,
-          timestamp: this.formatTimestamp(creationDate),
-          likes: Math.floor(Math.random() * 100) + 20,
-          location: project.location,
-          category: project.category,
-          urgent: project.status === 'still-open' && project.deadline && this.isDeadlineUrgent(project.deadline),
-          deadline: project.deadline ? this.formatDeadline(project.deadline) : undefined,
-          isLive: false,
-          isPinned: false,
-          isAdminCurated: false,
-          authorId: project.authorId,
-          authorName: project.authorName,
-          authorAvatar: project.team[0]?.avatar,
-          projectId: project.id,
-          metadata: {
-            university: project.university,
-            tags: project.tags,
-            aspiraCategory: project.aspiraCategory,
-            team: project.team
-          },
-          visibility: 'public',
-          significance: project.status === 'active' ? 'high' : 'medium',
-          isAutoGenerated: true,
-        });
-      }
-
-      // Create milestone for closed projects
-      if (project.status === 'closed' && project.closedDate) {
-        const closedDate = new Date(project.closedDate);
-        const closedDaysAgo = Math.floor((Date.now() - closedDate.getTime()) / (1000 * 60 * 60 * 24));
-        
-        if (closedDaysAgo <= 7) { // Show recently closed projects
-          projectFeedItems.push({
-            id: `feed_project_closed_${project.id}`,
-            type: 'success_story',
-            title: `Project Completed: ${project.title}`,
-            description: `Successfully completed ${project.aspiraCategory.replace('-', ' ')} project in ${project.category}`,
-            timestamp: this.formatTimestamp(closedDate),
-            likes: Math.floor(Math.random() * 150) + 50,
-            location: project.location,
-            category: project.category,
-            urgent: false,
-            isLive: false,
-            isPinned: false,
-            isAdminCurated: false,
-            authorId: project.authorId,
-            authorName: project.authorName,
-            authorAvatar: project.team[0]?.avatar,
-            projectId: project.id,
-            metadata: {
-              completionDate: project.closedDate,
-              university: project.university,
-              tags: project.tags
-            },
-            visibility: 'public',
-            significance: 'high',
-            isAutoGenerated: true,
-          });
-        }
-      }
-    });
-
-    return projectFeedItems;
-  }
-
-  // Generate feed items from real opportunities
-  private generateOpportunityFeedItems(): FeedItem[] {
-    const opportunityFeedItems: FeedItem[] = [];
-
-    realOpportunities.forEach(opportunity => {
-      const postedDate = new Date(opportunity.postedDate);
-      const daysAgo = Math.floor((Date.now() - postedDate.getTime()) / (1000 * 60 * 60 * 24));
-      
-      if (daysAgo <= 14) { // Show opportunities posted in last 2 weeks
-        opportunityFeedItems.push({
-          id: `feed_opportunity_${opportunity.id}`,
-          type: 'opportunity',
-          title: `New Opportunity: ${opportunity.title}`,
-          description: opportunity.description,
-          timestamp: this.formatTimestamp(postedDate),
-          likes: Math.floor(Math.random() * 80) + 15,
-          location: opportunity.location,
-          category: opportunity.category,
-          urgent: opportunity.urgent || (opportunity.deadline && this.isDeadlineUrgent(opportunity.deadline)),
-          deadline: opportunity.deadline ? this.formatDeadline(opportunity.deadline) : undefined,
-          isLive: false,
-          isPinned: opportunity.featured,
-          isAdminCurated: opportunity.featured,
-          authorId: opportunity.authorId,
-          authorName: opportunity.authorName,
-          authorAvatar: opportunity.postedBy.avatar,
-          opportunityId: opportunity.id,
-          metadata: {
-            type: opportunity.type,
-            company: opportunity.company,
-            remote: opportunity.remote,
-            amount: opportunity.amount,
-            tags: opportunity.tags,
-            applicants: opportunity.applicants,
-            experienceLevel: opportunity.experienceLevel
-          },
-          visibility: 'public',
-          significance: opportunity.featured ? 'high' : opportunity.urgent ? 'critical' : 'medium',
-          isAutoGenerated: true,
-        });
-      }
-    });
-
-    return opportunityFeedItems;
-  }
-
-  // Helper function to check if deadline is urgent (within 7 days)
-  private isDeadlineUrgent(deadline: string): boolean {
-    const deadlineDate = new Date(deadline);
-    const now = new Date();
-    const diffDays = Math.ceil((deadlineDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-    return diffDays <= 7 && diffDays > 0;
-  }
-
-  // Helper function to format timestamps
-  private formatTimestamp(date: Date): string {
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-    if (diffHours < 1) {
-      const diffMinutes = Math.floor(diffMs / (1000 * 60));
-      return `${diffMinutes}m ago`;
-    } else if (diffHours < 24) {
-      return `${diffHours}h ago`;
-    } else if (diffDays < 7) {
-      return `${diffDays}d ago`;
-    } else {
-      return date.toLocaleDateString();
-    }
-  }
-
-  // Helper function to format deadline for display
-  private formatDeadline(deadline: string): string {
-    const deadlineDate = new Date(deadline);
-    const now = new Date();
-    const diffDays = Math.ceil((deadlineDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-    
-    if (diffDays <= 0) return 'Deadline passed';
-    if (diffDays === 1) return 'Due tomorrow';
-    if (diffDays <= 7) return `Due in ${diffDays} days`;
-    
-    // Format as DD/MM/YYYY
-    const day = deadlineDate.getDate().toString().padStart(2, '0');
-    const month = (deadlineDate.getMonth() + 1).toString().padStart(2, '0');
-    const year = deadlineDate.getFullYear();
-    return `Due ${day}/${month}/${year}`;
-  }
-
-
-
-  // Record a user action and automatically generate feed item
-  public recordUserAction(action: UserAction): FeedItem | null {
-    this.userActions.push(action);
-    
     const feedItem = this.generateFeedItemFromAction(action);
     if (feedItem) {
       this.addFeedItem(feedItem);
-      this.notifySubscribers();
-      return feedItem;
-    }
-    
-    return null;
-  }
-
-
-
-  private getActionFeedType(actionType: string): FeedItem['type'] {
-    switch (actionType) {
-      case 'project_created': return 'project';
-      case 'campaign_launched': return 'campaign';
-      case 'opportunity_posted': return 'opportunity';
-      case 'project_completed': return 'success_story';
-      case 'milestone_achieved': return 'milestone';
-      case 'funding_received': return 'funding_success';
-      case 'session_started': return 'live_event';
-      case 'session_completed': return 'workroom_live';
-      case 'certification_earned': return 'certification';
-      case 'achievement_unlocked': return 'achievement';
-      case 'collaboration_started': return 'collaboration';
-      default: return 'milestone';
     }
   }
 
-  private getActionTitle(action: UserAction): string {
-    switch (action.actionType) {
-      case 'project_created': return `New Project: ${action.entityTitle}`;
-      case 'campaign_launched': return `New Campaign: ${action.entityTitle}`;
-      case 'opportunity_posted': return `New Opportunity: ${action.entityTitle}`;
-      case 'project_completed': return `Project Completed: ${action.entityTitle}`;
-      case 'milestone_achieved': return `Milestone Achieved: ${action.entityTitle}`;
-      case 'funding_received': return `Funding Success: ${action.entityTitle}`;
-      case 'session_started': return `LIVE: ${action.entityTitle}`;
-      case 'session_completed': return `Session Completed: ${action.entityTitle}`;
-      case 'certification_earned': return `Certification Earned: ${action.entityTitle}`;
-      case 'achievement_unlocked': return `Achievement Unlocked: ${action.entityTitle}`;
-      case 'collaboration_started': return `New Collaboration: ${action.entityTitle}`;
-      default: return action.entityTitle;
-    }
-  }
-
-  private getActionDescription(action: UserAction): string {
-    switch (action.actionType) {
-      case 'project_created': return `${action.userName} has launched "${action.entityTitle}" - Join the mission to create impact in ${action.entityCategory}`;
-      case 'campaign_launched': return `${action.userName} is rallying the community around ${action.entityCategory}`;
-      case 'opportunity_posted': return `${action.userName} has posted a new opportunity in ${action.entityCategory}`;
-      case 'project_completed': return `${action.userName} and team have successfully completed their project in ${action.entityCategory}`;
-      case 'milestone_achieved': return `${action.userName} has reached a significant milestone in ${action.entityCategory}`;
-      case 'funding_received': return `${action.userName} has secured funding for their ${action.entityCategory} initiative`;
-      case 'session_started': return `${action.userName} is hosting a live session on ${action.entityCategory}`;
-      case 'session_completed': return `${action.userName} has completed a learning session in ${action.entityCategory}`;
-      case 'certification_earned': return `${action.userName} has earned certification in ${action.entityCategory}`;
-      case 'achievement_unlocked': return `${action.userName} has unlocked a new achievement in ${action.entityCategory}`;
-      case 'collaboration_started': return `${action.userName} has started a new collaboration in ${action.entityCategory}`;
-      default: return action.metadata?.description || `New activity in ${action.entityCategory}`;
-    }
-  }
-
-  // Add feed item directly
+  // Add a feed item
   public addFeedItem(item: FeedItem): void {
-    this.feedItems.unshift(item); // Add to beginning for chronological order
-  }
-
-  // Create admin highlight
-  public createAdminHighlight(highlight: Omit<AdminHighlight, 'id' | 'createdAt'>): AdminHighlight {
-    const newHighlight: AdminHighlight = {
-      ...highlight,
-      id: `highlight_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      createdAt: new Date().toISOString(),
-    };
-    
-    this.adminHighlights.push(newHighlight);
-    
-    // Convert to feed item
-    const feedItem = this.convertHighlightToFeedItem(newHighlight);
-    this.addFeedItem(feedItem);
+    this.feedItems.unshift(item);
     this.notifySubscribers();
-    
-    return newHighlight;
   }
 
-  // Convert admin highlight to feed item
-  private convertHighlightToFeedItem(highlight: AdminHighlight): FeedItem {
-    return {
-      id: `admin_${highlight.id}`,
-      type: 'admin_highlight',
-      title: highlight.title,
-      description: highlight.description,
-      timestamp: this.formatTimestamp(new Date(highlight.createdAt)),
-      likes: Math.floor(Math.random() * 200) + 50,
-      location: 'Global',
-      category: 'Admin Highlight',
-      isPinned: highlight.isPinned,
-      isAdminCurated: true,
-      authorId: highlight.createdBy,
-      authorName: 'Aspora Team',
-      authorAvatar: undefined,
-      projectId: highlight.projectId,
-      opportunityId: highlight.opportunityId,
-      metadata: {
-        ctaText: highlight.ctaText,
-        ctaLink: highlight.ctaLink,
-        highlightType: highlight.type,
-        expiresAt: highlight.expiresAt,
-      },
-      visibility: highlight.visibility,
-      significance: 'high',
-      isAutoGenerated: false,
-    };
+  // Remove a feed item
+  public removeFeedItem(itemId: string): void {
+    this.feedItems = this.feedItems.filter(item => item.id !== itemId);
+    this.notifySubscribers();
   }
 
-  // Get feed items with filtering options
+  // Update a feed item
+  public updateFeedItem(itemId: string, updates: Partial<FeedItem>): void {
+    const index = this.feedItems.findIndex(item => item.id === itemId);
+    if (index !== -1) {
+      this.feedItems[index] = { ...this.feedItems[index], ...updates };
+      this.notifySubscribers();
+    }
+  }
+
+  // Get all feed items with filtering options
   public getFeedItems(options: {
     includeAdminHighlights?: boolean;
     userFilter?: string;
     categoryFilter?: string;
     significanceFilter?: 'all' | 'low' | 'medium' | 'high' | 'critical';
     limit?: number;
-    visibility?: 'public' | 'authenticated' | 'all';
+    visibility?: 'all' | 'public' | 'authenticated';
     includeExpired?: boolean;
   } = {}): FeedItem[] {
     const { 
@@ -1009,12 +171,8 @@ export class FeedService {
       includeExpired = true 
     } = options;
 
-    // Generate feed items from real data
-    const projectFeedItems = this.generateProjectFeedItems();
-    const opportunityFeedItems = this.generateOpportunityFeedItems();
-    
-    // Combine all feed items
-    let feedItems = [...projectFeedItems, ...opportunityFeedItems, ...this.feedItems];
+    // Use only real feed items from API (no mock data generation)
+    let feedItems = [...this.feedItems];
 
     // Filter by visibility
     if (visibility !== 'all') {
@@ -1075,7 +233,6 @@ export class FeedService {
     uniqueItems.sort((a, b) => {
       if (a.isPinned && !b.isPinned) return -1;
       if (!a.isPinned && b.isPinned) return 1;
-      // Sort by creation time for real projects/opportunities, timestamp for others
       return b.timestamp.localeCompare(a.timestamp);
     });
 
@@ -1097,57 +254,164 @@ export class FeedService {
     recentActivity: number;
   } {
     const allItems = this.getFeedItems();
-    const now = new Date();
-    const last24Hours = new Date(now.getTime() - 24 * 60 * 60 * 1000);
     
     return {
       totalItems: allItems.length,
       adminHighlights: allItems.filter(item => item.isAdminCurated).length,
-      userGenerated: allItems.filter(item => !item.isAdminCurated).length,
+      userGenerated: allItems.filter(item => !item.isAutoGenerated).length,
       publicItems: allItems.filter(item => item.visibility === 'public').length,
       liveEvents: allItems.filter(item => item.isLive).length,
       recentActivity: allItems.filter(item => {
-        // For items with timestamp strings, parse them
-        const itemTime = new Date(item.timestamp);
-        return itemTime > last24Hours;
-      }).length,
+        const itemDate = new Date(item.timestamp);
+        const now = new Date();
+        const diffHours = (now.getTime() - itemDate.getTime()) / (1000 * 60 * 60);
+        return diffHours <= 24;
+      }).length
     };
   }
 
-  // Initialize with mock admin highlights for demonstration
-  public initializeMockData(): void {
-    // Create some mock admin highlights
-    this.createAdminHighlight({
-      type: 'top_mentor',
-      title: 'Mentor Spotlight: Dr. Sarah Chen',
-      description: 'Recognized for leading the Stanford AI Ethics Mentorship Program and training 25+ students in responsible AI development',
-      ctaText: 'View Profile',
-      ctaLink: '/mentors/sarah-chen',
-      isPinned: true,
-      createdBy: 'admin_system',
-      visibility: 'public',
-      projectId: 'proj_stanford_ai_ethics', // Link to real project
-    });
+  // Generate feed item from user action
+  private generateFeedItemFromAction(action: UserAction): FeedItem | null {
+    const significance = SIGNIFICANCE_MAP[action.actionType] || 'medium';
+    
+    switch (action.actionType) {
+      case 'project_created':
+        return {
+          id: `action_${action.id}`,
+          type: 'project',
+          title: `New Project: ${action.entityName}`,
+          description: `${action.userName} created a new project in ${action.userLocation}`,
+          timestamp: action.timestamp,
+          likes: 0,
+          location: action.userLocation,
+          category: 'Project',
+          authorId: action.userId,
+          authorName: action.userName,
+          projectId: action.entityId,
+          visibility: 'public',
+          significance,
+          isAutoGenerated: true,
+        };
+      
+      case 'project_completed':
+        return {
+          id: `action_${action.id}`,
+          type: 'success_story',
+          title: `Project Completed: ${action.entityName}`,
+          description: `${action.userName} successfully completed their project`,
+          timestamp: action.timestamp,
+          likes: 0,
+          location: action.userLocation,
+          category: 'Success',
+          authorId: action.userId,
+          authorName: action.userName,
+          projectId: action.entityId,
+          visibility: 'public',
+          significance,
+          isAutoGenerated: true,
+        };
+      
+      case 'opportunity_posted':
+        return {
+          id: `action_${action.id}`,
+          type: 'opportunity',
+          title: `New Opportunity: ${action.entityName}`,
+          description: `${action.userName} posted a new opportunity`,
+          timestamp: action.timestamp,
+          likes: 0,
+          location: action.userLocation,
+          category: 'Opportunity',
+          authorId: action.userId,
+          authorName: action.userName,
+          opportunityId: action.entityId,
+          visibility: 'public',
+          significance,
+          isAutoGenerated: true,
+        };
+      
+      default:
+        return null;
+    }
+  }
 
-    this.createAdminHighlight({
-      type: 'spotlighted_opportunity',
-      title: 'Spotlighted: Rhodes Scholarship for African Students',
-      description: 'Don\'t miss this prestigious fully-funded scholarship opportunity at University of Oxford. Applications due October 1st.',
-      ctaText: 'Apply Now',
-      isPinned: false,
-      createdBy: 'admin_system',
-      visibility: 'public',
-      opportunityId: 'opp_rhodes_scholarship', // Link to real opportunity
-    });
+  // Mock data generation methods removed - now using real API data only
 
-    this.createAdminHighlight({
-      type: 'community_milestone',
-      title: 'Community Milestone: 10,000+ Lives Impacted',
-      description: 'Our diaspora community has reached over 10,000 people through 50+ collaborative projects this year!',
-      isPinned: true,
-      createdBy: 'admin_system',
-      visibility: 'public',
-    });
+  // Helper function to check if deadline is urgent (within 7 days)
+  private isDeadlineUrgent(deadline: string): boolean {
+    const deadlineDate = new Date(deadline);
+    const now = new Date();
+    const diffDays = Math.ceil((deadlineDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+    return diffDays <= 7 && diffDays > 0;
+  }
+
+  // Helper function to format timestamps
+  private formatTimestamp(date: Date): string {
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+    if (diffHours < 1) {
+      const diffMinutes = Math.floor(diffMs / (1000 * 60));
+      return `${diffMinutes}m ago`;
+    } else if (diffHours < 24) {
+      return `${diffHours}h ago`;
+    } else if (diffDays < 7) {
+      return `${diffDays}d ago`;
+    } else {
+      return date.toLocaleDateString();
+    }
+  }
+
+  // Helper function to format deadline for display
+  private formatDeadline(deadline: string): string {
+    const deadlineDate = new Date(deadline);
+    const now = new Date();
+    const diffDays = Math.ceil((deadlineDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+    
+    if (diffDays <= 0) return 'Deadline passed';
+    if (diffDays === 1) return 'Due tomorrow';
+    if (diffDays <= 7) return `Due in ${diffDays} days`;
+    
+    // Format as DD/MM/YYYY
+    const day = deadlineDate.getDate().toString().padStart(2, '0');
+    const month = (deadlineDate.getMonth() + 1).toString().padStart(2, '0');
+    const year = deadlineDate.getFullYear();
+    return `Due ${day}/${month}/${year}`;
+  }
+
+  // Record a user action and automatically generate feed item
+  public recordUserAction(action: UserAction): FeedItem | null {
+    this.userActions.push(action);
+    
+    const feedItem = this.generateFeedItemFromAction(action);
+    if (feedItem) {
+      this.addFeedItem(feedItem);
+      this.notifySubscribers();
+    }
+    
+    return feedItem;
+  }
+
+  // Create admin highlight
+  public createAdminHighlight(highlight: Omit<AdminHighlight, 'id' | 'createdAt'>): AdminHighlight {
+    const newHighlight: AdminHighlight = {
+      ...highlight,
+      id: `highlight_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      createdAt: new Date().toISOString(),
+    };
+    
+    this.adminHighlights.push(newHighlight);
+    this.notifySubscribers();
+    
+    return newHighlight;
+  }
+
+  // Initialize with real data (no mock data)
+  public initializeRealData(): void {
+    // This method is now handled by the React hook with real API calls
+    this.feedItems = [];
+    this.notifySubscribers();
   }
 
   // Clear all data (for testing)
@@ -1165,7 +429,7 @@ const FeedContext = createContext<FeedService | null>(null);
 export function FeedProvider({ children }: { children: React.ReactNode }) {
   const [feedService] = useState(() => {
     const service = FeedService.getInstance();
-    service.initializeMockData();
+    service.initializeRealData();
     return service;
   });
 
