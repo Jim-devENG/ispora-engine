@@ -43,11 +43,7 @@ import {
 import { useAuth } from './AuthContext';
 import { toast } from 'sonner';
 
-interface ComingSoonProps {
-  onDevAccess?: () => void;
-}
-
-export function ComingSoon({ onDevAccess }: ComingSoonProps) {
+export function ComingSoon() {
   const { user } = useAuth();
   const [email, setEmail] = useState('');
   const [isSubscribed, setIsSubscribed] = useState(false);
@@ -91,15 +87,7 @@ export function ComingSoon({ onDevAccess }: ComingSoonProps) {
     }
   };
 
-  const handleDevAccess = () => {
-    // Check if user is admin for development access
-    if (user && user.userType === 'admin') {
-      toast.success('Welcome to development mode!');
-      onDevAccess?.();
-    } else {
-      toast.error('Development access is restricted to admin users only.');
-    }
-  };
+  // Dev access now via URL ?unlock=KEY; no visible button
 
   const features = [
     {
@@ -147,22 +135,7 @@ export function ComingSoon({ onDevAccess }: ComingSoonProps) {
               </div>
             </div>
             
-            {/* Development Access Button */}
-            <div className="flex items-center space-x-4">
-              <Badge variant="outline" className="text-blue-600 border-blue-600">
-                <Activity className="h-3 w-3 mr-1" />
-                Development Mode
-              </Badge>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={handleDevAccess}
-                className="text-blue-600 border-blue-600 hover:bg-blue-50"
-              >
-                <Shield className="h-4 w-4 mr-2" />
-                Dev Access
-              </Button>
-            </div>
+            <div />
           </div>
         </div>
       </div>
@@ -275,32 +248,7 @@ export function ComingSoon({ onDevAccess }: ComingSoonProps) {
           ))}
         </div>
 
-        {/* Development Notice */}
-        <Card className="max-w-4xl mx-auto bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
-          <CardContent className="p-8 text-center">
-            <div className="flex items-center justify-center mb-4">
-              <Shield className="h-8 w-8 text-blue-600 mr-3" />
-              <h3 className="text-2xl font-bold text-gray-900">Development Mode</h3>
-            </div>
-            <p className="text-gray-700 mb-6">
-              This platform is currently in development. Admin users can access the full platform 
-              for testing and development purposes.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button 
-                onClick={handleDevAccess}
-                className="bg-blue-600 hover:bg-blue-700"
-              >
-                <Shield className="h-4 w-4 mr-2" />
-                Access Development Platform
-              </Button>
-              <Button variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50">
-                <ExternalLink className="h-4 w-4 mr-2" />
-                View Documentation
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Development Notice Removed for public visitors */}
       </div>
 
       {/* Footer */}

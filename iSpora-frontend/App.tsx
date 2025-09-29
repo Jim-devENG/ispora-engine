@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { Layout } from "./components/Layout";
 import { ComingSoon } from "./components/ComingSoon";
-import { DevAccess } from "./components/DevAccess";
 import { FeedProvider } from "./components/FeedService";
 import { ProfileProvider } from "./components/ProfileContext";
 import { OnboardingProvider } from "./components/OnboardingContext";
@@ -17,33 +16,30 @@ import { ProtectedRoute } from "./components/ProtectedRoute";
 function DevelopmentMode() {
   const { user } = useAuth();
   const [showComingSoon, setShowComingSoon] = useState(true);
-  const [showDevAccess, setShowDevAccess] = useState(false);
+  // no popup; unlock via URL or stored flag
 
   useEffect(() => {
-    // Check if user is admin and has dev access
+    // URL unlock: ?unlock=KEY
+    const params = new URLSearchParams(window.location.search);
+    const unlockKey = params.get('unlock');
+    const configuredKey = import.meta.env.VITE_DEV_KEY;
+
+    if (unlockKey && configuredKey && unlockKey === configuredKey) {
+      localStorage.setItem('devMode', 'true');
+      // remove query from URL without reload
+      const url = new URL(window.location.href);
+      url.searchParams.delete('unlock');
+      window.history.replaceState({}, '', url.toString());
+    }
+
     const isDevMode = localStorage.getItem('devMode') === 'true';
-    const isAdmin = user && user.userType === 'admin';
-    
-    if (isDevMode && isAdmin) {
+    if (isDevMode) {
       setShowComingSoon(false);
     }
-  }, [user]);
-
-  const handleDevAccess = () => {
-    setShowDevAccess(true);
-  };
-
-  const handleAccessGranted = () => {
-    setShowDevAccess(false);
-    setShowComingSoon(false);
-  };
-
-  if (showDevAccess) {
-    return <DevAccess onAccessGranted={handleAccessGranted} />;
-  }
+  }, []);
 
   if (showComingSoon) {
-    return <ComingSoon onDevAccess={handleDevAccess} />;
+    return <ComingSoon />;
   }
 
   return (
