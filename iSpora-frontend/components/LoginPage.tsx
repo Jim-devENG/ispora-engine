@@ -15,8 +15,7 @@ import {
   Globe,
   GraduationCap,
   Users,
-  BookOpen,
-  UserPlus
+  BookOpen
 } from 'lucide-react';
 import { useAuth } from './AuthContext';
 import { toast } from 'sonner';
@@ -71,7 +70,6 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
     e.preventDefault();
     setError(null);
 
-    // Validation
     if (!registerData.email || !registerData.password || !registerData.firstName || !registerData.lastName) {
       setError('Please fill in all required fields');
       return;
@@ -83,7 +81,7 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
     }
 
     if (registerData.password.length < 6) {
-      setError('Password must be at least 6 characters long');
+      setError('Password must be at least 6 characters');
       return;
     }
 
@@ -93,7 +91,7 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
       firstName: registerData.firstName,
       lastName: registerData.lastName,
       userType: registerData.userType,
-      username: registerData.username || undefined,
+      username: registerData.username,
     });
     
     if (result.success) {
@@ -108,7 +106,7 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
     {
       value: 'student',
       label: 'Student',
-      description: 'Currently studying or learning',
+      description: 'Currently studying',
       icon: GraduationCap,
       color: 'text-[#021ff6]',
       bgColor: 'bg-[#021ff6]/5',
@@ -118,59 +116,59 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
       label: 'Professional',
       description: 'Working in industry',
       icon: Users,
-      color: 'text-green-600',
-      bgColor: 'bg-green-50',
+      color: 'text-gray-600',
+      bgColor: 'bg-gray-50',
     },
     {
       value: 'mentor',
       label: 'Mentor',
-      description: 'Experienced professional',
+      description: 'Guiding others',
       icon: BookOpen,
-      color: 'text-purple-600',
-      bgColor: 'bg-purple-50',
+      color: 'text-gray-600',
+      bgColor: 'bg-gray-50',
     },
   ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#021ff6]/5 via-white to-[#021ff6]/10 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
+      <div className="w-full max-w-sm">
         {/* Logo/Brand */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-[#021ff6] rounded-3xl mb-6 shadow-lg">
-            <Globe className="w-10 h-10 text-white" />
+        <div className="text-center mb-4">
+          <div className="inline-flex items-center justify-center w-12 h-12 bg-[#021ff6] rounded-xl mb-3 shadow-md">
+            <Globe className="w-6 h-6 text-white" />
           </div>
-          <h1 className="text-4xl font-bold text-[#021ff6] mb-3">iSpora</h1>
-          <p className="text-gray-600 text-lg">Connect, Learn, and Grow Together</p>
+          <h1 className="text-2xl font-bold text-[#021ff6] mb-1">iSpora</h1>
+          <p className="text-gray-600 text-sm">Connect, Learn, and Grow Together</p>
         </div>
 
-        <Card className="shadow-2xl border-0 bg-white/90 backdrop-blur-md rounded-2xl overflow-hidden">
-          <CardHeader className="space-y-2 pb-6 pt-8">
-            <CardTitle className="text-2xl text-center font-bold text-gray-800">Welcome Back</CardTitle>
-            <CardDescription className="text-center text-gray-600">
+        <Card className="shadow-lg border-0 bg-white/90 backdrop-blur-md rounded-xl overflow-hidden">
+          <CardHeader className="space-y-1 pb-4 pt-4">
+            <CardTitle className="text-lg text-center font-bold text-gray-800">Welcome Back</CardTitle>
+            <CardDescription className="text-center text-gray-600 text-sm">
               Sign in to your account or create a new one
             </CardDescription>
           </CardHeader>
           
-          <CardContent>
+          <CardContent className="p-4">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-8 bg-gray-100 p-1 rounded-xl">
-                <TabsTrigger value="login" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm">Sign In</TabsTrigger>
-                <TabsTrigger value="register" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm">Sign Up</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-2 mb-4 bg-gray-100 p-1 rounded-lg">
+                <TabsTrigger value="login" className="rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm text-sm">Sign In</TabsTrigger>
+                <TabsTrigger value="register" className="rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm text-sm">Sign Up</TabsTrigger>
               </TabsList>
 
               {error && (
-                <Alert className="mb-4 border-red-200 bg-red-50">
-                  <AlertDescription className="text-red-800">{error}</AlertDescription>
+                <Alert className="mb-3 border-red-200 bg-red-50">
+                  <AlertDescription className="text-red-800 text-sm">{error}</AlertDescription>
                 </Alert>
               )}
 
-              <TabsContent value="login" className="space-y-6">
-                <form onSubmit={handleLogin} className="space-y-6">
-                  <div className="space-y-3">
-                    <Label htmlFor="login-email" className="text-sm font-medium text-gray-700">Email Address</Label>
+              <TabsContent value="login" className="space-y-4">
+                <form onSubmit={handleLogin} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="login-email" className="text-xs font-medium text-gray-700">Email Address</Label>
                     <div className="relative group">
-                      <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-[#021ff6] transition-colors">
-                        <Mail className="h-5 w-5" />
+                      <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-[#021ff6] transition-colors">
+                        <Mail className="h-4 w-4" />
                       </div>
                       <Input
                         id="login-email"
@@ -178,17 +176,17 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
                         placeholder="Enter your email"
                         value={loginData.email}
                         onChange={(e) => setLoginData(prev => ({ ...prev, email: e.target.value }))}
-                        className="pl-12 h-12 border-gray-200 focus:border-[#021ff6] focus:ring-[#021ff6]/20 rounded-xl transition-all"
+                        className="pl-10 h-9 border-gray-200 focus:border-[#021ff6] focus:ring-[#021ff6]/20 rounded-lg transition-all text-sm"
                         required
                       />
                     </div>
                   </div>
 
-                  <div className="space-y-3">
-                    <Label htmlFor="login-password" className="text-sm font-medium text-gray-700">Password</Label>
+                  <div className="space-y-2">
+                    <Label htmlFor="login-password" className="text-xs font-medium text-gray-700">Password</Label>
                     <div className="relative group">
-                      <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-[#021ff6] transition-colors">
-                        <Lock className="h-5 w-5" />
+                      <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-[#021ff6] transition-colors">
+                        <Lock className="h-4 w-4" />
                       </div>
                       <Input
                         id="login-password"
@@ -196,73 +194,70 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
                         placeholder="Enter your password"
                         value={loginData.password}
                         onChange={(e) => setLoginData(prev => ({ ...prev, password: e.target.value }))}
-                        className="pl-12 pr-12 h-12 border-gray-200 focus:border-[#021ff6] focus:ring-[#021ff6]/20 rounded-xl transition-all"
+                        className="pl-10 pr-10 h-9 border-gray-200 focus:border-[#021ff6] focus:ring-[#021ff6]/20 rounded-lg transition-all text-sm"
                         required
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                       >
-                        {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </button>
                     </div>
                   </div>
 
                   <Button 
                     type="submit" 
-                    className="w-full h-12 bg-[#021ff6] hover:bg-[#021ff6]/90 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5" 
+                    className="w-full h-9 bg-[#021ff6] hover:bg-[#021ff6]/90 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 text-sm" 
                     disabled={isLoading}
                   >
                     {isLoading ? (
                       <>
-                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                        <Loader2 className="mr-2 h-3 w-3 animate-spin" />
                         Signing In...
                       </>
                     ) : (
-                      <>
-                        <User className="mr-2 h-5 w-5" />
-                        Sign In
-                      </>
+                      'Sign In'
                     )}
                   </Button>
                 </form>
               </TabsContent>
 
-              <TabsContent value="register" className="space-y-6">
-                <form onSubmit={handleRegister} className="space-y-6">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-3">
-                      <Label htmlFor="register-firstName" className="text-sm font-medium text-gray-700">First Name</Label>
+              <TabsContent value="register" className="space-y-4">
+                <form onSubmit={handleRegister} className="space-y-4">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-2">
+                      <Label htmlFor="register-firstName" className="text-xs font-medium text-gray-700">First Name</Label>
                       <Input
                         id="register-firstName"
                         type="text"
-                        placeholder="First name"
+                        placeholder="John"
                         value={registerData.firstName}
                         onChange={(e) => setRegisterData(prev => ({ ...prev, firstName: e.target.value }))}
-                        className="h-12 border-gray-200 focus:border-[#021ff6] focus:ring-[#021ff6]/20 rounded-xl transition-all"
+                        className="h-9 border-gray-200 focus:border-[#021ff6] focus:ring-[#021ff6]/20 rounded-lg transition-all text-sm"
                         required
                       />
                     </div>
-                    <div className="space-y-3">
-                      <Label htmlFor="register-lastName" className="text-sm font-medium text-gray-700">Last Name</Label>
+                    <div className="space-y-2">
+                      <Label htmlFor="register-lastName" className="text-xs font-medium text-gray-700">Last Name</Label>
                       <Input
                         id="register-lastName"
                         type="text"
-                        placeholder="Last name"
+                        placeholder="Doe"
                         value={registerData.lastName}
                         onChange={(e) => setRegisterData(prev => ({ ...prev, lastName: e.target.value }))}
-                        className="h-12 border-gray-200 focus:border-[#021ff6] focus:ring-[#021ff6]/20 rounded-xl transition-all"
+                        className="h-9 border-gray-200 focus:border-[#021ff6] focus:ring-[#021ff6]/20 rounded-lg transition-all text-sm"
                         required
                       />
                     </div>
                   </div>
-
-                  <div className="space-y-3">
-                    <Label htmlFor="register-email" className="text-sm font-medium text-gray-700">Email Address</Label>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="register-email" className="text-xs font-medium text-gray-700">Email Address</Label>
                     <div className="relative group">
-                      <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-[#021ff6] transition-colors">
-                        <Mail className="h-5 w-5" />
+                      <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-[#021ff6] transition-colors">
+                        <Mail className="h-4 w-4" />
                       </div>
                       <Input
                         id="register-email"
@@ -270,92 +265,74 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
                         placeholder="Enter your email"
                         value={registerData.email}
                         onChange={(e) => setRegisterData(prev => ({ ...prev, email: e.target.value }))}
-                        className="pl-12 h-12 border-gray-200 focus:border-[#021ff6] focus:ring-[#021ff6]/20 rounded-xl transition-all"
+                        className="pl-10 h-9 border-gray-200 focus:border-[#021ff6] focus:ring-[#021ff6]/20 rounded-lg transition-all text-sm"
                         required
                       />
                     </div>
                   </div>
 
-                  <div className="space-y-3">
-                    <Label htmlFor="register-username" className="text-sm font-medium text-gray-700">Username (Optional)</Label>
-                    <div className="relative group">
-                      <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-[#021ff6] transition-colors">
-                        <User className="h-5 w-5" />
-                      </div>
-                      <Input
-                        id="register-username"
-                        type="text"
-                        placeholder="Choose a username"
-                        value={registerData.username}
-                        onChange={(e) => setRegisterData(prev => ({ ...prev, username: e.target.value }))}
-                        className="pl-12 h-12 border-gray-200 focus:border-[#021ff6] focus:ring-[#021ff6]/20 rounded-xl transition-all"
-                      />
+                  <div className="space-y-2">
+                    <Label className="text-xs font-medium text-gray-700">User Type</Label>
+                    <div className="grid grid-cols-1 gap-2">
+                      {userTypeOptions.map((option) => (
+                        <label
+                          key={option.value}
+                          className={`relative flex items-center p-3 rounded-lg border-2 cursor-pointer transition-all hover:shadow-sm ${
+                            registerData.userType === option.value
+                              ? 'border-[#021ff6] bg-[#021ff6]/5 shadow-sm'
+                              : 'border-gray-200 hover:border-gray-300 bg-white'
+                          }`}
+                        >
+                          <input
+                            type="radio"
+                            name="userType"
+                            value={option.value}
+                            checked={registerData.userType === option.value}
+                            onChange={(e) => setRegisterData(prev => ({ ...prev, userType: e.target.value as 'student' | 'professional' | 'mentor' }))}
+                            className="sr-only"
+                          />
+                          <div className={`flex-shrink-0 mr-3 ${option.color}`}>
+                            <option.icon size={18} />
+                          </div>
+                          <div>
+                            <div className="font-semibold text-gray-900 text-sm">{option.label}</div>
+                            <div className="text-xs text-gray-500">{option.description}</div>
+                          </div>
+                        </label>
+                      ))}
                     </div>
                   </div>
 
-                  <div className="space-y-3">
-                    <Label className="text-sm font-medium text-gray-700">User Type</Label>
-                    <div className="grid grid-cols-1 gap-3">
-                      {userTypeOptions.map((option) => {
-                        const Icon = option.icon;
-                        return (
-                          <label
-                            key={option.value}
-                            className={`relative flex items-center p-4 rounded-xl border-2 cursor-pointer transition-all hover:shadow-md ${
-                              registerData.userType === option.value
-                                ? 'border-[#021ff6] bg-[#021ff6]/5 shadow-md'
-                                : 'border-gray-200 hover:border-gray-300 bg-white'
-                            }`}
-                          >
-                            <input
-                              type="radio"
-                              name="userType"
-                              value={option.value}
-                              checked={registerData.userType === option.value}
-                              onChange={(e) => setRegisterData(prev => ({ ...prev, userType: e.target.value as any }))}
-                              className="sr-only"
-                            />
-                            <Icon className={`mr-4 h-6 w-6 ${option.color}`} />
-                            <div>
-                              <div className="font-semibold text-gray-900">{option.label}</div>
-                              <div className="text-sm text-gray-500">{option.description}</div>
-                            </div>
-                          </label>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    <Label htmlFor="register-password" className="text-sm font-medium text-gray-700">Password</Label>
+                  <div className="space-y-2">
+                    <Label htmlFor="register-password" className="text-xs font-medium text-gray-700">Password</Label>
                     <div className="relative group">
-                      <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-[#021ff6] transition-colors">
-                        <Lock className="h-5 w-5" />
+                      <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-[#021ff6] transition-colors">
+                        <Lock className="h-4 w-4" />
                       </div>
                       <Input
                         id="register-password"
                         type={showPassword ? 'text' : 'password'}
-                        placeholder="Create a password"
+                        placeholder="Choose a strong password"
                         value={registerData.password}
                         onChange={(e) => setRegisterData(prev => ({ ...prev, password: e.target.value }))}
-                        className="pl-12 pr-12 h-12 border-gray-200 focus:border-[#021ff6] focus:ring-[#021ff6]/20 rounded-xl transition-all"
+                        className="pl-10 pr-10 h-9 border-gray-200 focus:border-[#021ff6] focus:ring-[#021ff6]/20 rounded-lg transition-all text-sm"
                         required
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                       >
-                        {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </button>
                     </div>
                   </div>
 
-                  <div className="space-y-3">
-                    <Label htmlFor="register-confirmPassword" className="text-sm font-medium text-gray-700">Confirm Password</Label>
+                  <div className="space-y-2">
+                    <Label htmlFor="register-confirmPassword" className="text-xs font-medium text-gray-700">Confirm Password</Label>
                     <div className="relative group">
-                      <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-[#021ff6] transition-colors">
-                        <Lock className="h-5 w-5" />
+                      <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-[#021ff6] transition-colors">
+                        <Lock className="h-4 w-4" />
                       </div>
                       <Input
                         id="register-confirmPassword"
@@ -363,27 +340,24 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
                         placeholder="Confirm your password"
                         value={registerData.confirmPassword}
                         onChange={(e) => setRegisterData(prev => ({ ...prev, confirmPassword: e.target.value }))}
-                        className="pl-12 h-12 border-gray-200 focus:border-[#021ff6] focus:ring-[#021ff6]/20 rounded-xl transition-all"
+                        className="pl-10 h-9 border-gray-200 focus:border-[#021ff6] focus:ring-[#021ff6]/20 rounded-lg transition-all text-sm"
                         required
                       />
                     </div>
                   </div>
 
-                  <Button 
-                    type="submit" 
-                    className="w-full h-12 bg-[#021ff6] hover:bg-[#021ff6]/90 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5" 
+                  <Button
+                    type="submit"
+                    className="w-full h-9 bg-[#021ff6] hover:bg-[#021ff6]/90 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 text-sm"
                     disabled={isLoading}
                   >
                     {isLoading ? (
                       <>
-                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                        <Loader2 className="mr-2 h-3 w-3 animate-spin" />
                         Creating Account...
                       </>
                     ) : (
-                      <>
-                        <UserPlus className="mr-2 h-5 w-5" />
-                        Create Account
-                      </>
+                      'Create Account'
                     )}
                   </Button>
                 </form>
@@ -393,7 +367,7 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
         </Card>
 
         {/* Footer */}
-        <div className="text-center mt-8 text-sm text-gray-500">
+        <div className="text-center mt-6 text-xs text-gray-500">
           <p>By signing in, you agree to our <span className="text-[#021ff6] hover:text-[#021ff6]/80 cursor-pointer">Terms of Service</span> and <span className="text-[#021ff6] hover:text-[#021ff6]/80 cursor-pointer">Privacy Policy</span></p>
         </div>
       </div>
