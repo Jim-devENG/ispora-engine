@@ -16,5 +16,7 @@ services:
         value: ./data/ispora.db
       - key: JWT_SECRET
         generateValue: true
+      - key: FRONTEND_URL
+        value: https://ispora.app
       - key: CORS_ORIGIN
         value: https://ispora.app
