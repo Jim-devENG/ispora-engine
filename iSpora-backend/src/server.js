@@ -51,6 +51,7 @@ const notificationTemplatesRoutes = require('./routes/notification-templates');
 const notificationAnalyticsRoutes = require('./routes/notification-analytics');
 const notificationBatchesRoutes = require('./routes/notification-batches');
 const feedRoutes = require('./routes/feed');
+const adminRoutes = require('./routes/admin');
 
 // Import middleware
 const errorHandler = require('./middleware/errorHandler');
@@ -171,6 +172,7 @@ app.use('/api/notification-templates', notificationTemplatesRoutes);
 app.use('/api/notification-analytics', notificationAnalyticsRoutes);
 app.use('/api/notification-batches', notificationBatchesRoutes);
 app.use('/api/feed', feedRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Socket.IO setup
 socketService.initialize(io);

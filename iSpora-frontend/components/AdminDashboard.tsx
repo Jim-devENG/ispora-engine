@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Textarea } from './ui/textarea';
 import { ScrollArea } from './ui/scroll-area';
 import { Separator } from './ui/separator';
+import { Checkbox } from './ui/checkbox';
 import { 
   Users, 
   Shield, 
@@ -53,77 +54,94 @@ import {
   Zap,
   RefreshCw,
   Plus,
-  MoreHorizontal
+  MoreHorizontal,
+  AlertCircle,
+  CheckCircle2,
+  X,
+  ArrowUpDown,
+  ExternalLink,
+  Copy,
+  Send,
+  Archive,
+  ArchiveRestore,
+  Ban,
+  UserCheck,
+  UserX,
+  Crown,
+  Key,
+  Database as DatabaseIcon,
+  HardDrive,
+  Wifi,
+  Cpu,
+  MemoryStick,
+  Monitor
 } from 'lucide-react';
 import { useAuth } from './AuthContext';
 import { toast } from 'sonner';
 
-// Mock data for admin dashboard
-const mockUsers = [
-  {
-    id: '1',
-    name: 'Dr. Sarah Chen',
-    email: 'sarah.chen@stanford.edu',
-    role: 'admin',
-    status: 'active',
-    joinDate: '2024-01-15',
-    lastActive: '2024-12-29',
-    projects: 5,
-    contributions: 23,
-    avatar: 'https://images.unsplash.com/photo-1494790108755-2616b25f5e55?w=150&h=150&fit=crop&crop=face'
-  },
-  {
-    id: '2',
-    name: 'Alex Johnson',
-    email: 'alex.johnson@mit.edu',
-    role: 'moderator',
-    status: 'active',
-    joinDate: '2024-02-20',
-    lastActive: '2024-12-28',
-    projects: 3,
-    contributions: 15,
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face'
-  },
-  {
-    id: '3',
-    name: 'Dr. Amara Okafor',
-    email: 'amara.okafor@uct.ac.za',
-    role: 'user',
-    status: 'suspended',
-    joinDate: '2024-03-10',
-    lastActive: '2024-12-25',
-    projects: 2,
-    contributions: 8,
-    avatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop&crop=face'
-  }
-];
+// API base URL
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://ispora-backend.onrender.com/api';
 
-const mockReports = [
-  {
-    id: '1',
-    type: 'inappropriate_content',
-    reporter: 'John Doe',
-    reportedUser: 'Jane Smith',
-    content: 'Project: AI Ethics Research',
-    reason: 'Contains offensive language',
-    status: 'pending',
-    date: '2024-12-29',
-    priority: 'high'
-  },
-  {
-    id: '2',
-    type: 'spam',
-    reporter: 'Admin System',
-    reportedUser: 'SpamBot123',
-    content: 'Multiple fake projects',
-    reason: 'Automated spam behavior',
-    status: 'resolved',
-    date: '2024-12-28',
-    priority: 'medium'
+// Real-time data fetching functions
+const fetchUsers = async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/users`, {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    if (response.ok) {
+      const data = await response.json();
+      return data.success ? data.data : [];
+    }
+    return [];
+  } catch (error) {
+    console.error('Failed to fetch users:', error);
+    return [];
   }
-];
+};
 
-const mockAnalytics = {
+const fetchSystemStats = async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/admin/stats`, {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    if (response.ok) {
+      const data = await response.json();
+      return data.success ? data.data : null;
+    }
+    return null;
+  } catch (error) {
+    console.error('Failed to fetch system stats:', error);
+    return null;
+  }
+};
+
+const fetchReports = async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/admin/reports`, {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    if (response.ok) {
+      const data = await response.json();
+      return data.success ? data.data : [];
+    }
+    return [];
+  } catch (error) {
+    console.error('Failed to fetch reports:', error);
+    return [];
+  }
+};
+
+// Enhanced mock data for development
+const mockSystemStats = {
   totalUsers: 1247,
   activeUsers: 892,
   newUsersToday: 23,
@@ -134,7 +152,14 @@ const mockAnalytics = {
   uptime: '99.9%',
   responseTime: '120ms',
   storageUsed: '2.3GB',
-  bandwidthUsed: '15.2GB'
+  bandwidthUsed: '15.2GB',
+  cpuUsage: '45%',
+  memoryUsage: '67%',
+  diskUsage: '34%',
+  networkLatency: '12ms',
+  errorRate: '0.1%',
+  requestsPerMinute: 156,
+  activeConnections: 89
 };
 
 const mockSystemLogs = [
@@ -144,7 +169,8 @@ const mockSystemLogs = [
     level: 'info',
     message: 'User registration successful',
     user: 'sarah.chen@stanford.edu',
-    ip: '192.168.1.100'
+    ip: '192.168.1.100',
+    category: 'authentication'
   },
   {
     id: '2',
@@ -152,7 +178,8 @@ const mockSystemLogs = [
     level: 'warning',
     message: 'High memory usage detected',
     user: 'system',
-    ip: 'server-01'
+    ip: 'server-01',
+    category: 'system'
   },
   {
     id: '3',
@@ -160,7 +187,26 @@ const mockSystemLogs = [
     level: 'error',
     message: 'Database connection timeout',
     user: 'system',
-    ip: 'server-01'
+    ip: 'server-01',
+    category: 'database'
+  },
+  {
+    id: '4',
+    timestamp: '2024-12-29 14:15:30',
+    level: 'info',
+    message: 'Project created successfully',
+    user: 'alex.johnson@mit.edu',
+    ip: '192.168.1.101',
+    category: 'content'
+  },
+  {
+    id: '5',
+    timestamp: '2024-12-29 14:10:15',
+    level: 'warning',
+    message: 'Suspicious activity detected',
+    user: 'system',
+    ip: '192.168.1.200',
+    category: 'security'
   }
 ];
 
@@ -171,6 +217,11 @@ export function AdminDashboard() {
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterRole, setFilterRole] = useState('all');
+  const [users, setUsers] = useState([]);
+  const [systemStats, setSystemStats] = useState(mockSystemStats);
+  const [reports, setReports] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [lastRefresh, setLastRefresh] = useState(new Date());
 
   // Check if user has admin privileges
   if (!user || user.userType !== 'admin') {
@@ -194,42 +245,160 @@ export function AdminDashboard() {
     );
   }
 
-  const filteredUsers = mockUsers.filter(user => {
-    const matchesSearch = user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         user.email.toLowerCase().includes(searchQuery.toLowerCase());
+  // Real-time data fetching
+  useEffect(() => {
+    const loadData = async () => {
+      setLoading(true);
+      try {
+        const [usersData, statsData, reportsData] = await Promise.all([
+          fetchUsers(),
+          fetchSystemStats(),
+          fetchReports()
+        ]);
+        
+        setUsers(usersData);
+        if (statsData) setSystemStats(statsData);
+        setReports(reportsData);
+        setLastRefresh(new Date());
+      } catch (error) {
+        console.error('Failed to load admin data:', error);
+        toast.error('Failed to load admin data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+    
+    // Auto-refresh every 30 seconds
+    const interval = setInterval(loadData, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleRefresh = async () => {
+    setLoading(true);
+    try {
+      const [usersData, statsData, reportsData] = await Promise.all([
+        fetchUsers(),
+        fetchSystemStats(),
+        fetchReports()
+      ]);
+      
+      setUsers(usersData);
+      if (statsData) setSystemStats(statsData);
+      setReports(reportsData);
+      setLastRefresh(new Date());
+      toast.success('Data refreshed successfully');
+    } catch (error) {
+      console.error('Failed to refresh data:', error);
+      toast.error('Failed to refresh data');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUserAction = async (action: string, userId: string) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/admin/users/${userId}/${action}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        toast.success(`User ${action} successful`);
+        // Refresh users list
+        const usersData = await fetchUsers();
+        setUsers(usersData);
+      } else {
+        toast.error(`Failed to ${action} user`);
+      }
+    } catch (error) {
+      console.error(`User ${action} error:`, error);
+      toast.error(`Failed to ${action} user`);
+    }
+  };
+
+  const handleBulkAction = async (action: string) => {
+    if (selectedUsers.length === 0) {
+      toast.error('Please select users first');
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/admin/users/bulk/${action}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userIds: selectedUsers }),
+      });
+
+      if (response.ok) {
+        toast.success(`Bulk ${action} successful for ${selectedUsers.length} users`);
+        setSelectedUsers([]);
+        // Refresh users list
+        const usersData = await fetchUsers();
+        setUsers(usersData);
+      } else {
+        toast.error(`Failed to ${action} users`);
+      }
+    } catch (error) {
+      console.error(`Bulk ${action} error:`, error);
+      toast.error(`Failed to ${action} users`);
+    }
+  };
+
+  const handleReportAction = async (action: string, reportId: string) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/admin/reports/${reportId}/${action}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        toast.success(`Report ${action} successful`);
+        // Refresh reports list
+        const reportsData = await fetchReports();
+        setReports(reportsData);
+      } else {
+        toast.error(`Failed to ${action} report`);
+      }
+    } catch (error) {
+      console.error(`Report ${action} error:`, error);
+      toast.error(`Failed to ${action} report`);
+    }
+  };
+
+  const filteredUsers = users.filter(user => {
+    const matchesSearch = user.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         user.email?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = filterStatus === 'all' || user.status === filterStatus;
     const matchesRole = filterRole === 'all' || user.role === filterRole;
     return matchesSearch && matchesStatus && matchesRole;
   });
 
-  const handleUserAction = (action: string, userId: string) => {
-    switch (action) {
-      case 'suspend':
-        toast.success('User suspended successfully');
-        break;
-      case 'activate':
-        toast.success('User activated successfully');
-        break;
-      case 'delete':
-        toast.success('User deleted successfully');
-        break;
-      case 'promote':
-        toast.success('User promoted to moderator');
-        break;
+  const getLogLevelColor = (level: string) => {
+    switch (level) {
+      case 'error': return 'bg-red-500';
+      case 'warning': return 'bg-yellow-500';
+      case 'info': return 'bg-green-500';
+      default: return 'bg-gray-500';
     }
   };
 
-  const handleReportAction = (action: string, reportId: string) => {
-    switch (action) {
-      case 'resolve':
-        toast.success('Report resolved successfully');
-        break;
-      case 'dismiss':
-        toast.success('Report dismissed');
-        break;
-      case 'escalate':
-        toast.success('Report escalated');
-        break;
+  const getLogLevelIcon = (level: string) => {
+    switch (level) {
+      case 'error': return <XCircle className="h-4 w-4 text-red-500" />;
+      case 'warning': return <AlertTriangle className="h-4 w-4 text-yellow-500" />;
+      case 'info': return <CheckCircle2 className="h-4 w-4 text-green-500" />;
+      default: return <Activity className="h-4 w-4 text-gray-500" />;
     }
   };
 
@@ -240,15 +409,22 @@ export function AdminDashboard() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
-            <p className="text-sm text-gray-600">Manage your iSpora platform</p>
+            <p className="text-sm text-gray-600">
+              Manage your iSpora platform • Last updated: {lastRefresh.toLocaleTimeString()}
+            </p>
           </div>
           <div className="flex items-center gap-3">
             <Badge variant="outline" className="text-green-600 border-green-600">
               <Activity className="h-3 w-3 mr-1" />
               System Healthy
             </Badge>
-            <Button variant="outline" size="sm">
-              <RefreshCw className="h-4 w-4 mr-2" />
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleRefresh}
+              disabled={loading}
+            >
+              <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
               Refresh
             </Button>
           </div>
@@ -276,10 +452,10 @@ export function AdminDashboard() {
                   <Users className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{mockAnalytics.totalUsers.toLocaleString()}</div>
+                  <div className="text-2xl font-bold">{systemStats.totalUsers.toLocaleString()}</div>
                   <p className="text-xs text-muted-foreground">
                     <TrendingUp className="h-3 w-3 inline mr-1" />
-                    +12% from last month
+                    +{systemStats.newUsersToday} today
                   </p>
                 </CardContent>
               </Card>
@@ -290,10 +466,9 @@ export function AdminDashboard() {
                   <Activity className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{mockAnalytics.activeUsers.toLocaleString()}</div>
+                  <div className="text-2xl font-bold">{systemStats.activeUsers.toLocaleString()}</div>
                   <p className="text-xs text-muted-foreground">
-                    <TrendingUp className="h-3 w-3 inline mr-1" />
-                    +8% from last week
+                    {Math.round((systemStats.activeUsers / systemStats.totalUsers) * 100)}% of total
                   </p>
                 </CardContent>
               </Card>
@@ -304,7 +479,7 @@ export function AdminDashboard() {
                   <Target className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{mockAnalytics.totalProjects}</div>
+                  <div className="text-2xl font-bold">{systemStats.totalProjects}</div>
                   <p className="text-xs text-muted-foreground">
                     <TrendingUp className="h-3 w-3 inline mr-1" />
                     +5 this week
@@ -318,61 +493,102 @@ export function AdminDashboard() {
                   <Server className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-green-600">{mockAnalytics.uptime}</div>
+                  <div className="text-2xl font-bold text-green-600">{systemStats.uptime}</div>
                   <p className="text-xs text-muted-foreground">
-                    Response time: {mockAnalytics.responseTime}
+                    Response: {systemStats.responseTime}
                   </p>
                 </CardContent>
               </Card>
             </div>
 
-            {/* Recent Activity */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* System Performance */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Recent Activity</CardTitle>
-                  <CardDescription>Latest system events and user actions</CardDescription>
+                  <CardTitle className="flex items-center gap-2">
+                    <Cpu className="h-5 w-5" />
+                    System Performance
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium">CPU Usage</span>
+                    <span className="text-lg font-bold">{systemStats.cpuUsage}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium">Memory Usage</span>
+                    <span className="text-lg font-bold">{systemStats.memoryUsage}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium">Disk Usage</span>
+                    <span className="text-lg font-bold">{systemStats.diskUsage}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium">Network Latency</span>
+                    <span className="text-lg font-bold">{systemStats.networkLatency}</span>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Database className="h-5 w-5" />
+                    Database Stats
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium">Active Connections</span>
+                    <span className="text-lg font-bold">{systemStats.activeConnections}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium">Requests/Min</span>
+                    <span className="text-lg font-bold">{systemStats.requestsPerMinute}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium">Error Rate</span>
+                    <span className="text-lg font-bold text-red-600">{systemStats.errorRate}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium">Storage Used</span>
+                    <span className="text-lg font-bold">{systemStats.storageUsed}</span>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Activity className="h-5 w-5" />
+                    Recent Activity
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ScrollArea className="h-64">
                     <div className="space-y-4">
                       {mockSystemLogs.map((log) => (
                         <div key={log.id} className="flex items-start space-x-3">
-                          <div className={`w-2 h-2 rounded-full mt-2 ${
-                            log.level === 'error' ? 'bg-red-500' :
-                            log.level === 'warning' ? 'bg-yellow-500' : 'bg-green-500'
-                          }`} />
+                          <div className={`w-2 h-2 rounded-full mt-2 ${getLogLevelColor(log.level)}`} />
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-gray-900">{log.message}</p>
+                            <div className="flex items-center gap-2 mb-1">
+                              {getLogLevelIcon(log.level)}
+                              <span className="text-sm font-medium text-gray-900">{log.message}</span>
+                            </div>
                             <p className="text-xs text-gray-500">{log.timestamp}</p>
-                            <p className="text-xs text-gray-400">{log.user} • {log.ip}</p>
+                            <div className="flex items-center gap-2 text-xs text-gray-400">
+                              <span>{log.user}</span>
+                              <span>•</span>
+                              <span>{log.ip}</span>
+                              <Badge variant="outline" className="text-xs">
+                                {log.category}
+                              </Badge>
+                            </div>
                           </div>
                         </div>
                       ))}
                     </div>
                   </ScrollArea>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Pending Reports</CardTitle>
-                  <CardDescription>Content and user reports requiring attention</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {mockReports.filter(r => r.status === 'pending').map((report) => (
-                      <div key={report.id} className="flex items-center justify-between p-3 border rounded-lg">
-                        <div>
-                          <p className="text-sm font-medium">{report.type.replace('_', ' ')}</p>
-                          <p className="text-xs text-gray-500">Reported by {report.reporter}</p>
-                        </div>
-                        <Badge variant={report.priority === 'high' ? 'destructive' : 'secondary'}>
-                          {report.priority}
-                        </Badge>
-                      </div>
-                    ))}
-                  </div>
                 </CardContent>
               </Card>
             </div>
@@ -382,8 +598,46 @@ export function AdminDashboard() {
           <TabsContent value="users" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>User Management</CardTitle>
-                <CardDescription>Manage user accounts, roles, and permissions</CardDescription>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>User Management</CardTitle>
+                    <CardDescription>Manage user accounts, roles, and permissions</CardDescription>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {selectedUsers.length > 0 && (
+                      <div className="flex items-center gap-2">
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => handleBulkAction('suspend')}
+                        >
+                          <Lock className="h-4 w-4 mr-1" />
+                          Suspend ({selectedUsers.length})
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => handleBulkAction('activate')}
+                        >
+                          <Unlock className="h-4 w-4 mr-1" />
+                          Activate ({selectedUsers.length})
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => handleBulkAction('delete')}
+                        >
+                          <Trash2 className="h-4 w-4 mr-1" />
+                          Delete ({selectedUsers.length})
+                        </Button>
+                      </div>
+                    )}
+                    <Button size="sm">
+                      <UserPlus className="h-4 w-4 mr-1" />
+                      Add User
+                    </Button>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent>
                 {/* Search and Filters */}
@@ -428,8 +682,18 @@ export function AdminDashboard() {
                   {filteredUsers.map((user) => (
                     <div key={user.id} className="flex items-center justify-between p-4 border rounded-lg">
                       <div className="flex items-center space-x-4">
+                        <Checkbox
+                          checked={selectedUsers.includes(user.id)}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setSelectedUsers([...selectedUsers, user.id]);
+                            } else {
+                              setSelectedUsers(selectedUsers.filter(id => id !== user.id));
+                            }
+                          }}
+                        />
                         <img
-                          src={user.avatar}
+                          src={user.avatar || '/api/placeholder/40/40'}
                           alt={user.name}
                           className="h-10 w-10 rounded-full"
                         />
@@ -548,7 +812,7 @@ export function AdminDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {mockReports.map((report) => (
+                  {reports.map((report) => (
                     <div key={report.id} className="flex items-center justify-between p-4 border rounded-lg">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
@@ -559,7 +823,7 @@ export function AdminDashboard() {
                             {report.status}
                           </Badge>
                         </div>
-                        <p className="font-medium">{report.type.replace('_', ' ')}</p>
+                        <p className="font-medium">{report.type?.replace('_', ' ')}</p>
                         <p className="text-sm text-gray-500">Reported by {report.reporter}</p>
                         <p className="text-sm text-gray-500">Content: {report.content}</p>
                         <p className="text-sm text-gray-500">Reason: {report.reason}</p>
@@ -601,19 +865,19 @@ export function AdminDashboard() {
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
                       <span className="text-sm font-medium">Total Users</span>
-                      <span className="text-2xl font-bold">{mockAnalytics.totalUsers.toLocaleString()}</span>
+                      <span className="text-2xl font-bold">{systemStats.totalUsers.toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-sm font-medium">Active Users</span>
-                      <span className="text-2xl font-bold">{mockAnalytics.activeUsers.toLocaleString()}</span>
+                      <span className="text-2xl font-bold">{systemStats.activeUsers.toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-sm font-medium">Total Projects</span>
-                      <span className="text-2xl font-bold">{mockAnalytics.totalProjects}</span>
+                      <span className="text-2xl font-bold">{systemStats.totalProjects}</span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-sm font-medium">Total Opportunities</span>
-                      <span className="text-2xl font-bold">{mockAnalytics.totalOpportunities}</span>
+                      <span className="text-2xl font-bold">{systemStats.totalOpportunities}</span>
                     </div>
                   </div>
                 </CardContent>
@@ -628,19 +892,19 @@ export function AdminDashboard() {
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
                       <span className="text-sm font-medium">Uptime</span>
-                      <span className="text-2xl font-bold text-green-600">{mockAnalytics.uptime}</span>
+                      <span className="text-2xl font-bold text-green-600">{systemStats.uptime}</span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-sm font-medium">Response Time</span>
-                      <span className="text-2xl font-bold">{mockAnalytics.responseTime}</span>
+                      <span className="text-2xl font-bold">{systemStats.responseTime}</span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-sm font-medium">Storage Used</span>
-                      <span className="text-2xl font-bold">{mockAnalytics.storageUsed}</span>
+                      <span className="text-2xl font-bold">{systemStats.storageUsed}</span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-sm font-medium">Bandwidth Used</span>
-                      <span className="text-2xl font-bold">{mockAnalytics.bandwidthUsed}</span>
+                      <span className="text-2xl font-bold">{systemStats.bandwidthUsed}</span>
                     </div>
                   </div>
                 </CardContent>

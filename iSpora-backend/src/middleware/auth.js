@@ -89,8 +89,28 @@ const optionalAuth = async (req, res, next) => {
   next();
 };
 
+// Require admin access
+const requireAdmin = (req, res, next) => {
+  if (!req.user) {
+    return res.status(401).json({
+      success: false,
+      error: 'Not authorized to access this route'
+    });
+  }
+
+  if (req.user.user_type !== 'admin') {
+    return res.status(403).json({
+      success: false,
+      error: 'Admin access required'
+    });
+  }
+
+  next();
+};
+
 module.exports = {
   protect,
   authorize,
-  optionalAuth
+  optionalAuth,
+  requireAdmin
 };
