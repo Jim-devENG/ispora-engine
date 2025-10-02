@@ -693,7 +693,7 @@ export function ProjectMemberModal({
                               {/* Member Status Indicator */}
                               <div className="absolute top-2 right-2">
                                 <Tooltip>
-                                  <TooltipTrigger>
+                                  <TooltipTrigger asChild>
                                     <div className="w-6 h-6 rounded-full bg-[#021ff6]/10 flex items-center justify-center">
                                       <Users className="h-3 w-3 text-[#021ff6]" />
                                     </div>
