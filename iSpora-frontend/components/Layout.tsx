@@ -257,7 +257,7 @@ function LayoutContent() {
           style={{ left: `${sidebarWidth - 12}px` }}
         >
           <Tooltip>
-            <TooltipTrigger asChild>
+            <TooltipTrigger>
               <button
                 onClick={handleToggleSidebar}
                 className="bg-white hover:bg-gray-50 border border-gray-200 shadow-sm hover:shadow-md text-gray-600 hover:text-[#021ff6] h-6 w-6 rounded-full flex items-center justify-center transition-all duration-200 transform hover:scale-110 active:scale-95"

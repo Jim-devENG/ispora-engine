@@ -957,13 +957,13 @@ export function CreditsPage() {
                     
                     <div className="grid gap-4">
                       <div className="text-center p-4 bg-gray-50 rounded-lg">
-                        <p className="text-2xl font-bold text-gray-900">{USER_STATS.referralsSuccessful}</p>
+                        <p className="text-2xl font-bold text-gray-900">{userOverview?.referralsSuccessful || 0}</p>
                         <p className="text-sm text-gray-600">Successful Referrals</p>
                       </div>
                       
                       <div className="text-center p-4 bg-gray-50 rounded-lg">
                         <p className="text-2xl font-bold text-green-600">
-                          +{(USER_STATS.referralsSuccessful * POINT_VALUES.PLATFORM_INVITE).toLocaleString()}
+                          +{((userOverview?.referralsSuccessful || 0) * 50).toLocaleString()}
                         </p>
                         <p className="text-sm text-gray-600">Points Earned</p>
                       </div>

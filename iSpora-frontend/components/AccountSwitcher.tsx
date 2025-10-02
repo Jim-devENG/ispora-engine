@@ -56,7 +56,7 @@ export function AccountSwitcher({ trigger, showInHeader = false }: AccountSwitch
 
   const defaultTrigger = showInHeader ? (
     <Tooltip>
-      <TooltipTrigger asChild>
+      <TooltipTrigger>
         <TriggerButton />
       </TooltipTrigger>
       <TooltipContent side="bottom">
