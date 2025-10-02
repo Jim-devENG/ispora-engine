@@ -117,6 +117,8 @@ interface ResearchToolsProps {
   projectType?: string;
 }
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://ispora-backend.onrender.com/api';
+
 export function ResearchTools({ mentee, projectType = 'academic' }: ResearchToolsProps) {
   const [activeTab, setActiveTab] = useState("literature");
   const [searchQuery, setSearchQuery] = useState("");
@@ -144,107 +146,43 @@ export function ResearchTools({ mentee, projectType = 'academic' }: ResearchTool
   });
   const [referenceCategories, setReferenceCategories] = useState<string[]>(["Literature Review", "Methodology", "Theory"]);
 
-  // Mock data for demonstration
-  const [researchSources, setResearchSources] = useState<ResearchSource[]>([
-    {
-      id: "1",
-      title: "Deep Learning Approaches to Ethical AI Decision Making",
-      authors: ["Smith, J.", "Johnson, M.", "Williams, K."],
-      year: 2024,
-      type: "journal",
-      url: "https://example.com/paper1",
-      abstract: "This paper explores the integration of ethical frameworks into deep learning models for autonomous decision-making systems...",
-      keywords: ["machine learning", "ethics", "AI governance", "algorithmic fairness"],
-      relevance: 95,
-      notes: "Highly relevant to our project's ethical AI component",
-      addedBy: "Alex Chen",
-      addedDate: "2024-01-15",
-      favorite: true,
-      citations: 142,
-      doi: "10.1000/xyz123"
-    },
-    {
-      id: "2",
-      title: "Community-Centered Design for Educational Technology",
-      authors: ["Brown, L.", "Davis, R."],
-      year: 2023,
-      type: "conference",
-      url: "https://example.com/paper2",
-      abstract: "An exploration of participatory design methods in educational technology development...",
-      keywords: ["education", "community design", "technology", "participation"],
-      relevance: 88,
-      addedBy: "Sarah Williams",
-      addedDate: "2024-01-20",
-      favorite: false,
-      citations: 67
-    },
-    {
-      id: "3",
-      title: "Sustainable Agriculture Practices in Developing Countries",
-      authors: ["Green, P.", "Eco, A.", "Sustain, B."],
-      year: 2023,
-      type: "report",
-      abstract: "Comprehensive analysis of sustainable farming techniques and their impact on local communities...",
-      keywords: ["agriculture", "sustainability", "development", "community impact"],
-      relevance: 82,
-      addedBy: "Jordan Martinez",
-      addedDate: "2024-01-25",
-      favorite: false,
-      citations: 34
-    }
-  ]);
+  // Real-time state (no demo)
+  const [researchSources, setResearchSources] = useState<ResearchSource[]>([]);
+  const [researchNotes, setResearchNotes] = useState<ResearchNote[]>([]);
+  const [dataSets, setDataSets] = useState<DataSet[]>([]);
 
-  const [researchNotes, setResearchNotes] = useState<ResearchNote[]>([
-    {
-      id: "1",
-      title: "Research Methodology Framework",
-      content: "Mixed-methods approach combining quantitative surveys with qualitative interviews. Sample size: 200 participants from 5 universities.",
-      tags: ["methodology", "mixed-methods", "survey design"],
-      author: "Alex Chen",
-      createdDate: "2024-01-20",
-      lastModified: "2024-01-22",
-      shared: true,
-      category: "methodology"
-    },
-    {
-      id: "2",
-      title: "Key Findings from Literature Review",
-      content: "Three main themes emerging: 1) Ethical frameworks are inconsistently applied, 2) Technical implementation varies widely, 3) Need for standardized evaluation metrics.",
-      tags: ["literature review", "findings", "themes"],
-      author: "Sarah Williams",
-      createdDate: "2024-01-18",
-      lastModified: "2024-01-18",
-      shared: true,
-      category: "insight"
-    }
-  ]);
+  useEffect(() => {
+    const controller = new AbortController();
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    const devKey = localStorage.getItem('devKey');
+    const token = localStorage.getItem('token');
+    if (devKey) headers['X-Dev-Key'] = devKey;
+    if (token) headers['Authorization'] = `Bearer ${token}`;
 
-  const [dataSets, setDataSets] = useState<DataSet[]>([
-    {
-      id: "1",
-      name: "Student Technology Usage Survey",
-      description: "Survey responses from 500+ students about educational technology preferences and usage patterns",
-      type: "survey",
-      size: 1250,
-      format: "CSV",
-      uploadedBy: "Alex Chen",
-      uploadedDate: "2024-01-15",
-      tags: ["education", "technology", "survey"],
-      public: false
-    },
-    {
-      id: "2",
-      name: "Community Innovation Case Studies",
-      description: "Qualitative data from 20 community innovation projects across different regions",
-      type: "qualitative",
-      size: 45,
-      format: "PDF",
-      uploadedBy: "Jordan Martinez",
-      uploadedDate: "2024-01-22",
-      tags: ["innovation", "community", "case studies"],
-      public: true
-    }
-  ]);
+    const load = async () => {
+      try {
+        const [sRes, nRes, dRes] = await Promise.all([
+          fetch(`${API_BASE_URL}/research/sources`, { headers, signal: controller.signal }),
+          fetch(`${API_BASE_URL}/research/notes`, { headers, signal: controller.signal }),
+          fetch(`${API_BASE_URL}/research/datasets`, { headers, signal: controller.signal })
+        ]);
+        const [sJson, nJson, dJson] = await Promise.all([sRes.json(), nRes.json(), dRes.json()]);
+        const sRows = Array.isArray(sJson.data) ? sJson.data : [];
+        const nRows = Array.isArray(nJson.data) ? nJson.data : [];
+        const dRows = Array.isArray(dJson.data) ? dJson.data : [];
+        setResearchSources(sRows);
+        setResearchNotes(nRows);
+        setDataSets(dRows);
+      } catch {
+        setResearchSources([]);
+        setResearchNotes([]);
+        setDataSets([]);
+      }
+    };
+    load();
+    const id = setInterval(load, 30000);
+    return () => { controller.abort(); clearInterval(id); };
+  }, []);
 
   // New source form state
   const [newSource, setNewSource] = useState({
@@ -293,25 +231,28 @@ export function ResearchTools({ mentee, projectType = 'academic' }: ResearchTool
     question: "bg-yellow-100 text-yellow-700"
   };
 
-  const addSource = () => {
+  const addSource = async () => {
     if (newSource.title && newSource.authors) {
-      const source: ResearchSource = {
-        id: Date.now().toString(),
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      const devKey = localStorage.getItem('devKey');
+      const token = localStorage.getItem('token');
+      if (devKey) headers['X-Dev-Key'] = devKey;
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      const body = {
         title: newSource.title,
-        authors: newSource.authors.split(',').map(a => a.trim()),
+        authors: newSource.authors,
         year: newSource.year,
         type: newSource.type,
-        url: newSource.url || undefined,
-        abstract: newSource.abstract || undefined,
-        keywords: newSource.keywords ? newSource.keywords.split(',').map(k => k.trim()) : [],
-        relevance: 0,
-        notes: newSource.notes || undefined,
-        addedBy: mentee.name,
-        addedDate: new Date().toISOString().split('T')[0],
-        favorite: false
+        url: newSource.url,
+        abstract: newSource.abstract,
+        keywords: newSource.keywords,
+        notes: newSource.notes
       };
-      
-      setResearchSources(prev => [...prev, source]);
+      try {
+        const res = await fetch(`${API_BASE_URL}/research/sources`, { method: 'POST', headers, body: JSON.stringify(body) });
+        const json = await res.json();
+        if (res.ok) setResearchSources(prev => [json.data || json, ...prev]);
+      } catch {}
       setNewSource({
         title: "",
         authors: "",
@@ -326,21 +267,24 @@ export function ResearchTools({ mentee, projectType = 'academic' }: ResearchTool
     }
   };
 
-  const addNote = () => {
+  const addNote = async () => {
     if (newNote.title && newNote.content) {
-      const note: ResearchNote = {
-        id: Date.now().toString(),
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      const devKey = localStorage.getItem('devKey');
+      const token = localStorage.getItem('token');
+      if (devKey) headers['X-Dev-Key'] = devKey;
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      const body = {
         title: newNote.title,
         content: newNote.content,
-        tags: newNote.tags ? newNote.tags.split(',').map(t => t.trim()) : [],
-        author: mentee.name,
-        createdDate: new Date().toISOString().split('T')[0],
-        lastModified: new Date().toISOString().split('T')[0],
-        shared: false,
+        tags: newNote.tags,
         category: newNote.category
       };
-      
-      setResearchNotes(prev => [...prev, note]);
+      try {
+        const res = await fetch(`${API_BASE_URL}/research/notes`, { method: 'POST', headers, body: JSON.stringify(body) });
+        const json = await res.json();
+        if (res.ok) setResearchNotes(prev => [json.data || json, ...prev]);
+      } catch {}
       setNewNote({
         title: "",
         content: "",

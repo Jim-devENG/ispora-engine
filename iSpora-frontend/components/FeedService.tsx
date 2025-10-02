@@ -6,11 +6,15 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://ispora-backend.onr
 // Real-time feed service using backend API
 const fetchFeedItems = async (page = 1, limit = 20) => {
   try {
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    const devKey = localStorage.getItem('devKey');
+    const token = localStorage.getItem('token');
+    if (devKey) headers['X-Dev-Key'] = devKey;
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
     const response = await fetch(`${API_BASE_URL}/feed?page=${page}&limit=${limit}`, {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers,
     });
 
     if (!response.ok) {

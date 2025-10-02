@@ -63,85 +63,11 @@ interface VoiceChatProps {
   mentee: Mentee;
 }
 
-// Mock messages data
-const mockMessages: Message[] = [
-  {
-    id: "1",
-    content: "Hi Dr. Amina! I've completed the first part of the ML project. The data preprocessing is done and I've started with feature engineering.",
-    sender: "Amara Okafor",
-    senderAvatar: "https://images.unsplash.com/photo-1494790108755-2616b25f5e55?w=150&h=150&fit=crop&crop=face",
-    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
-    type: 'text',
-    isRead: true
-  },
-  {
-    id: "2",
-    content: "That's excellent! I'd love to see your approach to feature engineering. Can you share your notebook?",
-    sender: "Dr. Amina Hassan",
-    senderAvatar: "https://images.unsplash.com/photo-1494790108755-2616b25f5e55?w=150&h=150&fit=crop&crop=face",
-    timestamp: new Date(Date.now() - 90 * 60 * 1000),
-    type: 'text',
-    isRead: true
-  },
-  {
-    id: "3",
-    content: "Voice message about feature engineering approach",
-    sender: "Amara Okafor",
-    senderAvatar: "https://images.unsplash.com/photo-1494790108755-2616b25f5e55?w=150&h=150&fit=crop&crop=face",
-    timestamp: new Date(Date.now() - 75 * 60 * 1000),
-    type: 'voice',
-    duration: 120,
-    fileUrl: "#",
-    isRead: true
-  },
-  {
-    id: "4",
-    content: "ml_project_notebook.ipynb",
-    sender: "Amara Okafor",
-    senderAvatar: "https://images.unsplash.com/photo-1494790108755-2616b25f5e55?w=150&h=150&fit=crop&crop=face",
-    timestamp: new Date(Date.now() - 60 * 60 * 1000),
-    type: 'file',
-    fileName: "ml_project_notebook.ipynb",
-    fileSize: 156732,
-    fileUrl: "#",
-    isRead: true
-  },
-  {
-    id: "5",
-    content: "Perfect! I'll review this today and give you feedback. Your approach looks solid from what I can see in the initial cells.",
-    sender: "Dr. Amina Hassan",
-    senderAvatar: "https://images.unsplash.com/photo-1494790108755-2616b25f5e55?w=150&h=150&fit=crop&crop=face",
-    timestamp: new Date(Date.now() - 30 * 60 * 1000),
-    type: 'text',
-    isRead: true
-  }
-];
+// Start with empty messages; populate in real-time
+const initialMessages: Message[] = [];
 
-// Mock voice notes data
-const mockVoiceNotes: VoiceNote[] = [
-  {
-    id: "v1",
-    title: "Feature Engineering Explanation",
-    duration: 120,
-    url: "#",
-    timestamp: new Date(Date.now() - 75 * 60 * 1000),
-    sender: "Amara Okafor",
-    senderAvatar: "https://images.unsplash.com/photo-1494790108755-2616b25f5e55?w=150&h=150&fit=crop&crop=face",
-    tags: ["machine-learning", "feature-engineering"],
-    transcript: "So for the feature engineering part, I decided to use polynomial features and also tried some interaction terms..."
-  },
-  {
-    id: "v2",
-    title: "Career Advice - Tech Industry",
-    duration: 180,
-    url: "#",
-    timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
-    sender: "Dr. Amina Hassan",
-    senderAvatar: "https://images.unsplash.com/photo-1494790108755-2616b25f5e55?w=150&h=150&fit=crop&crop=face",
-    tags: ["career", "advice", "tech-industry"],
-    transcript: "When looking at tech companies, focus on building a strong portfolio that demonstrates both technical skills and problem-solving ability..."
-  }
-];
+// Start with no voice notes
+const initialVoiceNotes: VoiceNote[] = [];
 
 function MessageBubble({ message, isOwnMessage }: { message: Message; isOwnMessage: boolean }) {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -363,17 +289,20 @@ function VoiceNoteCard({ voiceNote, onPlay, onDelete }: {
 }
 
 export function VoiceChat({ mentee }: VoiceChatProps) {
-  const [messages, setMessages] = useState<Message[]>(mockMessages);
-  const [voiceNotes, setVoiceNotes] = useState<VoiceNote[]>(mockVoiceNotes);
+  const [messages, setMessages] = useState<Message[]>(initialMessages);
+  const [voiceNotes, setVoiceNotes] = useState<VoiceNote[]>(initialVoiceNotes);
   const [newMessage, setNewMessage] = useState("");
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const [activeTab, setActiveTab] = useState<'chat' | 'voice-notes'>('chat');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Mock current user (mentor)
-  const currentUser = "Dr. Amina Hassan";
-  const currentUserAvatar = "https://images.unsplash.com/photo-1494790108755-2616b25f5e55?w=150&h=150&fit=crop&crop=face";
+  // Use logged-in user if available in localStorage
+  const storedUser = (() => {
+    try { return JSON.parse(localStorage.getItem('user') || '{}'); } catch { return {}; }
+  })();
+  const currentUser = storedUser?.firstName ? `${storedUser.firstName} ${storedUser.lastName || ''}`.trim() : (storedUser?.email?.split('@')[0] || 'User');
+  const currentUserAvatar = storedUser?.avatar || undefined;
 
   const handleSendMessage = () => {
     if (!newMessage.trim()) return;

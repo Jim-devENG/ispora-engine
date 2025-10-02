@@ -18,19 +18,17 @@ const TooltipProvider = React.forwardRef<
 ));
 TooltipProvider.displayName = "TooltipProvider";
 
-const Tooltip = React.forwardRef<
-  React.ElementRef<typeof TooltipPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Root>
->(({ ...props }, ref) => (
-  <TooltipPrimitive.Root ref={ref} data-slot="tooltip" {...props} />
-));
+// Radix Root components are not DOM nodes; do not forward refs to them
+const Tooltip = (props: React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Root>) => (
+  <TooltipPrimitive.Root data-slot="tooltip" {...props} />
+);
 Tooltip.displayName = "Tooltip";
 
 const TooltipTrigger = React.forwardRef<
   React.ElementRef<typeof TooltipPrimitive.Trigger>,
   React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Trigger>
->(({ ...props }, ref) => (
-  <TooltipPrimitive.Trigger ref={ref} data-slot="tooltip-trigger" {...props} />
+>(({ asChild = true, ...props }, ref) => (
+  <TooltipPrimitive.Trigger asChild={asChild} ref={ref} data-slot="tooltip-trigger" {...props} />
 ));
 TooltipTrigger.displayName = "TooltipTrigger";
 

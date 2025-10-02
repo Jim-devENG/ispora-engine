@@ -779,17 +779,7 @@ export function LearningVault({ mentee }: LearningVaultProps) {
           </TabsContent>
 
           <TabsContent value="recordings" className="mt-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {mockRecordings.map((recording) => (
-                <RecordingCard 
-                  key={recording.id} 
-                  recording={recording} 
-                  onPlay={() => console.log("Play", recording.title)}
-                  onDelete={() => console.log("Delete", recording.id)}
-                  onEdit={() => console.log("Edit", recording.title)}
-                />
-              ))}
-            </div>
+            <VideoRecorderPanel mentee={mentee} onBackToLibrary={() => setActiveView("library")} />
           </TabsContent>
         </Tabs>
       </div>

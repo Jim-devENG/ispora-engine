@@ -70,28 +70,7 @@ interface Participant {
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://ispora-backend.onrender.com/api';
 
-// Mock participants
-const mockParticipants: Participant[] = [
-  {
-    id: "1",
-    name: "Dr. Jane",
-    avatar: "https://images.unsplash.com/photo-1494790108755-2616b25f5e55?w=150&h=150&fit=crop&crop=face",
-    isMuted: false,
-    hasVideo: true,
-    isCurrentUser: true,
-    role: 'mentor',
-    isOnline: true
-  },
-  {
-    id: "2",
-    name: "Alex Chen",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
-    isMuted: false,
-    hasVideo: true,
-    role: 'mentee',
-    isOnline: true
-  }
-];
+// No mock participants
 
 function SessionTimer() {
   const [duration, setDuration] = useState(0);
@@ -159,55 +138,12 @@ function VideoArea({ isInSession, onJoinSession, isScreenSharing }: {
                 </div>
               </div>
             ) : (
-              // Video grid view
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 w-full h-full p-2">
-                {mockParticipants.map((participant, index) => (
-                  <div 
-                    key={participant.id}
-                    className={`relative rounded-lg overflow-hidden video-tile ${
-                      index === 0 ? 'bg-gradient-to-br from-blue-600 to-purple-700' 
-                                  : 'bg-gradient-to-br from-green-500 to-blue-600'
-                    }`}
-                  >
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="text-center text-white">
-                        <Avatar className={`mx-auto mb-3 border-2 border-white ${
-                          index === 0 ? 'h-16 w-16' : 'h-12 w-12'
-                        }`}>
-                          <AvatarImage src={participant.avatar} />
-                          <AvatarFallback>{participant.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                        </Avatar>
-                        <p className="font-medium">{participant.name}</p>
-                        <p className="text-xs opacity-80 capitalize">{participant.role}</p>
-                      </div>
-                    </div>
-                    
-                    {/* Participant status indicators */}
-                    <div className="absolute bottom-2 left-2 flex gap-1">
-                      {participant.isMuted ? (
-                        <div className="bg-red-500 rounded-full p-1">
-                          <MicOff className="h-3 w-3 text-white" />
-                        </div>
-                      ) : (
-                        <div className="bg-green-500 rounded-full p-1">
-                          <Mic className="h-3 w-3 text-white" />
-                        </div>
-                      )}
-                      {!participant.hasVideo && (
-                        <div className="bg-red-500 rounded-full p-1">
-                          <VideoOff className="h-3 w-3 text-white" />
-                        </div>
-                      )}
-                    </div>
-                    
-                    {/* Current user indicator */}
-                    {participant.isCurrentUser && (
-                      <div className="absolute top-2 right-2">
-                        <Badge variant="secondary" className="text-xs">You</Badge>
-                      </div>
-                    )}
-                  </div>
-                ))}
+              // Video area placeholder until streaming is integrated
+              <div className="w-full h-full bg-gray-800 flex items-center justify-center">
+                <div className="text-center text-white">
+                  <Video className="h-16 w-16 mx-auto mb-4 opacity-70" />
+                  <p className="text-sm text-gray-300">Streaming will appear here once connected</p>
+                </div>
               </div>
             )}
           </div>
