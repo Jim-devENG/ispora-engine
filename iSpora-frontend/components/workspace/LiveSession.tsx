@@ -68,53 +68,7 @@ interface Participant {
   isOnline: boolean;
 }
 
-// Mock chat messages with system messages
-const mockChatMessages: ChatMessage[] = [
-  {
-    id: "0",
-    sender: "System",
-    message: "Session started. Welcome!",
-    timestamp: "2:10 PM",
-    type: "system"
-  },
-  {
-    id: "1",
-    sender: "Alex",
-    message: "Thanks for sharing that resource!",
-    timestamp: "2:15 PM",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"
-  },
-  {
-    id: "2",
-    sender: "Dr. Jane",
-    message: "Here's the GitHub link: github.com/react-patterns",
-    timestamp: "2:16 PM",
-    avatar: "https://images.unsplash.com/photo-1494790108755-2616b25f5e55?w=150&h=150&fit=crop&crop=face",
-    isCurrentUser: true
-  },
-  {
-    id: "3",
-    sender: "Alex",
-    message: "Could you explain the useCallback hook again?",
-    timestamp: "2:18 PM",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"
-  },
-  {
-    id: "4",
-    sender: "Dr. Jane",
-    message: "Sure! Let me share my screen and walk through an example. This might take a few minutes to set up properly.",
-    timestamp: "2:19 PM",
-    avatar: "https://images.unsplash.com/photo-1494790108755-2616b25f5e55?w=150&h=150&fit=crop&crop=face",
-    isCurrentUser: true
-  },
-  {
-    id: "5",
-    sender: "System",
-    message: "Dr. Jane is now sharing screen",
-    timestamp: "2:19 PM",
-    type: "system"
-  }
-];
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://ispora-backend.onrender.com/api';
 
 // Mock participants
 const mockParticipants: Participant[] = [
@@ -287,7 +241,7 @@ function VideoArea({ isInSession, onJoinSession, isScreenSharing }: {
 }
 
 function ChatSidebar({ isOpen, onToggle }: { isOpen: boolean; onToggle: () => void }) {
-  const [messages, setMessages] = useState<ChatMessage[]>(mockChatMessages);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -299,19 +253,21 @@ function ChatSidebar({ isOpen, onToggle }: { isOpen: boolean; onToggle: () => vo
     scrollToBottom();
   }, [messages]);
 
-  const sendMessage = () => {
-    if (newMessage.trim()) {
-      const message: ChatMessage = {
-        id: Date.now().toString(),
-        sender: "Dr. Jane",
-        message: newMessage,
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        avatar: "https://images.unsplash.com/photo-1494790108755-2616b25f5e55?w=150&h=150&fit=crop&crop=face",
-        isCurrentUser: true
-      };
-      setMessages([...messages, message]);
-      setNewMessage("");
-    }
+  const sendMessage = async () => {
+    if (!newMessage.trim()) return;
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    const devKey = localStorage.getItem('devKey');
+    const token = localStorage.getItem('token');
+    if (devKey) headers['X-Dev-Key'] = devKey;
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    try {
+      // For now post to a default event id 'default'
+      const res = await fetch(`${API_BASE_URL}/live/events/default/chat`, { method: 'POST', headers, body: JSON.stringify({ content: newMessage, type: 'text' }) });
+      if (res.ok) {
+        setMessages(prev => [...prev, { id: Date.now().toString(), sender: 'You', message: newMessage, timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), isCurrentUser: true }]);
+        setNewMessage("");
+      }
+    } catch {}
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -418,45 +374,13 @@ function ParticipantsPanel() {
       <CardHeader className="pb-3">
         <CardTitle className="text-base flex items-center gap-2">
           <Users className="h-4 w-4" />
-          Participants ({mockParticipants.length})
+          Participants (0)
         </CardTitle>
       </CardHeader>
       <CardContent className="p-3 pt-0">
         <ScrollArea className="h-48">
           <div className="space-y-2">
-            {mockParticipants.map((participant) => (
-              <div key={participant.id} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
-                <div className="flex items-center gap-2">
-                  <div className="relative">
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage src={participant.avatar} />
-                      <AvatarFallback className="text-xs">
-                        {participant.name.split(' ').map(n => n[0]).join('')}
-                      </AvatarFallback>
-                    </Avatar>
-                    {participant.isOnline && (
-                      <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
-                    )}
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium">{participant.name}</p>
-                    <p className="text-xs text-gray-600 capitalize">{participant.role}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-1">
-                  {participant.isMuted ? (
-                    <MicOff className="h-3 w-3 text-red-500" />
-                  ) : (
-                    <Mic className="h-3 w-3 text-green-500" />
-                  )}
-                  {participant.hasVideo ? (
-                    <Video className="h-3 w-3 text-green-500" />
-                  ) : (
-                    <VideoOff className="h-3 w-3 text-red-500" />
-                  )}
-                </div>
-              </div>
-            ))}
+            {/* No mock participants */}
           </div>
         </ScrollArea>
       </CardContent>

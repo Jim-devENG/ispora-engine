@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FileText, Upload, Download, CheckCircle, Clock, AlertCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
@@ -26,28 +26,7 @@ interface DeliverableSubmissionsProps {
   mentee: Mentee;
 }
 
-const mockSubmissions: Submission[] = [
-  {
-    id: "1",
-    title: "Machine Learning Project Report",
-    description: "Final report for the classification project including methodology and results",
-    status: 'approved',
-    submittedDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
-    fileName: "ml_project_report.pdf",
-    fileSize: 2456789,
-    feedback: "Excellent work! Your methodology is sound and results are well-presented."
-  },
-  {
-    id: "2", 
-    title: "Portfolio Website",
-    description: "Personal portfolio showcasing recent projects and skills",
-    status: 'needs-revision',
-    submittedDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
-    fileName: "portfolio_link.txt",
-    fileSize: 156,
-    feedback: "Great start! Please add more detailed project descriptions and improve the visual design."
-  }
-];
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://ispora-backend.onrender.com/api';
 
 const statusColors = {
   pending: "bg-yellow-100 text-yellow-800",
@@ -62,7 +41,46 @@ const statusIcons = {
 };
 
 export function DeliverableSubmissions({ mentee }: DeliverableSubmissionsProps) {
-  const [submissions] = useState<Submission[]>(mockSubmissions);
+  const [submissions, setSubmissions] = useState<Submission[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    const load = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+        const devKey = localStorage.getItem('devKey');
+        const token = localStorage.getItem('token');
+        if (devKey) headers['X-Dev-Key'] = devKey;
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+        const res = await fetch(`${API_BASE_URL}/deliverables`, { headers, signal: controller.signal });
+        const json = await res.json();
+        const rows = Array.isArray(json.data) ? json.data : [];
+        const mapped: Submission[] = rows.map((r: any) => ({
+          id: r.id,
+          title: r.title,
+          description: r.description || '',
+          status: (r.status || 'pending'),
+          submittedDate: r.submitted_at ? new Date(r.submitted_at) : new Date(r.created_at || Date.now()),
+          fileName: 'file',
+          fileSize: 0,
+          feedback: r.feedback || undefined
+        }));
+        setSubmissions(mapped);
+      } catch (e) {
+        setError('Failed to load deliverables');
+        setSubmissions([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+    const id = setInterval(load, 30000);
+    return () => { controller.abort(); clearInterval(id); };
+  }, []);
 
   const formatFileSize = (bytes: number) => {
     const k = 1024;
@@ -89,6 +107,12 @@ export function DeliverableSubmissions({ mentee }: DeliverableSubmissionsProps) 
       <div className="flex-1 min-h-0 overflow-hidden">
         <ScrollArea className="h-full">
           <div className="p-6 space-y-4">
+            {(!loading && submissions.length === 0) && (
+              <div className="text-center py-12 text-gray-500">
+                <FileText className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                <p>No deliverables yet</p>
+              </div>
+            )}
             {submissions.map((submission) => {
               const StatusIcon = statusIcons[submission.status];
               

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { 
   BookOpen, 
   Play, 
@@ -82,67 +82,9 @@ interface LearningVaultProps {
   mentee: Mentee;
 }
 
-// Mock content data including video recordings
-const mockContent: LearningContent[] = [
-  {
-    id: "1",
-    title: "Introduction to Feature Engineering",
-    description: "A comprehensive guide to feature engineering techniques for machine learning projects",
-    type: 'video',
-    category: 'skills',
-    duration: 1245,
-    thumbnail: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400&h=225&fit=crop",
-    url: "#",
-    progress: 85,
-    rating: 4.8,
-    uploadDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-    lastAccessed: new Date(Date.now() - 1 * 60 * 60 * 1000),
-    tags: ["machine-learning", "feature-engineering", "python"]
-  },
-  {
-    id: "2",
-    title: "Getting Started Guide",
-    description: "Welcome to your mentorship journey! This guide covers expectations and goals.",
-    type: 'document',
-    category: 'orientation',
-    thumbnail: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=225&fit=crop",
-    url: "#",
-    progress: 100,
-    rating: 4.5,
-    uploadDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-    lastAccessed: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
-    tags: ["orientation", "getting-started"]
-  }
-];
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://ispora-backend.onrender.com/api';
 
-// Mock recordings data
-const mockRecordings: Recording[] = [
-  {
-    id: "r1",
-    title: "Career Path Discussion - AI/ML Roles",
-    description: "Exploring different career opportunities in AI and Machine Learning",
-    duration: 892, // 14:52
-    url: "#",
-    thumbnail: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=400&h=225&fit=crop",
-    timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-    type: 'webcam',
-    tags: ["career", "ai", "ml", "advice"],
-    size: 67234567,
-    status: 'ready'
-  },
-  {
-    id: "r2",
-    title: "Code Review Session",
-    description: "Reviewing the student's machine learning project implementation",
-    duration: 654, // 10:54
-    url: "#",
-    timestamp: new Date(Date.now() - 30 * 60 * 1000),
-    type: 'screen',
-    tags: ["code-review", "python", "debugging"],
-    size: 45678912,
-    status: 'processing'
-  }
-];
+// No mock recordings
 
 const categoryConfig = {
   orientation: { label: "Orientation", color: "bg-blue-100 text-blue-800" },
@@ -376,7 +318,7 @@ function VideoRecorderPanel({ mentee, onBackToLibrary }: {
   mentee: Mentee;
   onBackToLibrary: () => void;
 }) {
-  const [recordings, setRecordings] = useState<Recording[]>(mockRecordings);
+  const [recordings, setRecordings] = useState<Recording[]>([]);
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const [recordingType, setRecordingType] = useState<'screen' | 'webcam' | 'both'>('both');
@@ -414,30 +356,39 @@ function VideoRecorderPanel({ mentee, onBackToLibrary }: {
     // Pause recording logic here
   };
 
-  const handleSaveRecording = (title: string, description: string, tags: string[]) => {
-    const newRecording: Recording = {
-      id: Date.now().toString(),
-      title,
-      description,
-      duration: recordingTime,
-      url: "#",
-      timestamp: new Date(),
-      type: recordingType,
-      tags,
-      size: Math.floor(Math.random() * 100000000), // Mock size
-      status: 'processing'
-    };
-
-    setRecordings(prev => [newRecording, ...prev]);
-    setShowSaveDialog(false);
-    setRecordingTime(0);
-
-    // Simulate processing
-    setTimeout(() => {
-      setRecordings(prev => prev.map(r => 
-        r.id === newRecording.id ? { ...r, status: 'ready' as const } : r
-      ));
-    }, 3000);
+  const handleSaveRecording = async (title: string, description: string, tags: string[]) => {
+    try {
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      const devKey = localStorage.getItem('devKey');
+      const token = localStorage.getItem('token');
+      if (devKey) headers['X-Dev-Key'] = devKey;
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      const body = {
+        title,
+        description,
+        duration: recordingTime,
+        url: '#',
+        transcript: null
+      };
+      const res = await fetch(`${API_BASE_URL}/learning/recordings`, { method: 'POST', headers, body: JSON.stringify(body) });
+      const json = await res.json();
+      const r = json.data || json;
+      const created: Recording = {
+        id: r.id,
+        title: r.title,
+        description: r.description || undefined,
+        duration: r.duration || recordingTime,
+        url: r.url || '#',
+        timestamp: new Date(r.created_at || Date.now()),
+        type: recordingType,
+        tags,
+        size: 0,
+        status: 'ready'
+      };
+      setRecordings(prev => [created, ...prev]);
+      setShowSaveDialog(false);
+      setRecordingTime(0);
+    } catch {}
   };
 
   const handlePlayRecording = (recording: Recording) => {
@@ -702,10 +653,44 @@ function VideoRecorderPanel({ mentee, onBackToLibrary }: {
 }
 
 export function LearningVault({ mentee }: LearningVaultProps) {
-  const [content] = useState<LearningContent[]>(mockContent);
+  const [content, setContent] = useState<LearningContent[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [activeView, setActiveView] = useState<"library" | "recorder">("library");
+
+  useEffect(() => {
+    const controller = new AbortController();
+    const load = async () => {
+      try {
+        const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+        const devKey = localStorage.getItem('devKey');
+        const token = localStorage.getItem('token');
+        if (devKey) headers['X-Dev-Key'] = devKey;
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+        const res = await fetch(`${API_BASE_URL}/learning/content`, { headers, signal: controller.signal });
+        const json = await res.json();
+        const rows = Array.isArray(json.data) ? json.data : [];
+        const mapped: LearningContent[] = rows.map((r: any) => ({
+          id: r.id,
+          title: r.title,
+          description: r.description || '',
+          type: (r.type || 'document'),
+          category: 'tools',
+          duration: undefined,
+          url: r.url || '#',
+          progress: 0,
+          uploadDate: new Date(r.created_at || Date.now()),
+          tags: r.tags ? String(r.tags).split(',').filter(Boolean) : []
+        }));
+        setContent(mapped);
+      } catch {
+        setContent([]);
+      }
+    };
+    load();
+    const id = setInterval(load, 30000);
+    return () => { controller.abort(); clearInterval(id); };
+  }, []);
 
   const filteredContent = content.filter(item => {
     const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase());
@@ -773,15 +758,7 @@ export function LearningVault({ mentee }: LearningVaultProps) {
               {filteredContent.map((item) => (
                 <ContentCard key={item.id} content={item} onView={() => console.log("View", item.title)} />
               ))}
-              {mockRecordings.map((recording) => (
-                <RecordingCard 
-                  key={recording.id} 
-                  recording={recording} 
-                  onPlay={() => console.log("Play", recording.title)}
-                  onDelete={() => console.log("Delete", recording.id)}
-                  onEdit={() => console.log("Edit", recording.title)}
-                />
-              ))}
+              {/* No mock recordings listed here */}
             </div>
           </TabsContent>
 
