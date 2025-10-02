@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Plus,
   Search,
@@ -73,274 +73,15 @@ interface ProjectDashboardProps {
   onViewProject?: (projectId: string) => void;
 }
 
-const traditionalCategories = [
-  { id: "education", label: "Education", icon: BookOpen },
-  { id: "healthcare", label: "Healthcare", icon: Stethoscope },
-  { id: "agriculture", label: "Agriculture", icon: Sprout },
-  { id: "technology", label: "Technology", icon: Zap },
-  { id: "environment", label: "Environment", icon: TreePine },
-  { id: "energy", label: "Energy", icon: Energy },
-  { id: "manufacturing", label: "Manufacturing", icon: Factory },
-  { id: "arts-culture", label: "Arts & Culture", icon: Palette },
-  { id: "social-services", label: "Social Services", icon: Heart },
-  { id: "security", label: "Security & Defense", icon: Shield },
-  { id: "entrepreneurship", label: "Entrepreneurship", icon: Lightbulb },
-  { id: "research", label: "Research & Development", icon: FileText }
-];
+// Removed demo categories – relying on real project fields only
 
-const aspiraCategories = [
-  {
-    id: "all",
-    label: "All Projects",
-    icon: Folder,
-    color: "bg-gray-100 text-gray-700 hover:bg-gray-200",
-    darkColor: "dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
-  },
-  {
-    id: "mentorship",
-    label: "Mentorship & Coaching",
-    icon: Users,
-    color: "bg-orange-100 text-orange-700 hover:bg-orange-200",
-    darkColor: "dark:bg-orange-900 dark:text-orange-200 dark:hover:bg-orange-800"
-  },
-  {
-    id: "academic",
-    label: "Academic & Research Projects",
-    icon: BookOpen,
-    color: "bg-blue-100 text-blue-700 hover:bg-blue-200",
-    darkColor: "dark:bg-blue-900 dark:text-blue-200 dark:hover:bg-blue-800"
-  },
-  {
-    id: "career",
-    label: "Career & Entrepreneurship",
-    icon: Briefcase,
-    color: "bg-amber-100 text-amber-700 hover:bg-amber-200",
-    darkColor: "dark:bg-amber-900 dark:text-amber-200 dark:hover:bg-amber-800"
-  },
-  {
-    id: "community",
-    label: "Community Impact Projects",
-    icon: Heart,
-    color: "bg-green-100 text-green-700 hover:bg-green-200",
-    darkColor: "dark:bg-green-900 dark:text-green-200 dark:hover:bg-green-800"
-  },
-  {
-    id: "collaboration",
-    label: "Collaboration & Innovation Projects",
-    icon: Lightbulb,
-    color: "bg-yellow-100 text-yellow-700 hover:bg-yellow-200",
-    darkColor: "dark:bg-yellow-900 dark:text-yellow-200 dark:hover:bg-yellow-800"
-  }
-];
+// Removed demo category chips – show only real projects
 
 // Helper function to get a date within the last 7 days
-const getRecentDate = (daysAgo: number) => {
-  const date = new Date();
-  date.setDate(date.getDate() - daysAgo);
-  return date.toISOString().split('T')[0];
-};
+// API base URL
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://ispora-backend.onrender.com/api';
 
-const mockProjects: Project[] = [
-  {
-    id: "1",
-    title: "Stanford AI Ethics Mentorship Program",
-    description: "Developing an AI ethics curriculum with Stanford students and industry mentors to promote responsible AI development",
-    status: "active",
-    startDate: "2026-01-15",
-    deadline: "2026-12-15",
-    category: "education",
-    aspiraCategory: "mentorship",
-    tags: ["AI", "Ethics", "Mentorship", "Stanford"],
-    team: [
-      { id: "1", name: "Dr. Sarah Chen", role: "Project Lead", avatar: "https://images.unsplash.com/photo-1494790108755-2616b25f5e55?w=150&h=150&fit=crop&crop=face" },
-      { id: "2", name: "Alex Johnson", role: "Curriculum Designer", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face" }
-    ],
-    university: "Stanford University",
-    mentorshipConnection: true,
-    campaignConnection: false,
-    joinableRoles: ["mentor", "student"],
-    isPublic: true,
-    seekingSupport: ["mentors", "industry-experts"],
-    canStudentsJoin: true
-  },
-  {
-    id: "2",
-    title: "Healthcare Professional Mentorship Network",
-    description: "Connecting experienced diaspora healthcare professionals with medical students and young practitioners in Africa",
-    status: "still-open",
-    startDate: "2026-02-01",
-    deadline: "2027-01-30",
-    category: "healthcare",
-    aspiraCategory: "mentorship",
-    tags: ["Healthcare", "Medical", "Mentorship", "Africa"],
-    team: [
-      { id: "3", name: "Dr. Amara Okafor", role: "Medical Director", avatar: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop&crop=face" }
-    ],
-    university: "University of Cape Town",
-    mentorshipConnection: true,
-    campaignConnection: false,
-    joinableRoles: ["mentor", "mentee"],
-    isPublic: true,
-    seekingSupport: ["medical-professionals", "mentors"],
-    canStudentsJoin: true
-  },
-  {
-    id: "3",
-    title: "MIT Research Collaboration Initiative",
-    description: "Academic research program connecting MIT students with global research partners on innovative technology solutions",
-    status: "active",
-    startDate: "2026-03-01",
-    deadline: "2026-08-30",
-    category: "education",
-    aspiraCategory: "academic",
-    tags: ["MIT", "Research", "Technology", "Collaboration"],
-    team: [
-      { id: "6", name: "MIT Research Office", role: "Program Lead" },
-      { id: "7", name: "Academic Affairs", role: "Coordination" }
-    ],
-    university: "MIT",
-    mentorshipConnection: false,
-    campaignConnection: false,
-    joinableRoles: ["researcher", "student", "coordinator"],
-    isPublic: true,
-    seekingSupport: ["researchers", "industry-partners"],
-    canStudentsJoin: true
-  },
-  {
-    id: "4",
-    title: "Tech Skills Career Development Program",
-    description: "Career-focused program providing technical skills training and job placement support for diaspora youth",
-    status: "active",
-    startDate: "2026-02-15",
-    deadline: "2026-10-31",
-    category: "technology",
-    aspiraCategory: "career",
-    tags: ["Career", "Skills", "Technology", "Job Placement"],
-    team: [
-      { id: "18", name: "Career Development Team", role: "Program Coordinators" },
-      { id: "19", name: "Industry Partners", role: "Placement Partners" }
-    ],
-    university: "Multiple Institutions",
-    mentorshipConnection: true,
-    campaignConnection: false,
-    joinableRoles: ["participant", "mentor", "instructor"],
-    isPublic: true,
-    seekingSupport: ["mentors", "industry-partners", "instructors"],
-    canStudentsJoin: true
-  },
-  {
-    id: "5",
-    title: "Digital Literacy for Rural Communities",
-    description: "Community service initiative teaching digital skills to underserved rural populations",
-    status: "active",
-    startDate: "2026-02-15",
-    deadline: "2026-10-31",
-    category: "technology",
-    aspiraCategory: "community",
-    tags: ["Digital Literacy", "Rural", "Community", "Education"],
-    team: [
-      { id: "20", name: "Community Outreach Volunteers", role: "Volunteer Coordinators" },
-      { id: "21", name: "Local Schools Partnership", role: "Venue Partners" }
-    ],
-    university: "Local Community Centers",
-    mentorshipConnection: false,
-    campaignConnection: true,
-    joinableRoles: ["volunteer", "trainer", "coordinator"],
-    isPublic: true,
-    seekingSupport: ["volunteers", "trainers", "equipment"],
-    canStudentsJoin: true
-  },
-  {
-    id: "6",
-    title: "AI Innovation Lab",
-    description: "Collaborative workspace for developing AI tools and solutions that address African challenges in healthcare, agriculture, and education",
-    status: "closed",
-    startDate: "2026-03-01",
-    deadline: "2026-06-30",
-    closedDate: getRecentDate(3), // Closed 3 days ago
-    category: "technology",
-    aspiraCategory: "collaboration",
-    tags: ["AI", "Innovation", "Collaboration", "Technology"],
-    team: [
-      { id: "14", name: "Dr. James Mwangi", role: "Lead Researcher" },
-      { id: "15", name: "AI Research Institute", role: "Research Partner" }
-    ],
-    university: "Stanford University",
-    mentorshipConnection: false,
-    campaignConnection: false,
-    joinableRoles: ["developer", "researcher", "coordinator"],
-    isPublic: true,
-    seekingSupport: [],
-    canStudentsJoin: false
-  },
-  {
-    id: "7",
-    title: "Youth Environmental Awareness Campaign",
-    description: "Community-driven initiative to educate young people about environmental conservation",
-    status: "closed",
-    startDate: "2026-01-15",
-    deadline: "2026-06-30",
-    closedDate: getRecentDate(5), // Closed 5 days ago
-    category: "environment",
-    aspiraCategory: "community",
-    tags: ["Environment", "Youth", "Education", "Climate"],
-    team: [
-      { id: "22", name: "Green Youth Initiative", role: "Lead Organization" },
-      { id: "23", name: "Environmental Scientists", role: "Content Advisors" }
-    ],
-    university: "Community Schools",
-    mentorshipConnection: false,
-    campaignConnection: true,
-    joinableRoles: ["volunteer", "educator", "coordinator"],
-    isPublic: true,
-    seekingSupport: [],
-    canStudentsJoin: false
-  },
-  {
-    id: "8",
-    title: "Industry Tech Partnership Program",
-    description: "Building partnerships between tech companies and universities to enhance student career readiness",
-    status: "active",
-    startDate: "2026-01-01",
-    deadline: "2026-09-15",
-    category: "technology",
-    aspiraCategory: "career",
-    tags: ["Technology", "Industry", "Partnership", "Career"],
-    team: [
-      { id: "24", name: "Dr. Kwame Asante", role: "Program Director", avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face" },
-      { id: "25", name: "Tech Industry Alliance", role: "Partner Organization" }
-    ],
-    university: "Multiple Universities",
-    mentorshipConnection: true,
-    campaignConnection: false,
-    joinableRoles: ["coordinator", "industry-liaison", "student-ambassador"],
-    isPublic: true,
-    seekingSupport: ["industry-partners", "coordinators", "student-ambassadors"],
-    canStudentsJoin: true
-  },
-  {
-    id: "9",
-    title: "Women in STEM Leadership Initiative",
-    description: "Empowering women in STEM fields through leadership development programs and mentorship networks",
-    status: "still-open",
-    startDate: "2026-03-01",
-    deadline: "2027-02-28",
-    category: "education",
-    aspiraCategory: "mentorship",
-    tags: ["Women", "STEM", "Leadership", "Empowerment"],
-    team: [
-      { id: "26", name: "Sarah Johnson", role: "Initiative Lead", avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face" },
-      { id: "27", name: "STEM Women Network", role: "Supporting Organization" }
-    ],
-    university: "Multiple Institutions",
-    mentorshipConnection: true,
-    campaignConnection: false,
-    joinableRoles: ["mentor", "mentee", "program-coordinator"],
-    isPublic: true,
-    seekingSupport: ["mentors", "program-coordinators", "speakers"],
-    canStudentsJoin: true
-  }
-];
+// All demo projects removed – projects will be loaded from API
 
 function ProjectCard({ project, onView, onEdit }: { 
   project: Project; 
@@ -592,31 +333,62 @@ function ProjectCard({ project, onView, onEdit }: {
 export function ProjectDashboard({ onCreateProject, onViewProject }: ProjectDashboardProps) {
   const { navigate } = useNavigation();
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("all");
   const [sortBy, setSortBy] = useState("recent");
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterField, setFilterField] = useState("all");
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const filteredProjects = mockProjects
+  useEffect(() => {
+    const controller = new AbortController();
+    const load = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+        const devKey = localStorage.getItem('devKey');
+        const token = localStorage.getItem('token');
+        if (devKey) headers['X-Dev-Key'] = devKey;
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+
+        const params = new URLSearchParams();
+        if (filterStatus !== 'all') params.set('status', filterStatus);
+        // Server supports 'type' and 'search'
+        if (filterField !== 'all') params.set('type', filterField);
+        if (searchQuery) params.set('search', searchQuery);
+
+        const url = `${API_BASE_URL}/projects${params.toString() ? `?${params.toString()}` : ''}`;
+        const res = await fetch(url, { headers, signal: controller.signal });
+        const json = await res.json();
+        setProjects(Array.isArray(json.data) ? json.data : (Array.isArray(json) ? json : []));
+      } catch (e: any) {
+        setError('Failed to load projects');
+        setProjects([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+    const id = setInterval(load, 30000);
+    return () => { controller.abort(); clearInterval(id); };
+  }, [filterStatus, filterField, searchQuery]);
+
+  const filteredProjects = projects
     .filter(project => {
       const matchesSearch = 
         project.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         project.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
         project.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
       
-      const matchesCategory = selectedCategory === "all" || project.aspiraCategory === selectedCategory;
+      const matchesCategory = true; // category chips removed; rely on filters above
       const matchesStatus = filterStatus === "all" || project.status === filterStatus;
-      const matchesField = filterField === "all" || project.category === filterField;
+      const matchesField = filterField === "all" || project.category === filterField || project.type === filterField;
       
       return matchesSearch && matchesCategory && matchesStatus && matchesField;
     });
 
-  const categoryStats = aspiraCategories.map(category => ({
-    ...category,
-    count: category.id === "all" 
-      ? mockProjects.length 
-      : mockProjects.filter(p => p.aspiraCategory === category.id).length
-  }));
+  // Removed demo category stats
 
   return (
     <div className="flex flex-col h-full bg-background">
@@ -644,31 +416,7 @@ export function ProjectDashboard({ onCreateProject, onViewProject }: ProjectDash
           </div>
         </div>
 
-        <div className="flex gap-2 overflow-x-auto pb-2">
-          {categoryStats.map((cat) => {
-            const Icon = cat.icon;
-            const isActive = selectedCategory === cat.id;
-            return (
-              <Button
-                key={cat.id}
-                variant={isActive ? "default" : "outline"}
-                size="sm"
-                onClick={() => setSelectedCategory(cat.id)}
-                className={`flex-shrink-0 ${
-                  isActive 
-                    ? 'bg-[#021ff6] hover:bg-[#021ff6]/90' 
-                    : `${cat.color} ${cat.darkColor} border-transparent`
-                }`}
-              >
-                <Icon className="h-4 w-4 mr-2" />
-                {cat.label}
-                <Badge variant="secondary" className="ml-2 text-xs">
-                  {cat.count}
-                </Badge>
-              </Button>
-            );
-          })}
-        </div>
+        {/* Category chips removed to avoid demo content */}
       </div>
 
       <div className="flex-1 min-h-0">
@@ -692,11 +440,7 @@ export function ProjectDashboard({ onCreateProject, onViewProject }: ProjectDash
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Fields</SelectItem>
-                {traditionalCategories.map((field) => (
-                  <SelectItem key={field.id} value={field.id}>
-                    {field.label}
-                  </SelectItem>
-                ))}
+                {/* Dynamic options could be added here if backend provides categories */}
               </SelectContent>
             </Select>
             
@@ -736,7 +480,7 @@ export function ProjectDashboard({ onCreateProject, onViewProject }: ProjectDash
             ))}
           </div>
 
-          {filteredProjects.length === 0 && (
+          {(!loading && filteredProjects.length === 0) && (
             <div className="text-center py-12">
               <Folder className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-medium text-foreground mb-2">No projects found</h3>
@@ -748,6 +492,9 @@ export function ProjectDashboard({ onCreateProject, onViewProject }: ProjectDash
                 Create Your First Project
               </Button>
             </div>
+          )}
+          {loading && (
+            <div className="text-center py-12 text-muted-foreground">Loading projects…</div>
           )}
         </div>
       </div>
