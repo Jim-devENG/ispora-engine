@@ -524,6 +524,7 @@ export function CreditsPage() {
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
   const [selectedTimeframe, setSelectedTimeframe] = useState("month");
   const [user, setUser] = useState<any>(null);
+  const [userOverview, setUserOverview] = useState<any>(null);
   const [stats, setStats] = useState<any>({ totalPoints: 0, monthlyPoints: 0, currentStreak: 0, socialShares: 0 });
   const [badges, setBadges] = useState<any[]>([]);
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
