@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Search,
   Filter,
@@ -53,9 +53,7 @@ import { Label } from "./ui/label";
 import { Checkbox } from "./ui/checkbox";
 import { ScrollArea } from "./ui/scroll-area";
 import { toast } from "sonner";
-
-
-
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://ispora-backend.onrender.com/api';
 interface Opportunity {
   id: string;
   title: string;
@@ -178,416 +176,7 @@ const opportunityCategories = [
   }
 ];
 
-const mockOpportunities: Opportunity[] = [
-  {
-    id: "1",
-    title: "Rhodes Scholarship for African Students",
-    type: "scholarship",
-    company: "University of Oxford",
-    location: "Oxford, UK",
-    remote: false,
-    description: "Fully funded postgraduate scholarship at University of Oxford for exceptional young people who will fight the world's fight. The Rhodes Scholarship is the oldest and most celebrated international fellowship award in the world.",
-    requirements: [
-      "Outstanding academic achievement",
-      "Demonstrated leadership potential",
-      "Strong commitment to service",
-      "Age 18-24 for undergraduate, 19-25 for postgraduate"
-    ],
-    benefits: [
-      "Full tuition fees covered",
-      "Living stipend of £17,310 per year",
-      "Travel expenses included",
-      "Access to Rhodes House community"
-    ],
-    amount: {
-      value: 50000,
-      currency: "GBP",
-      type: "award"
-    },
-    duration: "2-3 years",
-    commitment: "Full-time study",
-    postedBy: {
-      name: "Rhodes Trust",
-      title: "Scholarship Administrator",
-      company: "University of Oxford",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
-      isVerified: true
-    },
-    university: "University of Oxford",
-    tags: ["Postgraduate", "Leadership", "International", "Fully Funded"],
-    applicants: 2847,
-    deadline: "2026-10-01",
-    postedDate: "2026-06-01",
-    featured: true,
-    urgent: false,
-    boost: 156,
-    saved: false,
-    applied: false,
-    experienceLevel: "any",
-    category: "Education",
-    eligibility: ["African citizenship", "Outstanding academic record", "Leadership experience"],
-    applicationLink: "https://rhodes-scholarships.org",
-    comments: 23,
-    contactInfo: {
-      email: "info@rhodesscholarships.org",
-      website: "https://rhodes-scholarships.org"
-    }
-  },
-  {
-    id: "2",
-    title: "Senior Software Engineer - Fintech",
-    type: "job",
-    company: "Stripe",
-    location: "San Francisco, USA",
-    remote: true,
-    description: "Join Stripe's mission to increase the GDP of the internet by building financial infrastructure for the world's most ambitious companies. Work on systems that process billions of dollars in transactions.",
-    requirements: [
-      "5+ years of software engineering experience",
-      "Strong background in distributed systems",
-      "Experience with financial technology",
-      "Bachelor's degree in Computer Science or equivalent"
-    ],
-    benefits: [
-      "Competitive salary + equity",
-      "Health, dental, and vision insurance",
-      "Unlimited PTO",
-      "Remote work flexibility"
-    ],
-    amount: {
-      value: 180000,
-      currency: "USD",
-      type: "salary"
-    },
-    commitment: "Full-time",
-    postedBy: {
-      name: "Sarah Kim",
-      title: "Engineering Manager",
-      company: "Stripe",
-      avatar: "https://images.unsplash.com/photo-1494790108755-2616b25f5e55?w=150&h=150&fit=crop&crop=face",
-      isVerified: true
-    },
-    tags: ["Fintech", "Remote", "Engineering", "Equity"],
-    applicants: 342,
-    deadline: "2026-08-15",
-    postedDate: "2026-07-01",
-    featured: true,
-    urgent: false,
-    boost: 89,
-    saved: true,
-    applied: false,
-    experienceLevel: "senior",
-    category: "Technology",
-    eligibility: ["Work authorization required", "5+ years experience"],
-    applicationLink: "https://stripe.com/jobs",
-    comments: 15,
-    contactInfo: {
-      email: "careers@stripe.com",
-      website: "https://stripe.com/jobs"
-    }
-  },
-  {
-    id: "3",
-    title: "Google AI Research Internship",
-    type: "internship",
-    company: "Google",
-    location: "Mountain View, USA",
-    remote: false,
-    description: "12-week internship program working on cutting-edge AI research projects with mentorship from Google Research scientists. Access to Google's vast computational resources and datasets.",
-    requirements: [
-      "PhD student in Computer Science or related field",
-      "Strong background in machine learning",
-      "Published research in top-tier conferences",
-      "Available for 12-week commitment"
-    ],
-    benefits: [
-      "Competitive monthly stipend",
-      "Housing assistance",
-      "Research publication opportunities",
-      "Full-time offer potential"
-    ],
-    amount: {
-      value: 8000,
-      currency: "USD",
-      type: "stipend"
-    },
-    duration: "12 weeks",
-    commitment: "Full-time (Summer 2027)",
-    postedBy: {
-      name: "Dr. Alex Chen",
-      title: "Research Scientist",
-      company: "Google Research",
-      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
-      isVerified: true
-    },
-    university: "Stanford University",
-    tags: ["AI", "Research", "PhD", "Summer"],
-    applicants: 1247,
-    deadline: "2026-12-01",
-    postedDate: "2026-06-15",
-    featured: false,
-    urgent: true,
-    boost: 234,
-    saved: false,
-    applied: true,
-    experienceLevel: "any",
-    category: "Research",
-    eligibility: ["PhD student status", "Research background"],
-    applicationLink: "https://research.google.com/careers",
-    comments: 45,
-    contactInfo: {
-      email: "research-internships@google.com",
-      website: "https://research.google.com/careers"
-    }
-  },
-  {
-    id: "4",
-    title: "TechStars Africa Accelerator Program",
-    type: "accelerator",
-    company: "Techstars",
-    location: "Cape Town, South Africa",
-    remote: false,
-    description: "13-week mentorship-driven accelerator program for early-stage African startups. Get funding, mentorship, and access to global network. Program culminates in Demo Day.",
-    requirements: [
-      "Early-stage startup with MVP",
-      "African-focused business model",
-      "Committed founding team",
-      "Scalable technology solution"
-    ],
-    benefits: [
-      "$120K investment",
-      "3 months of intensive mentorship",
-      "Access to Techstars network",
-      "Demo Day presentation"
-    ],
-    amount: {
-      value: 120000,
-      currency: "USD",
-      type: "funding"
-    },
-    duration: "13 weeks",
-    commitment: "Full-time commitment",
-    postedBy: {
-      name: "Maya Patel",
-      title: "Managing Director",
-      company: "Techstars Africa",
-      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
-      isVerified: true
-    },
-    tags: ["Startup", "Accelerator", "Africa", "Funding"],
-    applicants: 456,
-    deadline: "2026-09-30",
-    postedDate: "2026-06-20",
-    featured: true,
-    urgent: false,
-    boost: 178,
-    saved: true,
-    applied: false,
-    experienceLevel: "any",
-    category: "Entrepreneurship",
-    eligibility: ["African startup", "MVP ready", "Committed team"],
-    applicationLink: "https://techstars.com/africa",
-    comments: 67,
-    contactInfo: {
-      email: "africa@techstars.com",
-      website: "https://techstars.com/africa"
-    }
-  },
-  {
-    id: "5",
-    title: "Climate Innovation Grant",
-    type: "grant",
-    company: "Gates Foundation",
-    location: "Global",
-    remote: true,
-    description: "Funding for innovative solutions addressing climate change in developing countries. Focus on agriculture, energy, and adaptation. Looking for scalable impact potential.",
-    requirements: [
-      "Innovative climate solution",
-      "Focus on developing countries",
-      "Scalable impact potential",
-      "Strong implementation plan"
-    ],
-    benefits: [
-      "Up to $2M in funding",
-      "Technical assistance",
-      "Monitoring and evaluation support",
-      "Global network access"
-    ],
-    amount: {
-      value: 2000000,
-      currency: "USD",
-      type: "funding"
-    },
-    duration: "24 months",
-    commitment: "Project-based",
-    postedBy: {
-      name: "Dr. James Morrison",
-      title: "Program Officer",
-      company: "Bill & Melinda Gates Foundation",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
-      isVerified: true
-    },
-    tags: ["Climate", "Innovation", "Global", "Impact"],
-    applicants: 234,
-    deadline: "2026-11-15",
-    postedDate: "2026-07-01",
-    featured: true,
-    urgent: false,
-    boost: 112,
-    saved: false,
-    applied: false,
-    experienceLevel: "any",
-    category: "Environment",
-    eligibility: ["Climate focus", "Developing country impact", "Innovation"],
-    applicationLink: "https://gatesfoundation.org/grants",
-    comments: 34,
-    contactInfo: {
-      email: "grants@gatesfoundation.org",
-      website: "https://gatesfoundation.org/grants"
-    }
-  },
-  {
-    id: "6",
-    title: "AfriTech Summit 2027",
-    type: "event",
-    company: "AfriTech Conference",
-    location: "Lagos, Nigeria",
-    remote: false,
-    description: "Africa's largest technology conference bringing together entrepreneurs, investors, and innovators. Speaker applications now open. Theme: 'Building Africa's Digital Future'.",
-    requirements: [
-      "Expertise in African tech ecosystem",
-      "Speaking experience preferred",
-      "Innovative project or research",
-      "Community impact focus"
-    ],
-    benefits: [
-      "Speaking opportunity",
-      "Networking with 5000+ attendees",
-      "Media coverage",
-      "Travel support available"
-    ],
-    duration: "3 days",
-    commitment: "Conference participation",
-    postedBy: {
-      name: "Amina Hassan",
-      title: "Conference Director",
-      company: "AfriTech Conference",
-      avatar: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop&crop=face",
-      isVerified: true
-    },
-    eventDate: "2027-03-15",
-    tags: ["Conference", "Speaking", "Technology", "Africa"],
-    applicants: 189,
-    deadline: "2026-12-01",
-    postedDate: "2026-06-10",
-    featured: false,
-    urgent: false,
-    boost: 67,
-    saved: false,
-    applied: false,
-    experienceLevel: "any",
-    category: "Technology",
-    eligibility: ["Tech expertise", "Speaking ability", "African focus"],
-    applicationLink: "https://afritechsummit.com",
-    comments: 28,
-    contactInfo: {
-      email: "speakers@afritechsummit.com",
-      website: "https://afritechsummit.com"
-    }
-  },
-  {
-    id: "7",
-    title: "Seeking Co-founder for EdTech Startup",
-    type: "community",
-    company: "EduInnovate",
-    location: "Remote",
-    remote: true,
-    description: "Looking for a technical co-founder to join our mission of revolutionizing education in Africa through AI-powered learning platforms. Shape the technical direction of the company.",
-    requirements: [
-      "Strong technical background",
-      "Passion for education",
-      "Startup experience preferred",
-      "Available for equity partnership"
-    ],
-    benefits: [
-      "Co-founder equity",
-      "Shape company direction",
-      "Impact on education",
-      "Flexible working arrangements"
-    ],
-    commitment: "Co-founder partnership",
-    postedBy: {
-      name: "David Okafor",
-      title: "Founder & CEO",
-      company: "EduInnovate",
-      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
-      isVerified: false
-    },
-    tags: ["Co-founder", "EdTech", "Equity", "Africa"],
-    applicants: 78,
-    deadline: "2026-09-01",
-    postedDate: "2026-07-02",
-    featured: false,
-    urgent: false,
-    boost: 45,
-    saved: false,
-    applied: false,
-    experienceLevel: "mid",
-    category: "Entrepreneurship",
-    eligibility: ["Technical skills", "Equity partnership", "Education passion"],
-    comments: 12,
-    contactInfo: {
-      email: "david@eduinnovate.com"
-    }
-  },
-  {
-    id: "8",
-    title: "Digital Nomad Visa Program - Portugal",
-    type: "others",
-    company: "Government of Portugal",
-    location: "Portugal",
-    remote: true,
-    description: "Special visa program for digital nomads and remote workers. Live and work in Portugal while maintaining your international career. Includes access to co-working spaces and expat community.",
-    requirements: [
-      "Proof of remote work employment",
-      "Minimum monthly income of €2,800",
-      "Valid passport",
-      "Health insurance coverage"
-    ],
-    benefits: [
-      "1-year renewable visa",
-      "Access to co-working network",
-      "Tax benefits for foreign residents",
-      "EU travel privileges"
-    ],
-    duration: "1 year (renewable)",
-    commitment: "Residence in Portugal",
-    postedBy: {
-      name: "Ana Silva",
-      title: "Immigration Officer",
-      company: "Government of Portugal",
-      avatar: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=150&h=150&fit=crop&crop=face",
-      isVerified: true
-    },
-    tags: ["Digital Nomad", "Visa", "Portugal", "Remote Work"],
-    applicants: 89,
-    deadline: "2026-12-31",
-    postedDate: "2026-06-25",
-    featured: false,
-    urgent: false,
-    boost: 34,
-    saved: false,
-    applied: false,
-    experienceLevel: "any",
-    category: "Immigration",
-    eligibility: ["Remote work proof", "Income requirements", "Valid passport"],
-    applicationLink: "https://portugal.gov.pt/digital-nomad",
-    comments: 18,
-    contactInfo: {
-      email: "nomad-visa@portugal.gov.pt",
-      website: "https://portugal.gov.pt/digital-nomad"
-    }
-  }
-];
+// Live data will be fetched from backend
 
 const locations = ["All Locations", "Remote", "USA", "UK", "Nigeria", "Kenya", "South Africa", "Ghana", "Canada", "Germany"];
 const experienceLevels = ["All Levels", "Entry Level", "Mid Level", "Senior Level"];
@@ -601,11 +190,14 @@ export function OpportunitiesPage() {
   const [sortBy, setSortBy] = useState("Most Recent");
   const [showRemoteOnly, setShowRemoteOnly] = useState(false);
   const [showSavedOnly, setShowSavedOnly] = useState(false);
-  const [savedOpportunities, setSavedOpportunities] = useState<string[]>(["2", "4"]);
+  const [savedOpportunities, setSavedOpportunities] = useState<string[]>([]);
   const [boostedOpportunities, setBoostedOpportunities] = useState<string[]>([]);
   const [isPostDialogOpen, setIsPostDialogOpen] = useState(false);
   const [selectedOpportunity, setSelectedOpportunity] = useState<Opportunity | null>(null);
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
+  const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Form state for posting new opportunity
   const [newOpportunity, setNewOpportunity] = useState({
@@ -623,7 +215,7 @@ export function OpportunitiesPage() {
     remote: false
   });
 
-  const filteredOpportunities = mockOpportunities.filter(opp => {
+  const filteredOpportunities = opportunities.filter(opp => {
     const matchesCategory = selectedCategory === "all" || opp.type === selectedCategory;
     const matchesSearch = opp.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          opp.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -645,8 +237,8 @@ export function OpportunitiesPage() {
   const categoryStats = opportunityCategories.map(category => ({
     ...category,
     count: category.id === "all" 
-      ? mockOpportunities.length 
-      : mockOpportunities.filter(opp => opp.type === category.id).length
+      ? opportunities.length 
+      : opportunities.filter(opp => opp.type === category.id).length
   }));
 
   const handleSaveOpportunity = (oppId: string) => {
@@ -670,7 +262,7 @@ export function OpportunitiesPage() {
   };
 
   const handleApply = (oppId: string) => {
-    const opp = mockOpportunities.find(o => o.id === oppId);
+    const opp = opportunities.find(o => o.id === oppId);
     if (opp) {
       if (opp.applicationLink) {
         window.open(opp.applicationLink, '_blank');
@@ -710,6 +302,46 @@ export function OpportunitiesPage() {
       remote: false
     });
   };
+
+  useEffect(() => {
+    const controller = new AbortController();
+    const fetchOps = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+        const devKey = localStorage.getItem('devKey');
+        const token = localStorage.getItem('token');
+        if (devKey) headers['X-Dev-Key'] = devKey;
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+
+        const params = new URLSearchParams();
+        if (selectedCategory !== 'all') params.append('type', selectedCategory);
+        if (searchQuery) params.append('q', searchQuery);
+        if (selectedLocation && selectedLocation !== 'All Locations') params.append('location', selectedLocation);
+        if (showRemoteOnly) params.append('remote', 'true');
+        // normalize experience level
+        if (selectedLevel !== 'All Levels') {
+          const map: Record<string, string> = { 'Entry Level': 'entry', 'Mid Level': 'mid', 'Senior Level': 'senior' };
+          const level = map[selectedLevel] || 'any';
+          params.append('experience', level);
+        }
+        const res = await fetch(`${API_BASE_URL}/opportunities?${params.toString()}`, { headers, signal: controller.signal });
+        if (!res.ok) throw new Error(`Failed to fetch opportunities (${res.status})`);
+        const json = await res.json();
+        const data = json?.data || json;
+        setOpportunities(Array.isArray(data) ? data : []);
+      } catch (e: any) {
+        if (e.name !== 'AbortError') {
+          setError(e.message || 'Failed to load opportunities');
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchOps();
+    return () => controller.abort();
+  }, [selectedCategory, searchQuery, selectedLocation, selectedLevel, showRemoteOnly]);
 
   const getTypeIcon = (type: string) => {
     const category = opportunityCategories.find(cat => cat.id === type);
@@ -1035,6 +667,12 @@ export function OpportunitiesPage() {
 
       {/* Opportunities Grid */}
       <div className="flex-1 px-6 py-4 overflow-y-auto">
+        {loading && (
+          <div className="text-center py-8 text-muted-foreground">Loading opportunities...</div>
+        )}
+        {error && (
+          <div className="text-center py-8 text-red-600">{error}</div>
+        )}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {filteredOpportunities.map((opportunity) => (
             <Card key={opportunity.id} className="hover:shadow-lg transition-shadow duration-200 cursor-pointer group"
