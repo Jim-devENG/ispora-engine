@@ -55,6 +55,9 @@ const devRoutes = require('./routes/dev');
 const adminRoutes = require('./routes/admin');
 const sessionsRoutes = require('./routes/sessions');
 const tasksRoutes = require('./routes/tasks');
+const deliverablesRoutes = require('./routes/deliverables');
+const learningRoutes = require('./routes/learning');
+const liveRoutes = require('./routes/live');
 
 // Import middleware
 const errorHandler = require('./middleware/errorHandler');
@@ -180,6 +183,9 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/dev', devRoutes);
 app.use('/api/sessions', sessionsRoutes);
 app.use('/api/tasks', tasksRoutes);
+app.use('/api/deliverables', deliverablesRoutes);
+app.use('/api/learning', learningRoutes);
+app.use('/api/live', liveRoutes);
 
 // Coming Soon gate (place after auth route so login/register still works, 
 // and after protect can set req.user on routes that use it). We mount it late
