@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
@@ -33,11 +33,14 @@ import {
   FileText,
   TrendingUp,
   CheckSquare,
-  BarChart3
+  BarChart3,
+  Loader
 } from "lucide-react";
 import { DashboardHeader } from "./DashboardHeader";
 import { useNavigation } from "./NavigationContext";
 import { toast } from "sonner";
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://ispora-backend.onrender.com/api';
 
 interface Notification {
   id: string;
@@ -310,245 +313,59 @@ export function NotificationsPage() {
     navigateToSpecificOpportunity 
   } = useNavigation();
 
-  const [notifications, setNotifications] = useState<Notification[]>([
-    {
-      id: "1",
-      type: "project",
-      title: "Engineering Mentorship Project",
-      description: "3 new team members joined your project. Review their profiles and assign them to appropriate tasks.",
-      timestamp: "2 hours ago",
-      read: false,
-      actionRequired: true,
-      category: "Project Updates",
-      relatedId: "proj_eng_001",
-      relatedType: "project",
-      metadata: {
-        participants: 8,
-        progress: 65,
-        tasksCompleted: 12,
-        totalTasks: 18,
-        priority: "high",
-        status: "Active"
-      },
-      actions: {
-        primary: {
-          label: "Review Members",
-          action: "navigate_project",
-          params: { projectId: "proj_eng_001", tab: "members" }
-        },
-        secondary: {
-          label: "View Project",
-          action: "navigate_project",
-          params: { projectId: "proj_eng_001" }
-        }
-      }
-    },
-    {
-      id: "2",
-      type: "mentorship",
-      title: "Mentorship Request",
-      description: "Sarah Johnson from University of Lagos requested mentorship in Software Engineering. She has 2 years of experience and is looking to transition into full-stack development.",
-      timestamp: "4 hours ago",
-      read: false,
-      actionRequired: true,
-      category: "Mentorship",
-      relatedId: "mentee_002",
-      relatedType: "mentorship",
-      metadata: {
-        location: "Lagos, Nigeria",
-        priority: "medium",
-        company: "University of Lagos"
-      },
-      actions: {
-        primary: {
-          label: "Review Profile",
-          action: "navigate_mentorship",
-          params: { menteeId: "mentee_002", action: "review" }
-        },
-        secondary: {
-          label: "Schedule Call",
-          action: "navigate_mentorship",
-          params: { menteeId: "mentee_002", action: "schedule" }
-        }
-      }
-    },
-    {
-      id: "3",
-      type: "project",
-      title: "Startup Innovation Lab",
-      description: "Your project reached 74% completion! 18 out of 24 tasks completed by the team members.",
-      timestamp: "6 hours ago",
-      read: true,
-      category: "Project Updates",
-      relatedId: "proj_startup_002",
-      relatedType: "project",
-      metadata: {
-        participants: 12,
-        progress: 74,
-        tasksCompleted: 18,
-        totalTasks: 24,
-        priority: "low",
-        status: "On Track"
-      },
-      actions: {
-        primary: {
-          label: "View Progress",
-          action: "navigate_project",
-          params: { projectId: "proj_startup_002", tab: "progress" }
-        },
-        secondary: {
-          label: "Open Workspace",
-          action: "navigate_workroom",
-          params: { projectId: "proj_startup_002" }
-        }
-      }
-    },
-    {
-      id: "4",
-      type: "message",
-      title: "New Message",
-      description: "Dr. Amina Hassan sent you a message about the Medical Research Collaboration project. She wants to discuss the next phase.",
-      timestamp: "1 day ago",
-      read: true,
-      category: "Messages",
-      relatedId: "msg_001",
-      relatedType: "message",
-      metadata: {
-        company: "Medical Research Institute",
-        priority: "medium"
-      },
-      actions: {
-        primary: {
-          label: "Read Message",
-          action: "navigate_messages",
-          params: { messageId: "msg_001" }
-        },
-        secondary: {
-          label: "Reply",
-          action: "compose_reply",
-          params: { messageId: "msg_001", recipient: "Dr. Amina Hassan" }
-        }
-      }
-    },
-    {
-      id: "5",
-      type: "opportunity",
-      title: "Google Software Engineer Position",
-      description: "New opportunity matching your profile: Senior Software Engineer at Google. Remote position with competitive benefits package and growth opportunities.",
-      timestamp: "2 days ago",
-      read: false,
-      category: "Opportunities",
-      relatedId: "opp_google_001",
-      relatedType: "opportunity",
-      metadata: {
-        company: "Google",
-        location: "Remote",
-        deadline: "2024-03-15",
-        priority: "high"
-      },
-      actions: {
-        primary: {
-          label: "View Opportunity",
-          action: "navigate_opportunity",
-          params: { opportunityId: "opp_google_001" }
-        },
-        secondary: {
-          label: "Apply Now",
-          action: "apply_opportunity",
-          params: { opportunityId: "opp_google_001" }
-        }
-      }
-    },
-    {
-      id: "6",
-      type: "project",
-      title: "AI Research Collaboration",
-      description: "Project milestone completed! The team has finished the data collection phase ahead of schedule.",
-      timestamp: "3 days ago",
-      read: true,
-      category: "Project Updates",
-      relatedId: "proj_ai_001",
-      relatedType: "project",
-      metadata: {
-        participants: 5,
-        progress: 45,
-        tasksCompleted: 9,
-        totalTasks: 20,
-        location: "Remote",
-        priority: "medium",
-        status: "Milestone Completed"
-      },
-      actions: {
-        primary: {
-          label: "View Project",
-          action: "navigate_project",
-          params: { projectId: "proj_ai_001" }
-        },
-        secondary: {
-          label: "Join Workspace",
-          action: "navigate_workroom",
-          params: { projectId: "proj_ai_001" }
-        }
-      }
-    },
-    {
-      id: "7",
-      type: "project",
-      title: "Community Development Initiative",
-      description: "New project invitation: Join the Community Development Initiative focused on improving educational resources in rural areas.",
-      timestamp: "4 days ago",
-      read: false,
-      actionRequired: true,
-      category: "Project Invitations",
-      relatedId: "proj_community_003",
-      relatedType: "project",
-      metadata: {
-        participants: 15,
-        progress: 30,
-        tasksCompleted: 6,
-        totalTasks: 20,
-        location: "Multiple Locations",
-        priority: "medium",
-        status: "Recruiting"
-      },
-      actions: {
-        primary: {
-          label: "Accept Invitation",
-          action: "accept_project_invitation",
-          params: { projectId: "proj_community_003" }
-        },
-        secondary: {
-          label: "View Details",
-          action: "navigate_project",
-          params: { projectId: "proj_community_003" }
-        }
-      }
-    },
-    {
-      id: "8",
-      type: "system",
-      title: "Profile Verification Complete",
-      description: "Your University of Lagos alumni status has been verified successfully. You now have access to all platform features.",
-      timestamp: "5 days ago",
-      read: true,
-      category: "System",
-      metadata: {
-        priority: "low",
-        status: "Completed"
-      },
-      actions: {
-        primary: {
-          label: "View Profile",
-          action: "navigate_profile",
-          params: {}
-        }
-      }
-    }
-  ]);
-
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [filter, setFilter] = useState<'all' | 'unread' | 'action-required'>('all');
   const [selectedNotification, setSelectedNotification] = useState<Notification | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [stats, setStats] = useState({
+    total: 0,
+    unread: 0,
+    actionRequired: 0
+  });
+
+  // Fetch notifications from API
+  const fetchNotifications = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      const devKey = localStorage.getItem('devKey');
+      const token = localStorage.getItem('token');
+      if (devKey) headers['X-Dev-Key'] = devKey;
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      const response = await fetch(`${API_BASE_URL}/notifications?filter=${filter}`, {
+        method: 'GET',
+        headers,
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch notifications');
+      }
+
+      const data = await response.json();
+      if (data.success) {
+        setNotifications(data.data.notifications);
+        setStats(data.data.stats);
+      } else {
+        throw new Error(data.error || 'Failed to fetch notifications');
+      }
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+      setError(error instanceof Error ? error.message : 'Failed to fetch notifications');
+      toast.error('Failed to load notifications');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Load notifications on component mount and when filter changes
+  useEffect(() => {
+    fetchNotifications();
+  }, [filter]);
 
   const filteredNotifications = notifications.filter(notification => {
     if (filter === 'unread') return !notification.read;
@@ -556,24 +373,84 @@ export function NotificationsPage() {
     return true;
   });
 
-  const markAsRead = (id: string) => {
-    setNotifications(prev => 
-      prev.map(notif => 
-        notif.id === id ? { ...notif, read: true } : notif
-      )
-    );
+  const markAsRead = async (id: string) => {
+    try {
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      const devKey = localStorage.getItem('devKey');
+      const token = localStorage.getItem('token');
+      if (devKey) headers['X-Dev-Key'] = devKey;
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      const response = await fetch(`${API_BASE_URL}/notifications/${id}/read`, {
+        method: 'PUT',
+        headers,
+      });
+
+      if (response.ok) {
+        setNotifications(prev => 
+          prev.map(notif => 
+            notif.id === id ? { ...notif, read: true } : notif
+          )
+        );
+        setStats(prev => ({ ...prev, unread: Math.max(0, prev.unread - 1) }));
+      }
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+    }
   };
 
-  const markAllAsRead = () => {
-    setNotifications(prev => 
-      prev.map(notif => ({ ...notif, read: true }))
-    );
-    toast.success("All notifications marked as read");
+  const markAllAsRead = async () => {
+    try {
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      const devKey = localStorage.getItem('devKey');
+      const token = localStorage.getItem('token');
+      if (devKey) headers['X-Dev-Key'] = devKey;
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      const response = await fetch(`${API_BASE_URL}/notifications/mark-all-read`, {
+        method: 'PUT',
+        headers,
+      });
+
+      if (response.ok) {
+        setNotifications(prev => 
+          prev.map(notif => ({ ...notif, read: true }))
+        );
+        setStats(prev => ({ ...prev, unread: 0 }));
+        toast.success("All notifications marked as read");
+      }
+    } catch (error) {
+      console.error('Error marking all notifications as read:', error);
+      toast.error('Failed to mark all notifications as read');
+    }
   };
 
-  const deleteNotification = (id: string) => {
-    setNotifications(prev => prev.filter(notif => notif.id !== id));
-    toast.success("Notification deleted");
+  const deleteNotification = async (id: string) => {
+    try {
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      const devKey = localStorage.getItem('devKey');
+      const token = localStorage.getItem('token');
+      if (devKey) headers['X-Dev-Key'] = devKey;
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      const response = await fetch(`${API_BASE_URL}/notifications/${id}`, {
+        method: 'DELETE',
+        headers,
+      });
+
+      if (response.ok) {
+        setNotifications(prev => prev.filter(notif => notif.id !== id));
+        setStats(prev => ({ 
+          ...prev, 
+          total: prev.total - 1,
+          unread: prev.unread - (notifications.find(n => n.id === id && !n.read) ? 1 : 0)
+        }));
+        toast.success("Notification deleted");
+      }
+    } catch (error) {
+      console.error('Error deleting notification:', error);
+      toast.error('Failed to delete notification');
+    }
   };
 
   const handleViewDetails = (notification: Notification) => {
@@ -674,8 +551,8 @@ export function NotificationsPage() {
     }
   };
 
-  const unreadCount = notifications.filter(n => !n.read).length;
-  const actionRequiredCount = notifications.filter(n => n.actionRequired).length;
+  const unreadCount = stats.unread;
+  const actionRequiredCount = stats.actionRequired;
 
   return (
     <div className="h-full">
@@ -740,7 +617,27 @@ export function NotificationsPage() {
           </TabsList>
 
           <TabsContent value={filter} className="space-y-4">
-            {filteredNotifications.length === 0 ? (
+            {loading ? (
+              <Card>
+                <CardContent className="text-center py-12">
+                  <Loader className="h-8 w-8 text-gray-400 mx-auto mb-4 animate-spin" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">Loading notifications...</h3>
+                  <p className="text-gray-500">Please wait while we fetch your notifications</p>
+                </CardContent>
+              </Card>
+            ) : error ? (
+              <Card>
+                <CardContent className="text-center py-12">
+                  <AlertCircle className="h-8 w-8 text-red-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">Failed to load notifications</h3>
+                  <p className="text-gray-500 mb-4">{error}</p>
+                  <Button onClick={fetchNotifications} variant="outline">
+                    <RefreshCw className="h-4 w-4 mr-2" />
+                    Try Again
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : filteredNotifications.length === 0 ? (
               <Card>
                 <CardContent className="text-center py-12">
                   <Bell className="h-12 w-12 text-gray-400 mx-auto mb-4" />

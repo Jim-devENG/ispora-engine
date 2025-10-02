@@ -6,6 +6,7 @@ import { DashboardHeader } from "./DashboardHeader";
 import { LiveSessionsWidget } from "./LiveSessionsWidget";
 import { CreditsPage } from "./CreditsPage";
 import { MyNetwork } from "./MyNetwork";
+import { NotificationsPage } from "./NotificationsPage";
 import { useNavigation } from "./NavigationContext";
 import { useAuth } from "./AuthContext";
 import { Button } from "./ui/button";
@@ -2106,7 +2107,7 @@ export function Dashboard() {
       case 'Credits':
         return <CreditsPage />;
       case 'Notifications':
-        return <PlaceholderContent title="Notifications" />;
+        return <NotificationsPage />;
       case 'Settings':
         return <PlaceholderContent title="Settings" />;
       default:

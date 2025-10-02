@@ -1,653 +1,321 @@
 const express = require('express');
-const { protect } = require('../middleware/auth');
-const db = require('../database/connection');
-const { v4: uuidv4 } = require('uuid');
-
 const router = express.Router();
+const { protect } = require('../middleware/auth');
 
-// @desc    Get user notifications
-// @route   GET /api/notifications
-// @access  Private
-router.get('/', protect, async (req, res, next) => {
+// In-memory storage for notifications (replace with database in production)
+let notifications = [
+  {
+    id: "1",
+    userId: "user_001",
+    type: "project",
+    title: "Engineering Mentorship Project",
+    description: "3 new team members joined your project. Review their profiles and assign them to appropriate tasks.",
+    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
+    read: false,
+    actionRequired: true,
+    category: "Project Updates",
+    relatedId: "proj_eng_001",
+    relatedType: "project",
+    metadata: {
+      participants: 8,
+      progress: 65,
+      tasksCompleted: 12,
+      totalTasks: 18,
+      priority: "high",
+      status: "Active"
+    },
+    actions: {
+      primary: {
+        label: "Review Members",
+        action: "navigate_project",
+        params: { projectId: "proj_eng_001", tab: "members" }
+      },
+      secondary: {
+        label: "View Project",
+        action: "navigate_project",
+        params: { projectId: "proj_eng_001" }
+      }
+    }
+  },
+  {
+    id: "2",
+    userId: "user_001",
+    type: "mentorship",
+    title: "Mentorship Request",
+    description: "Sarah Johnson from University of Lagos requested mentorship in Software Engineering. She has 2 years of experience and is looking to transition into full-stack development.",
+    timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(), // 4 hours ago
+    read: false,
+    actionRequired: true,
+    category: "Mentorship",
+    relatedId: "mentee_002",
+    relatedType: "mentorship",
+    metadata: {
+      location: "Lagos, Nigeria",
+      priority: "medium",
+      company: "University of Lagos"
+    },
+    actions: {
+      primary: {
+        label: "Review Profile",
+        action: "navigate_mentorship",
+        params: { menteeId: "mentee_002", action: "review" }
+      },
+      secondary: {
+        label: "Schedule Call",
+        action: "navigate_mentorship",
+        params: { menteeId: "mentee_002", action: "schedule" }
+      }
+    }
+  }
+];
+
+// Get all notifications for a user
+router.get('/', protect, async (req, res) => {
   try {
-    const {
-      page = 1,
-      limit = 20,
-      type,
-      read,
-      priority,
-      category_id,
-      action_required,
-      related_entity_type,
-      related_entity_id,
-      search,
-      sort_by = 'created_at',
-      sort_order = 'desc'
-    } = req.query;
-
-    const offset = (page - 1) * limit;
+    const { filter = 'all', page = 1, limit = 20 } = req.query;
+    const userId = req.user.id;
     
-    let query = db('notifications as n')
-      .select([
-        'n.*',
-        'related_user.first_name as related_user_first_name',
-        'related_user.last_name as related_user_last_name',
-        'related_user.avatar_url as related_user_avatar',
-        'related_project.title as related_project_title',
-        'nc.name as category_name',
-        'nc.display_name as category_display_name',
-        'nc.color as category_color',
-        'nt.name as template_name'
-      ])
-      .leftJoin('users as related_user', 'n.related_user_id', 'related_user.id')
-      .leftJoin('projects as related_project', 'n.related_project_id', 'related_project.id')
-      .leftJoin('notification_categories as nc', 'n.category_id', 'nc.id')
-      .leftJoin('notification_templates as nt', 'n.template_id', 'nt.id')
-      .where('n.user_id', req.user.id)
-      .where('n.is_archived', false);
-
+    let filteredNotifications = notifications.filter(n => n.userId === userId);
+    
     // Apply filters
-    if (type) {
-      query = query.where('n.type', type);
+    if (filter === 'unread') {
+      filteredNotifications = filteredNotifications.filter(n => !n.read);
+    } else if (filter === 'action-required') {
+      filteredNotifications = filteredNotifications.filter(n => n.actionRequired);
     }
-
-    if (read !== undefined) {
-      query = query.where('n.read', read === 'true');
-    }
-
-    if (priority) {
-      query = query.where('n.priority', priority);
-    }
-
-    if (category_id) {
-      query = query.where('n.category_id', category_id);
-    }
-
-    if (action_required !== undefined) {
-      query = query.where('n.action_required', action_required === 'true');
-    }
-
-    if (related_entity_type) {
-      query = query.where('n.related_entity_type', related_entity_type);
-    }
-
-    if (related_entity_id) {
-      query = query.where('n.related_entity_id', related_entity_id);
-    }
-
-    if (search) {
-      query = query.where(function() {
-        this.where('n.title', 'like', `%${search}%`)
-          .orWhere('n.message', 'like', `%${search}%`);
-      });
-    }
-
-    // Filter out expired notifications
-    query = query.where(function() {
-      this.whereNull('n.expires_at')
-        .orWhere('n.expires_at', '>', new Date());
-    });
-
-    // Apply sorting
-    const validSortFields = ['created_at', 'read', 'priority', 'title'];
-    const sortField = validSortFields.includes(sort_by) ? sort_by : 'created_at';
-    const order = sort_order === 'asc' ? 'asc' : 'desc';
     
-    query = query.orderBy(`n.${sortField}`, order);
-
-    const notifications = await query
-      .limit(parseInt(limit))
-      .offset(offset);
-
-    // Get unread count
-    const unreadCount = await db('notifications')
-      .where({ user_id: req.user.id, read: false, is_archived: false })
-      .where(function() {
-        this.whereNull('expires_at')
-          .orWhere('expires_at', '>', new Date());
-      })
-      .count('* as count')
-      .first();
-
-    // Get action required count
-    const actionRequiredCount = await db('notifications')
-      .where({ user_id: req.user.id, action_required: true, read: false, is_archived: false })
-      .where(function() {
-        this.whereNull('expires_at')
-          .orWhere('expires_at', '>', new Date());
-      })
-      .count('* as count')
-      .first();
-
-    res.status(200).json({
+    // Sort by timestamp (newest first)
+    filteredNotifications.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    
+    // Pagination
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + parseInt(limit);
+    const paginatedNotifications = filteredNotifications.slice(startIndex, endIndex);
+    
+    res.json({
       success: true,
-      count: notifications.length,
-      unreadCount: unreadCount.count,
-      actionRequiredCount: actionRequiredCount.count,
-      data: notifications
+      data: {
+        notifications: paginatedNotifications,
+        pagination: {
+          page: parseInt(page),
+          limit: parseInt(limit),
+          total: filteredNotifications.length,
+          pages: Math.ceil(filteredNotifications.length / limit)
+        },
+        stats: {
+          total: filteredNotifications.length,
+          unread: filteredNotifications.filter(n => !n.read).length,
+          actionRequired: filteredNotifications.filter(n => n.actionRequired).length
+        }
+      }
     });
   } catch (error) {
-    next(error);
+    console.error('Error fetching notifications:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch notifications'
+    });
   }
 });
 
-// @desc    Mark notification as read
-// @route   PUT /api/notifications/:id/read
-// @access  Private
-router.put('/:id/read', protect, async (req, res, next) => {
+// Get notification by ID
+router.get('/:id', protect, async (req, res) => {
   try {
     const { id } = req.params;
-
-    const notification = await db('notifications')
-      .where({ id, user_id: req.user.id })
-      .first();
-
+    const userId = req.user.id;
+    
+    const notification = notifications.find(n => n.id === id && n.userId === userId);
+    
     if (!notification) {
       return res.status(404).json({
         success: false,
         error: 'Notification not found'
       });
     }
-
-    await db('notifications')
-      .where({ id })
-      .update({ read: true, updated_at: new Date() });
-
-    res.status(200).json({
+    
+    res.json({
       success: true,
-      message: 'Notification marked as read'
+      data: notification
     });
   } catch (error) {
-    next(error);
+    console.error('Error fetching notification:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch notification'
+    });
   }
 });
 
-// @desc    Mark all notifications as read
-// @route   PUT /api/notifications/read-all
-// @access  Private
-router.put('/read-all', protect, async (req, res, next) => {
+// Mark notification as read
+router.put('/:id/read', protect, async (req, res) => {
   try {
-    await db('notifications')
-      .where({ user_id: req.user.id, read: false })
-      .update({ read: true, updated_at: new Date() });
+    const { id } = req.params;
+    const userId = req.user.id;
+    
+    const notificationIndex = notifications.findIndex(n => n.id === id && n.userId === userId);
+    
+    if (notificationIndex === -1) {
+      return res.status(404).json({
+        success: false,
+        error: 'Notification not found'
+      });
+    }
+    
+    notifications[notificationIndex].read = true;
+    
+    res.json({
+      success: true,
+      data: notifications[notificationIndex]
+    });
+  } catch (error) {
+    console.error('Error marking notification as read:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to mark notification as read'
+    });
+  }
+});
 
-    res.status(200).json({
+// Mark all notifications as read
+router.put('/mark-all-read', protect, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    
+    notifications = notifications.map(n => 
+      n.userId === userId ? { ...n, read: true } : n
+    );
+    
+    res.json({
       success: true,
       message: 'All notifications marked as read'
     });
   } catch (error) {
-    next(error);
+    console.error('Error marking all notifications as read:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to mark all notifications as read'
+    });
   }
 });
 
-// @desc    Delete notification
-// @route   DELETE /api/notifications/:id
-// @access  Private
-router.delete('/:id', protect, async (req, res, next) => {
+// Delete notification
+router.delete('/:id', protect, async (req, res) => {
   try {
     const { id } = req.params;
-
-    const notification = await db('notifications')
-      .where({ id, user_id: req.user.id })
-      .first();
-
-    if (!notification) {
+    const userId = req.user.id;
+    
+    const notificationIndex = notifications.findIndex(n => n.id === id && n.userId === userId);
+    
+    if (notificationIndex === -1) {
       return res.status(404).json({
         success: false,
         error: 'Notification not found'
       });
     }
-
-    await db('notifications')
-      .where({ id })
-      .del();
-
-    res.status(200).json({
+    
+    notifications.splice(notificationIndex, 1);
+    
+    res.json({
       success: true,
-      message: 'Notification deleted successfully'
+      message: 'Notification deleted'
     });
   } catch (error) {
-    next(error);
+    console.error('Error deleting notification:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to delete notification'
+    });
   }
 });
 
-// @desc    Create notification (Internal use)
-// @route   POST /api/notifications
-// @access  Private (Internal)
-const createNotification = async (notificationData) => {
+// Create notification (for system use)
+router.post('/', protect, async (req, res) => {
   try {
+    const { userId, type, title, description, category, relatedId, relatedType, metadata, actions } = req.body;
+    
     const notification = {
-      id: uuidv4(),
-      ...notificationData,
-      created_at: new Date(),
-      updated_at: new Date()
+      id: `notif_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      userId,
+      type,
+      title,
+      description,
+      timestamp: new Date().toISOString(),
+      read: false,
+      actionRequired: false,
+      category,
+      relatedId,
+      relatedType,
+      metadata: metadata || {},
+      actions: actions || {}
     };
-
-    await db('notifications').insert(notification);
-    return notification;
+    
+    notifications.push(notification);
+    
+    res.status(201).json({
+      success: true,
+      data: notification
+    });
   } catch (error) {
     console.error('Error creating notification:', error);
-    throw error;
-  }
-};
-
-// @desc    Get notification settings
-// @route   GET /api/notifications/settings
-// @access  Private
-router.get('/settings', protect, async (req, res, next) => {
-  try {
-    // Get user preferences from users table
-    const user = await db('users')
-      .select('preferences')
-      .where({ id: req.user.id })
-      .first();
-
-    const defaultSettings = {
-      email: {
-        connections: true,
-        mentorship: true,
-        projects: true,
-        opportunities: true,
-        system: false
-      },
-      push: {
-        connections: true,
-        mentorship: true,
-        projects: true,
-        opportunities: false,
-        system: false
-      },
-      inApp: {
-        connections: true,
-        mentorship: true,
-        projects: true,
-        opportunities: true,
-        system: true
-      }
-    };
-
-    const settings = user?.preferences?.notifications || defaultSettings;
-
-    res.status(200).json({
-      success: true,
-      data: settings
+    res.status(500).json({
+      success: false,
+      error: 'Failed to create notification'
     });
-  } catch (error) {
-    next(error);
   }
 });
 
-// @desc    Update notification settings
-// @route   PUT /api/notifications/settings
-// @access  Private
-router.put('/settings', protect, async (req, res, next) => {
+// Get notification preferences
+router.get('/preferences', protect, async (req, res) => {
   try {
-    const { settings } = req.body;
-
-    // Get current preferences
-    const user = await db('users')
-      .select('preferences')
-      .where({ id: req.user.id })
-      .first();
-
-    const currentPreferences = user?.preferences || {};
-    const updatedPreferences = {
-      ...currentPreferences,
-      notifications: settings
-    };
-
-    await db('users')
-      .where({ id: req.user.id })
-      .update({
-        preferences: JSON.stringify(updatedPreferences),
-        updated_at: new Date()
-      });
-
-    res.status(200).json({
-      success: true,
-      message: 'Notification settings updated successfully',
-      data: settings
-    });
-  } catch (error) {
-    next(error);
-  }
-});
-
-// @desc    Mark notification as clicked
-// @route   PUT /api/notifications/:id/click
-// @access  Private
-router.put('/:id/click', protect, async (req, res, next) => {
-  try {
-    const { id } = req.params;
-
-    const notification = await db('notifications')
-      .where({ id, user_id: req.user.id })
-      .first();
-
-    if (!notification) {
-      return res.status(404).json({
-        success: false,
-        error: 'Notification not found'
-      });
-    }
-
-    await db('notifications')
-      .where({ id })
-      .update({ 
-        clicked_at: new Date(),
-        click_count: db.raw('click_count + 1'),
-        updated_at: new Date()
-      });
-
-    res.status(200).json({
-      success: true,
-      message: 'Notification click tracked'
-    });
-  } catch (error) {
-    next(error);
-  }
-});
-
-// @desc    Dismiss notification
-// @route   PUT /api/notifications/:id/dismiss
-// @access  Private
-router.put('/:id/dismiss', protect, async (req, res, next) => {
-  try {
-    const { id } = req.params;
-
-    const notification = await db('notifications')
-      .where({ id, user_id: req.user.id })
-      .first();
-
-    if (!notification) {
-      return res.status(404).json({
-        success: false,
-        error: 'Notification not found'
-      });
-    }
-
-    await db('notifications')
-      .where({ id })
-      .update({ 
-        dismissed_at: new Date(),
-        updated_at: new Date()
-      });
-
-    res.status(200).json({
-      success: true,
-      message: 'Notification dismissed'
-    });
-  } catch (error) {
-    next(error);
-  }
-});
-
-// @desc    Archive notification
-// @route   PUT /api/notifications/:id/archive
-// @access  Private
-router.put('/:id/archive', protect, async (req, res, next) => {
-  try {
-    const { id } = req.params;
-
-    const notification = await db('notifications')
-      .where({ id, user_id: req.user.id })
-      .first();
-
-    if (!notification) {
-      return res.status(404).json({
-        success: false,
-        error: 'Notification not found'
-      });
-    }
-
-    await db('notifications')
-      .where({ id })
-      .update({ 
-        is_archived: true,
-        updated_at: new Date()
-      });
-
-    res.status(200).json({
-      success: true,
-      message: 'Notification archived'
-    });
-  } catch (error) {
-    next(error);
-  }
-});
-
-// @desc    Bulk operations on notifications
-// @route   PUT /api/notifications/bulk
-// @access  Private
-router.put('/bulk', protect, async (req, res, next) => {
-  try {
-    const { 
-      notification_ids, 
-      action, 
-      filter_criteria 
-    } = req.body;
-
-    if (!action) {
-      return res.status(400).json({
-        success: false,
-        error: 'Action is required'
-      });
-    }
-
-    let query = db('notifications')
-      .where('user_id', req.user.id);
-
-    // Apply filter criteria or specific IDs
-    if (notification_ids && notification_ids.length > 0) {
-      query = query.whereIn('id', notification_ids);
-    } else if (filter_criteria) {
-      if (filter_criteria.type) {
-        query = query.where('type', filter_criteria.type);
-      }
-      if (filter_criteria.read !== undefined) {
-        query = query.where('read', filter_criteria.read);
-      }
-      if (filter_criteria.priority) {
-        query = query.where('priority', filter_criteria.priority);
-      }
-      if (filter_criteria.category_id) {
-        query = query.where('category_id', filter_criteria.category_id);
-      }
-    } else {
-      return res.status(400).json({
-        success: false,
-        error: 'Either notification_ids or filter_criteria is required'
-      });
-    }
-
-    const updateData = { updated_at: new Date() };
-
-    switch (action) {
-      case 'mark_read':
-        updateData.read = true;
-        updateData.read_at = new Date();
-        break;
-      case 'mark_unread':
-        updateData.read = false;
-        updateData.read_at = null;
-        break;
-      case 'archive':
-        updateData.is_archived = true;
-        break;
-      case 'unarchive':
-        updateData.is_archived = false;
-        break;
-      case 'dismiss':
-        updateData.dismissed_at = new Date();
-        break;
-      default:
-        return res.status(400).json({
-          success: false,
-          error: 'Invalid action'
-        });
-    }
-
-    const affectedRows = await query.update(updateData);
-
-    res.status(200).json({
-      success: true,
-      message: `${affectedRows} notifications updated`,
-      affected_count: affectedRows
-    });
-  } catch (error) {
-    next(error);
-  }
-});
-
-// @desc    Get notification statistics
-// @route   GET /api/notifications/stats
-// @access  Private
-router.get('/stats', protect, async (req, res, next) => {
-  try {
-    const { period = '30d' } = req.query;
-
-    // Calculate date range
-    const now = new Date();
-    let startDate;
+    const userId = req.user.id;
     
-    switch (period) {
-      case '7d':
-        startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-        break;
-      case '30d':
-        startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-        break;
-      case '90d':
-        startDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
-        break;
-      default:
-        startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-    }
-
-    // Get overall statistics
-    const stats = await db('notifications')
-      .where({ user_id: req.user.id })
-      .where('created_at', '>=', startDate)
-      .select(
-        db.raw('COUNT(*) as total_notifications'),
-        db.raw('COUNT(CASE WHEN read = true THEN 1 END) as read_count'),
-        db.raw('COUNT(CASE WHEN read = false THEN 1 END) as unread_count'),
-        db.raw('COUNT(CASE WHEN action_required = true THEN 1 END) as action_required_count'),
-        db.raw('COUNT(CASE WHEN clicked_at IS NOT NULL THEN 1 END) as clicked_count'),
-        db.raw('COUNT(CASE WHEN dismissed_at IS NOT NULL THEN 1 END) as dismissed_count'),
-        db.raw('COUNT(CASE WHEN is_archived = true THEN 1 END) as archived_count')
-      )
-      .first();
-
-    // Get statistics by type
-    const byType = await db('notifications')
-      .where({ user_id: req.user.id })
-      .where('created_at', '>=', startDate)
-      .select('type')
-      .count('* as count')
-      .count(db.raw('CASE WHEN read = true THEN 1 END as read_count'))
-      .count(db.raw('CASE WHEN clicked_at IS NOT NULL THEN 1 END as clicked_count'))
-      .groupBy('type')
-      .orderBy('count', 'desc');
-
-    // Get statistics by priority
-    const byPriority = await db('notifications')
-      .where({ user_id: req.user.id })
-      .where('created_at', '>=', startDate)
-      .select('priority')
-      .count('* as count')
-      .count(db.raw('CASE WHEN read = true THEN 1 END as read_count'))
-      .groupBy('priority')
-      .orderBy('count', 'desc');
-
-    // Calculate engagement rates
-    const engagementRates = {
-      read_rate: stats.total_notifications > 0 ? 
-        ((stats.read_count / stats.total_notifications) * 100).toFixed(2) : 0,
-      click_rate: stats.total_notifications > 0 ? 
-        ((stats.clicked_count / stats.total_notifications) * 100).toFixed(2) : 0,
-      action_completion_rate: stats.action_required_count > 0 ? 
-        ((stats.clicked_count / stats.action_required_count) * 100).toFixed(2) : 0
+    // Default preferences (in production, store in database)
+    const preferences = {
+      projectUpdates: true,
+      mentorship: true,
+      opportunities: true,
+      messages: true,
+      projectInvitations: true,
+      system: true,
+      email: true,
+      push: true,
+      inApp: true
     };
-
-    res.status(200).json({
+    
+    res.json({
       success: true,
-      data: {
-        period,
-        start_date: startDate,
-        end_date: now,
-        overview: {
-          ...stats,
-          ...engagementRates
-        },
-        by_type: byType,
-        by_priority: byPriority
-      }
+      data: preferences
     });
   } catch (error) {
-    next(error);
+    console.error('Error fetching notification preferences:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch notification preferences'
+    });
   }
 });
 
-// @desc    Get archived notifications
-// @route   GET /api/notifications/archived
-// @access  Private
-router.get('/archived', protect, async (req, res, next) => {
+// Update notification preferences
+router.put('/preferences', protect, async (req, res) => {
   try {
-    const {
-      page = 1,
-      limit = 20,
-      type,
-      priority,
-      category_id
-    } = req.query;
-
-    const offset = (page - 1) * limit;
+    const userId = req.user.id;
+    const preferences = req.body;
     
-    let query = db('notifications as n')
-      .select([
-        'n.*',
-        'related_user.first_name as related_user_first_name',
-        'related_user.last_name as related_user_last_name',
-        'related_user.avatar_url as related_user_avatar',
-        'related_project.title as related_project_title',
-        'nc.name as category_name',
-        'nc.display_name as category_display_name',
-        'nc.color as category_color'
-      ])
-      .leftJoin('users as related_user', 'n.related_user_id', 'related_user.id')
-      .leftJoin('projects as related_project', 'n.related_project_id', 'related_project.id')
-      .leftJoin('notification_categories as nc', 'n.category_id', 'nc.id')
-      .where('n.user_id', req.user.id)
-      .where('n.is_archived', true);
-
-    // Apply filters
-    if (type) {
-      query = query.where('n.type', type);
-    }
-
-    if (priority) {
-      query = query.where('n.priority', priority);
-    }
-
-    if (category_id) {
-      query = query.where('n.category_id', category_id);
-    }
-
-    const notifications = await query
-      .orderBy('n.created_at', 'desc')
-      .limit(parseInt(limit))
-      .offset(offset);
-
-    res.status(200).json({
+    // In production, save to database
+    console.log('Updating notification preferences for user:', userId, preferences);
+    
+    res.json({
       success: true,
-      count: notifications.length,
-      data: notifications
+      data: preferences,
+      message: 'Notification preferences updated'
     });
   } catch (error) {
-    next(error);
+    console.error('Error updating notification preferences:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to update notification preferences'
+    });
   }
 });
 
 module.exports = router;
-module.exports.createNotification = createNotification;
