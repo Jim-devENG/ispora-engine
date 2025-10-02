@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -90,142 +90,10 @@ interface Update {
   isPublished: boolean;
 }
 
-const mockProjects: Project[] = [
-  {
-    id: "1",
-    title: "AI Ethics Mentorship Program",
-    description: "A comprehensive mentorship program connecting AI professionals with students to promote ethical AI development practices.",
-    category: "mentorship",
-    status: "active",
-    participants: 156,
-    startDate: "2024-01-15",
-    endDate: "2024-12-15",
-    progress: 75,
-    impactScore: 8.7,
-    updates: 12,
-    tags: ["AI", "Ethics", "Mentorship", "Technology"],
-    isPublic: true,
-    university: "Stanford University"
-  },
-  {
-    id: "2",
-    title: "African Healthcare Innovation Campaign",
-    description: "University campaign raising funds and awareness for healthcare innovation projects in Africa.",
-    category: "academic",
-    status: "active",
-    participants: 89,
-    startDate: "2024-02-01",
-    endDate: "2024-08-31",
-    progress: 60,
-    impactScore: 9.2,
-    updates: 8,
-    tags: ["Healthcare", "Africa", "Innovation", "Fundraising"],
-    isPublic: true,
-    university: "Harvard University"
-  },
-  {
-    id: "3",
-    title: "Tech Skills Bootcamp",
-    description: "Paid intensive coding bootcamp for diaspora youth to develop market-ready technical skills.",
-    category: "career",
-    status: "active",
-    participants: 45,
-    startDate: "2024-03-01",
-    endDate: "2024-09-30",
-    progress: 40,
-    impactScore: 8.5,
-    updates: 15,
-    tags: ["Technology", "Education", "Career", "Youth"],
-    isPublic: true
-  },
-  {
-    id: "4",
-    title: "Climate Action Research Initiative",
-    description: "Research program investigating climate resilience solutions for developing nations.",
-    category: "academic",
-    status: "active",
-    participants: 23,
-    startDate: "2024-01-01",
-    endDate: "2024-12-31",
-    progress: 55,
-    impactScore: 9.0,
-    updates: 6,
-    tags: ["Climate", "Research", "Environment", "Sustainability"],
-    isPublic: true,
-    university: "MIT"
-  },
-  {
-    id: "5",
-    title: "Digital Literacy Community Outreach",
-    description: "Community service program teaching digital skills to underserved rural populations.",
-    category: "community",
-    status: "completed",
-    participants: 234,
-    startDate: "2023-09-01",
-    endDate: "2024-02-28",
-    progress: 100,
-    impactScore: 8.9,
-    updates: 20,
-    tags: ["Digital Literacy", "Community", "Education", "Rural"],
-    isPublic: true
-  },
-  {
-    id: "6",
-    title: "AI Innovation Lab",
-    description: "Collaborative workspace for developing AI tools and solutions that address African challenges in healthcare, agriculture, and education.",
-    category: "collaboration",
-    status: "active",
-    participants: 67,
-    startDate: "2024-04-01",
-    endDate: "2024-10-31",
-    progress: 30,
-    impactScore: 8.3,
-    updates: 9,
-    tags: ["AI", "Innovation", "Collaboration", "Technology"],
-    isPublic: true,
-    university: "MIT"
-  }
-];
+// API base URL
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://ispora-backend.onrender.com/api';
 
-// This will be replaced with dynamic data based on the logged-in user
-const getMockUpdates = (userName: string): Update[] => [
-  {
-    id: "1",
-    projectId: "1",
-    type: "milestone",
-    title: "Completed Module 3: Bias in AI Systems",
-    content: "Successfully completed the third module of our AI Ethics curriculum focusing on identifying and mitigating bias in AI systems. 45 mentor-mentee pairs participated in intensive workshops.",
-    date: "2024-06-15",
-    author: userName,
-    likes: 23,
-    comments: 8,
-    isPublished: true
-  },
-  {
-    id: "2",
-    projectId: "2",
-    type: "achievement",
-    title: "Reached 75% of Fundraising Goal",
-    content: "Excited to announce that our healthcare innovation campaign has reached 75% of our $50,000 fundraising goal! Thank you to all our supporters.",
-    date: "2024-06-10",
-    author: userName,
-    likes: 67,
-    comments: 15,
-    isPublished: true
-  },
-  {
-    id: "3",
-    projectId: "3",
-    type: "announcement",
-    title: "New Industry Partnership with TechCorp",
-    content: "We're thrilled to announce a new partnership with TechCorp, which will provide guaranteed internships for our top-performing bootcamp graduates.",
-    date: "2024-06-08",
-    author: userName,
-    likes: 34,
-    comments: 12,
-    isPublished: true
-  }
-];
+// All mock data removed – using real API data only
 
 const categoryConfig = {
   mentorship: { icon: Users, color: "bg-orange-100 text-orange-700", label: "Mentorship & Coaching" },
@@ -546,6 +414,10 @@ export function MyProjects() {
   const [filterCategory, setFilterCategory] = useState<string>("all");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [sortBy, setSortBy] = useState<string>("recent");
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [updates, setUpdates] = useState<Update[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleCreateProject = () => {
     navigate('Create Project');
@@ -559,11 +431,46 @@ export function MyProjects() {
     toast.info("New update functionality coming soon!");
   };
 
-  // Get user's display name for updates
-  const userName = user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email?.split('@')[0] || 'User' : 'User';
-  const mockUpdates = getMockUpdates(userName);
+  // Load real projects and updates
+  useEffect(() => {
+    const controller = new AbortController();
+    const load = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+        const devKey = localStorage.getItem('devKey');
+        const token = localStorage.getItem('token');
+        if (devKey) headers['X-Dev-Key'] = devKey;
+        if (token) headers['Authorization'] = `Bearer ${token}`;
 
-  const filteredProjects = mockProjects
+        const [projRes, updRes] = await Promise.all([
+          fetch(`${API_BASE_URL}/projects?mine=true`, { headers, signal: controller.signal }),
+          fetch(`${API_BASE_URL}/projects/updates?mine=true`, { headers, signal: controller.signal })
+        ]);
+
+        const projJson = await projRes.json();
+        const updJson = await updRes.json();
+
+        setProjects(Array.isArray(projJson.data) ? projJson.data : (Array.isArray(projJson) ? projJson : []));
+        setUpdates(Array.isArray(updJson.data) ? updJson.data : (Array.isArray(updJson) ? updJson : []));
+      } catch (e: any) {
+        setError('Failed to load projects');
+        setProjects([]);
+        setUpdates([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+    const interval = setInterval(load, 30000);
+    return () => {
+      controller.abort();
+      clearInterval(interval);
+    };
+  }, []);
+
+  const filteredProjects = projects
     .filter(project => {
       const matchesSearch = 
         project.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -591,10 +498,10 @@ export function MyProjects() {
     });
 
   const stats = {
-    totalProjects: mockProjects.length,
-    activeProjects: mockProjects.filter(p => p.status === 'active').length,
-    totalParticipants: mockProjects.reduce((sum, p) => sum + p.participants, 0),
-    avgImpactScore: Math.round((mockProjects.reduce((sum, p) => sum + p.impactScore, 0) / mockProjects.length) * 10) / 10
+    totalProjects: projects.length,
+    activeProjects: projects.filter(p => p.status === 'active').length,
+    totalParticipants: projects.reduce((sum, p) => sum + (p.participants || 0), 0),
+    avgImpactScore: projects.length ? Math.round((projects.reduce((sum, p) => sum + (p.impactScore || 0), 0) / projects.length) * 10) / 10 : 0
   };
 
   return (
@@ -769,7 +676,7 @@ export function MyProjects() {
               
               <ScrollArea className="h-[calc(100vh-300px)]">
                 <div className="space-y-4">
-                  {mockUpdates.map((update) => (
+                  {updates.map((update) => (
                     <UpdateCard key={update.id} update={update} />
                   ))}
                 </div>
