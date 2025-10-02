@@ -227,7 +227,7 @@ export function MentorshipWorkspace({ onNavigateToCampaign, onCreateCampaign }: 
           <div className="flex items-center gap-4">
             {/* Mentee Selector - Now Clickable */}
             <Tooltip>
-              <TooltipTrigger>
+              <TooltipTrigger asChild>
                 <button
                   onClick={() => setShowMenteeManagement(true)}
                   className="flex items-center gap-3 bg-gray-100 hover:bg-gray-200 rounded-lg px-4 py-2 transition-colors group"

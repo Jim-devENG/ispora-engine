@@ -62,7 +62,7 @@ function SessionDot({ session, onClick }: { session: Session; onClick: () => voi
   return (
     <TooltipProvider>
       <Tooltip>
-        <TooltipTrigger>
+        <TooltipTrigger asChild>
           <button
             onClick={onClick}
             className={`

@@ -122,7 +122,7 @@ export function AlmaMaterMenu({ isCollapsed, isActive, onClick }: AlmaMaterMenuP
     return (
       <>
         <Tooltip>
-          <TooltipTrigger>
+          <TooltipTrigger asChild>
             {mainButton}
           </TooltipTrigger>
           <TooltipContent side="right" className="font-medium">

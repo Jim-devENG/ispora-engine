@@ -260,7 +260,7 @@ function ProjectCard({ project }: { project: Project }) {
             View
           </Button>
           <Tooltip>
-            <TooltipTrigger>
+            <TooltipTrigger asChild>
               <Button size="sm" variant="outline" onClick={handleProjectAnalytics}>
                 <BarChart3 className="h-4 w-4" />
               </Button>
@@ -268,7 +268,7 @@ function ProjectCard({ project }: { project: Project }) {
             <TooltipContent>Analytics</TooltipContent>
           </Tooltip>
           <Tooltip>
-            <TooltipTrigger>
+            <TooltipTrigger asChild>
               <Button size="sm" variant="outline" onClick={handleShareProject}>
                 <Share2 className="h-4 w-4" />
               </Button>
@@ -358,7 +358,7 @@ function UpdateCard({ update }: { update: Update }) {
           </div>
           <div className="flex gap-1">
             <Tooltip>
-              <TooltipTrigger>
+              <TooltipTrigger asChild>
                 <Button 
                   size="sm" 
                   variant="ghost" 
@@ -371,7 +371,7 @@ function UpdateCard({ update }: { update: Update }) {
               <TooltipContent>Like Update</TooltipContent>
             </Tooltip>
             <Tooltip>
-              <TooltipTrigger>
+              <TooltipTrigger asChild>
                 <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={handleShareUpdate}>
                   <Share2 className="h-4 w-4" />
                 </Button>

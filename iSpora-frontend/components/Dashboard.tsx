@@ -227,7 +227,7 @@ function CommentsDialog({
                     {newComment.length}/500 characters
                   </span>
                   <Tooltip>
-                    <TooltipTrigger>
+                    <TooltipTrigger asChild>
                       <Button 
                         size="sm" 
                         onClick={handleSubmitComment}
@@ -388,7 +388,7 @@ function ShareDialog({
           <div className="grid grid-cols-1 gap-2">
             {shareOptions.map((option) => (
               <Tooltip key={option.name}>
-                <TooltipTrigger>
+                <TooltipTrigger asChild>
                   <button
                     onClick={option.action}
                     className="flex items-center gap-3 p-3 text-left border rounded-lg hover:bg-gray-50 transition-colors btn-hover-lift w-full"
@@ -689,7 +689,7 @@ function DynamicInterestCounter({
   
   return (
     <Tooltip>
-      <TooltipTrigger>
+      <TooltipTrigger asChild>
         <div className={`inline-flex items-center gap-1.5 rounded-full border transition-all duration-200 hover:scale-105 cursor-help ${heat.bgColor} ${heat.borderColor} ${sizeClasses[size]}`}>
           {showIcon && (
             <span className="flex-shrink-0">
