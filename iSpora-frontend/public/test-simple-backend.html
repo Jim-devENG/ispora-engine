@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iSpora Simple Backend Test</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            max-width: 800px; 
+            margin: 0 auto; 
+            padding: 20px; 
+            background: #f5f5f5; 
+        }
+        .container { 
+            background: white; 
+            padding: 30px; 
+            border-radius: 10px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+        }
+        .test-section { 
+            margin: 20px 0; 
+            padding: 15px; 
+            border: 1px solid #ddd; 
+            border-radius: 5px; 
+        }
+        .success { 
+            background: #d4edda; 
+            border-color: #c3e6cb; 
+            color: #155724; 
+        }
+        .error { 
+            background: #f8d7da; 
+            border-color: #f5c6cb; 
+            color: #721c24; 
+        }
+        button { 
+            background: #007bff; 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            margin: 5px; 
+        }
+        button:hover { 
+            background: #0056b3; 
+        }
+        .result { 
+            margin-top: 10px; 
+            padding: 10px; 
+            border-radius: 3px; 
+            white-space: pre-wrap; 
+        }
+        .status {
+            font-weight: bold;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 iSpora Simple Backend Test</h1>
+        <p>Testing the new simplified Node.js backend that should be more reliable.</p>
+        
+        <div class="test-section">
+            <h3>🌐 Backend Health Check</h3>
+            <button onclick="testHealth()">Test Health Endpoint</button>
+            <div id="health-result" class="result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>🔗 CORS Test</h3>
+            <button onclick="testCORS()">Test CORS Configuration</button>
+            <div id="cors-result" class="result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>📊 API Endpoints Test</h3>
+            <button onclick="testFeed()">Test Feed API</button>
+            <button onclick="testProjects()">Test Projects API</button>
+            <button onclick="testSessions()">Test Sessions API</button>
+            <button onclick="testNotifications()">Test Notifications API</button>
+            <div id="api-result" class="result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>✅ Frontend Integration</h3>
+            <p><strong>To test with frontend:</strong></p>
+            <ol>
+                <li>Make sure the simple backend is running on port 3001</li>
+                <li>Open <a href="http://localhost:5173" target="_blank">http://localhost:5173</a> in your browser</li>
+                <li>Open Developer Tools (F12) and check Console</li>
+                <li>Navigate through the app - you should see NO CORS errors!</li>
+            </ol>
+            <div class="status" id="integration-status">Ready to test integration</div>
+        </div>
+    </div>
+
+    <script>
+        const BACKEND_URL = 'http://localhost:3001';
+
+        function logResult(elementId, message, isError = false) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `result ${isError ? 'error' : 'success'}`;
+        }
+
+        async function testHealth() {
+            try {
+                logResult('health-result', 'Testing health endpoint...');
+                const response = await fetch(`${BACKEND_URL}/health`);
+                if (response.ok) {
+                    const data = await response.json();
+                    logResult('health-result', `✅ Backend is healthy!\nStatus: ${data.status}\nUptime: ${data.uptime}s\nTimestamp: ${data.timestamp}`);
+                } else {
+                    logResult('health-result', `❌ Health check failed: ${response.status}`, true);
+                }
+            } catch (error) {
+                logResult('health-result', `❌ Health check error: ${error.message}`, true);
+            }
+        }
+
+        async function testCORS() {
+            try {
+                logResult('cors-result', 'Testing CORS configuration...');
+                const response = await fetch(`${BACKEND_URL}/api/cors-test`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    logResult('cors-result', `✅ CORS is working!\nMessage: ${data.message}\nTimestamp: ${data.timestamp}`);
+                } else {
+                    logResult('cors-result', `❌ CORS test failed: ${response.status}`, true);
+                }
+            } catch (error) {
+                logResult('cors-result', `❌ CORS test failed: ${error.message}`, true);
+            }
+        }
+
+        async function testFeed() {
+            try {
+                logResult('api-result', 'Testing feed API...');
+                const response = await fetch(`${BACKEND_URL}/api/feed`);
+                if (response.ok) {
+                    const data = await response.json();
+                    logResult('api-result', `✅ Feed API working!\nItems: ${data.data.length}\nSuccess: ${data.success}`);
+                } else {
+                    logResult('api-result', `❌ Feed API failed: ${response.status}`, true);
+                }
+            } catch (error) {
+                logResult('api-result', `❌ Feed API error: ${error.message}`, true);
+            }
+        }
+
+        async function testProjects() {
+            try {
+                logResult('api-result', 'Testing projects API...');
+                const response = await fetch(`${BACKEND_URL}/api/projects`);
+                if (response.ok) {
+                    const data = await response.json();
+                    logResult('api-result', `✅ Projects API working!\nProjects: ${data.data.length}\nSuccess: ${data.success}`);
+                } else {
+                    logResult('api-result', `❌ Projects API failed: ${response.status}`, true);
+                }
+            } catch (error) {
+                logResult('api-result', `❌ Projects API error: ${error.message}`, true);
+            }
+        }
+
+        async function testSessions() {
+            try {
+                logResult('api-result', 'Testing sessions API...');
+                const response = await fetch(`${BACKEND_URL}/api/sessions`);
+                if (response.ok) {
+                    const data = await response.json();
+                    logResult('api-result', `✅ Sessions API working!\nSessions: ${data.data.length}\nSuccess: ${data.success}`);
+                } else {
+                    logResult('api-result', `❌ Sessions API failed: ${response.status}`, true);
+                }
+            } catch (error) {
+                logResult('api-result', `❌ Sessions API error: ${error.message}`, true);
+            }
+        }
+
+        async function testNotifications() {
+            try {
+                logResult('api-result', 'Testing notifications API...');
+                const response = await fetch(`${BACKEND_URL}/api/notifications`);
+                if (response.ok) {
+                    const data = await response.json();
+                    logResult('api-result', `✅ Notifications API working!\nNotifications: ${data.data.length}\nSuccess: ${data.success}`);
+                } else {
+                    logResult('api-result', `❌ Notifications API failed: ${response.status}`, true);
+                }
+            } catch (error) {
+                logResult('api-result', `❌ Notifications API error: ${error.message}`, true);
+            }
+        }
+
+        // Auto-run tests on page load
+        window.onload = function() {
+            testHealth();
+            setTimeout(testCORS, 1000);
+            setTimeout(() => {
+                document.getElementById('integration-status').textContent = 'Backend is running - ready for frontend integration!';
+                document.getElementById('integration-status').style.color = 'green';
+            }, 2000);
+        };
+    </script>
+</body>
+</html>

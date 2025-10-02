@@ -91,7 +91,7 @@ interface Update {
 }
 
 // API base URL
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://ispora-backend.onrender.com/api';
+  const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
 // All mock data removed – using real API data only
 

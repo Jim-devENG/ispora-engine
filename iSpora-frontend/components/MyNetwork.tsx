@@ -69,7 +69,7 @@ import {
   Sparkles
 } from "lucide-react";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://ispora-backend.onrender.com/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
 // Types and Interfaces
 interface NetworkUser {

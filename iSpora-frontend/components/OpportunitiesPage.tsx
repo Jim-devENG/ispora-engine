@@ -53,7 +53,7 @@ import { Label } from "./ui/label";
 import { Checkbox } from "./ui/checkbox";
 import { ScrollArea } from "./ui/scroll-area";
 import { toast } from "sonner";
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://ispora-backend.onrender.com/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 interface Opportunity {
   id: string;
   title: string;
