@@ -1,285 +1,228 @@
+const jwt = require('jsonwebtoken');
+
 class SocketService {
   constructor() {
     this.io = null;
-    this.userSockets = new Map(); // Map userId to socketId
+    this.rooms = new Map(); // roomId -> Set of socketIds
+    this.socketToRoom = new Map(); // socketId -> roomId
+    this.socketToUser = new Map(); // socketId -> userId
   }
 
   initialize(io) {
     this.io = io;
     
     io.on('connection', (socket) => {
-      console.log(`🔗 User connected: ${socket.id}`);
-
-      // Handle user authentication and store mapping
+      console.log('User connected:', socket.id);
+      
+      // Handle authentication
       socket.on('authenticate', (data) => {
-        const { userId, token } = data;
-        // In production, verify JWT token here
-        if (userId) {
-          this.userSockets.set(userId, socket.id);
-          socket.userId = userId;
-          socket.join(`user:${userId}`);
-          console.log(`✅ User ${userId} authenticated and joined room`);
+        try {
+          const { token, devKey } = data;
           
-          // Update user online status
-          this.updateUserOnlineStatus(userId, true);
+          // Check dev key first (for development bypass)
+          if (devKey && devKey === process.env.DEV_ACCESS_KEY) {
+            socket.userId = 'dev-user';
+            socket.userType = 'admin';
+            socket.emit('authenticated', { success: true, userId: 'dev-user' });
+            return;
+          }
+          
+          // Verify JWT token
+          if (token) {
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            socket.userId = decoded.userId;
+            socket.userType = decoded.userType;
+            socket.emit('authenticated', { success: true, userId: decoded.userId });
+            return;
+          }
+          
+          socket.emit('authenticated', { success: false, error: 'No valid authentication' });
+        } catch (error) {
+          console.error('Authentication error:', error);
+          socket.emit('authenticated', { success: false, error: 'Invalid token' });
         }
       });
 
-      // Handle disconnection
+      // Handle joining a room (session)
+      socket.on('join-room', (data) => {
+        const { roomId, userId } = data;
+        
+        if (!socket.userId) {
+          socket.emit('error', { message: 'Not authenticated' });
+          return;
+        }
+
+        // Leave previous room if any
+        if (this.socketToRoom.has(socket.id)) {
+          const previousRoom = this.socketToRoom.get(socket.id);
+          this.leaveRoom(socket, previousRoom);
+        }
+
+        // Join new room
+        socket.join(roomId);
+        this.socketToRoom.set(socket.id, roomId);
+        this.socketToUser.set(socket.id, userId || socket.userId);
+
+        // Add to room tracking
+        if (!this.rooms.has(roomId)) {
+          this.rooms.set(roomId, new Set());
+        }
+        this.rooms.get(roomId).add(socket.id);
+
+        // Notify others in the room
+        socket.to(roomId).emit('user-joined', {
+          userId: userId || socket.userId,
+          socketId: socket.id
+        });
+
+        // Send current room members to the new user
+        const roomMembers = Array.from(this.rooms.get(roomId))
+          .filter(id => id !== socket.id)
+          .map(id => ({
+            socketId: id,
+            userId: this.socketToUser.get(id)
+          }));
+        
+        socket.emit('room-members', roomMembers);
+
+        console.log(`User ${socket.userId} joined room ${roomId}`);
+      });
+
+      // Handle leaving a room
+      socket.on('leave-room', (data) => {
+        const { roomId } = data;
+        this.leaveRoom(socket, roomId);
+      });
+
+      // Handle WebRTC signaling
+      socket.on('offer', (data) => {
+        const { to, offer } = data;
+        socket.to(to).emit('offer', {
+          from: socket.id,
+          offer: offer
+        });
+      });
+
+      socket.on('answer', (data) => {
+        const { to, answer } = data;
+        socket.to(to).emit('answer', {
+          from: socket.id,
+          answer: answer
+        });
+      });
+
+      socket.on('ice-candidate', (data) => {
+        const { to, candidate } = data;
+        socket.to(to).emit('ice-candidate', {
+          from: socket.id,
+          candidate: candidate
+        });
+      });
+
+      // Handle chat messages
+      socket.on('chat-message', (data) => {
+        const { roomId, message, userId, userName } = data;
+        
+        if (!socket.userId) {
+          socket.emit('error', { message: 'Not authenticated' });
+          return;
+        }
+
+        // Broadcast to room
+        socket.to(roomId).emit('chat-message', {
+          id: Date.now().toString(),
+          message,
+          userId: userId || socket.userId,
+          userName: userName || 'Anonymous',
+          timestamp: new Date().toISOString(),
+          type: 'text'
+        });
+      });
+
+      // Handle screen sharing events
+      socket.on('screen-share-start', (data) => {
+        const { roomId } = data;
+        socket.to(roomId).emit('screen-share-start', {
+          userId: socket.userId,
+          socketId: socket.id
+        });
+      });
+
+      socket.on('screen-share-stop', (data) => {
+        const { roomId } = data;
+        socket.to(roomId).emit('screen-share-stop', {
+          userId: socket.userId,
+          socketId: socket.id
+        });
+      });
+
+      // Handle recording events
+      socket.on('recording-start', (data) => {
+        const { roomId } = data;
+        socket.to(roomId).emit('recording-start', {
+          userId: socket.userId,
+          socketId: socket.id
+        });
+      });
+
+      socket.on('recording-stop', (data) => {
+        const { roomId } = data;
+        socket.to(roomId).emit('recording-stop', {
+          userId: socket.userId,
+          socketId: socket.id
+        });
+      });
+
+      // Handle disconnect
       socket.on('disconnect', () => {
-        console.log(`❌ User disconnected: ${socket.id}`);
-        if (socket.userId) {
-          this.userSockets.delete(socket.userId);
-          this.updateUserOnlineStatus(socket.userId, false);
+        console.log('User disconnected:', socket.id);
+        
+        // Leave all rooms
+        if (this.socketToRoom.has(socket.id)) {
+          const roomId = this.socketToRoom.get(socket.id);
+          this.leaveRoom(socket, roomId);
         }
-      });
 
-      // Handle joining project rooms
-      socket.on('joinProject', (projectId) => {
-        socket.join(`project:${projectId}`);
-        console.log(`📁 User ${socket.userId} joined project ${projectId}`);
-      });
-
-      // Handle leaving project rooms
-      socket.on('leaveProject', (projectId) => {
-        socket.leave(`project:${projectId}`);
-        console.log(`📁 User ${socket.userId} left project ${projectId}`);
-      });
-
-      // Handle joining conversation rooms
-      socket.on('joinConversation', (conversationId) => {
-        socket.join(`conversation:${conversationId}`);
-        console.log(`💬 User ${socket.userId} joined conversation ${conversationId}`);
-      });
-
-      // Handle leaving conversation rooms
-      socket.on('leaveConversation', (conversationId) => {
-        socket.leave(`conversation:${conversationId}`);
-        console.log(`💬 User ${socket.userId} left conversation ${conversationId}`);
-      });
-
-      // Handle session rooms
-      socket.on('joinSession', (sessionId) => {
-        socket.join(`session:${sessionId}`);
-        console.log(`🎥 User ${socket.userId} joined session ${sessionId}`);
-        
-        // Notify other participants
-        socket.to(`session:${sessionId}`).emit('userJoinedSession', {
-          userId: socket.userId,
-          timestamp: new Date()
-        });
-      });
-
-      socket.on('leaveSession', (sessionId) => {
-        socket.leave(`session:${sessionId}`);
-        console.log(`🎥 User ${socket.userId} left session ${sessionId}`);
-        
-        // Notify other participants
-        socket.to(`session:${sessionId}`).emit('userLeftSession', {
-          userId: socket.userId,
-          timestamp: new Date()
-        });
-      });
-
-      // Handle typing indicators
-      socket.on('typing', (data) => {
-        const { conversationId, isTyping } = data;
-        socket.to(`conversation:${conversationId}`).emit('userTyping', {
-          userId: socket.userId,
-          isTyping,
-          timestamp: new Date()
-        });
-      });
-
-      // Handle real-time cursor positions (for collaborative editing)
-      socket.on('cursorPosition', (data) => {
-        const { projectId, position, selection } = data;
-        socket.to(`project:${projectId}`).emit('cursorUpdate', {
-          userId: socket.userId,
-          position,
-          selection,
-          timestamp: new Date()
-        });
-      });
-
-      // Handle file changes (collaborative editing)
-      socket.on('fileChange', (data) => {
-        const { projectId, fileId, changes } = data;
-        socket.to(`project:${projectId}`).emit('fileUpdate', {
-          userId: socket.userId,
-          fileId,
-          changes,
-          timestamp: new Date()
-        });
-      });
-
-      // Handle session screen sharing
-      socket.on('startScreenShare', (data) => {
-        const { sessionId, streamId } = data;
-        socket.to(`session:${sessionId}`).emit('screenShareStarted', {
-          userId: socket.userId,
-          streamId,
-          timestamp: new Date()
-        });
-      });
-
-      socket.on('stopScreenShare', (data) => {
-        const { sessionId } = data;
-        socket.to(`session:${sessionId}`).emit('screenShareStopped', {
-          userId: socket.userId,
-          timestamp: new Date()
-        });
-      });
-
-      // Handle session whiteboard updates
-      socket.on('whiteboardUpdate', (data) => {
-        const { sessionId, drawingData } = data;
-        socket.to(`session:${sessionId}`).emit('whiteboardChange', {
-          userId: socket.userId,
-          drawingData,
-          timestamp: new Date()
-        });
+        // Clean up tracking
+        this.socketToUser.delete(socket.id);
       });
     });
   }
 
-  // Send notification to specific user
-  sendNotificationToUser(userId, notification) {
-    if (this.io && this.userSockets.has(userId)) {
-      this.io.to(`user:${userId}`).emit('notification', notification);
-      return true;
-    }
-    return false;
-  }
-
-  // Send message to conversation
-  sendMessageToConversation(conversationId, message, senderId = null) {
-    if (this.io) {
-      const room = `conversation:${conversationId}`;
-      if (senderId) {
-        // Send to everyone in conversation except sender
-        this.io.to(room).emit('newMessage', message);
+  leaveRoom(socket, roomId) {
+    if (roomId && this.rooms.has(roomId)) {
+      // Remove from room tracking
+      this.rooms.get(roomId).delete(socket.id);
+      
+      // If room is empty, delete it
+      if (this.rooms.get(roomId).size === 0) {
+        this.rooms.delete(roomId);
       } else {
-        // Send to everyone in conversation
-        this.io.to(room).emit('newMessage', message);
-      }
-      return true;
-    }
-    return false;
-  }
-
-  // Send update to project members
-  sendProjectUpdate(projectId, update, senderId = null) {
-    if (this.io) {
-      const room = `project:${projectId}`;
-      if (senderId) {
-        // Send to everyone in project except sender
-        this.io.to(room).emit('projectUpdate', update);
-      } else {
-        // Send to everyone in project
-        this.io.to(room).emit('projectUpdate', update);
-      }
-      return true;
-    }
-    return false;
-  }
-
-  // Send session update to participants
-  sendSessionUpdate(sessionId, update) {
-    if (this.io) {
-      this.io.to(`session:${sessionId}`).emit('sessionUpdate', update);
-      return true;
-    }
-    return false;
-  }
-
-  // Broadcast to all connected users
-  broadcast(event, data) {
-    if (this.io) {
-      this.io.emit(event, data);
-      return true;
-    }
-    return false;
-  }
-
-  // Get online user count
-  getOnlineUserCount() {
-    return this.userSockets.size;
-  }
-
-  // Check if user is online
-  isUserOnline(userId) {
-    return this.userSockets.has(userId);
-  }
-
-  // Get all online users
-  getOnlineUsers() {
-    return Array.from(this.userSockets.keys());
-  }
-
-  // Update user online status in database
-  async updateUserOnlineStatus(userId, isOnline) {
-    try {
-      const db = require('../database/connection');
-      await db('users')
-        .where({ id: userId })
-        .update({ 
-          is_online: isOnline,
-          last_active: new Date(),
-          updated_at: new Date()
+        // Notify others in the room
+        socket.to(roomId).emit('user-left', {
+          userId: this.socketToUser.get(socket.id),
+          socketId: socket.id
         });
-    } catch (error) {
-      console.error('Error updating user online status:', error);
+      }
     }
+
+    // Clean up tracking
+    this.socketToRoom.delete(socket.id);
+    socket.leave(roomId);
   }
 
-  // Send typing indicator
-  sendTypingIndicator(conversationId, userId, isTyping) {
-    if (this.io) {
-      this.io.to(`conversation:${conversationId}`).emit('typing', {
-        userId,
-        isTyping,
-        timestamp: new Date()
-      });
-      return true;
-    }
-    return false;
+  // Utility methods for external use
+  getRoomMembers(roomId) {
+    return this.rooms.get(roomId) || new Set();
   }
 
-  // Send connection request notification
-  sendConnectionRequest(receiverId, requesterData) {
-    return this.sendNotificationToUser(receiverId, {
-      type: 'connection_request',
-      title: 'New Connection Request',
-      message: `${requesterData.name} wants to connect with you`,
-      data: requesterData,
-      timestamp: new Date()
-    });
+  getSocketUser(socketId) {
+    return this.socketToUser.get(socketId);
   }
 
-  // Send mentorship request notification
-  sendMentorshipRequest(mentorId, menteeData) {
-    return this.sendNotificationToUser(mentorId, {
-      type: 'mentorship_request',
-      title: 'New Mentorship Request',
-      message: `${menteeData.name} wants you to be their mentor`,
-      data: menteeData,
-      timestamp: new Date()
-    });
-  }
-
-  // Send project invitation
-  sendProjectInvitation(userId, projectData) {
-    return this.sendNotificationToUser(userId, {
-      type: 'project_invitation',
-      title: 'Project Invitation',
-      message: `You've been invited to join ${projectData.title}`,
-      data: projectData,
-      timestamp: new Date()
-    });
+  broadcastToRoom(roomId, event, data) {
+    this.io.to(roomId).emit(event, data);
   }
 }
 
-// Export singleton instance
-const socketService = new SocketService();
-module.exports = socketService;
+module.exports = new SocketService();
