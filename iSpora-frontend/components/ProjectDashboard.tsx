@@ -73,9 +73,31 @@ interface ProjectDashboardProps {
   onViewProject?: (projectId: string) => void;
 }
 
-// Removed demo categories – relying on real project fields only
+// Project field categories (domain-specific fields)
+const traditionalCategories = [
+  { id: "education", label: "Education", icon: BookOpen },
+  { id: "healthcare", label: "Healthcare", icon: Stethoscope },
+  { id: "agriculture", label: "Agriculture", icon: Sprout },
+  { id: "technology", label: "Technology", icon: Zap },
+  { id: "environment", label: "Environment", icon: TreePine },
+  { id: "energy", label: "Energy", icon: Energy },
+  { id: "manufacturing", label: "Manufacturing", icon: Factory },
+  { id: "arts-culture", label: "Arts & Culture", icon: Palette },
+  { id: "social-services", label: "Social Services", icon: Heart },
+  { id: "security", label: "Security & Defense", icon: Shield },
+  { id: "entrepreneurship", label: "Entrepreneurship", icon: Lightbulb },
+  { id: "research", label: "Research & Development", icon: FileText }
+];
 
-// Removed demo category chips – show only real projects
+// High-level categories for tabs/chips
+const aspiraCategories = [
+  { id: "all", label: "All Projects", icon: Folder, color: "bg-gray-100 text-gray-700 hover:bg-gray-200", darkColor: "dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700" },
+  { id: "mentorship", label: "Mentorship & Coaching", icon: Users, color: "bg-orange-100 text-orange-700 hover:bg-orange-200", darkColor: "dark:bg-orange-900 dark:text-orange-200 dark:hover:bg-orange-800" },
+  { id: "academic", label: "Academic & Research Projects", icon: BookOpen, color: "bg-blue-100 text-blue-700 hover:bg-blue-200", darkColor: "dark:bg-blue-900 dark:text-blue-200 dark:hover:bg-blue-800" },
+  { id: "career", label: "Career & Entrepreneurship", icon: Briefcase, color: "bg-amber-100 text-amber-700 hover:bg-amber-200", darkColor: "dark:bg-amber-900 dark:text-amber-200 dark:hover:bg-amber-800" },
+  { id: "community", label: "Community Impact Projects", icon: Heart, color: "bg-green-100 text-green-700 hover:bg-green-200", darkColor: "dark:bg-green-900 dark:text-green-200 dark:hover:bg-green-800" },
+  { id: "collaboration", label: "Collaboration & Innovation Projects", icon: Lightbulb, color: "bg-yellow-100 text-yellow-700 hover:bg-yellow-200", darkColor: "dark:bg-yellow-900 dark:text-yellow-200 dark:hover:bg-yellow-800" },
+];
 
 // Helper function to get a date within the last 7 days
 // API base URL
@@ -333,6 +355,7 @@ function ProjectCard({ project, onView, onEdit }: {
 export function ProjectDashboard({ onCreateProject, onViewProject }: ProjectDashboardProps) {
   const { navigate } = useNavigation();
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
   const [sortBy, setSortBy] = useState("recent");
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterField, setFilterField] = useState("all");
@@ -354,7 +377,8 @@ export function ProjectDashboard({ onCreateProject, onViewProject }: ProjectDash
 
         const params = new URLSearchParams();
         if (filterStatus !== 'all') params.set('status', filterStatus);
-        // Server supports 'type' and 'search'
+        // Server supports 'type' and 'search'; also map selectedCategory to 'type'
+        if (selectedCategory !== 'all') params.set('type', selectedCategory);
         if (filterField !== 'all') params.set('type', filterField);
         if (searchQuery) params.set('search', searchQuery);
 
@@ -372,7 +396,7 @@ export function ProjectDashboard({ onCreateProject, onViewProject }: ProjectDash
     load();
     const id = setInterval(load, 30000);
     return () => { controller.abort(); clearInterval(id); };
-  }, [filterStatus, filterField, searchQuery]);
+  }, [filterStatus, filterField, selectedCategory, searchQuery]);
 
   const filteredProjects = projects
     .filter(project => {
@@ -381,14 +405,21 @@ export function ProjectDashboard({ onCreateProject, onViewProject }: ProjectDash
         project.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
         project.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
       
-      const matchesCategory = true; // category chips removed; rely on filters above
+      const projectType = (project as any).aspiraCategory || (project as any).type || project.category;
+      const matchesCategory = selectedCategory === "all" || projectType === selectedCategory;
       const matchesStatus = filterStatus === "all" || project.status === filterStatus;
       const matchesField = filterField === "all" || project.category === filterField || project.type === filterField;
       
       return matchesSearch && matchesCategory && matchesStatus && matchesField;
     });
 
-  // Removed demo category stats
+  const categoryStats = aspiraCategories.map(category => ({
+    ...category,
+    count: category.id === 'all' ? projects.length : projects.filter(p => {
+      const t = (p as any).aspiraCategory || (p as any).type || p.category;
+      return t === category.id;
+    }).length
+  }));
 
   return (
     <div className="flex flex-col h-full bg-background">
@@ -416,7 +447,31 @@ export function ProjectDashboard({ onCreateProject, onViewProject }: ProjectDash
           </div>
         </div>
 
-        {/* Category chips removed to avoid demo content */}
+        <div className="flex gap-2 overflow-x-auto pb-2">
+          {categoryStats.map((cat) => {
+            const Icon = cat.icon as any;
+            const isActive = selectedCategory === cat.id;
+            return (
+              <Button
+                key={cat.id}
+                variant={isActive ? "default" : "outline"}
+                size="sm"
+                onClick={() => setSelectedCategory(cat.id)}
+                className={`flex-shrink-0 ${
+                  isActive 
+                    ? 'bg-[#021ff6] hover:bg-[#021ff6]/90' 
+                    : `${cat.color} ${cat.darkColor} border-transparent`
+                }`}
+              >
+                <Icon className="h-4 w-4 mr-2" />
+                {cat.label}
+                <Badge variant="secondary" className="ml-2 text-xs">
+                  {cat.count}
+                </Badge>
+              </Button>
+            );
+          })}
+        </div>
       </div>
 
       <div className="flex-1 min-h-0">
