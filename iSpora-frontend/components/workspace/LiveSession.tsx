@@ -240,7 +240,7 @@ function VideoArea({ isInSession, onJoinSession, isScreenSharing }: {
   );
 }
 
-function ChatSidebar({ isOpen, onToggle }: { isOpen: boolean; onToggle: () => void }) {
+function ChatSidebar({ isOpen, onToggle, eventId }: { isOpen: boolean; onToggle: () => void; eventId?: string }) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -253,16 +253,44 @@ function ChatSidebar({ isOpen, onToggle }: { isOpen: boolean; onToggle: () => vo
     scrollToBottom();
   }, [messages]);
 
+  // Load existing chat messages for the live event
+  useEffect(() => {
+    if (!eventId) return;
+    const controller = new AbortController();
+    const load = async () => {
+      try {
+        const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+        const devKey = localStorage.getItem('devKey');
+        const token = localStorage.getItem('token');
+        if (devKey) headers['X-Dev-Key'] = devKey;
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+        const res = await fetch(`${API_BASE_URL}/live/events/${eventId}/chat`, { headers, signal: controller.signal });
+        const json = await res.json();
+        const rows = Array.isArray(json.data) ? json.data : [];
+        const mapped: ChatMessage[] = rows.map((r: any) => ({
+          id: r.id,
+          sender: r.sender_name || 'User',
+          message: r.content || '',
+          timestamp: new Date(r.created_at || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        }));
+        setMessages(mapped);
+      } catch {}
+    };
+    load();
+    const id = setInterval(load, 10000);
+    return () => { controller.abort(); clearInterval(id); };
+  }, [eventId]);
+
   const sendMessage = async () => {
     if (!newMessage.trim()) return;
+    if (!eventId) return;
     const headers: Record<string, string> = { 'Content-Type': 'application/json' };
     const devKey = localStorage.getItem('devKey');
     const token = localStorage.getItem('token');
     if (devKey) headers['X-Dev-Key'] = devKey;
     if (token) headers['Authorization'] = `Bearer ${token}`;
     try {
-      // For now post to a default event id 'default'
-      const res = await fetch(`${API_BASE_URL}/live/events/default/chat`, { method: 'POST', headers, body: JSON.stringify({ content: newMessage, type: 'text' }) });
+      const res = await fetch(`${API_BASE_URL}/live/events/${eventId}/chat`, { method: 'POST', headers, body: JSON.stringify({ content: newMessage, type: 'text' }) });
       if (res.ok) {
         setMessages(prev => [...prev, { id: Date.now().toString(), sender: 'You', message: newMessage, timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), isCurrentUser: true }]);
         setNewMessage("");
@@ -395,13 +423,28 @@ export function LiveSession({
   isHost = true 
 }: LiveSessionProps) {
   const [isInSession, setIsInSession] = useState(false);
+  const [eventId, setEventId] = useState<string | undefined>(undefined);
   const [isMuted, setIsMuted] = useState(false);
   const [hasVideo, setHasVideo] = useState(true);
   const [isScreenSharing, setIsScreenSharing] = useState(false);
   const [showChat, setShowChat] = useState(true);
   const [isRecording, setIsRecording] = useState(false);
 
-  const handleJoinSession = () => {
+  const handleJoinSession = async () => {
+    // Create a live event if none exists, then mark in-session
+    if (!eventId) {
+      try {
+        const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+        const devKey = localStorage.getItem('devKey');
+        const token = localStorage.getItem('token');
+        if (devKey) headers['X-Dev-Key'] = devKey;
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+        const body = { title: getSessionTitle(), description: sessionDescription, startAt: new Date().toISOString(), status: 'live' };
+        const res = await fetch(`${API_BASE_URL}/live/events`, { method: 'POST', headers, body: JSON.stringify(body) });
+        const json = await res.json();
+        setEventId(json?.data?.id || json?.id);
+      } catch {}
+    }
     setIsInSession(true);
   };
 
@@ -530,7 +573,7 @@ export function LiveSession({
         </div>
 
         {/* Chat Sidebar */}
-        <ChatSidebar isOpen={showChat} onToggle={() => setShowChat(!showChat)} />
+        <ChatSidebar isOpen={showChat} onToggle={() => setShowChat(!showChat)} eventId={eventId} />
       </div>
 
       {/* Bottom Panel - Participants (when needed) */}
