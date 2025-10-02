@@ -22,6 +22,7 @@
         <button onclick="testHealth()">Test Health Endpoint</button>
         <button onclick="testFeed()">Test Feed Endpoint</button>
         <button onclick="testWithDevKey()">Test with Dev Key</button>
+        <button onclick="testCorsEndpoint()">Test CORS Endpoint</button>
         
         <div id="results"></div>
     </div>
@@ -83,6 +84,29 @@
                 }
             } catch (error) {
                 log(`❌ Dev key test error: ${error.message}`, true);
+            }
+        }
+
+        async function testCorsEndpoint() {
+            try {
+                log('🔄 Testing CORS endpoint...');
+                const response = await fetch(`${API_BASE_URL}/api/cors-test`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ CORS test successful: ${data.message}`);
+                    log(`📍 Origin: ${data.origin || 'Not set'}`);
+                    log(`🔧 Headers: ${JSON.stringify(data.headers, null, 2)}`);
+                } else {
+                    log(`❌ CORS test failed: ${response.status} ${response.statusText}`, true);
+                }
+            } catch (error) {
+                log(`❌ CORS test error: ${error.message}`, true);
             }
         }
     </script>
