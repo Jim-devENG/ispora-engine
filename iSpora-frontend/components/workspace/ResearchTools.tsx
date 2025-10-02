@@ -1611,7 +1611,7 @@ export function ResearchTools({ mentee, projectType = 'academic' }: ResearchTool
                                 <h4 className="font-medium leading-tight">{source.title}</h4>
                                 <div className="flex items-center gap-1 flex-shrink-0">
                                   <Tooltip>
-                                    <TooltipTrigger asChild>
+                                    <TooltipTrigger>
                                       <Button
                                         variant="ghost"
                                         size="sm"
@@ -1627,7 +1627,7 @@ export function ResearchTools({ mentee, projectType = 'academic' }: ResearchTool
                                   </Tooltip>
                                   {source.url && (
                                     <Tooltip>
-                                      <TooltipTrigger asChild>
+                                      <TooltipTrigger>
                                         <Button
                                           variant="ghost"
                                           size="sm"
@@ -1818,7 +1818,7 @@ export function ResearchTools({ mentee, projectType = 'academic' }: ResearchTool
                                 <div className="flex items-center gap-1 flex-shrink-0">
                                   {note.shared && (
                                     <Tooltip>
-                                      <TooltipTrigger asChild>
+                                      <TooltipTrigger>
                                         <Share2 className="h-4 w-4 text-green-600" />
                                       </TooltipTrigger>
                                       <TooltipContent>Shared with team</TooltipContent>

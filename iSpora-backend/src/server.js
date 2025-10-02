@@ -106,7 +106,7 @@ app.use(helmet({
   },
 }));
 
-// CORS configuration
+// CORS configuration - must be first
 app.use(cors({
   origin: [
     process.env.FRONTEND_URL || 'http://localhost:5173',
@@ -119,6 +119,9 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-Dev-Key']
 }));
+
+// Handle preflight requests explicitly
+app.options('*', cors());
 
 // General middleware
 app.use(compression());

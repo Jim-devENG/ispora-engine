@@ -497,7 +497,7 @@ export function ProjectWorkspace({
           <div className="flex items-center gap-4 flex-1 min-w-0">
             {/* Back Button */}
             <Tooltip>
-              <TooltipTrigger asChild>
+              <TooltipTrigger>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -536,7 +536,7 @@ export function ProjectWorkspace({
             {/* Project Selector */}
             <div className="flex items-center gap-2">
               <Tooltip>
-                <TooltipTrigger asChild>
+                <TooltipTrigger>
                   <span className={`text-gray-600 font-medium ${getCompactClass("text-sm", "text-xs")} whitespace-nowrap cursor-help`}>
                     Choose your project:
                   </span>
@@ -546,7 +546,7 @@ export function ProjectWorkspace({
                 </TooltipContent>
               </Tooltip>
               <Tooltip>
-                <TooltipTrigger asChild>
+                <TooltipTrigger>
                   <div className="form-field-enhanced">
                     <Select value={selectedProject.id} onValueChange={handleProjectChange}>
                       <SelectTrigger className={getCompactClass("w-56 h-9", "w-48 h-8 text-sm")}>
@@ -577,7 +577,7 @@ export function ProjectWorkspace({
             {/* Action Buttons */}
             <div className="flex items-center gap-2">
               <Tooltip>
-                <TooltipTrigger asChild>
+                <TooltipTrigger>
                   <Button
                     variant="outline"
                     size="sm"
@@ -595,7 +595,7 @@ export function ProjectWorkspace({
               <Popover>
                 <Tooltip>
                   <PopoverTrigger asChild>
-                    <TooltipTrigger asChild>
+                    <TooltipTrigger>
                       <Button
                         variant="outline"
                         size="sm"
@@ -615,7 +615,7 @@ export function ProjectWorkspace({
               </Popover>
 
               <Tooltip>
-                <TooltipTrigger asChild>
+                <TooltipTrigger>
                   <Button
                     variant="outline"
                     size="sm"
@@ -658,7 +658,7 @@ export function ProjectWorkspace({
               <div className="flex -space-x-2">
                 {workspaceParticipants.slice(0, 4).map((participant) => (
                   <Tooltip key={participant.id}>
-                    <TooltipTrigger asChild>
+                    <TooltipTrigger>
                       <div className="relative">
                         <Avatar className={`border-2 border-white ${getCompactClass("h-8 w-8", "h-6 w-6")}`}>
                           <AvatarImage src={participant.avatar} alt={participant.name} />
@@ -723,7 +723,7 @@ export function ProjectWorkspace({
                 const Icon = tab.icon;
                 return (
                   <Tooltip key={tab.id}>
-                    <TooltipTrigger asChild>
+                    <TooltipTrigger>
                       <Button
                         onClick={() => setActiveTab(tab.id)}
                         variant="ghost"

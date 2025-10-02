@@ -353,7 +353,7 @@ export function LiveSessionsWidget() {
     <div className="flex items-center">
       <TooltipProvider>
         <Tooltip>
-          <TooltipTrigger asChild>
+          <TooltipTrigger>
             <button
               onClick={handleButtonClick}
               className="relative p-2 text-gray-600 hover:text-[#021ff6] hover:bg-[#021ff6]/10 rounded-lg transition-all duration-200 transform hover:scale-105"

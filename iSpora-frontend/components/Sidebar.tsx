@@ -141,7 +141,7 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
         {!isCollapsed ? (
           /* Expanded Header Layout */
           <Tooltip>
-            <TooltipTrigger asChild>
+            <TooltipTrigger>
               <button className="flex items-center space-x-2 transition-all duration-300 transform hover:scale-105 cursor-pointer bg-transparent border-none p-0 m-0 w-full text-left">
                 <IsporaLogo size="default" className="transition-all duration-200 hover:scale-110" />
                 <span className="font-bold text-gradient text-lg tracking-tight">iSpora</span>
@@ -155,7 +155,7 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
           /* Collapsed Header Layout - Centered like user profile */
           <div className="flex justify-center">
             <Tooltip>
-              <TooltipTrigger asChild>
+              <TooltipTrigger>
                 <button className="transition-all duration-300 transform hover:scale-105 bg-transparent border-none p-0 m-0">
                   <IsporaLogo size="default" className="transition-all duration-200 hover:scale-110" />
                 </button>
@@ -271,7 +271,7 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
       {/* Keyboard Shortcut Indicator */}
       {!isCollapsed && (
         <Tooltip>
-          <TooltipTrigger asChild>
+          <TooltipTrigger>
             <button className="px-4 py-3 text-xs text-gray-500 border-t border-white/20 cursor-help bg-transparent border-none w-full glass-effect">
               <div className="flex items-center justify-center space-x-2">
                 <kbd className="kbd-style">

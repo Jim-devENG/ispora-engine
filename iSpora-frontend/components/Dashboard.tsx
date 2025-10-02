@@ -689,7 +689,7 @@ function DynamicInterestCounter({
   
   return (
     <Tooltip>
-      <TooltipTrigger asChild>
+      <TooltipTrigger>
         <div className={`inline-flex items-center gap-1.5 rounded-full border transition-all duration-200 hover:scale-105 cursor-help ${heat.bgColor} ${heat.borderColor} ${sizeClasses[size]}`}>
           {showIcon && (
             <span className="flex-shrink-0">

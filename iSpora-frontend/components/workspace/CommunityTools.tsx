@@ -719,7 +719,7 @@ export function CommunityTools({ mentee, projectType = 'community' }: CommunityT
                                 
                                 <div className="flex items-center gap-1">
                                   <Tooltip>
-                                    <TooltipTrigger asChild>
+                                    <TooltipTrigger>
                                       <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                                         <MessageCircle className="h-4 w-4" />
                                       </Button>
@@ -727,7 +727,7 @@ export function CommunityTools({ mentee, projectType = 'community' }: CommunityT
                                     <TooltipContent>Send message</TooltipContent>
                                   </Tooltip>
                                   <Tooltip>
-                                    <TooltipTrigger asChild>
+                                    <TooltipTrigger>
                                       <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                                         <Calendar className="h-4 w-4" />
                                       </Button>
