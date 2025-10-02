@@ -69,6 +69,8 @@ import {
   Sparkles
 } from "lucide-react";
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://ispora-backend.onrender.com/api';
+
 // Types and Interfaces
 interface NetworkUser {
   id: string;
@@ -132,203 +134,7 @@ interface NetworkStats {
   monthlyGrowth: number;
 }
 
-// Mock data with enhanced availability and openTo fields
-const mockUsers: NetworkUser[] = [
-  {
-    id: '1',
-    name: 'Dr. Kwame Asante',
-    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
-    title: 'Senior AI Research Scientist',
-    company: 'Google DeepMind',
-    location: 'London, UK',
-    university: 'Stanford University',
-    graduationYear: '2015',
-    program: 'PhD Computer Science',
-    bio: 'Leading AI research in natural language processing and machine learning ethics. Passionate about mentoring the next generation of African tech leaders.',
-    skills: ['Machine Learning', 'NLP', 'Python', 'TensorFlow', 'Research'],
-    expertise: ['Artificial Intelligence', 'Deep Learning', 'Ethics in AI'],
-    role: 'mentor',
-    experience: 8,
-    connectionStatus: 'none',
-    mutualConnections: 12,
-    responseRate: 95,
-    isVerified: true,
-    isOnline: true,
-    lastActive: '2 minutes ago',
-    interests: ['AI Ethics', 'Mentorship', 'Tech Leadership'],
-    socialLinks: {
-      linkedin: 'https://linkedin.com/in/kwameasante',
-      twitter: 'https://twitter.com/kwameasante'
-    },
-    achievements: [
-      {
-        title: 'Best Paper Award - NeurIPS 2023',
-        description: 'For groundbreaking research in ethical AI frameworks',
-        date: '2023-12-15'
-      }
-    ],
-    availability: {
-      mentoring: true,
-      collaboration: true,
-      consultation: false,
-      speaking: true,
-      advising: true
-    },
-    openTo: ['Mentorship', 'Collaboration', 'Speaking']
-  },
-  {
-    id: '2',
-    name: 'Amara Okafor',
-    avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
-    title: 'Product Manager',
-    company: 'Stripe',
-    location: 'San Francisco, CA',
-    university: 'MIT',
-    graduationYear: '2018',
-    program: 'MS Computer Science',
-    bio: 'Building fintech products that democratize access to financial services across Africa. Alumni mentor and startup advisor.',
-    skills: ['Product Management', 'Fintech', 'Strategy', 'Data Analysis'],
-    expertise: ['Product Strategy', 'Financial Technology', 'User Experience'],
-    role: 'professional',
-    experience: 6,
-    connectionStatus: 'connected',
-    mutualConnections: 8,
-    responseRate: 88,
-    isVerified: true,
-    isOnline: false,
-    lastActive: '1 hour ago',
-    interests: ['Fintech', 'Product Strategy', 'African Markets'],
-    socialLinks: {
-      linkedin: 'https://linkedin.com/in/amaraokafor',
-      email: 'amara@stripe.com'
-    },
-    availability: {
-      mentoring: true,
-      collaboration: false,
-      consultation: true,
-      advising: true
-    },
-    openTo: ['Mentorship', 'Consulting']
-  },
-  {
-    id: '3',
-    name: 'David Mensah',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
-    title: 'PhD Student',
-    company: 'University of Oxford',
-    location: 'Oxford, UK',
-    university: 'University of Oxford',
-    graduationYear: '2025',
-    program: 'PhD Environmental Engineering',
-    bio: 'Researching sustainable water systems for African communities. Looking for mentorship in research commercialization and impact scaling.',
-    skills: ['Environmental Engineering', 'Research', 'Sustainability', 'Water Systems'],
-    expertise: ['Environmental Science', 'Sustainable Technology', 'Research'],
-    role: 'student',
-    experience: 2,
-    connectionStatus: 'pending_received',
-    mutualConnections: 5,
-    responseRate: 92,
-    isVerified: false,
-    isOnline: true,
-    lastActive: 'Just now',
-    interests: ['Sustainability', 'Water Systems', 'Climate Change'],
-    availability: {
-      mentoring: false,
-      collaboration: true,
-      consultation: false,
-      volunteering: true
-    },
-    openTo: ['Collaboration', 'Volunteering']
-  },
-  {
-    id: '4',
-    name: 'Dr. Fatima Al-Rashid',
-    avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
-    title: 'Founder & CEO',
-    company: 'HealthTech Solutions',
-    location: 'Cairo, Egypt',
-    university: 'Harvard Medical School',
-    graduationYear: '2012',
-    program: 'MD, MBA',
-    bio: 'Building healthcare technology solutions for emerging markets. Serial entrepreneur and angel investor focused on African startups.',
-    skills: ['Healthcare', 'Entrepreneurship', 'Investment', 'Strategy'],
-    expertise: ['HealthTech', 'Startup Strategy', 'Angel Investing'],
-    role: 'entrepreneur',
-    experience: 12,
-    connectionStatus: 'pending_sent',
-    mutualConnections: 15,
-    responseRate: 85,
-    isVerified: true,
-    isOnline: false,
-    lastActive: '3 hours ago',
-    interests: ['HealthTech', 'Entrepreneurship', 'Angel Investing'],
-    socialLinks: {
-      linkedin: 'https://linkedin.com/in/fatimaalrashid',
-      twitter: 'https://twitter.com/fatimaalrashid'
-    },
-    availability: {
-      mentoring: true,
-      collaboration: false,
-      consultation: true,
-      advising: true,
-      speaking: true
-    },
-    openTo: ['Mentorship', 'Consulting', 'Speaking']
-  },
-  {
-    id: '5',
-    name: 'Sarah Williams',
-    avatar: 'https://images.unsplash.com/photo-1494790108755-2616b25f5e55?w=150&h=150&fit=crop&crop=face',
-    title: 'Design Director',
-    company: 'Figma',
-    location: 'New York, NY',
-    university: 'Parsons School of Design',
-    graduationYear: '2016',
-    program: 'MFA Design Technology',
-    bio: 'Leading design systems and user experience for global creative tools. Passionate about design education and accessibility.',
-    skills: ['UX Design', 'Design Systems', 'Leadership', 'Accessibility'],
-    expertise: ['User Experience', 'Design Systems', 'Creative Direction'],
-    role: 'professional',
-    experience: 8,
-    connectionStatus: 'none',
-    mutualConnections: 7,
-    responseRate: 90,
-    isVerified: true,
-    isOnline: true,
-    lastActive: '15 minutes ago',
-    interests: ['Design', 'Accessibility', 'Creative Tools'],
-    availability: {
-      mentoring: true,
-      collaboration: false,
-      consultation: true,
-      volunteering: false
-    },
-    openTo: ['Mentorship', 'Consulting']
-  }
-];
-
-const mockConnectionRequests: ConnectionRequest[] = [
-  {
-    id: '1',
-    from: mockUsers[2], // David Mensah
-    to: mockUsers[0], // Current user (Dr. Kwame Asante)
-    message: 'Hi! I\'m working on sustainable water systems research and would love to connect. I\'ve read your papers on AI applications in environmental science and think there could be interesting collaboration opportunities.',
-    timestamp: '2025-01-10T14:30:00Z',
-    status: 'pending',
-    type: 'mentorship',
-    purpose: 'Seeking research mentorship and collaboration on AI applications in environmental science'
-  },
-  {
-    id: '2',
-    from: mockUsers[4], // Sarah Williams
-    to: mockUsers[0], // Current user
-    message: 'Hello! I came across your profile through the Stanford alumni network. I\'d love to connect and learn more about your work in AI ethics.',
-    timestamp: '2025-01-09T09:15:00Z',
-    status: 'pending',
-    type: 'connection',
-    purpose: 'Stanford alumni networking and AI ethics discussion'
-  }
-];
+// Live data will be fetched from backend
 
 // Network stats will be calculated dynamically based on actual data
 
@@ -1266,31 +1072,87 @@ function ConnectedUserCard({ user, onViewProfile }: {
 
 // Main Network Component
 export function MyNetwork() {
-  const [connectionRequests, setConnectionRequests] = useState<ConnectionRequest[]>(mockConnectionRequests);
+  const [connectionRequests, setConnectionRequests] = useState<ConnectionRequest[]>([]);
   const [selectedProfileUserId, setSelectedProfileUserId] = useState<string | null>(null);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const { navigate } = useNavigation();
   const { profile } = useProfile();
+  const [discoveryUsers, setDiscoveryUsers] = useState<NetworkUser[]>([]);
+  const [connectedUsers, setConnectedUsers] = useState<NetworkUser[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Calculate dynamic stats based on actual data
-  const discoveryUsers = mockUsers.filter(user => user.connectionStatus === 'none');
-  const connectedUsers = mockUsers.filter(user => user.connectionStatus === 'connected');
   const currentUserAsNetworkUser = profileToNetworkUser(profile);
   const allConnectedUsers = [currentUserAsNetworkUser, ...connectedUsers];
-  const sentRequests = mockUsers.filter(user => user.connectionStatus === 'pending_sent').length;
+  const sentRequests = discoveryUsers.filter(user => user.connectionStatus === 'pending_sent').length;
   
   const networkStats: NetworkStats = {
     totalConnections: allConnectedUsers.length,
     pendingRequests: connectionRequests.length,
     sentRequests: sentRequests,
-    profileViews: 45, // This would come from analytics in a real app
-    monthlyGrowth: 12  // This would come from analytics in a real app
+    profileViews: 0,
+    monthlyGrowth: 0
   };
 
+  // Fetch network data
+  useEffect(() => {
+    const controller = new AbortController();
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    const devKey = localStorage.getItem('devKey');
+    const token = localStorage.getItem('token');
+    if (devKey) headers['X-Dev-Key'] = devKey;
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const fetchAll = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const [discRes, connRes, reqRes] = await Promise.all([
+          fetch(`${API_BASE_URL}/network/discovery`, { headers, signal: controller.signal }),
+          fetch(`${API_BASE_URL}/network/connections`, { headers, signal: controller.signal }),
+          fetch(`${API_BASE_URL}/network/connections/requests`, { headers, signal: controller.signal })
+        ]);
+        const [discJson, connJson, reqJson] = await Promise.all([
+          discRes.ok ? discRes.json() : Promise.resolve({ data: [] }),
+          connRes.ok ? connRes.json() : Promise.resolve({ data: [] }),
+          reqRes.ok ? reqRes.json() : Promise.resolve({ data: [] })
+        ]);
+        const discovery = discJson?.data || [];
+        const connections = connJson?.data || [];
+        const requests = reqJson?.data || [];
+        setDiscoveryUsers(discovery);
+        setConnectedUsers(connections);
+        setConnectionRequests(requests);
+      } catch (e: any) {
+        if (e.name !== 'AbortError') setError(e.message || 'Failed to load network');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAll();
+    return () => controller.abort();
+  }, []);
+
   // Handle connection request
-  const handleConnect = (userId: string, purpose: string, message: string) => {
-    console.log('Connection request:', { userId, purpose, message });
-    toast.success('Connection request sent successfully!');
+  const handleConnect = async (userId: string, purpose: string, message: string) => {
+    try {
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      const devKey = localStorage.getItem('devKey');
+      const token = localStorage.getItem('token');
+      if (devKey) headers['X-Dev-Key'] = devKey;
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      const res = await fetch(`${API_BASE_URL}/network/connections/requests`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ userId, purpose, message })
+      });
+      if (!res.ok) throw new Error('Failed to send request');
+      toast.success('Connection request sent successfully!');
+    } catch (e: any) {
+      toast.error(e.message || 'Failed to send connection request');
+    }
   };
 
   // Handle view profile
@@ -1313,19 +1175,43 @@ export function MyNetwork() {
   };
 
   // Handle accept connection request
-  const handleAcceptRequest = (requestId: string) => {
-    setConnectionRequests(prev => prev.filter(req => req.id !== requestId));
-    toast.success('Connection request accepted!');
+  const handleAcceptRequest = async (requestId: string) => {
+    try {
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      const devKey = localStorage.getItem('devKey');
+      const token = localStorage.getItem('token');
+      if (devKey) headers['X-Dev-Key'] = devKey;
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      const res = await fetch(`${API_BASE_URL}/network/connections/requests/${requestId}/accept`, { method: 'POST', headers });
+      if (!res.ok) throw new Error('Failed to accept request');
+      setConnectionRequests(prev => prev.filter(req => req.id !== requestId));
+      toast.success('Connection request accepted!');
+    } catch (e: any) {
+      toast.error(e.message || 'Failed to accept request');
+    }
   };
 
   // Handle decline connection request
-  const handleDeclineRequest = (requestId: string) => {
-    setConnectionRequests(prev => prev.filter(req => req.id !== requestId));
-    toast.success('Connection request declined');
+  const handleDeclineRequest = async (requestId: string) => {
+    try {
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      const devKey = localStorage.getItem('devKey');
+      const token = localStorage.getItem('token');
+      if (devKey) headers['X-Dev-Key'] = devKey;
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      const res = await fetch(`${API_BASE_URL}/network/connections/requests/${requestId}/decline`, { method: 'POST', headers });
+      if (!res.ok) throw new Error('Failed to decline request');
+      setConnectionRequests(prev => prev.filter(req => req.id !== requestId));
+      toast.success('Connection request declined');
+    } catch (e: any) {
+      toast.error(e.message || 'Failed to decline request');
+    }
   };
 
   // Get selected user for profile modal
-  const selectedUser = selectedProfileUserId ? mockUsers.find(u => u.id === selectedProfileUserId) : null;
+  const selectedUser = selectedProfileUserId 
+    ? [...discoveryUsers, ...connectedUsers, currentUserAsNetworkUser].find(u => u.id === selectedProfileUserId) 
+    : null;
 
   return (
     <div className="h-full flex flex-col">
