@@ -20,6 +20,23 @@ function DevelopmentMode() {
   // no popup; unlock via URL or stored flag
 
   useEffect(() => {
+    // In local development, skip Coming Soon entirely
+    if (import.meta.env.MODE === 'development') {
+      try {
+        localStorage.setItem('devMode', 'true');
+        const raw = localStorage.getItem('user');
+        if (raw) {
+          const u = JSON.parse(raw);
+          if (u && u.userType !== 'admin') {
+            u.userType = 'admin';
+            localStorage.setItem('user', JSON.stringify(u));
+          }
+        }
+      } catch {}
+      setShowComingSoon(false);
+      return;
+    }
+
     // URL unlock: ?unlock=KEY
     const params = new URLSearchParams(window.location.search);
     const unlockKey = params.get('unlock');
