@@ -552,8 +552,8 @@ export function NotificationsPage() {
     }
   };
 
-  const unreadCount = stats.unread;
-  const actionRequiredCount = stats.actionRequired;
+  const unreadCount = stats?.unread || 0;
+  const actionRequiredCount = stats?.actionRequired || 0;
 
   return (
     <div className="h-full">

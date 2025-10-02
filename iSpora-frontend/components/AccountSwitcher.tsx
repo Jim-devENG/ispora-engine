@@ -55,14 +55,7 @@ export function AccountSwitcher({ trigger, showInHeader = false }: AccountSwitch
   TriggerButton.displayName = 'TriggerButton';
 
   const defaultTrigger = showInHeader ? (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <TriggerButton />
-      </TooltipTrigger>
-      <TooltipContent side="bottom">
-        <span className="text-xs">Switch between diaspora and local user experience</span>
-      </TooltipContent>
-    </Tooltip>
+    <TriggerButton />
   ) : (
     <Button variant="outline" className="flex items-center gap-2">
       <RefreshCw className="w-4 h-4" />
