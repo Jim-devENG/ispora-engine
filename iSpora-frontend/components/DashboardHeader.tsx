@@ -81,7 +81,7 @@ export function DashboardHeader({
               <div className="flex items-center space-x-3">
                 <ThemeToggle />
                 <Tooltip>
-                  <TooltipTrigger>
+                  <TooltipTrigger asChild>
                     <NotificationButton />
                   </TooltipTrigger>
                   <TooltipContent>

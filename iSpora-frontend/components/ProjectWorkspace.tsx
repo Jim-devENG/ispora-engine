@@ -497,7 +497,7 @@ export function ProjectWorkspace({
           <div className="flex items-center gap-4 flex-1 min-w-0">
             {/* Back Button */}
             <Tooltip>
-              <TooltipTrigger>
+              <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
                   size="sm"
