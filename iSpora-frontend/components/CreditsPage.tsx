@@ -13,7 +13,7 @@ import { Progress } from "./ui/progress";
 import { Separator } from "./ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { toast } from "sonner";
-import { 
+import {
   CreditCard, 
   Wallet, 
   TrendingUp, 
@@ -96,25 +96,7 @@ import {
   Sunset
 } from "lucide-react";
 
-// Mock data for current user
-const CURRENT_USER = {
-  id: 'user_001',
-  name: 'Dr. Amina Kone',
-  email: 'amina@ispora.com',
-  avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
-  membershipTier: 'Premium',
-  joinDate: '2024-01-15',
-  location: 'Paris, France',
-  university: 'Sorbonne University',
-  currentLevel: 8,
-  levelProgress: 75,
-  socialHandles: {
-    linkedin: 'https://linkedin.com/in/aminakone',
-    twitter: 'https://twitter.com/aminakone',
-    instagram: 'https://instagram.com/aminakone',
-    youtube: 'https://youtube.com/@aminakone'
-  }
-};
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://ispora-backend.onrender.com/api';
 
 // Points System Configuration
 const POINT_VALUES = {
@@ -131,220 +113,21 @@ const POINT_VALUES = {
   CHALLENGE_WIN: 1000
 };
 
-// Badge System
-const BADGE_SYSTEM = [
-  {
-    id: 'builder',
-    name: 'Builder Badge',
-    description: 'Launch or co-create a project',
-    icon: Rocket,
-    color: 'bg-blue-500',
-    textColor: 'text-blue-700',
-    bgColor: 'bg-blue-50',
-    borderColor: 'border-blue-200',
-    requirement: 'Launch 1 project',
-    points: 500,
-    rarity: 'common',
-    earned: true,
-    earnedDate: '2024-12-15'
-  },
-  {
-    id: 'innovator',
-    name: 'Innovator Badge',
-    description: 'Share impactful ideas',
-    icon: Lightbulb,
-    color: 'bg-yellow-500',
-    textColor: 'text-yellow-700',
-    bgColor: 'bg-yellow-50',
-    borderColor: 'border-yellow-200',
-    requirement: 'Share 10 ideas with 50+ upvotes',
-    points: 750,
-    rarity: 'uncommon',
-    earned: true,
-    earnedDate: '2025-01-05'
-  },
-  {
-    id: 'connector',
-    name: 'Connector Badge',
-    description: 'Invite and link people together',
-    icon: UserCheck,
-    color: 'bg-green-500',
-    textColor: 'text-green-700',
-    bgColor: 'bg-green-50',
-    borderColor: 'border-green-200',
-    requirement: 'Successfully invite 5 users',
-    points: 400,
-    rarity: 'common',
-    earned: true,
-    earnedDate: '2024-11-28'
-  },
-  {
-    id: 'mentor-star',
-    name: 'Mentor Star',
-    description: 'Deliver mentorship sessions',
-    icon: Star,
-    color: 'bg-purple-500',
-    textColor: 'text-purple-700',
-    bgColor: 'bg-purple-50',
-    borderColor: 'border-purple-200',
-    requirement: 'Complete 10 mentorship sessions',
-    points: 1000,
-    rarity: 'rare',
-    earned: false,
-    progress: 70
-  },
-  {
-    id: 'top-contributor',
-    name: 'Top Contributor',
-    description: 'Consistent weekly engagement',
-    icon: Activity,
-    color: 'bg-orange-500',
-    textColor: 'text-orange-700',
-    bgColor: 'bg-orange-50',
-    borderColor: 'border-orange-200',
-    requirement: 'Active for 8 consecutive weeks',
-    points: 800,
-    rarity: 'uncommon',
-    earned: true,
-    earnedDate: '2025-01-02'
-  },
-  {
-    id: 'nehemiah-spirit',
-    name: 'Nehemiah Spirit',
-    description: 'Purpose-led, mission-consistent contributor',
-    icon: Heart,
-    color: 'bg-red-500',
-    textColor: 'text-red-700',
-    bgColor: 'bg-red-50',
-    borderColor: 'border-red-200',
-    requirement: 'Demonstrate consistent mission alignment',
-    points: 1500,
-    rarity: 'legendary',
-    earned: false,
-    progress: 45
-  },
-  {
-    id: 'challenge-winner',
-    name: 'Challenge Winner',
-    description: 'Complete a featured Ispora challenge',
-    icon: Trophy,
-    color: 'bg-gold-500',
-    textColor: 'text-yellow-700',
-    bgColor: 'bg-yellow-50',
-    borderColor: 'border-yellow-200',
-    requirement: 'Win a monthly challenge',
-    points: 2000,
-    rarity: 'legendary',
-    earned: false,
-    progress: 0
-  },
-  {
-    id: 'opportunity-scout',
-    name: 'Opportunity Scout',
-    description: 'Share high-value scholarships/jobs/etc.',
-    icon: Target,
-    color: 'bg-teal-500',
-    textColor: 'text-teal-700',
-    bgColor: 'bg-teal-50',
-    borderColor: 'border-teal-200',
-    requirement: 'Share 20 opportunities with 100+ applications',
-    points: 600,
-    rarity: 'uncommon',
-    earned: false,
-    progress: 35
-  }
-];
-
-// Leaderboard Data
-const LEADERBOARD_DATA = [
-  {
-    rank: 1,
-    user: {
-      name: 'Dr. Kwame Asante',
-      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
-      location: 'London, UK',
-      university: 'Stanford University'
-    },
-    points: 15420,
-    level: 12,
-    badges: 8,
-    change: 'up',
-    changeValue: 2
-  },
-  {
-    rank: 2,
-    user: {
-      name: 'Amara Okafor',
-      avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
-      location: 'San Francisco, CA',
-      university: 'MIT'
-    },
-    points: 12890,
-    level: 11,
-    badges: 7,
-    change: 'same',
-    changeValue: 0
-  },
-  {
-    rank: 3,
-    user: {
-      name: 'Dr. Amina Kone',
-      avatar: CURRENT_USER.avatar,
-      location: CURRENT_USER.location,
-      university: CURRENT_USER.university
-    },
-    points: 11250,
-    level: 8,
-    badges: 4,
-    change: 'up',
-    changeValue: 1,
-    isCurrentUser: true
-  },
-  {
-    rank: 4,
-    user: {
-      name: 'David Mensah',
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
-      location: 'Oxford, UK',
-      university: 'University of Oxford'
-    },
-    points: 9875,
-    level: 7,
-    badges: 5,
-    change: 'down',
-    changeValue: 2
-  },
-  {
-    rank: 5,
-    user: {
-      name: 'Dr. Fatima Al-Rashid',
-      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
-      location: 'Cairo, Egypt',
-      university: 'Harvard Medical School'
-    },
-    points: 8940,
-    level: 6,
-    badges: 6,
-    change: 'up',
-    changeValue: 3
-  }
-];
-
-// Current user stats
-const USER_STATS = {
-  totalPoints: 11250,
-  monthlyPoints: 890,
-  weeklyPoints: 245,
-  currentStreak: 12,
-  longestStreak: 28,
-  referralsSuccessful: 8,
-  projectsLaunched: 3,
-  mentorshipsSessions: 7,
-  opportunitiesShared: 15,
-  socialShares: 42,
-  challengesWon: 0,
-  totalContributions: 127
+// Icons mapping for badges coming from API
+const BADGE_ICON_MAP: Record<string, any> = {
+  builder: Rocket,
+  innovator: Lightbulb,
+  connector: UserCheck,
+  mentor: Star,
+  contributor: Activity,
+  heart: Heart,
+  trophy: Trophy,
+  target: Target
 };
+
+// Live data will be provided by API
+
+// Live stats from API
 
 // Animated Counter Component
 function AnimatedCounter({ 
@@ -673,64 +456,17 @@ function LevelProgress({ currentLevel, progress, nextLevelPoints }: {
 }
 
 // Recent Activities Component
-function RecentActivities() {
-  const activities = [
-    {
-      id: 1,
-      type: 'badge_earned',
-      title: 'Earned Innovator Badge!',
-      description: 'Your innovative ideas are making an impact',
-      points: 750,
-      icon: Lightbulb,
-      color: 'text-yellow-600',
-      bgColor: 'bg-yellow-50',
-      timestamp: '2 hours ago'
-    },
-    {
-      id: 2,
-      type: 'milestone_reached',
-      title: 'Project Milestone Completed',
-      description: 'African Innovation Hub reached 70% completion',
-      points: 150,
-      icon: Target,
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-50',
-      timestamp: '1 day ago'
-    },
-    {
-      id: 3,
-      type: 'mentorship_delivered',
-      title: 'Mentorship Session Delivered',
-      description: 'Guided 3 students on career development',
-      points: 200,
-      icon: Users,
-      color: 'text-purple-600',
-      bgColor: 'bg-purple-50',
-      timestamp: '2 days ago'
-    },
-    {
-      id: 4,
-      type: 'referral_success',
-      title: 'Successful Referral',
-      description: 'Sarah Okafor joined through your invitation',
-      points: 300,
-      icon: UserPlus,
-      color: 'text-green-600',
-      bgColor: 'bg-green-50',
-      timestamp: '3 days ago'
-    },
-    {
-      id: 5,
-      type: 'opportunity_shared',
-      title: 'Opportunity Shared',
-      description: 'Tech Leadership Fellowship - 25 applications received',
-      points: 75,
-      icon: Share2,
-      color: 'text-teal-600',
-      bgColor: 'bg-teal-50',
-      timestamp: '4 days ago'
+function RecentActivities({ items }: { items: any[] }) {
+  const pickIcon = (type: string) => {
+    switch (type) {
+      case 'badge_earned': return Lightbulb;
+      case 'milestone': return Target;
+      case 'mentorship': return Users;
+      case 'referral': return UserPlus;
+      case 'share': return Share2;
+      default: return Activity;
     }
-  ];
+  };
 
   return (
     <Card>
@@ -743,24 +479,29 @@ function RecentActivities() {
       <CardContent>
         <ScrollArea className="h-80">
           <div className="space-y-4">
-            {activities.map((activity) => (
-              <div key={activity.id} className={`flex items-start gap-4 p-3 rounded-lg ${activity.bgColor}`}>
-                <div className={`flex-shrink-0 w-10 h-10 rounded-full bg-white flex items-center justify-center`}>
-                  <activity.icon className={`h-5 w-5 ${activity.color}`} />
-                </div>
-                
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between mb-1">
-                    <h4 className="font-medium text-gray-900 truncate">{activity.title}</h4>
-                    <Badge className="bg-blue-600 text-white text-xs">
-                      +{activity.points}
-                    </Badge>
+            {items.map((activity) => {
+              const IconComp = pickIcon(activity.type);
+              return (
+                <div key={activity.id} className={`flex items-start gap-4 p-3 rounded-lg bg-gray-50`}>
+                  <div className={`flex-shrink-0 w-10 h-10 rounded-full bg-white flex items-center justify-center`}>
+                    <IconComp className={`h-5 w-5 text-blue-600`} />
                   </div>
-                  <p className="text-sm text-gray-600 mb-1">{activity.description}</p>
-                  <p className="text-xs text-gray-500">{activity.timestamp}</p>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-1">
+                      <h4 className="font-medium text-gray-900 truncate">{activity.title}</h4>
+                      {activity.points ? (
+                        <Badge className="bg-blue-600 text-white text-xs">+{activity.points}</Badge>
+                      ) : null}
+                    </div>
+                    <p className="text-sm text-gray-600 mb-1">{activity.description}</p>
+                    <p className="text-xs text-gray-500">{activity.timestamp}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
+            {items.length === 0 && (
+              <div className="text-center text-sm text-gray-500 py-8">No recent activities</div>
+            )}
           </div>
         </ScrollArea>
       </CardContent>
@@ -773,6 +514,13 @@ export function CreditsPage() {
   const [selectedTab, setSelectedTab] = useState("dashboard");
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
   const [selectedTimeframe, setSelectedTimeframe] = useState("month");
+  const [user, setUser] = useState<any>(null);
+  const [stats, setStats] = useState<any>({ totalPoints: 0, monthlyPoints: 0, currentStreak: 0, socialShares: 0 });
+  const [badges, setBadges] = useState<any[]>([]);
+  const [leaderboard, setLeaderboard] = useState<any[]>([]);
+  const [activities, setActivities] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const shareData = {
     title: "🎉 Just reached Level 8 on Ispora!",
@@ -780,6 +528,53 @@ export function CreditsPage() {
     text: "Just reached Level 8 on Ispora! 🚀 Building the future with fellow diaspora innovators.",
     url: "https://ispora.com/profile/amina-kone"
   };
+
+  useEffect(() => {
+    const controller = new AbortController();
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    const devKey = localStorage.getItem('devKey');
+    const token = localStorage.getItem('token');
+    if (devKey) headers['X-Dev-Key'] = devKey;
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const fetchAll = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const [overviewRes, badgesRes, lbRes, actRes] = await Promise.all([
+          fetch(`${API_BASE_URL}/credits/overview`, { headers, signal: controller.signal }),
+          fetch(`${API_BASE_URL}/credits/badges`, { headers, signal: controller.signal }),
+          fetch(`${API_BASE_URL}/credits/leaderboard?timeframe=${selectedTimeframe}`, { headers, signal: controller.signal }),
+          fetch(`${API_BASE_URL}/credits/activities`, { headers, signal: controller.signal })
+        ]);
+
+        const overview = overviewRes.ok ? await overviewRes.json() : {};
+        const badgesJson = badgesRes.ok ? await badgesRes.json() : {};
+        const lbJson = lbRes.ok ? await lbRes.json() : {};
+        const actJson = actRes.ok ? await actRes.json() : {};
+
+        const ov = overview?.data || overview || {};
+        setUser(ov.user || null);
+        setStats(ov.stats || {});
+        setBadges((badgesJson?.data || []).map((b: any) => ({
+          ...b,
+          icon: BADGE_ICON_MAP[b.icon] || Trophy,
+          bgColor: b.bgColor || 'bg-gray-50',
+          borderColor: b.borderColor || 'border-gray-200',
+          textColor: b.textColor || 'text-gray-700',
+          color: b.color || 'bg-blue-500'
+        })));
+        setLeaderboard(lbJson?.data || []);
+        setActivities(actJson?.data || []);
+      } catch (e: any) {
+        if (e.name !== 'AbortError') setError(e.message || 'Failed to load credits');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAll();
+    return () => controller.abort();
+  }, [selectedTimeframe]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -810,6 +605,13 @@ export function CreditsPage() {
           </div>
         </div>
 
+        {loading && (
+          <div className="text-center text-sm text-gray-500">Loading credits...</div>
+        )}
+        {error && (
+          <div className="text-center text-sm text-red-600">{error}</div>
+        )}
+
         {/* User Level & Progress Overview */}
         <div className="grid gap-6 md:grid-cols-4">
           <Card className="bg-gradient-to-br from-blue-600 to-purple-700 text-white">
@@ -818,7 +620,7 @@ export function CreditsPage() {
                 <div>
                   <p className="text-blue-100 text-sm font-medium">Total Points</p>
                   <p className="text-3xl font-bold mt-1">
-                    <AnimatedCounter value={USER_STATS.totalPoints} />
+                    <AnimatedCounter value={stats.totalPoints || 0} />
                   </p>
                   <p className="text-blue-100 text-sm mt-1">Ispora Points</p>
                 </div>
@@ -835,11 +637,11 @@ export function CreditsPage() {
                 <div>
                   <p className="text-gray-500 text-sm font-medium">Current Level</p>
                   <p className="text-2xl font-bold text-gray-900 mt-1">
-                    Level <AnimatedCounter value={CURRENT_USER.currentLevel} />
+                    Level <AnimatedCounter value={user?.currentLevel || 0} />
                   </p>
                   <p className="text-blue-600 text-sm mt-1 flex items-center gap-1">
                     <TrendingUp className="h-3 w-3" />
-                    {CURRENT_USER.levelProgress}% to next level
+                    {user?.levelProgress || 0}% to next level
                   </p>
                 </div>
                 <div className="h-12 w-12 bg-purple-100 rounded-full flex items-center justify-center">
@@ -855,11 +657,11 @@ export function CreditsPage() {
                 <div>
                   <p className="text-gray-500 text-sm font-medium">Monthly Points</p>
                   <p className="text-2xl font-bold text-gray-900 mt-1">
-                    <AnimatedCounter value={USER_STATS.monthlyPoints} prefix="+" />
+                    <AnimatedCounter value={stats.monthlyPoints || 0} prefix="+" />
                   </p>
                   <p className="text-green-600 text-sm mt-1 flex items-center gap-1">
                     <Flame className="h-3 w-3" />
-                    {USER_STATS.currentStreak} day streak
+                    {stats.currentStreak || 0} day streak
                   </p>
                 </div>
                 <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center">
@@ -875,12 +677,12 @@ export function CreditsPage() {
                 <div>
                   <p className="text-gray-500 text-sm font-medium">Badges Earned</p>
                   <p className="text-2xl font-bold text-gray-900 mt-1">
-                    <AnimatedCounter value={BADGE_SYSTEM.filter(b => b.earned).length} />
-                    /{BADGE_SYSTEM.length}
+                    <AnimatedCounter value={(badges || []).filter((b: any) => b.earned).length} />
+                    /{(badges || []).length}
                   </p>
                   <p className="text-orange-600 text-sm mt-1 flex items-center gap-1">
                     <Award className="h-3 w-3" />
-                    {Math.round((BADGE_SYSTEM.filter(b => b.earned).length / BADGE_SYSTEM.length) * 100)}% complete
+                    {badges.length ? Math.round((((badges || []).filter((b: any) => b.earned).length) / badges.length) * 100) : 0}% complete
                   </p>
                 </div>
                 <div className="h-12 w-12 bg-orange-100 rounded-full flex items-center justify-center">
@@ -906,13 +708,13 @@ export function CreditsPage() {
             <div className="grid gap-6 md:grid-cols-3">
               {/* Level Progress */}
               <LevelProgress 
-                currentLevel={CURRENT_USER.currentLevel}
-                progress={CURRENT_USER.levelProgress}
-                nextLevelPoints={1250}
+                currentLevel={user?.currentLevel || 0}
+                progress={user?.levelProgress || 0}
+                nextLevelPoints={user?.nextLevelPoints || 0}
               />
 
               {/* Recent Activities */}
-              <RecentActivities />
+              <RecentActivities items={activities} />
 
               {/* Points Breakdown */}
               <Card>
@@ -1035,7 +837,7 @@ export function CreditsPage() {
             </div>
 
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-              {BADGE_SYSTEM.map((badge) => (
+              {badges.map((badge) => (
                 <BadgeCard key={badge.id} badge={badge} />
               ))}
             </div>
@@ -1067,7 +869,7 @@ export function CreditsPage() {
             <Card>
               <CardContent className="p-6">
                 <div className="space-y-4">
-                  {LEADERBOARD_DATA.map((entry) => (
+                  {leaderboard.map((entry) => (
                     <LeaderboardRow key={entry.rank} entry={entry} />
                   ))}
                 </div>
@@ -1234,13 +1036,13 @@ export function CreditsPage() {
                     
                     <div className="grid gap-4">
                       <div className="text-center p-4 bg-blue-50 rounded-lg">
-                        <p className="text-2xl font-bold text-blue-600">{USER_STATS.socialShares}</p>
+                        <p className="text-2xl font-bold text-blue-600">{stats.socialShares || 0}</p>
                         <p className="text-sm text-gray-600">Total Shares</p>
                       </div>
                       
                       <div className="text-center p-4 bg-green-50 rounded-lg">
                         <p className="text-2xl font-bold text-green-600">
-                          +{(USER_STATS.socialShares * POINT_VALUES.SOCIAL_SHARE).toLocaleString()}
+                          +{(((stats.socialShares || 0) * POINT_VALUES.SOCIAL_SHARE)).toLocaleString()}
                         </p>
                         <p className="text-sm text-gray-600">Points Earned</p>
                       </div>
