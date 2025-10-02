@@ -59,6 +59,7 @@ const deliverablesRoutes = require('./routes/deliverables');
 const learningRoutes = require('./routes/learning');
 const liveRoutes = require('./routes/live');
 const researchRoutes = require('./routes/research');
+const corsTestRoutes = require('./routes/cors-test');
 
 // Import middleware
 const errorHandler = require('./middleware/errorHandler');
@@ -191,6 +192,7 @@ app.use('/api/deliverables', deliverablesRoutes);
 app.use('/api/learning', learningRoutes);
 app.use('/api/live', liveRoutes);
 app.use('/api/research', researchRoutes);
+app.use('/api/cors-test', corsTestRoutes);
 
 // Coming Soon gate (place after auth route so login/register still works, 
 // and after protect can set req.user on routes that use it). We mount it late
