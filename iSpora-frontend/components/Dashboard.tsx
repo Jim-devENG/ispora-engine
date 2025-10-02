@@ -227,7 +227,7 @@ function CommentsDialog({
                     {newComment.length}/500 characters
                   </span>
                   <Tooltip>
-                    <TooltipTrigger asChild>
+                    <TooltipTrigger>
                       <Button 
                         size="sm" 
                         onClick={handleSubmitComment}
@@ -388,7 +388,7 @@ function ShareDialog({
           <div className="grid grid-cols-1 gap-2">
             {shareOptions.map((option) => (
               <Tooltip key={option.name}>
-                <TooltipTrigger asChild>
+                <TooltipTrigger>
                   <button
                     onClick={option.action}
                     className="flex items-center gap-3 p-3 text-left border rounded-lg hover:bg-gray-50 transition-colors btn-hover-lift w-full"
@@ -574,30 +574,28 @@ function CollapsibleFeedDescription({
         
         <Tooltip>
           <CollapsibleTrigger asChild>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-auto p-0 text-xs text-[#021ff6] hover:text-[#021ff6]/80 hover:bg-transparent font-medium btn-hover-lift"
-                onClick={(e) => {
-                  e.stopPropagation(); // Prevent card click when expanding
-                }}
-              >
-                <span className="flex items-center gap-1">
-                  {isExpanded ? (
-                    <>
-                      <span>Show less</span>
-                      <ChevronUp className="h-3 w-3" />
-                    </>
-                  ) : (
-                    <>
-                      <span>Read more</span>
-                      <ChevronDown className="h-3 w-3" />
-                    </>
-                  )}
-                </span>
-              </Button>
-            </TooltipTrigger>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-auto p-0 text-xs text-[#021ff6] hover:text-[#021ff6]/80 hover:bg-transparent font-medium btn-hover-lift"
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent card click when expanding
+              }}
+            >
+              <span className="flex items-center gap-1">
+                {isExpanded ? (
+                  <>
+                    <span>Show less</span>
+                    <ChevronUp className="h-3 w-3" />
+                  </>
+                ) : (
+                  <>
+                    <span>Read more</span>
+                    <ChevronDown className="h-3 w-3" />
+                  </>
+                )}
+              </span>
+            </Button>
           </CollapsibleTrigger>
           <TooltipContent className="tooltip-enhanced">
             <span className="text-xs">{isExpanded ? 'Collapse' : 'Expand'} this story</span>

@@ -34,7 +34,8 @@ import {
   TrendingUp,
   CheckSquare,
   BarChart3,
-  Loader
+  Loader,
+  RefreshCw
 } from "lucide-react";
 import { DashboardHeader } from "./DashboardHeader";
 import { useNavigation } from "./NavigationContext";
