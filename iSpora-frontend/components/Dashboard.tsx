@@ -842,7 +842,7 @@ function StatCard({
 
   return (
     <Tooltip>
-      <TooltipTrigger asChild>
+      <TooltipTrigger>
         <Card className={`card-gradient card-hover-lift cursor-help ${
           isVisible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'
         } w-full`}>
