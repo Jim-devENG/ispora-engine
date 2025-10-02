@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CORS Test</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background-color: #f0f2f5; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        button { background-color: #021ff6; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin: 5px; }
+        button:hover { background-color: #0017b3; }
+        #results { margin-top: 20px; padding: 15px; background-color: #f8f9fa; border-radius: 5px; }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>CORS Test for iSpora Backend</h1>
+        <p>This page tests if the CORS configuration is working properly.</p>
+        
+        <button onclick="testHealth()">Test Health Endpoint</button>
+        <button onclick="testFeed()">Test Feed Endpoint</button>
+        <button onclick="testWithDevKey()">Test with Dev Key</button>
+        
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'https://ispora-backend.onrender.com';
+        
+        function log(message, isError = false) {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = isError ? 'error' : 'success';
+            div.textContent = `${new Date().toLocaleTimeString()}: ${message}`;
+            results.appendChild(div);
+        }
+        
+        async function testHealth() {
+            try {
+                log('Testing health endpoint...');
+                const response = await fetch(`${API_BASE_URL}/health`);
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ Health check successful: ${data.status}`);
+                } else {
+                    log(`❌ Health check failed: ${response.status}`, true);
+                }
+            } catch (error) {
+                log(`❌ Health check error: ${error.message}`, true);
+            }
+        }
+        
+        async function testFeed() {
+            try {
+                log('Testing feed endpoint...');
+                const response = await fetch(`${API_BASE_URL}/api/feed?page=1&limit=5`);
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ Feed endpoint successful: ${data.success ? 'Success' : 'Failed'}`);
+                } else {
+                    log(`❌ Feed endpoint failed: ${response.status}`, true);
+                }
+            } catch (error) {
+                log(`❌ Feed endpoint error: ${error.message}`, true);
+            }
+        }
+        
+        async function testWithDevKey() {
+            try {
+                log('Testing with dev key...');
+                const response = await fetch(`${API_BASE_URL}/api/dev/verify`, {
+                    headers: {
+                        'X-Dev-Key': 'CHANGE_ME_STRONG_KEY'
+                    }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ Dev key test successful: ${data.message}`);
+                } else {
+                    log(`❌ Dev key test failed: ${response.status}`, true);
+                }
+            } catch (error) {
+                log(`❌ Dev key test error: ${error.message}`, true);
+            }
+        }
+    </script>
+</body>
+</html>
