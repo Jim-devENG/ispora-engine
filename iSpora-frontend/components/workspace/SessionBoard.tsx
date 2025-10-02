@@ -83,75 +83,7 @@ interface SessionDetails {
   agenda: string[];
 }
 
-// Mock sessions data with enhanced fields
-const mockSessions: Session[] = [
-  {
-    id: "1",
-    title: "AI/ML Career Path Discussion",
-    description: "Discuss career opportunities in AI/ML and create a roadmap",
-    scheduledDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
-    duration: 60,
-    status: 'upcoming',
-    type: 'video',
-    meetingLink: "https://meet.google.com/abc-defg-hij",
-    shareUrl: "https://ispora.com/sessions/ai-ml-career-discussion",
-    isPublic: false,
-    tags: ["career", "ai-ml", "mentorship"],
-    agenda: [
-      "Review current skills and experience",
-      "Explore AI/ML career paths",
-      "Create 6-month learning plan",
-      "Discuss internship opportunities"
-    ],
-    attendees: [
-      { name: "Dr. Amina Hassan", avatar: "https://images.unsplash.com/photo-1494790108755-2616b25f5e55?w=150&h=150&fit=crop&crop=face" },
-      { name: "Amara Okafor", avatar: "https://images.unsplash.com/photo-1494790108755-2616b25f5e55?w=150&h=150&fit=crop&crop=face" }
-    ]
-  },
-  {
-    id: "2",
-    title: "React Development Workshop",
-    description: "Public workshop covering advanced React patterns and best practices",
-    scheduledDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
-    duration: 90,
-    status: 'upcoming',
-    type: 'video',
-    meetingLink: "https://meet.google.com/public-workshop-123",
-    shareUrl: "https://ispora.com/sessions/react-development-workshop",
-    isPublic: true,
-    maxParticipants: 50,
-    tags: ["react", "workshop", "frontend", "public"],
-    agenda: [
-      "Advanced React patterns",
-      "Performance optimization",
-      "Testing strategies",
-      "Q&A session"
-    ],
-    attendees: [
-      { name: "Dr. Amina Hassan", avatar: "https://images.unsplash.com/photo-1494790108755-2616b25f5e55?w=150&h=150&fit=crop&crop=face" }
-    ]
-  },
-  {
-    id: "3",
-    title: "Technical Skills Assessment",
-    description: "Review recent projects and identify areas for improvement",
-    scheduledDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-    duration: 45,
-    status: 'completed',
-    type: 'video',
-    meetingLink: "https://meet.google.com/xyz-uvwx-123",
-    shareUrl: "https://ispora.com/sessions/technical-skills-assessment",
-    isPublic: false,
-    notes: "Great progress on the machine learning project. Need to focus more on data preprocessing techniques and model evaluation metrics.",
-    recordings: [
-      { url: "#", title: "Technical Skills Review", duration: 45 }
-    ],
-    attendees: [
-      { name: "Dr. Amina Hassan", avatar: "https://images.unsplash.com/photo-1494790108755-2616b25f5e55?w=150&h=150&fit=crop&crop=face", attended: true },
-      { name: "Amara Okafor", avatar: "https://images.unsplash.com/photo-1494790108755-2616b25f5e55?w=150&h=150&fit=crop&crop=face", attended: true }
-    ]
-  }
-];
+// All demo sessions removed – start empty and create sessions in real time
 
 const statusColors = {
   upcoming: "bg-blue-100 text-blue-800",
@@ -881,7 +813,7 @@ function SessionCard({ session, onEdit, onDelete, onJoin, onShare }: {
 }
 
 export function SessionBoard({ mentee }: SessionBoardProps) {
-  const [sessions, setSessions] = useState<Session[]>(mockSessions);
+  const [sessions, setSessions] = useState<Session[]>([]);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [editingSession, setEditingSession] = useState<Session | null>(null);
   const [viewFilter, setViewFilter] = useState<'all' | 'upcoming' | 'completed'>('all');
