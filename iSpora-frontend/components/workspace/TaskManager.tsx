@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   CheckSquare,
   Plus,
@@ -116,98 +116,8 @@ const mockProjectMembers: ProjectMember[] = [
   }
 ];
 
-// Clean mock tasks data without notifications
-const mockTasks: Task[] = [
-  {
-    id: "1",
-    title: "Complete Machine Learning Project",
-    description: "Build a classification model using scikit-learn and document the process",
-    status: 'in-progress',
-    priority: 'high',
-    assignee: "Amara Okafor",
-    assignedDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-    dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-    comments: [
-      {
-        id: "c1",
-        author: "Dr. Amina Hassan",
-        authorAvatar: "https://images.unsplash.com/photo-1494790108755-2616b25f5e55?w=150&h=150&fit=crop&crop=face",
-        content: "Great progress so far! Make sure to document your feature engineering process.",
-        timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)
-      }
-    ],
-    attachments: [
-      {
-        id: "a1",
-        name: "project_requirements.pdf",
-        size: 245760,
-        type: "application/pdf",
-        url: "#"
-      }
-    ],
-    tags: ["machine-learning", "project", "python"]
-  },
-  {
-    id: "2",
-    title: "Read 'Hands-On Machine Learning' Chapter 3",
-    description: "Focus on classification algorithms and take notes",
-    status: 'todo',
-    priority: 'medium',
-    assignee: "Amara Okafor",
-    assignedDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
-    dueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
-    comments: [],
-    attachments: [],
-    tags: ["reading", "theory"]
-  },
-  {
-    id: "3",
-    title: "Update LinkedIn Profile",
-    description: "Add recent projects and skills, optimize for AI/ML roles",
-    status: 'done',
-    priority: 'low',
-    assignee: "Amara Okafor",
-    assignedDate: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000),
-    completedDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
-    comments: [
-      {
-        id: "c2",
-        author: "Amara Okafor",
-        authorAvatar: "https://images.unsplash.com/photo-1494790108755-2616b25f5e55?w=150&h=150&fit=crop&crop=face",
-        content: "Completed! Added 3 new projects and updated skills section.",
-        timestamp: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000)
-      }
-    ],
-    attachments: [],
-    tags: ["career", "networking"]
-  },
-  {
-    id: "4",
-    title: "Practice Coding Interview Questions",
-    description: "Complete 10 algorithm problems on LeetCode focusing on arrays and strings",
-    status: 'todo',
-    priority: 'high',
-    assignee: "Dr. Amina Hassan",
-    assignedDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
-    dueDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
-    comments: [],
-    attachments: [],
-    tags: ["coding", "interview-prep"]
-  },
-  {
-    id: "5",
-    title: "Review Team Performance",
-    description: "Analyze team productivity metrics and provide feedback",
-    status: 'in-progress',
-    priority: 'medium',
-    assignee: "Maria Rodriguez",
-    assignedDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-    dueDate: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000),
-    comments: [],
-    attachments: [],
-    tags: ["management", "analytics"]
-  }
-];
+// API Base URL
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://ispora-backend.onrender.com/api';
 
 const statusConfig = {
   'todo': { title: 'To Do', color: 'bg-gray-100', textColor: 'text-gray-800' },
@@ -650,7 +560,7 @@ function TaskAnalytics({ tasks, projectMembers }: { tasks: Task[], projectMember
 }
 
 export function TaskManager({ mentee, projectMembers = mockProjectMembers }: TaskManagerProps) {
-  const [tasks, setTasks] = useState<Task[]>(mockTasks);
+  const [tasks, setTasks] = useState<Task[]>([]);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [createTaskStatus, setCreateTaskStatus] = useState<TaskStatus>('todo');
@@ -666,6 +576,44 @@ export function TaskManager({ mentee, projectMembers = mockProjectMembers }: Tas
   // Filter states
   const [selectedAssignee, setSelectedAssignee] = useState<string>('all');
   const [selectedPriority, setSelectedPriority] = useState<string>('all');
+
+  // Load tasks from API
+  useEffect(() => {
+    const controller = new AbortController();
+    const load = async () => {
+      try {
+        const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+        const devKey = localStorage.getItem('devKey');
+        const token = localStorage.getItem('token');
+        if (devKey) headers['X-Dev-Key'] = devKey;
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+
+        const res = await fetch(`${API_BASE_URL}/tasks`, { headers, signal: controller.signal });
+        const json = await res.json();
+        const rows = Array.isArray(json.data) ? json.data : (Array.isArray(json) ? json : []);
+        const mapped: Task[] = rows.map((r: any) => ({
+          id: r.id,
+          title: r.title,
+          description: r.description || undefined,
+          status: (r.status || 'todo') as TaskStatus,
+          priority: (r.priority || 'medium'),
+          assignee: r.assignee_name || r.assignee || mentee.name,
+          assignedDate: r.created_at ? new Date(r.created_at) : new Date(),
+          dueDate: r.due_at ? new Date(r.due_at) : undefined,
+          completedDate: r.status === 'done' && r.updated_at ? new Date(r.updated_at) : undefined,
+          comments: [],
+          attachments: [],
+          tags: r.tags ? String(r.tags).split(',').filter(Boolean) : []
+        }));
+        setTasks(mapped);
+      } catch (e) {
+        setTasks([]);
+      }
+    };
+    load();
+    const id = setInterval(load, 30000);
+    return () => { controller.abort(); clearInterval(id); };
+  }, [mentee.name]);
 
   // Apply filters
   const filteredTasks = tasks.filter(task => {
@@ -707,44 +655,95 @@ export function TaskManager({ mentee, projectMembers = mockProjectMembers }: Tas
     setShowCreateDialog(true);
   };
 
-  const handleDeleteTask = (taskId: string) => {
-    setTasks(prev => prev.filter(t => t.id !== taskId));
+  const handleDeleteTask = async (taskId: string) => {
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    const devKey = localStorage.getItem('devKey');
+    const token = localStorage.getItem('token');
+    if (devKey) headers['X-Dev-Key'] = devKey;
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    try {
+      await fetch(`${API_BASE_URL}/tasks/${taskId}`, { method: 'DELETE', headers });
+      setTasks(prev => prev.filter(t => t.id !== taskId));
+    } catch {}
   };
 
-  const handleStatusChange = (taskId: string, newStatus: TaskStatus) => {
-    setTasks(prev => prev.map(task => 
-      task.id === taskId 
-        ? { 
-            ...task, 
-            status: newStatus,
-            completedDate: newStatus === 'done' ? new Date() : undefined
-          }
-        : task
-    ));
+  const handleStatusChange = async (taskId: string, newStatus: TaskStatus) => {
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    const devKey = localStorage.getItem('devKey');
+    const token = localStorage.getItem('token');
+    if (devKey) headers['X-Dev-Key'] = devKey;
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    try {
+      await fetch(`${API_BASE_URL}/tasks/${taskId}`, { method: 'PUT', headers, body: JSON.stringify({ status: newStatus }) });
+      setTasks(prev => prev.map(task => 
+        task.id === taskId 
+          ? { 
+              ...task, 
+              status: newStatus,
+              completedDate: newStatus === 'done' ? new Date() : undefined
+            }
+          : task
+      ));
+    } catch {}
   };
 
-  const handleSaveTask = () => {
+  const handleSaveTask = async () => {
     if (!newTaskData.title.trim()) return;
-
-    const taskData = {
-      id: editingTask?.id || Date.now().toString(),
-      title: newTaskData.title,
-      description: newTaskData.description || undefined,
-      status: editingTask?.status || createTaskStatus,
-      priority: newTaskData.priority,
-      assignee: newTaskData.assignee,
-      assignedDate: editingTask?.assignedDate || new Date(),
-      dueDate: newTaskData.dueDate ? new Date(newTaskData.dueDate) : undefined,
-      completedDate: editingTask?.completedDate,
-      comments: editingTask?.comments || [],
-      attachments: editingTask?.attachments || [],
-      tags: newTaskData.tags ? newTaskData.tags.split(',').map(tag => tag.trim()).filter(tag => tag) : undefined
-    };
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    const devKey = localStorage.getItem('devKey');
+    const token = localStorage.getItem('token');
+    if (devKey) headers['X-Dev-Key'] = devKey;
+    if (token) headers['Authorization'] = `Bearer ${token}`;
 
     if (editingTask) {
-      setTasks(prev => prev.map(task => task.id === editingTask.id ? taskData : task));
+      try {
+        const body = {
+          title: newTaskData.title,
+          description: newTaskData.description || null,
+          priority: newTaskData.priority,
+          dueDate: newTaskData.dueDate || null,
+          tags: newTaskData.tags ? newTaskData.tags.split(',').map(t => t.trim()).filter(Boolean) : []
+        };
+        await fetch(`${API_BASE_URL}/tasks/${editingTask.id}`, { method: 'PUT', headers, body: JSON.stringify(body) });
+        setTasks(prev => prev.map(task => task.id === editingTask.id ? {
+          ...task,
+          title: newTaskData.title,
+          description: newTaskData.description || undefined,
+          priority: newTaskData.priority,
+          dueDate: newTaskData.dueDate ? new Date(newTaskData.dueDate) : undefined,
+          tags: body.tags
+        } : task));
+      } catch {}
     } else {
-      setTasks(prev => [...prev, taskData]);
+      try {
+        const body = {
+          title: newTaskData.title,
+          description: newTaskData.description || null,
+          status: createTaskStatus,
+          priority: newTaskData.priority,
+          assigneeId: null,
+          dueDate: newTaskData.dueDate || null,
+          tags: newTaskData.tags ? newTaskData.tags.split(',').map(t => t.trim()).filter(Boolean) : []
+        };
+        const res = await fetch(`${API_BASE_URL}/tasks`, { method: 'POST', headers, body: JSON.stringify(body) });
+        const json = await res.json();
+        const r = json.data || json;
+        const created: Task = {
+          id: r.id,
+          title: r.title,
+          description: r.description || undefined,
+          status: r.status || createTaskStatus,
+          priority: r.priority || newTaskData.priority,
+          assignee: newTaskData.assignee,
+          assignedDate: new Date(),
+          dueDate: newTaskData.dueDate ? new Date(newTaskData.dueDate) : undefined,
+          completedDate: undefined,
+          comments: [],
+          attachments: [],
+          tags: body.tags
+        };
+        setTasks(prev => [created, ...prev]);
+      } catch {}
     }
 
     setShowCreateDialog(false);
