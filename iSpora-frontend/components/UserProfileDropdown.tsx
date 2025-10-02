@@ -78,7 +78,7 @@ export function UserProfileDropdown({ isCollapsed = false }: UserProfileDropdown
     return (
       <DropdownMenu>
         <Tooltip>
-          <TooltipTrigger asChild>
+          <TooltipTrigger>
             <DropdownMenuTrigger asChild>
               <div className="flex justify-center">
                 <button className="relative h-8 w-8 p-0 hover:bg-[#021ff6]/10 rounded-full transition-all duration-200 transform hover:scale-110 active:scale-95">

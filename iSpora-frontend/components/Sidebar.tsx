@@ -53,7 +53,7 @@ function SidebarItem({ icon, label, description, isActive = false, isCollapsed =
   if (isCollapsed || description) {
     return (
       <Tooltip>
-        <TooltipTrigger asChild>
+        <TooltipTrigger>
           {buttonContent}
         </TooltipTrigger>
         <TooltipContent side="right" className="tooltip-enhanced">

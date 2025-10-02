@@ -185,12 +185,10 @@ function CommentsDialog({
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <Tooltip>
         <DialogTrigger asChild>
-          <TooltipTrigger asChild>
-            <button className="flex items-center gap-1 text-gray-500 hover:text-[#021ff6] transition-colors text-sm btn-hover-lift">
-              <MessageCircle className="h-4 w-4" />
-              <span>Comment</span>
-            </button>
-          </TooltipTrigger>
+          <button className="flex items-center gap-1 text-gray-500 hover:text-[#021ff6] transition-colors text-sm btn-hover-lift">
+            <MessageCircle className="h-4 w-4" />
+            <span>Comment</span>
+          </button>
         </DialogTrigger>
         <TooltipContent className="tooltip-enhanced">
           <span className="text-xs">Share your thoughts and engage with the community</span>
@@ -360,12 +358,10 @@ function ShareDialog({
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <Tooltip>
         <DialogTrigger asChild>
-          <TooltipTrigger asChild>
-            <button className="flex items-center gap-1 text-gray-500 hover:text-[#021ff6] transition-colors text-sm btn-hover-lift">
-              <Share2 className="h-4 w-4" />
-              <span>Share</span>
-            </button>
-          </TooltipTrigger>
+          <button className="flex items-center gap-1 text-gray-500 hover:text-[#021ff6] transition-colors text-sm btn-hover-lift">
+            <Share2 className="h-4 w-4" />
+            <span>Share</span>
+          </button>
         </DialogTrigger>
         <TooltipContent className="tooltip-enhanced">
           <span className="text-xs">Help amplify impact by sharing with your network</span>

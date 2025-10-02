@@ -254,36 +254,45 @@ function LeaderboardRow({ entry }: { entry: any }) {
     return <Minus className="h-3 w-3 text-gray-400" />;
   };
 
+  const safeEntry = entry || {};
+  const userInfo = safeEntry.user || {};
+  const rank = typeof safeEntry.rank === 'number' ? safeEntry.rank : 0;
+  const points = typeof safeEntry.points === 'number' ? safeEntry.points : 0;
+  const level = typeof safeEntry.level === 'number' ? safeEntry.level : 0;
+  const badgesCount = typeof safeEntry.badges === 'number' ? safeEntry.badges : 0;
+  const change = safeEntry.change || 'same';
+  const changeValue = typeof safeEntry.changeValue === 'number' ? safeEntry.changeValue : 0;
+
   return (
     <div className={`flex items-center justify-between p-4 rounded-lg border transition-all duration-200 hover:shadow-md ${
-      entry.isCurrentUser ? 'bg-blue-50 border-blue-200 ring-2 ring-blue-100' : 'bg-white border-gray-200'
+      safeEntry.isCurrentUser ? 'bg-blue-50 border-blue-200 ring-2 ring-blue-100' : 'bg-white border-gray-200'
     }`}>
       <div className="flex items-center gap-4">
         {/* Rank */}
-        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${getRankColor(entry.rank)}`}>
-          {entry.rank}
+        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${getRankColor(rank)}`}>
+          {rank}
         </div>
         
         {/* User Info */}
         <div className="flex items-center gap-3">
           <Avatar className="h-10 w-10">
-            <AvatarImage src={entry.user.avatar} alt={entry.user.name} />
-            <AvatarFallback>{entry.user.name.charAt(0)}</AvatarFallback>
+            <AvatarImage src={userInfo.avatar} alt={userInfo.name || 'User'} />
+            <AvatarFallback>{(userInfo.name || 'U').charAt(0)}</AvatarFallback>
           </Avatar>
           
           <div>
             <div className="flex items-center gap-2">
-              <p className="font-medium text-gray-900">{entry.user.name}</p>
-              {entry.isCurrentUser && (
+              <p className="font-medium text-gray-900">{userInfo.name || 'User'}</p>
+              {safeEntry.isCurrentUser && (
                 <Badge className="bg-blue-600 text-white text-xs">You</Badge>
               )}
             </div>
             <div className="flex items-center gap-2 text-xs text-gray-500">
               <MapPin className="h-3 w-3" />
-              <span>{entry.user.location}</span>
+              <span>{userInfo.location || '—'}</span>
               <span>•</span>
               <GraduationCap className="h-3 w-3" />
-              <span>{entry.user.university}</span>
+              <span>{userInfo.university || '—'}</span>
             </div>
           </div>
         </div>
@@ -292,27 +301,27 @@ function LeaderboardRow({ entry }: { entry: any }) {
       {/* Stats */}
       <div className="flex items-center gap-6 text-sm">
         <div className="text-center">
-          <p className="font-bold text-gray-900">{entry.points.toLocaleString()}</p>
+          <p className="font-bold text-gray-900">{points.toLocaleString()}</p>
           <p className="text-gray-500">Points</p>
         </div>
         
         <div className="text-center">
-          <p className="font-bold text-gray-900">Lv.{entry.level}</p>
+          <p className="font-bold text-gray-900">Lv.{level}</p>
           <p className="text-gray-500">Level</p>
         </div>
         
         <div className="text-center">
-          <p className="font-bold text-gray-900">{entry.badges}</p>
+          <p className="font-bold text-gray-900">{badgesCount}</p>
           <p className="text-gray-500">Badges</p>
         </div>
         
         <div className="flex items-center gap-1">
-          {getChangeIcon(entry.change, entry.changeValue)}
-          {entry.changeValue > 0 && (
+          {getChangeIcon(change, changeValue)}
+          {changeValue > 0 && (
             <span className={`text-xs font-medium ${
-              entry.change === 'up' ? 'text-green-600' : 'text-red-600'
+              change === 'up' ? 'text-green-600' : 'text-red-600'
             }`}>
-              {entry.changeValue}
+              {changeValue}
             </span>
           )}
         </div>
