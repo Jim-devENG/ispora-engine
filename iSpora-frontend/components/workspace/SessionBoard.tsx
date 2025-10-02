@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Calendar,
   Clock,
@@ -818,6 +818,49 @@ export function SessionBoard({ mentee }: SessionBoardProps) {
   const [editingSession, setEditingSession] = useState<Session | null>(null);
   const [viewFilter, setViewFilter] = useState<'all' | 'upcoming' | 'completed'>('all');
   const [shareSession, setShareSession] = useState<Session | null>(null);
+  const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://ispora-backend.onrender.com/api';
+
+  // Load sessions from backend
+  useEffect(() => {
+    const controller = new AbortController();
+    const load = async () => {
+      try {
+        const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+        const devKey = localStorage.getItem('devKey');
+        const token = localStorage.getItem('token');
+        if (devKey) headers['X-Dev-Key'] = devKey;
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+        const res = await fetch(`${API_BASE_URL}/sessions`, { headers, signal: controller.signal });
+        const json = await res.json();
+        const rows = Array.isArray(json.data) ? json.data : [];
+        const mapped: Session[] = rows.map((r: any) => ({
+          id: r.id,
+          title: r.title,
+          description: r.description || '',
+          scheduledDate: r.scheduled_at ? new Date(r.scheduled_at) : new Date(),
+          duration: r.duration || 60,
+          status: (r.status || 'upcoming'),
+          type: (r.type || 'video'),
+          meetingLink: r.meeting_link || undefined,
+          location: r.location || undefined,
+          agenda: r.agenda ? String(r.agenda).split('\n').filter(Boolean) : [],
+          notes: r.notes || undefined,
+          recordings: [],
+          attendees: [],
+          isPublic: !!r.is_public,
+          tags: r.tags ? String(r.tags).split(',').filter(Boolean) : [],
+          maxParticipants: r.max_participants || undefined,
+          shareUrl: undefined,
+        }));
+        setSessions(mapped);
+      } catch {
+        setSessions([]);
+      }
+    };
+    load();
+    const id = setInterval(load, 30000);
+    return () => { controller.abort(); clearInterval(id); };
+  }, []);
 
   const filteredSessions = sessions.filter(session => {
     if (viewFilter === 'all') return true;
@@ -830,42 +873,78 @@ export function SessionBoard({ mentee }: SessionBoardProps) {
     return `https://ispora.com/sessions/${sessionId}`;
   };
 
-  const handleCreateSession = (sessionDetails: SessionDetails) => {
-    const sessionId = editingSession?.id || `session-${Date.now()}`;
-    
-    const newSession: Session = {
-      id: sessionId,
-      title: sessionDetails.title,
-      description: sessionDetails.description,
-      scheduledDate: new Date(`${sessionDetails.scheduledDate}T${sessionDetails.scheduledTime}`),
-      duration: sessionDetails.duration,
-      status: 'upcoming',
-      type: sessionDetails.type,
-      location: sessionDetails.location,
-      agenda: sessionDetails.agenda,
-      isPublic: sessionDetails.isPublic,
-      tags: sessionDetails.tags,
-      maxParticipants: sessionDetails.maxParticipants,
-      shareUrl: generateShareUrl(sessionId),
-      meetingLink: sessionDetails.type === 'video' ? `https://meet.google.com/${Math.random().toString(36).substring(7)}` : undefined,
-      attendees: [
-        { 
-          name: "Dr. Amina Hassan", 
-          avatar: "https://images.unsplash.com/photo-1494790108755-2616b25f5e55?w=150&h=150&fit=crop&crop=face" 
-        },
-        { 
-          name: mentee.name, 
-          avatar: mentee.avatar 
-        }
-      ]
-    };
-
-    if (editingSession) {
-      setSessions(prev => prev.map(s => s.id === editingSession.id ? { ...newSession, id: editingSession.id } : s));
-    } else {
-      setSessions(prev => [newSession, ...prev]);
-    }
-
+  const handleCreateSession = async (sessionDetails: SessionDetails) => {
+    try {
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      const devKey = localStorage.getItem('devKey');
+      const token = localStorage.getItem('token');
+      if (devKey) headers['X-Dev-Key'] = devKey;
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      if (editingSession) {
+        const body: any = {
+          title: sessionDetails.title,
+          description: sessionDetails.description,
+          duration: sessionDetails.duration,
+          type: sessionDetails.type,
+          location: sessionDetails.location,
+          is_public: sessionDetails.isPublic,
+          max_participants: sessionDetails.maxParticipants,
+          tags: sessionDetails.tags,
+          agenda: sessionDetails.agenda,
+          scheduledDate: sessionDetails.scheduledDate,
+          scheduledTime: sessionDetails.scheduledTime
+        };
+        await fetch(`${API_BASE_URL}/sessions/${editingSession.id}`, { method: 'PUT', headers, body: JSON.stringify(body) });
+        setSessions(prev => prev.map(s => s.id === editingSession.id ? {
+          ...s,
+          title: sessionDetails.title,
+          description: sessionDetails.description,
+          scheduledDate: new Date(`${sessionDetails.scheduledDate}T${sessionDetails.scheduledTime}`),
+          duration: sessionDetails.duration,
+          type: sessionDetails.type,
+          location: sessionDetails.location,
+          isPublic: sessionDetails.isPublic,
+          tags: sessionDetails.tags,
+          agenda: sessionDetails.agenda
+        } : s));
+      } else {
+        const body: any = {
+          title: sessionDetails.title,
+          description: sessionDetails.description,
+          scheduledDate: sessionDetails.scheduledDate,
+          scheduledTime: sessionDetails.scheduledTime,
+          duration: sessionDetails.duration,
+          status: 'upcoming',
+          type: sessionDetails.type,
+          location: sessionDetails.location,
+          isPublic: sessionDetails.isPublic,
+          maxParticipants: sessionDetails.maxParticipants,
+          tags: sessionDetails.tags,
+          agenda: sessionDetails.agenda
+        };
+        const res = await fetch(`${API_BASE_URL}/sessions`, { method: 'POST', headers, body: JSON.stringify(body) });
+        const json = await res.json();
+        const r = json.data || json;
+        const created: Session = {
+          id: r.id,
+          title: r.title,
+          description: r.description || undefined,
+          scheduledDate: r.scheduled_at ? new Date(r.scheduled_at) : new Date(),
+          duration: r.duration || sessionDetails.duration,
+          status: r.status || 'upcoming',
+          type: r.type || sessionDetails.type,
+          meetingLink: r.meeting_link || undefined,
+          location: r.location || undefined,
+          agenda: body.agenda,
+          isPublic: !!r.is_public,
+          tags: body.tags,
+          maxParticipants: r.max_participants || body.maxParticipants,
+          shareUrl: generateShareUrl(r.id),
+          attendees: []
+        };
+        setSessions(prev => [created, ...prev]);
+      }
+    } catch {}
     setEditingSession(null);
   };
 
@@ -885,8 +964,16 @@ export function SessionBoard({ mentee }: SessionBoardProps) {
     setShowCreateDialog(true);
   };
 
-  const handleDeleteSession = (sessionId: string) => {
-    setSessions(prev => prev.filter(s => s.id !== sessionId));
+  const handleDeleteSession = async (sessionId: string) => {
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    const devKey = localStorage.getItem('devKey');
+    const token = localStorage.getItem('token');
+    if (devKey) headers['X-Dev-Key'] = devKey;
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    try {
+      await fetch(`${API_BASE_URL}/sessions/${sessionId}`, { method: 'DELETE', headers });
+      setSessions(prev => prev.filter(s => s.id !== sessionId));
+    } catch {}
   };
 
   const handleShareSession = (session: Session) => {
