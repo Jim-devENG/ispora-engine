@@ -175,10 +175,10 @@ function LayoutContent() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Auto-collapse sidebar when entering workroom
+  // Keep sidebar open in Workroom on desktop
   useEffect(() => {
     if (!isMobile && workroomPages.includes(currentPage)) {
-      setIsSidebarCollapsed(true);
+      setIsSidebarCollapsed(false);
     }
   }, [currentPage, isMobile]);
 
