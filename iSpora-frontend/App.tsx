@@ -20,6 +20,18 @@ function DevelopmentMode() {
   // no popup; unlock via URL or stored flag
 
   useEffect(() => {
+    // Force Coming Soon on production domain unless explicitly unlocked via backend verification
+    const isProdHost = typeof window !== 'undefined' && /(^|\.)ispora\.app$/i.test(window.location.hostname);
+    if (isProdHost) {
+      try {
+        // Ensure any prior dev flag is cleared on production domain
+        localStorage.removeItem('devMode');
+        localStorage.removeItem('devKey');
+      } catch {}
+      setShowComingSoon(true);
+      // Continue to allow unlock via ?unlock=KEY (handled below)
+    }
+
     // In local development, skip Coming Soon entirely
     if (import.meta.env.MODE === 'development') {
       try {
@@ -96,7 +108,7 @@ function DevelopmentMode() {
     })();
 
     const isDevMode = localStorage.getItem('devMode') === 'true';
-    if (isDevMode) {
+    if (!isProdHost && isDevMode) {
       setShowComingSoon(false);
       // Also ensure admin in dev mode on subsequent loads
       try {

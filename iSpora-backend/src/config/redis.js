@@ -7,7 +7,9 @@ const redis = new Redis({
   port: process.env.REDIS_PORT || 6379,
   password: process.env.REDIS_PASSWORD,
   retryDelayOnFailover: 100,
-  maxRetriesPerRequest: 3,
+  // BullMQ requires this to be null for blocking commands
+  maxRetriesPerRequest: null,
+  enableReadyCheck: false,
   lazyConnect: true,
 });
 
