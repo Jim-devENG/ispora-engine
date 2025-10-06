@@ -1,23 +1,28 @@
 const Redis = require('ioredis');
 const { Queue, Worker } = require('bullmq');
 
-// Redis connection
-const redis = new Redis({
+// Redis connection options for BullMQ
+const redisConnection = {
   host: process.env.REDIS_HOST || 'localhost',
-  port: process.env.REDIS_PORT || 6379,
+  port: Number(process.env.REDIS_PORT || 6379),
   password: process.env.REDIS_PASSWORD,
   retryDelayOnFailover: 100,
   // BullMQ requires this to be null for blocking commands
   maxRetriesPerRequest: null,
   enableReadyCheck: false,
+};
+
+// Optional ioredis client if needed elsewhere
+const redis = new Redis({
+  ...redisConnection,
   lazyConnect: true,
 });
 
 // Queue configurations
 const queues = {
-  notifications: new Queue('notifications', { connection: redis }),
-  emails: new Queue('emails', { connection: redis }),
-  analytics: new Queue('analytics', { connection: redis }),
+  notifications: new Queue('notifications', { connection: redisConnection }),
+  emails: new Queue('emails', { connection: redisConnection }),
+  analytics: new Queue('analytics', { connection: redisConnection }),
 };
 
 // Worker configurations
@@ -37,19 +42,19 @@ const workers = {
       default:
         console.log('Unknown job type:', type);
     }
-  }, { connection: redis }),
+  }, { connection: redisConnection }),
 
   emails: new Worker('emails', async (job) => {
     const { template, recipient, data } = job.data;
     console.log(`Sending email to ${recipient} with template ${template}`);
     // Implement actual email sending logic here
-  }, { connection: redis }),
+  }, { connection: redisConnection }),
 
   analytics: new Worker('analytics', async (job) => {
     const { event, userId, data } = job.data;
     console.log(`Processing analytics event: ${event} for user ${userId}`);
     // Implement analytics processing logic here
-  }, { connection: redis }),
+  }, { connection: redisConnection }),
 };
 
 // Queue management functions
