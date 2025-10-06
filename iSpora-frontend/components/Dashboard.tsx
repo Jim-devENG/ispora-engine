@@ -7,6 +7,9 @@ import { LiveSessionsWidget } from './LiveSessionsWidget';
 import { CreditsPage } from './CreditsPage';
 import { MyNetwork } from './MyNetwork';
 import { NotificationsPage } from './NotificationsPage';
+import { MyProjects } from './MyProjects';
+import { OpportunitiesPage } from './OpportunitiesPage';
+import { SettingsPage } from './SettingsPage';
 import { useNavigation } from './NavigationContext';
 import { useAuth } from './AuthContext';
 import { useMobile } from '../src/hooks/useMobile';
@@ -2161,9 +2164,9 @@ export function Dashboard() {
       case 'Impact Feed':
         return <DashboardContent />;
       case 'Projects':
-        return <PlaceholderContent title="Projects" />;
+        return <MyProjects />;
       case 'Opportunities':
-        return <PlaceholderContent title="Opportunities" />;
+        return <OpportunitiesPage />;
       case 'My Network':
         return <MyNetwork />;
       case 'Credits':
@@ -2171,7 +2174,7 @@ export function Dashboard() {
       case 'Notifications':
         return <NotificationsPage />;
       case 'Settings':
-        return <PlaceholderContent title="Settings" />;
+        return <SettingsPage />;
       default:
         return <DashboardContent />;
     }

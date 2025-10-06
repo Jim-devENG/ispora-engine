@@ -16,7 +16,7 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 // Development mode component
 function DevelopmentMode() {
   const { user } = useAuth();
-  const [showComingSoon, setShowComingSoon] = useState(true);
+  const [showComingSoon, setShowComingSoon] = useState(false); // Temporarily disabled
   // no popup; unlock via URL or stored flag
 
   useEffect(() => {
