@@ -9,7 +9,7 @@ const router = express.Router();
 // @access  Public
 router.get('/', optionalAuth, async (req, res, next) => {
   try {
-    const { page = 1, limit = 20, type } = req.query;
+    const { page = 1, limit = 20 } = req.query;
     const offset = (page - 1) * limit;
 
     // Get projects
@@ -57,8 +57,105 @@ router.get('/', optionalAuth, async (req, res, next) => {
       .limit(limit)
       .offset(offset);
 
-    // Get mentorship activities (simplified - no mentorship_sessions table)
-    const mentorshipActivities = [];
+    // Sessions (public/upcoming or recent)
+    let sessions = [];
+    try {
+      sessions = await db('project_sessions as s')
+        .select([
+          's.id',
+          's.project_id',
+          's.title',
+          's.description',
+          's.scheduled_date',
+          's.duration_minutes',
+          's.type',
+          's.is_public',
+          'u.first_name as author_first_name',
+          'u.last_name as author_last_name',
+          'u.username as author_username',
+          'u.avatar_url as author_avatar',
+          'p.title as project_title',
+        ])
+        .leftJoin('users as u', 's.created_by', 'u.id')
+        .leftJoin('projects as p', 's.project_id', 'p.id')
+        .where('s.is_public', true)
+        .orderBy('s.scheduled_date', 'desc')
+        .limit(limit)
+        .offset(offset);
+    } catch (_) {}
+
+    // Impact stories (public)
+    let impact = [];
+    try {
+      impact = await db('impact_feed as if')
+        .select([
+          'if.id',
+          'if.title',
+          'if.summary',
+          'if.impact_category',
+          'if.published_at',
+          'u.first_name as author_first_name',
+          'u.last_name as author_last_name',
+          'u.username as author_username',
+          'u.avatar_url as author_avatar',
+          'p.title as project_title',
+        ])
+        .leftJoin('users as u', 'if.user_id', 'u.id')
+        .leftJoin('projects as p', 'if.related_project_id', 'p.id')
+        .where('if.visibility', 'public')
+        .andWhere('if.status', 'active')
+        .orderBy('if.published_at', 'desc')
+        .limit(limit)
+        .offset(offset);
+    } catch (_) {}
+
+    // Research outputs (public learning content)
+    let research = [];
+    try {
+      research = await db('learning_content as lc')
+        .select([
+          'lc.id',
+          'lc.project_id',
+          'lc.title',
+          'lc.description',
+          'lc.type',
+          'lc.created_at',
+          'u.first_name as author_first_name',
+          'u.last_name as author_last_name',
+          'u.username as author_username',
+          'u.avatar_url as author_avatar',
+          'p.title as project_title',
+        ])
+        .leftJoin('projects as p', 'lc.project_id', 'p.id')
+        .leftJoin('users as u', 'p.creator_id', 'u.id')
+        .where('lc.is_public', true)
+        .orderBy('lc.created_at', 'desc')
+        .limit(limit)
+        .offset(offset);
+    } catch (_) {}
+
+    // Badges/achievements (public announcements)
+    let badges = [];
+    try {
+      badges = await db('badges as b')
+        .select([
+          'b.id',
+          'b.title',
+          'b.description',
+          'b.created_at',
+          'ub.user_id',
+          'u.first_name as author_first_name',
+          'u.last_name as author_last_name',
+          'u.username as author_username',
+          'u.avatar_url as author_avatar',
+        ])
+        .leftJoin('user_badges as ub', 'b.id', 'ub.badge_id')
+        .leftJoin('users as u', 'ub.user_id', 'u.id')
+        .where('b.is_public_announcement', true)
+        .orderBy('b.created_at', 'desc')
+        .limit(limit)
+        .offset(offset);
+    } catch (_) {}
 
     // Combine all feed items
     const feedItems = [
@@ -70,7 +167,7 @@ router.get('/', optionalAuth, async (req, res, next) => {
         status: project.status,
         category: project.category,
         location: project.location,
-        tags: project.tags ? JSON.parse(project.tags) : [],
+        tags: (() => { try { return project.tags ? JSON.parse(project.tags) : []; } catch { return []; } })(),
         authorName: `${project.author_first_name} ${project.author_last_name}`,
         authorAvatar: project.author_avatar,
         timestamp: project.created_at,
@@ -94,18 +191,66 @@ router.get('/', optionalAuth, async (req, res, next) => {
         comments: 0,
         isPublic: true,
       })),
-      ...mentorshipActivities.map((activity) => ({
-        id: activity.id,
-        type: 'mentorship',
-        title: activity.title,
-        description: activity.description,
-        status: activity.status,
-        category: activity.category,
-        location: activity.location,
+      ...sessions.map((s) => ({
+        id: s.id,
+        type: 'session',
+        title: s.title,
+        description: s.description,
+        status: s.type,
+        category: s.project_title || 'Session',
+        location: '',
         tags: [],
-        authorName: `${activity.author_first_name} ${activity.author_last_name}`,
-        authorAvatar: activity.author_avatar,
-        timestamp: activity.created_at,
+        authorName: `${s.author_first_name || ''} ${s.author_last_name || ''}`.trim(),
+        authorAvatar: s.author_avatar,
+        timestamp: s.scheduled_date,
+        likes: 0,
+        comments: 0,
+        isPublic: true,
+      })),
+      ...impact.map((i) => ({
+        id: i.id,
+        type: 'impact',
+        title: i.title,
+        description: i.summary,
+        status: i.impact_category,
+        category: i.project_title || 'Impact',
+        location: '',
+        tags: [],
+        authorName: `${i.author_first_name || ''} ${i.author_last_name || ''}`.trim(),
+        authorAvatar: i.author_avatar,
+        timestamp: i.published_at,
+        likes: 0,
+        comments: 0,
+        isPublic: true,
+      })),
+      ...research.map((r) => ({
+        id: r.id,
+        type: 'research',
+        title: r.title,
+        description: r.description,
+        status: r.type,
+        category: r.project_title || 'Research',
+        location: '',
+        tags: [],
+        authorName: `${r.author_first_name || ''} ${r.author_last_name || ''}`.trim(),
+        authorAvatar: r.author_avatar,
+        timestamp: r.created_at,
+        likes: 0,
+        comments: 0,
+        isPublic: true,
+      })),
+      ...badges.map((b) => ({
+        id: b.id,
+        type: 'badge',
+        title: b.title,
+        description: b.description,
+        status: 'achievement',
+        category: 'Badge',
+        location: '',
+        tags: [],
+        authorName: `${b.author_first_name || ''} ${b.author_last_name || ''}`.trim(),
+        authorAvatar: b.author_avatar,
+        timestamp: b.created_at,
         likes: 0,
         comments: 0,
         isPublic: true,
