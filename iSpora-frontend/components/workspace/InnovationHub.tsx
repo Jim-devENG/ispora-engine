@@ -1,5 +1,5 @@
 // This file now simply imports and exports ForgeLab for backward compatibility
-import { ForgeLab } from "./ForgeLab";
+import { ForgeLab } from './ForgeLab';
 
 interface ProjectMember {
   id: string;

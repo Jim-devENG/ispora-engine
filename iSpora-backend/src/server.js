@@ -8,6 +8,14 @@ const { createServer } = require('http');
 const { Server } = require('socket.io');
 require('dotenv').config();
 
+// Initialize monitoring and logging
+const { initSentry } = require('./config/sentry');
+const { createRequestLogger, logger, logError } = require('./config/logger');
+const { closeConnections } = require('./config/redis');
+
+// Initialize Sentry
+initSentry();
+
 // Import routes
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
@@ -60,6 +68,7 @@ const learningRoutes = require('./routes/learning');
 const liveRoutes = require('./routes/live');
 const researchRoutes = require('./routes/research');
 const corsTestRoutes = require('./routes/cors-test');
+const mockRoutes = require('./routes/mock-routes');
 
 // Import middleware
 const errorHandler = require('./middleware/errorHandler');
@@ -76,13 +85,13 @@ const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
     origin: [
-      process.env.FRONTEND_URL || "http://localhost:5173",
-      "https://ispora.app",
-      "https://www.ispora.app"
+      process.env.FRONTEND_URL || 'http://localhost:5173',
+      'https://ispora.app',
+      'https://www.ispora.app',
     ],
-    methods: ["GET", "POST"],
-    credentials: true
-  }
+    methods: ['GET', 'POST'],
+    credentials: true,
+  },
 });
 
 // Rate limiting
@@ -95,31 +104,35 @@ const limiter = rateLimit({
 });
 
 // Security middleware
-app.use(helmet({
-  crossOriginEmbedderPolicy: false,
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      scriptSrc: ["'self'"],
-      imgSrc: ["'self'", "data:", "https:"],
+app.use(
+  helmet({
+    crossOriginEmbedderPolicy: false,
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        scriptSrc: ["'self'"],
+        imgSrc: ["'self'", 'data:', 'https:'],
+      },
     },
-  },
-}));
+  }),
+);
 
 // CORS configuration - must be first
-app.use(cors({
-  origin: [
-    process.env.FRONTEND_URL || 'http://localhost:5173',
-    'http://localhost:5174',
-    'http://localhost:3000',
-    'https://ispora.app',
-    'https://www.ispora.app'
-  ],
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-Dev-Key']
-}));
+app.use(
+  cors({
+    origin: [
+      process.env.FRONTEND_URL || 'http://localhost:5173',
+      'http://localhost:5174',
+      'http://localhost:3000',
+      'https://ispora.app',
+      'https://www.ispora.app',
+    ],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-Dev-Key'],
+  }),
+);
 
 // Handle preflight requests explicitly
 app.options('*', cors());
@@ -127,6 +140,7 @@ app.options('*', cors());
 // General middleware
 app.use(compression());
 app.use(morgan('combined'));
+app.use(createRequestLogger()); // Add structured logging
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(limiter);
@@ -137,17 +151,22 @@ app.get('/health', (req, res) => {
     status: 'OK',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
-    environment: process.env.NODE_ENV || 'development'
+    environment: process.env.NODE_ENV || 'development',
   });
 });
 
 // API routes
+// Mount mock routes FIRST for local development to avoid auth/404s
+app.use('/api/network', mockRoutes);
+app.use('/api/credits', mockRoutes);
+app.use('/api/notifications', mockRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/mentorship', mentorshipRoutes);
 app.use('/api/communication', communicationRoutes);
 app.use('/api/opportunities', opportunityRoutes);
+// Real routes follow (will be shadowed by mocks on overlapping paths)
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/uploads', uploadRoutes);
 app.use('/api/connections', connectionRoutes);
@@ -193,8 +212,11 @@ app.use('/api/learning', learningRoutes);
 app.use('/api/live', liveRoutes);
 app.use('/api/research', researchRoutes);
 app.use('/api/cors-test', corsTestRoutes);
+app.use('/api/network', mockRoutes);
+app.use('/api/credits', mockRoutes);
+app.use('/api/notifications', mockRoutes);
 
-// Coming Soon gate (place after auth route so login/register still works, 
+// Coming Soon gate (place after auth route so login/register still works,
 // and after protect can set req.user on routes that use it). We mount it late
 // so earlier middleware like CORS and JSON parsing have already run.
 app.use(comingSoon());
@@ -210,7 +232,7 @@ app.use('*', (req, res) => {
   res.status(404).json({
     error: 'Route not found',
     path: req.originalUrl,
-    method: req.method
+    method: req.method,
   });
 });
 
@@ -224,17 +246,21 @@ httpServer.listen(PORT, () => {
 });
 
 // Graceful shutdown
-process.on('SIGTERM', () => {
-  console.log('SIGTERM received, shutting down gracefully');
+process.on('SIGTERM', async () => {
+  logger.info('SIGTERM received, shutting down gracefully');
+  await closeConnections();
   httpServer.close(() => {
-    console.log('Process terminated');
+    logger.info('Process terminated');
+    process.exit(0);
   });
 });
 
-process.on('SIGINT', () => {
-  console.log('SIGINT received, shutting down gracefully');
+process.on('SIGINT', async () => {
+  logger.info('SIGINT received, shutting down gracefully');
+  await closeConnections();
   httpServer.close(() => {
-    console.log('Process terminated');
+    logger.info('Process terminated');
+    process.exit(0);
   });
 });
 

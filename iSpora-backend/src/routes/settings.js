@@ -9,9 +9,7 @@ const router = express.Router();
 // @access  Private
 router.get('/', protect, async (req, res, next) => {
   try {
-    let settings = await db('user_settings')
-      .where({ user_id: req.user.id })
-      .first();
+    let settings = await db('user_settings').where({ user_id: req.user.id }).first();
 
     if (!settings) {
       // Create default settings if they don't exist
@@ -23,7 +21,7 @@ router.get('/', protect, async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      data: settingsData
+      data: settingsData,
     });
   } catch (error) {
     next(error);
@@ -43,52 +41,69 @@ router.put('/', protect, async (req, res, next) => {
       show_location,
       show_connections,
       show_activity,
-      
+
       // Communication settings
       allow_direct_messages,
       allow_connection_requests,
       allow_project_invites,
       allow_opportunity_notifications,
-      
+
       // Language and region
       language,
       timezone,
       date_format,
       time_format,
-      
+
       // Theme and display
       theme,
       compact_mode,
       show_online_status,
-      
+
       // Email preferences
       email_notifications,
       email_weekly_digest,
       email_marketing,
-      
+
       // Push notification preferences
       push_notifications,
       push_mentorship,
       push_projects,
       push_connections,
-      push_opportunities
+      push_opportunities,
     } = req.body;
 
     const updateData = {};
-    
+
     // Only update provided fields
     const allowedFields = [
-      'profile_visibility', 'show_email', 'show_phone', 'show_location',
-      'show_connections', 'show_activity', 'allow_direct_messages',
-      'allow_connection_requests', 'allow_project_invites',
-      'allow_opportunity_notifications', 'language', 'timezone',
-      'date_format', 'time_format', 'theme', 'compact_mode',
-      'show_online_status', 'email_notifications', 'email_weekly_digest',
-      'email_marketing', 'push_notifications', 'push_mentorship',
-      'push_projects', 'push_connections', 'push_opportunities'
+      'profile_visibility',
+      'show_email',
+      'show_phone',
+      'show_location',
+      'show_connections',
+      'show_activity',
+      'allow_direct_messages',
+      'allow_connection_requests',
+      'allow_project_invites',
+      'allow_opportunity_notifications',
+      'language',
+      'timezone',
+      'date_format',
+      'time_format',
+      'theme',
+      'compact_mode',
+      'show_online_status',
+      'email_notifications',
+      'email_weekly_digest',
+      'email_marketing',
+      'push_notifications',
+      'push_mentorship',
+      'push_projects',
+      'push_connections',
+      'push_opportunities',
     ];
 
-    allowedFields.forEach(field => {
+    allowedFields.forEach((field) => {
       if (req.body[field] !== undefined) {
         updateData[field] = req.body[field];
       }
@@ -97,33 +112,26 @@ router.put('/', protect, async (req, res, next) => {
     updateData.updated_at = new Date();
 
     // Check if settings exist
-    const existingSettings = await db('user_settings')
-      .where({ user_id: req.user.id })
-      .first();
+    const existingSettings = await db('user_settings').where({ user_id: req.user.id }).first();
 
     if (existingSettings) {
-      await db('user_settings')
-        .where({ user_id: req.user.id })
-        .update(updateData);
+      await db('user_settings').where({ user_id: req.user.id }).update(updateData);
     } else {
-      await db('user_settings')
-        .insert({
-          user_id: req.user.id,
-          ...updateData
-        });
+      await db('user_settings').insert({
+        user_id: req.user.id,
+        ...updateData,
+      });
     }
 
     // Get updated settings
-    const updatedSettings = await db('user_settings')
-      .where({ user_id: req.user.id })
-      .first();
+    const updatedSettings = await db('user_settings').where({ user_id: req.user.id }).first();
 
     const { user_id, ...settingsData } = updatedSettings;
 
     res.status(200).json({
       success: true,
       message: 'Settings updated successfully',
-      data: settingsData
+      data: settingsData,
     });
   } catch (error) {
     next(error);
@@ -141,11 +149,11 @@ router.put('/privacy', protect, async (req, res, next) => {
       show_phone,
       show_location,
       show_connections,
-      show_activity
+      show_activity,
     } = req.body;
 
     const updateData = {};
-    
+
     if (profile_visibility !== undefined) updateData.profile_visibility = profile_visibility;
     if (show_email !== undefined) updateData.show_email = show_email;
     if (show_phone !== undefined) updateData.show_phone = show_phone;
@@ -159,7 +167,7 @@ router.put('/privacy', protect, async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      message: 'Privacy settings updated successfully'
+      message: 'Privacy settings updated successfully',
     });
   } catch (error) {
     next(error);
@@ -179,11 +187,11 @@ router.put('/notifications', protect, async (req, res, next) => {
       push_mentorship,
       push_projects,
       push_connections,
-      push_opportunities
+      push_opportunities,
     } = req.body;
 
     const updateData = {};
-    
+
     if (email_notifications !== undefined) updateData.email_notifications = email_notifications;
     if (email_weekly_digest !== undefined) updateData.email_weekly_digest = email_weekly_digest;
     if (email_marketing !== undefined) updateData.email_marketing = email_marketing;
@@ -199,7 +207,7 @@ router.put('/notifications', protect, async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      message: 'Notification settings updated successfully'
+      message: 'Notification settings updated successfully',
     });
   } catch (error) {
     next(error);
@@ -215,15 +223,19 @@ router.put('/communication', protect, async (req, res, next) => {
       allow_direct_messages,
       allow_connection_requests,
       allow_project_invites,
-      allow_opportunity_notifications
+      allow_opportunity_notifications,
     } = req.body;
 
     const updateData = {};
-    
-    if (allow_direct_messages !== undefined) updateData.allow_direct_messages = allow_direct_messages;
-    if (allow_connection_requests !== undefined) updateData.allow_connection_requests = allow_connection_requests;
-    if (allow_project_invites !== undefined) updateData.allow_project_invites = allow_project_invites;
-    if (allow_opportunity_notifications !== undefined) updateData.allow_opportunity_notifications = allow_opportunity_notifications;
+
+    if (allow_direct_messages !== undefined)
+      updateData.allow_direct_messages = allow_direct_messages;
+    if (allow_connection_requests !== undefined)
+      updateData.allow_connection_requests = allow_connection_requests;
+    if (allow_project_invites !== undefined)
+      updateData.allow_project_invites = allow_project_invites;
+    if (allow_opportunity_notifications !== undefined)
+      updateData.allow_opportunity_notifications = allow_opportunity_notifications;
 
     updateData.updated_at = new Date();
 
@@ -231,7 +243,7 @@ router.put('/communication', protect, async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      message: 'Communication settings updated successfully'
+      message: 'Communication settings updated successfully',
     });
   } catch (error) {
     next(error);
@@ -250,11 +262,11 @@ router.put('/appearance', protect, async (req, res, next) => {
       language,
       timezone,
       date_format,
-      time_format
+      time_format,
     } = req.body;
 
     const updateData = {};
-    
+
     if (theme !== undefined) updateData.theme = theme;
     if (compact_mode !== undefined) updateData.compact_mode = compact_mode;
     if (show_online_status !== undefined) updateData.show_online_status = show_online_status;
@@ -269,7 +281,7 @@ router.put('/appearance', protect, async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      message: 'Appearance settings updated successfully'
+      message: 'Appearance settings updated successfully',
     });
   } catch (error) {
     next(error);
@@ -285,10 +297,8 @@ router.post('/reset', protect, async (req, res, next) => {
 
     if (section === 'all') {
       // Delete existing settings and create new defaults
-      await db('user_settings')
-        .where({ user_id: req.user.id })
-        .del();
-      
+      await db('user_settings').where({ user_id: req.user.id }).del();
+
       await createDefaultSettings(req.user.id);
     } else {
       // Reset specific section
@@ -318,7 +328,8 @@ router.post('/reset', protect, async (req, res, next) => {
           updateData.allow_direct_messages = defaultSettings.allow_direct_messages;
           updateData.allow_connection_requests = defaultSettings.allow_connection_requests;
           updateData.allow_project_invites = defaultSettings.allow_project_invites;
-          updateData.allow_opportunity_notifications = defaultSettings.allow_opportunity_notifications;
+          updateData.allow_opportunity_notifications =
+            defaultSettings.allow_opportunity_notifications;
           break;
         case 'appearance':
           updateData.theme = defaultSettings.theme;
@@ -337,7 +348,7 @@ router.post('/reset', protect, async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      message: `${section === 'all' ? 'All' : section.charAt(0).toUpperCase() + section.slice(1)} settings reset to default`
+      message: `${section === 'all' ? 'All' : section.charAt(0).toUpperCase() + section.slice(1)} settings reset to default`,
     });
   } catch (error) {
     next(error);
@@ -347,11 +358,11 @@ router.post('/reset', protect, async (req, res, next) => {
 // Helper functions
 async function createDefaultSettings(userId) {
   const defaultSettings = getDefaultSettings();
-  
+
   const settings = await db('user_settings')
     .insert({
       user_id: userId,
-      ...defaultSettings
+      ...defaultSettings,
     })
     .returning('*');
 
@@ -359,21 +370,16 @@ async function createDefaultSettings(userId) {
 }
 
 async function updateOrCreateSettings(userId, updateData) {
-  const existingSettings = await db('user_settings')
-    .where({ user_id: userId })
-    .first();
+  const existingSettings = await db('user_settings').where({ user_id: userId }).first();
 
   if (existingSettings) {
-    await db('user_settings')
-      .where({ user_id: userId })
-      .update(updateData);
+    await db('user_settings').where({ user_id: userId }).update(updateData);
   } else {
-    await db('user_settings')
-      .insert({
-        user_id: userId,
-        ...getDefaultSettings(),
-        ...updateData
-      });
+    await db('user_settings').insert({
+      user_id: userId,
+      ...getDefaultSettings(),
+      ...updateData,
+    });
   }
 }
 
@@ -403,7 +409,7 @@ function getDefaultSettings() {
     push_mentorship: true,
     push_projects: true,
     push_connections: true,
-    push_opportunities: false
+    push_opportunities: false,
   };
 }
 

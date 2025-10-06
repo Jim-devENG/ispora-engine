@@ -1,24 +1,24 @@
-import React, { useState } from "react";
-import { 
-  School, 
-  Search, 
-  Plus, 
-  Users, 
-  Target, 
-  MapPin, 
+import React, { useState } from 'react';
+import {
+  School,
+  Search,
+  Plus,
+  Users,
+  Target,
+  MapPin,
   Calendar,
   ChevronRight,
   CheckCircle,
-  Star
-} from "lucide-react";
-import { Button } from "./ui/button";
-import { Card, CardContent } from "./ui/card";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import { Badge } from "./ui/badge";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./ui/dialog";
-import { JoinExistingCampaigns } from "./JoinExistingCampaigns";
-import { toast } from "sonner";
+  Star,
+} from 'lucide-react';
+import { Button } from './ui/button';
+import { Card, CardContent } from './ui/card';
+import { Input } from './ui/input';
+import { Label } from './ui/label';
+import { Badge } from './ui/badge';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog';
+import { JoinExistingCampaigns } from './JoinExistingCampaigns';
+import { toast } from 'sonner';
 
 interface University {
   id: string;
@@ -50,99 +50,102 @@ interface Campaign {
 // Mock university data
 const mockUniversities: University[] = [
   {
-    id: "1",
-    name: "University of Lagos",
-    location: "Lagos",
-    country: "Nigeria",
-    type: "Public Research University",
+    id: '1',
+    name: 'University of Lagos',
+    location: 'Lagos',
+    country: 'Nigeria',
+    type: 'Public Research University',
     established: 1962,
     studentsCount: 42000,
     alumniOnPlatform: 156,
-    activeCampaigns: 8
+    activeCampaigns: 8,
   },
   {
-    id: "2",
-    name: "Makerere University",
-    location: "Kampala",
-    country: "Uganda",
-    type: "Public Research University",
+    id: '2',
+    name: 'Makerere University',
+    location: 'Kampala',
+    country: 'Uganda',
+    type: 'Public Research University',
     established: 1922,
     studentsCount: 35000,
     alumniOnPlatform: 89,
-    activeCampaigns: 5
+    activeCampaigns: 5,
   },
   {
-    id: "3",
-    name: "University of Cape Town",
-    location: "Cape Town",
-    country: "South Africa",
-    type: "Public Research University",
+    id: '3',
+    name: 'University of Cape Town',
+    location: 'Cape Town',
+    country: 'South Africa',
+    type: 'Public Research University',
     established: 1829,
     studentsCount: 29000,
     alumniOnPlatform: 234,
-    activeCampaigns: 12
+    activeCampaigns: 12,
   },
   {
-    id: "4",
-    name: "American University in Cairo",
-    location: "Cairo",
-    country: "Egypt",
-    type: "Private Liberal Arts University",
+    id: '4',
+    name: 'American University in Cairo',
+    location: 'Cairo',
+    country: 'Egypt',
+    type: 'Private Liberal Arts University',
     established: 1919,
     studentsCount: 6500,
     alumniOnPlatform: 78,
-    activeCampaigns: 4
+    activeCampaigns: 4,
   },
   {
-    id: "5",
-    name: "University of Nairobi",
-    location: "Nairobi",
-    country: "Kenya",
-    type: "Public Research University",
+    id: '5',
+    name: 'University of Nairobi',
+    location: 'Nairobi',
+    country: 'Kenya',
+    type: 'Public Research University',
     established: 1956,
     studentsCount: 84000,
     alumniOnPlatform: 145,
-    activeCampaigns: 9
-  }
+    activeCampaigns: 9,
+  },
 ];
 
 // Mock campaign data
 const mockCampaigns: Campaign[] = [
   {
-    id: "1",
-    title: "Engineering Mentorship Circle",
-    description: "Connect engineering students with diaspora professionals for career guidance and project collaboration.",
-    type: "mentorship",
-    university: "University of Lagos",
-    creator: "Dr. Adaora Okafor",
+    id: '1',
+    title: 'Engineering Mentorship Circle',
+    description:
+      'Connect engineering students with diaspora professionals for career guidance and project collaboration.',
+    type: 'mentorship',
+    university: 'University of Lagos',
+    creator: 'Dr. Adaora Okafor',
     participantsCount: 24,
-    status: "active",
-    endDate: new Date(Date.now() + 45 * 24 * 60 * 60 * 1000)
+    status: 'active',
+    endDate: new Date(Date.now() + 45 * 24 * 60 * 60 * 1000),
   },
   {
-    id: "2",
-    title: "Startup Innovation Lab",
-    description: "Fund and mentor student entrepreneurs to develop tech solutions for local challenges.",
-    type: "funding",
-    university: "University of Cape Town",
-    creator: "Prof. Sarah Mitchell",
+    id: '2',
+    title: 'Startup Innovation Lab',
+    description:
+      'Fund and mentor student entrepreneurs to develop tech solutions for local challenges.',
+    type: 'funding',
+    university: 'University of Cape Town',
+    creator: 'Prof. Sarah Mitchell',
     participantsCount: 15,
     goalAmount: 25000,
     raisedAmount: 18500,
-    status: "active",
-    endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+    status: 'active',
+    endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
   },
   {
-    id: "3",
-    title: "Medical Research Collaboration",
-    description: "Joint research project on tropical diseases with international medical professionals.",
-    type: "research",
-    university: "Makerere University",
-    creator: "Dr. James Mukasa",
+    id: '3',
+    title: 'Medical Research Collaboration',
+    description:
+      'Joint research project on tropical diseases with international medical professionals.',
+    type: 'research',
+    university: 'Makerere University',
+    creator: 'Dr. James Mukasa',
     participantsCount: 8,
-    status: "upcoming",
-    endDate: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000)
-  }
+    status: 'upcoming',
+    endDate: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000),
+  },
 ];
 
 interface AlmaMaterConnectionProps {
@@ -152,19 +155,20 @@ interface AlmaMaterConnectionProps {
 
 export function AlmaMaterConnection({ isOpen, onClose }: AlmaMaterConnectionProps) {
   const [step, setStep] = useState(1);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
   const [selectedUniversity, setSelectedUniversity] = useState<University | null>(null);
-  const [connectionType, setConnectionType] = useState<string>("");
+  const [connectionType, setConnectionType] = useState<string>('');
   const [showJoinExistingCampaigns, setShowJoinExistingCampaigns] = useState(false);
 
-  const filteredUniversities = mockUniversities.filter(uni =>
-    uni.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    uni.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    uni.country.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredUniversities = mockUniversities.filter(
+    (uni) =>
+      uni.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      uni.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      uni.country.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   const universityCampaigns = mockCampaigns.filter(
-    campaign => campaign.university === selectedUniversity?.name
+    (campaign) => campaign.university === selectedUniversity?.name,
   );
 
   const handleUniversitySelect = (university: University) => {
@@ -174,7 +178,7 @@ export function AlmaMaterConnection({ isOpen, onClose }: AlmaMaterConnectionProp
 
   const handleConnectionTypeSelect = (type: string) => {
     setConnectionType(type);
-    if (type === "join-existing") {
+    if (type === 'join-existing') {
       setShowJoinExistingCampaigns(true);
     } else {
       // Handle other connection types
@@ -186,10 +190,10 @@ export function AlmaMaterConnection({ isOpen, onClose }: AlmaMaterConnectionProp
     if (!selectedUniversity) return;
 
     switch (type) {
-      case "link-alumni":
+      case 'link-alumni':
         toast.success(`Successfully linked to ${selectedUniversity.name} as alumni!`);
         break;
-      case "nominate":
+      case 'nominate':
         toast.success(`${selectedUniversity.name} has been nominated for partnership!`);
         break;
       default:
@@ -202,8 +206,8 @@ export function AlmaMaterConnection({ isOpen, onClose }: AlmaMaterConnectionProp
   const resetDialog = () => {
     setStep(1);
     setSelectedUniversity(null);
-    setConnectionType("");
-    setSearchQuery("");
+    setConnectionType('');
+    setSearchQuery('');
     setShowJoinExistingCampaigns(false);
   };
 
@@ -219,14 +223,14 @@ export function AlmaMaterConnection({ isOpen, onClose }: AlmaMaterConnectionProp
   return (
     <>
       <Dialog open={isOpen} onOpenChange={handleClose}>
-        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-3xl max-h-[80vh] flex flex-col w-[95vw] sm:w-full">
           <DialogHeader>
             <DialogTitle className="flex items-center space-x-2">
               <School className="h-5 w-5 text-purple-600" />
               <span>Connect to Your Alma Mater</span>
             </DialogTitle>
             <DialogDescription>
-              {step === 1 && "Search and connect to your university to start making an impact"}
+              {step === 1 && 'Search and connect to your university to start making an impact'}
               {step === 2 && `Connect with ${selectedUniversity?.name}`}
             </DialogDescription>
           </DialogHeader>
@@ -251,7 +255,7 @@ export function AlmaMaterConnection({ isOpen, onClose }: AlmaMaterConnectionProp
               <div className="space-y-3 max-h-96 overflow-y-auto">
                 {filteredUniversities.length > 0 ? (
                   filteredUniversities.map((university) => (
-                    <Card 
+                    <Card
                       key={university.id}
                       className="cursor-pointer hover:shadow-md transition-shadow"
                       onClick={() => handleUniversitySelect(university)}
@@ -268,7 +272,9 @@ export function AlmaMaterConnection({ isOpen, onClose }: AlmaMaterConnectionProp
                             <div className="flex items-center space-x-4 text-sm text-gray-600">
                               <div className="flex items-center space-x-1">
                                 <MapPin className="h-3 w-3" />
-                                <span>{university.location}, {university.country}</span>
+                                <span>
+                                  {university.location}, {university.country}
+                                </span>
                               </div>
                               <div className="flex items-center space-x-1">
                                 <Calendar className="h-3 w-3" />
@@ -327,9 +333,9 @@ export function AlmaMaterConnection({ isOpen, onClose }: AlmaMaterConnectionProp
               </Card>
 
               <div className="grid gap-4 md:grid-cols-3">
-                <Card 
+                <Card
                   className="cursor-pointer hover:shadow-md transition-shadow border-2 hover:border-blue-200"
-                  onClick={() => handleConnectionTypeSelect("link-alumni")}
+                  onClick={() => handleConnectionTypeSelect('link-alumni')}
                 >
                   <CardContent className="p-4">
                     <div className="text-center space-y-3">
@@ -344,9 +350,9 @@ export function AlmaMaterConnection({ isOpen, onClose }: AlmaMaterConnectionProp
                   </CardContent>
                 </Card>
 
-                <Card 
+                <Card
                   className="cursor-pointer hover:shadow-md transition-shadow border-2 hover:border-orange-200"
-                  onClick={() => handleConnectionTypeSelect("join-existing")}
+                  onClick={() => handleConnectionTypeSelect('join-existing')}
                 >
                   <CardContent className="p-4">
                     <div className="text-center space-y-3">
@@ -361,9 +367,9 @@ export function AlmaMaterConnection({ isOpen, onClose }: AlmaMaterConnectionProp
                   </CardContent>
                 </Card>
 
-                <Card 
+                <Card
                   className="cursor-pointer hover:shadow-md transition-shadow border-2 hover:border-purple-200"
-                  onClick={() => handleConnectionTypeSelect("nominate")}
+                  onClick={() => handleConnectionTypeSelect('nominate')}
                 >
                   <CardContent className="p-4">
                     <div className="text-center space-y-3">
@@ -393,7 +399,9 @@ export function AlmaMaterConnection({ isOpen, onClose }: AlmaMaterConnectionProp
                           <div className="flex items-start justify-between">
                             <div className="space-y-1">
                               <h5 className="font-medium text-sm">{campaign.title}</h5>
-                              <p className="text-xs text-gray-600 line-clamp-2">{campaign.description}</p>
+                              <p className="text-xs text-gray-600 line-clamp-2">
+                                {campaign.description}
+                              </p>
                               <div className="flex items-center space-x-3 text-xs text-gray-500">
                                 <span>{campaign.participantsCount} participants</span>
                                 <Badge variant="outline" className="text-xs">
@@ -460,10 +468,12 @@ export function AlmaMaterConnection({ isOpen, onClose }: AlmaMaterConnectionProp
                 <Button variant="outline" onClick={() => setStep(1)}>
                   Back to Search
                 </Button>
-                <Button onClick={() => {
-                  toast.success("University added successfully!");
-                  handleClose();
-                }}>
+                <Button
+                  onClick={() => {
+                    toast.success('University added successfully!');
+                    handleClose();
+                  }}
+                >
                   Add University
                 </Button>
               </div>

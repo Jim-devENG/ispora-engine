@@ -1,6 +1,6 @@
 const bcrypt = require('bcryptjs');
 
-exports.seed = async function(knex) {
+exports.seed = async function (knex) {
   // Deletes ALL existing entries
   await knex('users').del();
 
@@ -20,7 +20,8 @@ exports.seed = async function(knex) {
       company: 'Google',
       location: 'San Francisco, CA',
       bio: 'Experienced software engineer with 10+ years in tech. Passionate about mentoring the next generation of developers.',
-      avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+      avatar_url:
+        'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
       linkedin_url: 'https://linkedin.com/in/johnsmith',
       github_url: 'https://github.com/johnsmith',
       user_type: 'mentor',
@@ -35,8 +36,8 @@ exports.seed = async function(knex) {
           degree: 'BS Computer Science',
           institution: 'Stanford University',
           year: '2012',
-          description: 'Focus on Software Engineering and AI'
-        }
+          description: 'Focus on Software Engineering and AI',
+        },
       ]),
       experience: JSON.stringify([
         {
@@ -44,23 +45,23 @@ exports.seed = async function(knex) {
           company: 'Google',
           duration: '2018 - Present',
           description: 'Leading a team of 8 engineers building cloud infrastructure',
-          current: true
+          current: true,
         },
         {
           title: 'Software Engineer',
           company: 'Microsoft',
           duration: '2015 - 2018',
-          description: 'Developed Azure services and APIs'
-        }
+          description: 'Developed Azure services and APIs',
+        },
       ]),
       preferences: JSON.stringify({
         notifications: {
           email: { connections: true, mentorship: true, projects: true },
-          push: { connections: true, mentorship: true, projects: true }
-        }
+          push: { connections: true, mentorship: true, projects: true },
+        },
       }),
       created_at: new Date(),
-      updated_at: new Date()
+      updated_at: new Date(),
     },
     {
       id: '550e8400-e29b-41d4-a716-446655440002',
@@ -73,29 +74,36 @@ exports.seed = async function(knex) {
       company: 'Meta',
       location: 'Seattle, WA',
       bio: 'Product manager with expertise in AI/ML products. Love helping students transition into tech careers.',
-      avatar_url: 'https://images.unsplash.com/photo-1494790108755-2616b2e48f0c?w=150&h=150&fit=crop&crop=face',
+      avatar_url:
+        'https://images.unsplash.com/photo-1494790108755-2616b2e48f0c?w=150&h=150&fit=crop&crop=face',
       linkedin_url: 'https://linkedin.com/in/sarahdavis',
       user_type: 'mentor',
       status: 'active',
       email_verified: true,
       profile_completed: true,
       is_online: false,
-      skills: JSON.stringify(['Product Management', 'Data Analysis', 'Machine Learning', 'Strategy', 'Leadership']),
+      skills: JSON.stringify([
+        'Product Management',
+        'Data Analysis',
+        'Machine Learning',
+        'Strategy',
+        'Leadership',
+      ]),
       interests: JSON.stringify(['AI/ML', 'Product Strategy', 'User Research', 'Mentoring']),
       education: JSON.stringify([
         {
           degree: 'MBA',
           institution: 'Harvard Business School',
-          year: '2016'
+          year: '2016',
         },
         {
           degree: 'BS Mathematics',
           institution: 'MIT',
-          year: '2014'
-        }
+          year: '2014',
+        },
       ]),
       created_at: new Date(),
-      updated_at: new Date()
+      updated_at: new Date(),
     },
     // Students
     {
@@ -109,7 +117,8 @@ exports.seed = async function(knex) {
       company: 'University of California, Berkeley',
       location: 'Berkeley, CA',
       bio: 'CS student passionate about web development and machine learning. Looking for mentorship in software engineering.',
-      avatar_url: 'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?w=150&h=150&fit=crop&crop=face',
+      avatar_url:
+        'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?w=150&h=150&fit=crop&crop=face',
       user_type: 'student',
       status: 'active',
       email_verified: true,
@@ -122,11 +131,11 @@ exports.seed = async function(knex) {
           degree: 'BS Computer Science (Expected)',
           institution: 'UC Berkeley',
           year: '2025',
-          description: 'Focus on Software Engineering and AI'
-        }
+          description: 'Focus on Software Engineering and AI',
+        },
       ]),
       created_at: new Date(),
-      updated_at: new Date()
+      updated_at: new Date(),
     },
     {
       id: '550e8400-e29b-41d4-a716-446655440004',
@@ -139,24 +148,31 @@ exports.seed = async function(knex) {
       company: 'Stanford University',
       location: 'Palo Alto, CA',
       bio: 'Graduate student in Data Science. Interested in applying ML to healthcare and social impact projects.',
-      avatar_url: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
+      avatar_url:
+        'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
       user_type: 'student',
       status: 'active',
       email_verified: true,
       profile_completed: true,
       is_online: false,
-      skills: JSON.stringify(['Python', 'R', 'Machine Learning', 'Statistics', 'Data Visualization']),
+      skills: JSON.stringify([
+        'Python',
+        'R',
+        'Machine Learning',
+        'Statistics',
+        'Data Visualization',
+      ]),
       interests: JSON.stringify(['Data Science', 'Healthcare', 'Social Impact', 'Research']),
       education: JSON.stringify([
         {
           degree: 'MS Data Science (Current)',
           institution: 'Stanford University',
           year: '2024',
-          description: 'Focus on Healthcare Applications of ML'
-        }
+          description: 'Focus on Healthcare Applications of ML',
+        },
       ]),
       created_at: new Date(),
-      updated_at: new Date()
+      updated_at: new Date(),
     },
     // Organizations
     {
@@ -175,10 +191,15 @@ exports.seed = async function(knex) {
       email_verified: true,
       profile_completed: true,
       is_online: true,
-      skills: JSON.stringify(['Program Management', 'Talent Acquisition', 'Innovation', 'Startups']),
+      skills: JSON.stringify([
+        'Program Management',
+        'Talent Acquisition',
+        'Innovation',
+        'Startups',
+      ]),
       interests: JSON.stringify(['Startups', 'Innovation', 'Talent Development', 'Technology']),
       created_at: new Date(),
-      updated_at: new Date()
+      updated_at: new Date(),
     },
     // Alumni
     {
@@ -192,7 +213,8 @@ exports.seed = async function(knex) {
       company: 'Chen Ventures',
       location: 'New York, NY',
       bio: 'Serial entrepreneur and UC Berkeley alumnus. Founded 3 successful startups and now invest in early-stage companies.',
-      avatar_url: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
+      avatar_url:
+        'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
       linkedin_url: 'https://linkedin.com/in/davidchen',
       website_url: 'https://chenventures.com',
       user_type: 'mentor',
@@ -200,23 +222,35 @@ exports.seed = async function(knex) {
       email_verified: true,
       profile_completed: true,
       is_online: false,
-      skills: JSON.stringify(['Entrepreneurship', 'Investment', 'Strategy', 'Leadership', 'Business Development']),
-      interests: JSON.stringify(['Startups', 'Investment', 'Innovation', 'Mentoring', 'Technology']),
+      skills: JSON.stringify([
+        'Entrepreneurship',
+        'Investment',
+        'Strategy',
+        'Leadership',
+        'Business Development',
+      ]),
+      interests: JSON.stringify([
+        'Startups',
+        'Investment',
+        'Innovation',
+        'Mentoring',
+        'Technology',
+      ]),
       education: JSON.stringify([
         {
           degree: 'MBA',
           institution: 'UC Berkeley Haas',
-          year: '2015'
+          year: '2015',
         },
         {
           degree: 'BS Engineering',
           institution: 'UC Berkeley',
-          year: '2013'
-        }
+          year: '2013',
+        },
       ]),
       created_at: new Date(),
-      updated_at: new Date()
-    }
+      updated_at: new Date(),
+    },
   ];
 
   await knex('users').insert(users);

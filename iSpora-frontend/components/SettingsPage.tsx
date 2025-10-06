@@ -1,19 +1,19 @@
-import React, { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import { Switch } from "./ui/switch";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { Separator } from "./ui/separator";
-import { Badge } from "./ui/badge";
-import { useTheme } from "./ThemeProvider";
-import { 
-  Settings, 
-  Bell, 
-  Lock, 
-  Palette, 
-  Globe, 
+import React, { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Label } from './ui/label';
+import { Switch } from './ui/switch';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import { Separator } from './ui/separator';
+import { Badge } from './ui/badge';
+import { useTheme } from './ThemeProvider';
+import {
+  Settings,
+  Bell,
+  Lock,
+  Palette,
+  Globe,
   Shield,
   Eye,
   Mail,
@@ -22,13 +22,13 @@ import {
   Moon,
   Sun,
   Monitor,
-  Check
-} from "lucide-react";
-import { DashboardHeader } from "./DashboardHeader";
+  Check,
+} from 'lucide-react';
+import { DashboardHeader } from './DashboardHeader';
 
 export function SettingsPage() {
   const { theme, setTheme } = useTheme();
-  
+
   const [settings, setSettings] = useState({
     // Notifications
     emailNotifications: true,
@@ -37,62 +37,59 @@ export function SettingsPage() {
     mentorshipRequests: true,
     systemUpdates: false,
     marketingEmails: false,
-    
+
     // Privacy
-    profileVisibility: "public",
+    profileVisibility: 'public',
     showEmail: false,
     showPhone: false,
     allowMessages: true,
     showOnlineStatus: true,
-    
+
     // Appearance
     compactMode: false,
     highContrast: false,
-    
+
     // Account
     twoFactorEnabled: false,
     loginAlerts: true,
-    dataExport: false
+    dataExport: false,
   });
 
   const handleSettingChange = (key: string, value: any) => {
-    setSettings(prev => ({
+    setSettings((prev) => ({
       ...prev,
-      [key]: value
+      [key]: value,
     }));
   };
 
   const themeOptions = [
     {
-      value: "light",
-      label: "Light",
+      value: 'light',
+      label: 'Light',
       icon: Sun,
-      description: "Light theme",
-      iconColor: "text-yellow-500"
+      description: 'Light theme',
+      iconColor: 'text-yellow-500',
     },
     {
-      value: "dark",
-      label: "Dark", 
+      value: 'dark',
+      label: 'Dark',
       icon: Moon,
-      description: "Dark theme",
-      iconColor: "text-blue-500"
+      description: 'Dark theme',
+      iconColor: 'text-blue-500',
     },
     {
-      value: "system",
-      label: "System",
+      value: 'system',
+      label: 'System',
       icon: Monitor,
-      description: "Use system preference",
-      iconColor: "text-gray-500"
-    }
+      description: 'Use system preference',
+      iconColor: 'text-gray-500',
+    },
   ];
 
   return (
     <div className="h-full flex flex-col">
-      <DashboardHeader 
-        userName="John" 
-        userTitle="Manage your application settings"
-      />
-      
+      <DashboardHeader userName="John" userTitle="Manage your application settings" />
+
       <div className="flex-1 p-6 space-y-6 overflow-y-auto">
         {/* Page Header */}
         <div className="flex items-center justify-between">
@@ -128,7 +125,9 @@ export function SettingsPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="font-medium">Campaign Updates</p>
-                    <p className="text-sm text-muted-foreground">Get notified when campaigns you're involved in have updates</p>
+                    <p className="text-sm text-muted-foreground">
+                      Get notified when campaigns you're involved in have updates
+                    </p>
                   </div>
                   <Switch
                     checked={settings.campaignUpdates}
@@ -139,7 +138,9 @@ export function SettingsPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="font-medium">Mentorship Requests</p>
-                    <p className="text-sm text-muted-foreground">Receive emails when someone requests mentorship</p>
+                    <p className="text-sm text-muted-foreground">
+                      Receive emails when someone requests mentorship
+                    </p>
                   </div>
                   <Switch
                     checked={settings.mentorshipRequests}
@@ -150,7 +151,9 @@ export function SettingsPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="font-medium">System Updates</p>
-                    <p className="text-sm text-muted-foreground">Important system announcements and maintenance notices</p>
+                    <p className="text-sm text-muted-foreground">
+                      Important system announcements and maintenance notices
+                    </p>
                   </div>
                   <Switch
                     checked={settings.systemUpdates}
@@ -161,7 +164,9 @@ export function SettingsPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="font-medium">Marketing Communications</p>
-                    <p className="text-sm text-muted-foreground">Product updates, tips, and promotional content</p>
+                    <p className="text-sm text-muted-foreground">
+                      Product updates, tips, and promotional content
+                    </p>
                   </div>
                   <Switch
                     checked={settings.marketingEmails}
@@ -177,15 +182,15 @@ export function SettingsPage() {
                   <Smartphone className="h-5 w-5" />
                   <span>Push Notifications</span>
                 </CardTitle>
-                <CardDescription>
-                  Control push notifications for the web app
-                </CardDescription>
+                <CardDescription>Control push notifications for the web app</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="font-medium">Enable Push Notifications</p>
-                    <p className="text-sm text-muted-foreground">Allow Aspora to send push notifications</p>
+                    <p className="text-sm text-muted-foreground">
+                      Allow Aspora to send push notifications
+                    </p>
                   </div>
                   <Switch
                     checked={settings.pushNotifications}
@@ -198,10 +203,7 @@ export function SettingsPage() {
                     <p className="font-medium">Sound</p>
                     <p className="text-sm text-muted-foreground">Play notification sounds</p>
                   </div>
-                  <Switch
-                    checked={true}
-                    onCheckedChange={() => {}}
-                  />
+                  <Switch checked={true} onCheckedChange={() => {}} />
                 </div>
               </CardContent>
             </Card>
@@ -215,15 +217,15 @@ export function SettingsPage() {
                   <Eye className="h-5 w-5" />
                   <span>Profile Visibility</span>
                 </CardTitle>
-                <CardDescription>
-                  Control who can see your profile information
-                </CardDescription>
+                <CardDescription>Control who can see your profile information</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="font-medium">Show Email Address</p>
-                    <p className="text-sm text-muted-foreground">Allow other users to see your email</p>
+                    <p className="text-sm text-muted-foreground">
+                      Allow other users to see your email
+                    </p>
                   </div>
                   <Switch
                     checked={settings.showEmail}
@@ -234,7 +236,9 @@ export function SettingsPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="font-medium">Show Phone Number</p>
-                    <p className="text-sm text-muted-foreground">Allow other users to see your phone number</p>
+                    <p className="text-sm text-muted-foreground">
+                      Allow other users to see your phone number
+                    </p>
                   </div>
                   <Switch
                     checked={settings.showPhone}
@@ -245,7 +249,9 @@ export function SettingsPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="font-medium">Allow Direct Messages</p>
-                    <p className="text-sm text-muted-foreground">Let other users send you direct messages</p>
+                    <p className="text-sm text-muted-foreground">
+                      Let other users send you direct messages
+                    </p>
                   </div>
                   <Switch
                     checked={settings.allowMessages}
@@ -256,7 +262,9 @@ export function SettingsPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="font-medium">Show Online Status</p>
-                    <p className="text-sm text-muted-foreground">Let others see when you're online</p>
+                    <p className="text-sm text-muted-foreground">
+                      Let others see when you're online
+                    </p>
                   </div>
                   <Switch
                     checked={settings.showOnlineStatus}
@@ -272,16 +280,16 @@ export function SettingsPage() {
                   <Shield className="h-5 w-5" />
                   <span>Data & Privacy</span>
                 </CardTitle>
-                <CardDescription>
-                  Manage your data and privacy preferences
-                </CardDescription>
+                <CardDescription>Manage your data and privacy preferences</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="font-medium">Data Processing</p>
-                      <p className="text-sm text-muted-foreground">Allow Aspora to process your data for better recommendations</p>
+                      <p className="text-sm text-muted-foreground">
+                        Allow Aspora to process your data for better recommendations
+                      </p>
                     </div>
                     <Badge variant="outline">Enabled</Badge>
                   </div>
@@ -289,7 +297,9 @@ export function SettingsPage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="font-medium">Analytics</p>
-                      <p className="text-sm text-muted-foreground">Help improve Aspora by sharing usage analytics</p>
+                      <p className="text-sm text-muted-foreground">
+                        Help improve Aspora by sharing usage analytics
+                      </p>
                     </div>
                     <Badge variant="outline">Enabled</Badge>
                   </div>
@@ -319,14 +329,14 @@ export function SettingsPage() {
                   {themeOptions.map((option) => {
                     const Icon = option.icon;
                     const isSelected = theme === option.value;
-                    
+
                     return (
                       <div key={option.value} className="text-center space-y-2">
                         <button
                           onClick={() => setTheme(option.value as any)}
                           className={`relative w-full p-4 border-2 rounded-lg cursor-pointer transition-all hover:bg-gray-50 dark:hover:bg-gray-800 ${
-                            isSelected 
-                              ? 'border-[#021ff6] bg-blue-50 dark:bg-blue-950' 
+                            isSelected
+                              ? 'border-[#021ff6] bg-blue-50 dark:bg-blue-950'
                               : 'border-gray-200 dark:border-gray-700'
                           }`}
                         >
@@ -347,8 +357,9 @@ export function SettingsPage() {
                 </div>
                 <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-950 rounded-lg">
                   <p className="text-sm text-blue-800 dark:text-blue-200">
-                    <strong>Current selection:</strong> {themeOptions.find(opt => opt.value === theme)?.label}
-                    {theme === "system" && " (follows your device's preference)"}
+                    <strong>Current selection:</strong>{' '}
+                    {themeOptions.find((opt) => opt.value === theme)?.label}
+                    {theme === 'system' && " (follows your device's preference)"}
                   </p>
                 </div>
               </CardContent>
@@ -357,15 +368,15 @@ export function SettingsPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Display Options</CardTitle>
-                <CardDescription>
-                  Adjust display settings for better accessibility
-                </CardDescription>
+                <CardDescription>Adjust display settings for better accessibility</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="font-medium">Compact Mode</p>
-                    <p className="text-sm text-muted-foreground">Use less space for interface elements</p>
+                    <p className="text-sm text-muted-foreground">
+                      Use less space for interface elements
+                    </p>
                   </div>
                   <Switch
                     checked={settings.compactMode}
@@ -376,7 +387,9 @@ export function SettingsPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="font-medium">High Contrast</p>
-                    <p className="text-sm text-muted-foreground">Increase contrast for better visibility</p>
+                    <p className="text-sm text-muted-foreground">
+                      Increase contrast for better visibility
+                    </p>
                   </div>
                   <Switch
                     checked={settings.highContrast}
@@ -395,18 +408,20 @@ export function SettingsPage() {
                   <Lock className="h-5 w-5" />
                   <span>Security</span>
                 </CardTitle>
-                <CardDescription>
-                  Manage your account security settings
-                </CardDescription>
+                <CardDescription>Manage your account security settings</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="font-medium">Two-Factor Authentication</p>
-                    <p className="text-sm text-muted-foreground">Add an extra layer of security to your account</p>
+                    <p className="text-sm text-muted-foreground">
+                      Add an extra layer of security to your account
+                    </p>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <Badge variant="outline" className="text-red-600">Disabled</Badge>
+                    <Badge variant="outline" className="text-red-600">
+                      Disabled
+                    </Badge>
                     <Button size="sm">Setup</Button>
                   </div>
                 </div>
@@ -414,7 +429,9 @@ export function SettingsPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="font-medium">Login Alerts</p>
-                    <p className="text-sm text-muted-foreground">Get notified of new login attempts</p>
+                    <p className="text-sm text-muted-foreground">
+                      Get notified of new login attempts
+                    </p>
                   </div>
                   <Switch
                     checked={settings.loginAlerts}
@@ -427,9 +444,7 @@ export function SettingsPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Account Management</CardTitle>
-                <CardDescription>
-                  Manage your account and data
-                </CardDescription>
+                <CardDescription>Manage your account and data</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <Button variant="outline" className="w-full">

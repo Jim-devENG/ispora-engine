@@ -18,7 +18,7 @@ const POINT_VALUES = {
   CHALLENGE_WIN: 1000,
   REFERRAL_SUCCESS: 500,
   BADGE_EARNED: 100,
-  LEVEL_UP_BONUS: 200
+  LEVEL_UP_BONUS: 200,
 };
 
 // Level configuration
@@ -37,7 +37,7 @@ const LEVEL_CONFIG = {
   12: { points_required: 7000, bonus_points: 600 },
   13: { points_required: 9000, bonus_points: 700 },
   14: { points_required: 12000, bonus_points: 800 },
-  15: { points_required: 15000, bonus_points: 1000 }
+  15: { points_required: 15000, bonus_points: 1000 },
 };
 
 // Get user's credit dashboard
@@ -46,16 +46,12 @@ router.get('/dashboard', protect, async (req, res) => {
     const userId = req.user.id;
 
     // Get user credits
-    const userCredits = await knex('user_credits')
-      .where('user_id', userId)
-      .first();
+    const userCredits = await knex('user_credits').where('user_id', userId).first();
 
     if (!userCredits) {
       // Initialize credits for new user
       await initializeUserCredits(userId);
-      const newCredits = await knex('user_credits')
-        .where('user_id', userId)
-        .first();
+      const newCredits = await knex('user_credits').where('user_id', userId).first();
       return res.json(transformCreditsData(newCredits));
     }
 
@@ -85,7 +81,7 @@ router.get('/dashboard', protect, async (req, res) => {
       nextLevelPoints: Math.max(0, pointsToNextLevel),
       recentTransactions: recentTransactions.map(transformTransaction),
       recentBadges: earnedBadges.map(transformBadge),
-      levelConfig: LEVEL_CONFIG
+      levelConfig: LEVEL_CONFIG,
     };
 
     res.json(dashboardData);
@@ -105,9 +101,7 @@ router.get('/stats', protect, async (req, res) => {
     startDate.setDate(startDate.getDate() - parseInt(period));
 
     // Get user credits
-    const userCredits = await knex('user_credits')
-      .where('user_id', userId)
-      .first();
+    const userCredits = await knex('user_credits').where('user_id', userId).first();
 
     if (!userCredits) {
       return res.status(404).json({ error: 'User credits not found' });
@@ -125,10 +119,7 @@ router.get('/stats', protect, async (req, res) => {
 
     // Get daily points for chart
     const dailyPoints = await knex('credit_transactions')
-      .select(
-        knex.raw("DATE_TRUNC('day', created_at) as date"),
-        knex.raw('SUM(points) as points')
-      )
+      .select(knex.raw("DATE_TRUNC('day', created_at) as date"), knex.raw('SUM(points) as points'))
       .where('user_id', userId)
       .where('created_at', '>=', startDate)
       .where('points', '>', 0)
@@ -149,14 +140,14 @@ router.get('/stats', protect, async (req, res) => {
       longestStreak: userCredits.longest_streak,
       monthlyPoints: userCredits.monthly_points,
       weeklyPoints: userCredits.weekly_points,
-      periodStats: periodStats.map(stat => ({
+      periodStats: periodStats.map((stat) => ({
         activityType: stat.activity_type,
         totalPoints: parseInt(stat.total_points),
-        count: parseInt(stat.count)
+        count: parseInt(stat.count),
       })),
       dailyPoints,
       leaderboardRank: leaderboardPosition?.rank || null,
-      period: parseInt(period)
+      period: parseInt(period),
     });
   } catch (error) {
     console.error('Error fetching credit stats:', error);
@@ -171,9 +162,7 @@ router.get('/transactions', protect, async (req, res) => {
     const offset = (page - 1) * limit;
     const userId = req.user.id;
 
-    let query = knex('credit_transactions')
-      .where('user_id', userId)
-      .orderBy('created_at', 'desc');
+    let query = knex('credit_transactions').where('user_id', userId).orderBy('created_at', 'desc');
 
     if (type) {
       query = query.where('transaction_type', type);
@@ -196,8 +185,8 @@ router.get('/transactions', protect, async (req, res) => {
         page: parseInt(page),
         limit: parseInt(limit),
         total: parseInt(total),
-        pages: Math.ceil(total / limit)
-      }
+        pages: Math.ceil(total / limit),
+      },
     });
   } catch (error) {
     console.error('Error fetching transactions:', error);
@@ -216,7 +205,7 @@ router.post('/award', protect, async (req, res) => {
       related_project_id,
       related_user_id,
       related_opportunity_id,
-      metadata
+      metadata,
     } = req.body;
 
     if (!user_id || !activity_type || !points || !description) {
@@ -230,15 +219,11 @@ router.post('/award', protect, async (req, res) => {
     }
 
     // Get or create user credits
-    let userCredits = await knex('user_credits')
-      .where('user_id', user_id)
-      .first();
+    let userCredits = await knex('user_credits').where('user_id', user_id).first();
 
     if (!userCredits) {
       await initializeUserCredits(user_id);
-      userCredits = await knex('user_credits')
-        .where('user_id', user_id)
-        .first();
+      userCredits = await knex('user_credits').where('user_id', user_id).first();
     }
 
     // Create transaction
@@ -254,14 +239,14 @@ router.post('/award', protect, async (req, res) => {
         related_opportunity_id,
         metadata: JSON.stringify(metadata),
         source: 'system',
-        level_before: userCredits.current_level
+        level_before: userCredits.current_level,
       })
       .returning('*');
 
     // Update user credits
     const newTotalPoints = userCredits.total_points + points;
     const levelInfo = calculateLevel(newTotalPoints);
-    
+
     const updatedCredits = await knex('user_credits')
       .where('user_id', user_id)
       .update({
@@ -272,7 +257,7 @@ router.post('/award', protect, async (req, res) => {
         monthly_points: userCredits.monthly_points + points,
         weekly_points: userCredits.weekly_points + points,
         total_contributions: userCredits.total_contributions + 1,
-        updated_at: knex.fn.now()
+        updated_at: knex.fn.now(),
       })
       .returning('*');
 
@@ -281,24 +266,23 @@ router.post('/award', protect, async (req, res) => {
       // Award level up bonus
       const bonusPoints = LEVEL_CONFIG[levelInfo.level]?.bonus_points || 0;
       if (bonusPoints > 0) {
-        await knex('credit_transactions')
-          .insert({
-            user_id,
-            transaction_type: 'bonus',
-            activity_type: 'level_up',
-            points: bonusPoints,
-            description: `Level ${levelInfo.level} bonus`,
-            source: 'system',
-            is_bonus: true,
-            level_up: true
-          });
+        await knex('credit_transactions').insert({
+          user_id,
+          transaction_type: 'bonus',
+          activity_type: 'level_up',
+          points: bonusPoints,
+          description: `Level ${levelInfo.level} bonus`,
+          source: 'system',
+          is_bonus: true,
+          level_up: true,
+        });
 
         // Update credits with bonus
         await knex('user_credits')
           .where('user_id', user_id)
           .update({
             total_points: newTotalPoints + bonusPoints,
-            last_level_up: knex.fn.now()
+            last_level_up: knex.fn.now(),
           });
       }
     }
@@ -309,7 +293,7 @@ router.post('/award', protect, async (req, res) => {
     res.json({
       transaction: transformTransaction(transaction[0]),
       credits: transformCreditsData(updatedCredits[0]),
-      levelUp: levelInfo.level > userCredits.current_level
+      levelUp: levelInfo.level > userCredits.current_level,
     });
   } catch (error) {
     console.error('Error awarding points:', error);
@@ -331,7 +315,7 @@ router.get('/leaderboard', protect, async (req, res) => {
         'u.username',
         'u.avatar_url',
         'u.location',
-        'u.university'
+        'u.university',
       )
       .join('users as u', 'l.user_id', 'u.id')
       .where('l.period', period)
@@ -351,20 +335,20 @@ router.get('/leaderboard', protect, async (req, res) => {
     const leaderboard = await query.limit(parseInt(limit));
 
     // Add current user indicator
-    const transformedLeaderboard = leaderboard.map(entry => ({
+    const transformedLeaderboard = leaderboard.map((entry) => ({
       rank: entry.rank,
       user: {
         name: `${entry.first_name} ${entry.last_name}`.trim() || entry.username,
         avatar: entry.avatar_url,
         location: entry.location,
-        university: entry.university
+        university: entry.university,
       },
       points: entry.points,
       level: entry.level,
       badges: entry.badges_count,
       change: entry.change_direction,
       changeValue: entry.change_value,
-      isCurrentUser: entry.user_id === userId
+      isCurrentUser: entry.user_id === userId,
     }));
 
     res.json(transformedLeaderboard);
@@ -393,7 +377,7 @@ async function initializeUserCredits(userId) {
     social_shares: 0,
     challenges_won: 0,
     referrals_successful: 0,
-    level_config: JSON.stringify(LEVEL_CONFIG)
+    level_config: JSON.stringify(LEVEL_CONFIG),
   });
 }
 
@@ -416,9 +400,14 @@ function calculateLevel(totalPoints) {
     }
   }
 
-  const progress = pointsToNext > 0 ? 
-    Math.round(((LEVEL_CONFIG[level + 1]?.points_required - totalPoints) / 
-    (LEVEL_CONFIG[level + 1]?.points_required - LEVEL_CONFIG[level]?.points_required)) * 100) : 100;
+  const progress =
+    pointsToNext > 0
+      ? Math.round(
+          ((LEVEL_CONFIG[level + 1]?.points_required - totalPoints) /
+            (LEVEL_CONFIG[level + 1]?.points_required - LEVEL_CONFIG[level]?.points_required)) *
+            100,
+        )
+      : 100;
 
   return { level, progress, pointsToNext };
 }
@@ -443,10 +432,7 @@ async function updateLeaderboard(userId) {
   const rank = parseInt(higherRankedUsers.count) + 1;
 
   // Update or insert leaderboard entry
-  await knex('leaderboard')
-    .where('user_id', userId)
-    .where('period', 'all_time')
-    .del();
+  await knex('leaderboard').where('user_id', userId).where('period', 'all_time').del();
 
   await knex('leaderboard').insert({
     user_id: userId,
@@ -457,7 +443,7 @@ async function updateLeaderboard(userId) {
     period: 'all_time',
     monthly_points: userCredits.monthly_points,
     weekly_points: userCredits.weekly_points,
-    daily_points: 0 // This would be calculated separately
+    daily_points: 0, // This would be calculated separately
   });
 }
 
@@ -477,7 +463,7 @@ function transformCreditsData(credits) {
     opportunitiesShared: credits.opportunities_shared,
     socialShares: credits.social_shares,
     challengesWon: credits.challenges_won,
-    referralsSuccessful: credits.referrals_successful
+    referralsSuccessful: credits.referrals_successful,
   };
 }
 
@@ -492,7 +478,7 @@ function transformTransaction(transaction) {
     isPenalty: transaction.is_penalty,
     levelUp: transaction.level_up,
     createdAt: transaction.created_at,
-    metadata: transaction.metadata ? JSON.parse(transaction.metadata) : null
+    metadata: transaction.metadata ? JSON.parse(transaction.metadata) : null,
   };
 }
 
@@ -509,7 +495,7 @@ function transformBadge(badge) {
     rarity: badge.rarity,
     earned: badge.earned,
     earnedDate: badge.earned_date,
-    progress: badge.progress
+    progress: badge.progress,
   };
 }
 

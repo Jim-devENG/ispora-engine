@@ -1,21 +1,28 @@
-import React, { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
-import { Button } from "./ui/button";
-import { Badge } from "./ui/badge";
-import { Progress } from "./ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { Separator } from "./ui/separator";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { AdminInviteDialog } from "./AdminInviteDialog";
-import { 
+import React, { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import { Button } from './ui/button';
+import { Badge } from './ui/badge';
+import { Progress } from './ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import { Separator } from './ui/separator';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from './ui/dialog';
+import { Input } from './ui/input';
+import { Label } from './ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { AdminInviteDialog } from './AdminInviteDialog';
+import {
   ArrowLeft,
-  Users, 
-  Target, 
-  Calendar, 
+  Users,
+  Target,
+  Calendar,
   MapPin,
   DollarSign,
   BookOpen,
@@ -39,17 +46,23 @@ import {
   Mail,
   Crown,
   UserCheck,
-  MoreHorizontal
-} from "lucide-react";
-import { DashboardHeader } from "./DashboardHeader";
-import { useNavigation } from "./NavigationContext";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "./ui/dropdown-menu";
+  MoreHorizontal,
+} from 'lucide-react';
+import { DashboardHeader } from './DashboardHeader';
+import { useNavigation } from './NavigationContext';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from './ui/dropdown-menu';
 
 export function CampaignDetail() {
   const { selectedCampaign, navigate } = useNavigation();
   const [isParticipant, setIsParticipant] = useState(false);
   const [isFavorited, setIsFavorited] = useState(false);
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState('overview');
   const [showInviteDialog, setShowInviteDialog] = useState(false);
 
   if (!selectedCampaign) {
@@ -72,20 +85,20 @@ export function CampaignDetail() {
     mentorship: <Users className="h-5 w-5" />,
     funding: <DollarSign className="h-5 w-5" />,
     research: <BookOpen className="h-5 w-5" />,
-    project: <Lightbulb className="h-5 w-5" />
+    project: <Lightbulb className="h-5 w-5" />,
   };
 
   const campaignTypeColors = {
-    mentorship: "bg-blue-100 text-blue-800",
-    funding: "bg-green-100 text-green-800", 
-    research: "bg-purple-100 text-purple-800",
-    project: "bg-orange-100 text-orange-800"
+    mentorship: 'bg-blue-100 text-blue-800',
+    funding: 'bg-green-100 text-green-800',
+    research: 'bg-purple-100 text-purple-800',
+    project: 'bg-orange-100 text-orange-800',
   };
 
   const statusColors = {
-    active: "bg-green-100 text-green-800",
-    upcoming: "bg-yellow-100 text-yellow-800",
-    completed: "bg-gray-100 text-gray-800"
+    active: 'bg-green-100 text-green-800',
+    upcoming: 'bg-yellow-100 text-yellow-800',
+    completed: 'bg-gray-100 text-gray-800',
   };
 
   const handleJoinLeave = () => {
@@ -111,66 +124,117 @@ export function CampaignDetail() {
 
   // Mock data with multiple admins
   const mockAdmins = [
-    { id: "1", name: campaign.admin || "Dr. Amina Hassan", role: "Primary Admin", avatar: "/api/placeholder/40/40", university: campaign.university, joinedDate: "Primary Admin" },
-    { id: "2", name: "Prof. Sarah Mitchell", role: "Admin", avatar: "/api/placeholder/40/40", university: "MIT", joinedDate: "Promoted 2 weeks ago" }
+    {
+      id: '1',
+      name: campaign.admin || 'Dr. Amina Hassan',
+      role: 'Primary Admin',
+      avatar: '/api/placeholder/40/40',
+      university: campaign.university,
+      joinedDate: 'Primary Admin',
+    },
+    {
+      id: '2',
+      name: 'Prof. Sarah Mitchell',
+      role: 'Admin',
+      avatar: '/api/placeholder/40/40',
+      university: 'MIT',
+      joinedDate: 'Promoted 2 weeks ago',
+    },
   ];
 
   const mockParticipants = [
-    { id: "3", name: "Ahmed Hassan", role: "Student", avatar: "/api/placeholder/40/40", university: "University of Lagos", canPromote: true },
-    { id: "4", name: "Maria Rodriguez", role: "Student", avatar: "/api/placeholder/40/40", university: "University of Lagos", canPromote: true },
-    { id: "5", name: "Dr. Kumar Patel", role: "Mentor", avatar: "/api/placeholder/40/40", university: "IIT Delhi", canPromote: true },
-    { id: "6", name: "Elena Petrova", role: "Researcher", avatar: "/api/placeholder/40/40", university: "Oxford University", canPromote: true },
-    { id: "7", name: "James Wilson", role: "Industry Expert", avatar: "/api/placeholder/40/40", university: "Stanford University", canPromote: true }
+    {
+      id: '3',
+      name: 'Ahmed Hassan',
+      role: 'Student',
+      avatar: '/api/placeholder/40/40',
+      university: 'University of Lagos',
+      canPromote: true,
+    },
+    {
+      id: '4',
+      name: 'Maria Rodriguez',
+      role: 'Student',
+      avatar: '/api/placeholder/40/40',
+      university: 'University of Lagos',
+      canPromote: true,
+    },
+    {
+      id: '5',
+      name: 'Dr. Kumar Patel',
+      role: 'Mentor',
+      avatar: '/api/placeholder/40/40',
+      university: 'IIT Delhi',
+      canPromote: true,
+    },
+    {
+      id: '6',
+      name: 'Elena Petrova',
+      role: 'Researcher',
+      avatar: '/api/placeholder/40/40',
+      university: 'Oxford University',
+      canPromote: true,
+    },
+    {
+      id: '7',
+      name: 'James Wilson',
+      role: 'Industry Expert',
+      avatar: '/api/placeholder/40/40',
+      university: 'Stanford University',
+      canPromote: true,
+    },
   ];
 
   const mockUpdates = [
     {
-      id: "1",
-      title: "New Mentorship Session Scheduled",
-      content: "We've scheduled a group mentorship session for next Friday at 3 PM GMT. All participants will receive calendar invites.",
-      author: "Dr. Amina Hassan",
-      timestamp: "2 hours ago",
-      type: "announcement"
+      id: '1',
+      title: 'New Mentorship Session Scheduled',
+      content:
+        "We've scheduled a group mentorship session for next Friday at 3 PM GMT. All participants will receive calendar invites.",
+      author: 'Dr. Amina Hassan',
+      timestamp: '2 hours ago',
+      type: 'announcement',
     },
     {
-      id: "2",
-      title: "Milestone Achievement",
-      content: "We've reached 48% of our participant target! Thank you to everyone who has joined so far.",
-      author: "Prof. Sarah Mitchell",
-      timestamp: "1 day ago",
-      type: "milestone"
+      id: '2',
+      title: 'Milestone Achievement',
+      content:
+        "We've reached 48% of our participant target! Thank you to everyone who has joined so far.",
+      author: 'Prof. Sarah Mitchell',
+      timestamp: '1 day ago',
+      type: 'milestone',
     },
     {
-      id: "3",
-      title: "Resource Library Updated",
-      content: "New career development resources have been added to our shared library. Check out the latest guides and templates.",
-      author: "Dr. Amina Hassan", 
-      timestamp: "3 days ago",
-      type: "resource"
-    }
+      id: '3',
+      title: 'Resource Library Updated',
+      content:
+        'New career development resources have been added to our shared library. Check out the latest guides and templates.',
+      author: 'Dr. Amina Hassan',
+      timestamp: '3 days ago',
+      type: 'resource',
+    },
   ];
 
   const mockResources = [
-    { id: "1", name: "Engineering Career Guide 2024", type: "PDF", size: "2.4 MB", downloads: 45 },
-    { id: "2", name: "Resume Template", type: "DOCX", size: "156 KB", downloads: 78 },
-    { id: "3", name: "Interview Preparation Checklist", type: "PDF", size: "890 KB", downloads: 62 },
-    { id: "4", name: "Networking Best Practices", type: "PDF", size: "1.2 MB", downloads: 34 }
+    { id: '1', name: 'Engineering Career Guide 2024', type: 'PDF', size: '2.4 MB', downloads: 45 },
+    { id: '2', name: 'Resume Template', type: 'DOCX', size: '156 KB', downloads: 78 },
+    {
+      id: '3',
+      name: 'Interview Preparation Checklist',
+      type: 'PDF',
+      size: '890 KB',
+      downloads: 62,
+    },
+    { id: '4', name: 'Networking Best Practices', type: 'PDF', size: '1.2 MB', downloads: 34 },
   ];
 
   return (
     <div className="h-full flex flex-col">
-      <DashboardHeader 
-        userName="Dr. Amina" 
-        userTitle={`Campaign: ${campaign.title}`}
-      />
-      
+      <DashboardHeader userName="Dr. Amina" userTitle={`Campaign: ${campaign.title}`} />
+
       <div className="flex-1 p-6 space-y-6 overflow-y-auto">
         {/* Back Navigation */}
-        <Button 
-          variant="ghost" 
-          onClick={() => navigate('Alma Mater')}
-          className="mb-4"
-        >
+        <Button variant="ghost" onClick={() => navigate('Alma Mater')} className="mb-4">
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Alma Mater
         </Button>
@@ -189,16 +253,16 @@ export function CampaignDetail() {
                         <span className="ml-1 capitalize">{campaign.type}</span>
                       </Badge>
                       <Badge variant="outline" className={statusColors[campaign.status]}>
-                        {campaign.status === "active" && <Bell className="h-3 w-3 mr-1" />}
-                        {campaign.status === "upcoming" && <Clock className="h-3 w-3 mr-1" />}
-                        {campaign.status === "completed" && <CheckCircle className="h-3 w-3 mr-1" />}
+                        {campaign.status === 'active' && <Bell className="h-3 w-3 mr-1" />}
+                        {campaign.status === 'upcoming' && <Clock className="h-3 w-3 mr-1" />}
+                        {campaign.status === 'completed' && (
+                          <CheckCircle className="h-3 w-3 mr-1" />
+                        )}
                         {campaign.status}
                       </Badge>
                     </div>
                     <h1 className="text-2xl font-bold">{campaign.title}</h1>
-                    <p className="text-muted-foreground max-w-2xl">
-                      {campaign.description}
-                    </p>
+                    <p className="text-muted-foreground max-w-2xl">{campaign.description}</p>
                     <div className="flex items-center space-x-4 text-sm text-muted-foreground">
                       <span className="flex items-center space-x-1">
                         <MapPin className="h-4 w-4" />
@@ -206,20 +270,22 @@ export function CampaignDetail() {
                       </span>
                       <span className="flex items-center space-x-1">
                         <Shield className="h-4 w-4" />
-                        <span>Managed by {mockAdmins.length} admin{mockAdmins.length > 1 ? 's' : ''}</span>
+                        <span>
+                          Managed by {mockAdmins.length} admin{mockAdmins.length > 1 ? 's' : ''}
+                        </span>
                       </span>
                     </div>
                   </div>
-                  
+
                   {/* Action Buttons */}
                   <div className="flex items-center space-x-2">
                     <Button
                       variant="outline"
                       onClick={handleFavorite}
-                      className={isFavorited ? "text-red-600 border-red-200" : ""}
+                      className={isFavorited ? 'text-red-600 border-red-200' : ''}
                     >
-                      <Heart className={`h-4 w-4 mr-2 ${isFavorited ? "fill-current" : ""}`} />
-                      {isFavorited ? "Favorited" : "Favorite"}
+                      <Heart className={`h-4 w-4 mr-2 ${isFavorited ? 'fill-current' : ''}`} />
+                      {isFavorited ? 'Favorited' : 'Favorite'}
                     </Button>
                     <Button variant="outline">
                       <Share2 className="h-4 w-4 mr-2" />
@@ -227,7 +293,11 @@ export function CampaignDetail() {
                     </Button>
                     <Button
                       onClick={handleJoinLeave}
-                      className={isParticipant ? "bg-red-600 hover:bg-red-700" : "bg-[#021ff6] hover:bg-[#021ff6]/90"}
+                      className={
+                        isParticipant
+                          ? 'bg-red-600 hover:bg-red-700'
+                          : 'bg-[#021ff6] hover:bg-[#021ff6]/90'
+                      }
                     >
                       {isParticipant ? (
                         <>
@@ -260,7 +330,7 @@ export function CampaignDetail() {
                 </div>
               </CardContent>
             </Card>
-            
+
             <Card>
               <CardContent className="p-4">
                 <div className="flex items-center space-x-2">
@@ -275,8 +345,8 @@ export function CampaignDetail() {
                 </div>
               </CardContent>
             </Card>
-            
-            {campaign.type === "funding" && (
+
+            {campaign.type === 'funding' && (
               <Card>
                 <CardContent className="p-4">
                   <div className="flex items-center space-x-2">
@@ -291,16 +361,14 @@ export function CampaignDetail() {
                 </CardContent>
               </Card>
             )}
-            
+
             <Card>
               <CardContent className="p-4">
                 <div className="flex items-center space-x-2">
                   <Calendar className="h-4 w-4 text-purple-600" />
                   <div>
                     <p className="text-sm text-muted-foreground">Ends</p>
-                    <p className="font-medium">
-                      {campaign.endDate?.toLocaleDateString()}
-                    </p>
+                    <p className="font-medium">{campaign.endDate?.toLocaleDateString()}</p>
                   </div>
                 </div>
               </CardContent>
@@ -319,7 +387,9 @@ export function CampaignDetail() {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="participants">Participants ({mockParticipants.length + mockAdmins.length})</TabsTrigger>
+            <TabsTrigger value="participants">
+              Participants ({mockParticipants.length + mockAdmins.length})
+            </TabsTrigger>
             <TabsTrigger value="updates">Updates ({mockUpdates.length})</TabsTrigger>
             <TabsTrigger value="resources">Resources ({mockResources.length})</TabsTrigger>
           </TabsList>
@@ -333,9 +403,7 @@ export function CampaignDetail() {
                     <CardTitle>About This Campaign</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <p className="text-muted-foreground">
-                      {campaign.description}
-                    </p>
+                    <p className="text-muted-foreground">{campaign.description}</p>
                     <div className="space-y-2">
                       <h4 className="font-medium">Campaign Goals:</h4>
                       <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
@@ -379,7 +447,10 @@ export function CampaignDetail() {
                         <Avatar className="h-10 w-10">
                           <AvatarImage src={admin.avatar} />
                           <AvatarFallback className="bg-[#021ff6] text-white">
-                            {admin.name.split(' ').map((n: string) => n[0]).join('')}
+                            {admin.name
+                              .split(' ')
+                              .map((n: string) => n[0])
+                              .join('')}
                           </AvatarFallback>
                         </Avatar>
                         <div className="flex-1">
@@ -392,9 +463,9 @@ export function CampaignDetail() {
                         </div>
                       </div>
                     ))}
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
+                    <Button
+                      variant="outline"
+                      size="sm"
                       className="w-full mt-4"
                       onClick={() => setShowInviteDialog(true)}
                     >
@@ -442,10 +513,7 @@ export function CampaignDetail() {
                   Manage admins and participants in this campaign
                 </p>
               </div>
-              <Button 
-                variant="outline"
-                onClick={() => setShowInviteDialog(true)}
-              >
+              <Button variant="outline" onClick={() => setShowInviteDialog(true)}>
                 <Users className="h-4 w-4 mr-2" />
                 Invite People
               </Button>
@@ -463,12 +531,18 @@ export function CampaignDetail() {
                 <CardContent>
                   <div className="space-y-4">
                     {mockAdmins.map((admin) => (
-                      <div key={admin.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div
+                        key={admin.id}
+                        className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                      >
                         <div className="flex items-center space-x-3">
                           <Avatar>
                             <AvatarImage src={admin.avatar} />
                             <AvatarFallback>
-                              {admin.name.split(' ').map(n => n[0]).join('')}
+                              {admin.name
+                                .split(' ')
+                                .map((n) => n[0])
+                                .join('')}
                             </AvatarFallback>
                           </Avatar>
                           <div>
@@ -477,7 +551,9 @@ export function CampaignDetail() {
                             <div className="flex items-center space-x-2 mt-1">
                               <Crown className="h-3 w-3 text-yellow-600" />
                               <span className="text-xs text-muted-foreground">{admin.role}</span>
-                              <span className="text-xs text-muted-foreground">• {admin.joinedDate}</span>
+                              <span className="text-xs text-muted-foreground">
+                                • {admin.joinedDate}
+                              </span>
                             </div>
                           </div>
                         </div>
@@ -486,7 +562,7 @@ export function CampaignDetail() {
                             <MessageSquare className="h-3 w-3 mr-1" />
                             Contact
                           </Button>
-                          {admin.role !== "Primary Admin" && (
+                          {admin.role !== 'Primary Admin' && (
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
                                 <Button variant="ghost" size="sm">
@@ -518,18 +594,26 @@ export function CampaignDetail() {
                 <CardContent>
                   <div className="grid gap-4 md:grid-cols-2">
                     {mockParticipants.map((participant) => (
-                      <div key={participant.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div
+                        key={participant.id}
+                        className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                      >
                         <div className="flex items-center space-x-3">
                           <Avatar>
                             <AvatarImage src={participant.avatar} />
                             <AvatarFallback>
-                              {participant.name.split(' ').map(n => n[0]).join('')}
+                              {participant.name
+                                .split(' ')
+                                .map((n) => n[0])
+                                .join('')}
                             </AvatarFallback>
                           </Avatar>
                           <div>
                             <p className="font-medium">{participant.name}</p>
                             <p className="text-sm text-muted-foreground">{participant.role}</p>
-                            <p className="text-xs text-muted-foreground">{participant.university}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {participant.university}
+                            </p>
                           </div>
                         </div>
                         <div className="flex items-center space-x-2">
@@ -545,7 +629,9 @@ export function CampaignDetail() {
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent>
-                                <DropdownMenuItem onClick={() => handlePromoteToAdmin(participant.id)}>
+                                <DropdownMenuItem
+                                  onClick={() => handlePromoteToAdmin(participant.id)}
+                                >
                                   <UserCheck className="h-3 w-3 mr-2" />
                                   Promote to Admin
                                 </DropdownMenuItem>

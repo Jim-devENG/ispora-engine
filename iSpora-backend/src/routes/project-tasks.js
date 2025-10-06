@@ -17,9 +17,12 @@ router.put('/:taskId', protect, async (req, res, next) => {
     // Verify user has permission to update task
     const task = await db('project_tasks as pt')
       .select(['pt.*', 'pm.role'])
-      .leftJoin('project_members as pm', function() {
-        this.on('pt.project_id', '=', 'pm.project_id')
-          .andOn('pm.user_id', '=', db.raw('?', [req.user.id]));
+      .leftJoin('project_members as pm', function () {
+        this.on('pt.project_id', '=', 'pm.project_id').andOn(
+          'pm.user_id',
+          '=',
+          db.raw('?', [req.user.id]),
+        );
       })
       .where('pt.id', taskId)
       .first();
@@ -27,19 +30,20 @@ router.put('/:taskId', protect, async (req, res, next) => {
     if (!task) {
       return res.status(404).json({
         success: false,
-        error: 'Task not found'
+        error: 'Task not found',
       });
     }
 
     // Check permissions (creator, assignee, or admin/mentor)
-    const canUpdate = task.created_by === req.user.id || 
-                     task.assigned_to === req.user.id || 
-                     ['admin', 'mentor'].includes(task.role);
+    const canUpdate =
+      task.created_by === req.user.id ||
+      task.assigned_to === req.user.id ||
+      ['admin', 'mentor'].includes(task.role);
 
     if (!canUpdate) {
       return res.status(403).json({
         success: false,
-        error: 'Insufficient permissions to update this task'
+        error: 'Insufficient permissions to update this task',
       });
     }
 
@@ -71,18 +75,14 @@ router.put('/:taskId', protect, async (req, res, next) => {
 
     updateData.updated_at = new Date();
 
-    await db('project_tasks')
-      .where({ id: taskId })
-      .update(updateData);
+    await db('project_tasks').where({ id: taskId }).update(updateData);
 
-    const updatedTask = await db('project_tasks')
-      .where({ id: taskId })
-      .first();
+    const updatedTask = await db('project_tasks').where({ id: taskId }).first();
 
     res.status(200).json({
       success: true,
       message: 'Task updated successfully',
-      data: updatedTask
+      data: updatedTask,
     });
   } catch (error) {
     next(error);
@@ -99,9 +99,12 @@ router.delete('/:taskId', protect, async (req, res, next) => {
     // Verify user has permission to delete task
     const task = await db('project_tasks as pt')
       .select(['pt.*', 'pm.role'])
-      .leftJoin('project_members as pm', function() {
-        this.on('pt.project_id', '=', 'pm.project_id')
-          .andOn('pm.user_id', '=', db.raw('?', [req.user.id]));
+      .leftJoin('project_members as pm', function () {
+        this.on('pt.project_id', '=', 'pm.project_id').andOn(
+          'pm.user_id',
+          '=',
+          db.raw('?', [req.user.id]),
+        );
       })
       .where('pt.id', taskId)
       .first();
@@ -109,7 +112,7 @@ router.delete('/:taskId', protect, async (req, res, next) => {
     if (!task) {
       return res.status(404).json({
         success: false,
-        error: 'Task not found'
+        error: 'Task not found',
       });
     }
 
@@ -117,17 +120,15 @@ router.delete('/:taskId', protect, async (req, res, next) => {
     if (task.created_by !== req.user.id && !['admin', 'mentor'].includes(task.role)) {
       return res.status(403).json({
         success: false,
-        error: 'Insufficient permissions to delete this task'
+        error: 'Insufficient permissions to delete this task',
       });
     }
 
-    await db('project_tasks')
-      .where({ id: taskId })
-      .del();
+    await db('project_tasks').where({ id: taskId }).del();
 
     res.status(200).json({
       success: true,
-      message: 'Task deleted successfully'
+      message: 'Task deleted successfully',
     });
   } catch (error) {
     next(error);
@@ -148,9 +149,12 @@ router.get('/:taskId/comments', protect, async (req, res, next) => {
     // Verify user has access to task
     const task = await db('project_tasks as pt')
       .select(['pt.*', 'pm.role'])
-      .leftJoin('project_members as pm', function() {
-        this.on('pt.project_id', '=', 'pm.project_id')
-          .andOn('pm.user_id', '=', db.raw('?', [req.user.id]));
+      .leftJoin('project_members as pm', function () {
+        this.on('pt.project_id', '=', 'pm.project_id').andOn(
+          'pm.user_id',
+          '=',
+          db.raw('?', [req.user.id]),
+        );
       })
       .where('pt.id', taskId)
       .first();
@@ -158,28 +162,23 @@ router.get('/:taskId/comments', protect, async (req, res, next) => {
     if (!task) {
       return res.status(404).json({
         success: false,
-        error: 'Task not found'
+        error: 'Task not found',
       });
     }
 
     const comments = await db('task_comments as tc')
-      .select([
-        'tc.*',
-        'u.first_name',
-        'u.last_name',
-        'u.avatar_url'
-      ])
+      .select(['tc.*', 'u.first_name', 'u.last_name', 'u.avatar_url'])
       .join('users as u', 'tc.user_id', 'u.id')
       .where('tc.task_id', taskId)
-      .where(function() {
+      .where(function () {
         this.where('tc.is_internal', false)
-            .orWhere('tc.user_id', req.user.id)
-            .orWhereIn('tc.user_id', function() {
-              this.select('user_id')
-                .from('project_members')
-                .where('project_id', task.project_id)
-                .where('role', 'admin');
-            });
+          .orWhere('tc.user_id', req.user.id)
+          .orWhereIn('tc.user_id', function () {
+            this.select('user_id')
+              .from('project_members')
+              .where('project_id', task.project_id)
+              .where('role', 'admin');
+          });
       })
       .orderBy('tc.created_at', 'asc')
       .limit(parseInt(limit))
@@ -197,9 +196,9 @@ router.get('/:taskId/comments', protect, async (req, res, next) => {
       pagination: {
         page: parseInt(page),
         limit: parseInt(limit),
-        pages: Math.ceil(totalCount.count / limit)
+        pages: Math.ceil(totalCount.count / limit),
       },
-      data: comments
+      data: comments,
     });
   } catch (error) {
     next(error);
@@ -212,29 +211,32 @@ router.get('/:taskId/comments', protect, async (req, res, next) => {
 router.post('/:taskId/comments', protect, async (req, res, next) => {
   try {
     const { taskId } = req.params;
-    const { 
-      content, 
-      type = 'comment', 
-      is_internal = false, 
-      mentions = [], 
-      notify_assignee = false, 
+    const {
+      content,
+      type = 'comment',
+      is_internal = false,
+      mentions = [],
+      notify_assignee = false,
       notify_creator = false,
-      attachments = []
+      attachments = [],
     } = req.body;
 
     if (!content) {
       return res.status(400).json({
         success: false,
-        error: 'Comment content is required'
+        error: 'Comment content is required',
       });
     }
 
     // Verify user has access to task
     const task = await db('project_tasks as pt')
       .select(['pt.*', 'pm.role'])
-      .leftJoin('project_members as pm', function() {
-        this.on('pt.project_id', '=', 'pm.project_id')
-          .andOn('pm.user_id', '=', db.raw('?', [req.user.id]));
+      .leftJoin('project_members as pm', function () {
+        this.on('pt.project_id', '=', 'pm.project_id').andOn(
+          'pm.user_id',
+          '=',
+          db.raw('?', [req.user.id]),
+        );
       })
       .where('pt.id', taskId)
       .first();
@@ -242,7 +244,7 @@ router.post('/:taskId/comments', protect, async (req, res, next) => {
     if (!task) {
       return res.status(404).json({
         success: false,
-        error: 'Task not found'
+        error: 'Task not found',
       });
     }
 
@@ -256,14 +258,14 @@ router.post('/:taskId/comments', protect, async (req, res, next) => {
         mentions: JSON.stringify(mentions),
         notify_assignee,
         notify_creator,
-        attachments: JSON.stringify(attachments)
+        attachments: JSON.stringify(attachments),
       })
       .returning('*');
 
     res.status(201).json({
       success: true,
       message: 'Comment added successfully',
-      data: comment[0]
+      data: comment[0],
     });
   } catch (error) {
     next(error);
@@ -281,7 +283,7 @@ router.put('/comments/:commentId', protect, async (req, res, next) => {
     if (!content) {
       return res.status(400).json({
         success: false,
-        error: 'Comment content is required'
+        error: 'Comment content is required',
       });
     }
 
@@ -292,22 +294,20 @@ router.put('/comments/:commentId', protect, async (req, res, next) => {
     if (!comment) {
       return res.status(404).json({
         success: false,
-        error: 'Comment not found or insufficient permissions'
+        error: 'Comment not found or insufficient permissions',
       });
     }
 
-    await db('task_comments')
-      .where({ id: commentId })
-      .update({
-        content,
-        is_edited: true,
-        edited_at: new Date(),
-        updated_at: new Date()
-      });
+    await db('task_comments').where({ id: commentId }).update({
+      content,
+      is_edited: true,
+      edited_at: new Date(),
+      updated_at: new Date(),
+    });
 
     res.status(200).json({
       success: true,
-      message: 'Comment updated successfully'
+      message: 'Comment updated successfully',
     });
   } catch (error) {
     next(error);
@@ -324,9 +324,12 @@ router.delete('/comments/:commentId', protect, async (req, res, next) => {
     const comment = await db('task_comments as tc')
       .select(['tc.*', 'pt.project_id', 'pm.role'])
       .join('project_tasks as pt', 'tc.task_id', 'pt.id')
-      .leftJoin('project_members as pm', function() {
-        this.on('pt.project_id', '=', 'pm.project_id')
-          .andOn('pm.user_id', '=', db.raw('?', [req.user.id]));
+      .leftJoin('project_members as pm', function () {
+        this.on('pt.project_id', '=', 'pm.project_id').andOn(
+          'pm.user_id',
+          '=',
+          db.raw('?', [req.user.id]),
+        );
       })
       .where('tc.id', commentId)
       .first();
@@ -334,7 +337,7 @@ router.delete('/comments/:commentId', protect, async (req, res, next) => {
     if (!comment) {
       return res.status(404).json({
         success: false,
-        error: 'Comment not found'
+        error: 'Comment not found',
       });
     }
 
@@ -342,17 +345,15 @@ router.delete('/comments/:commentId', protect, async (req, res, next) => {
     if (comment.user_id !== req.user.id && !['admin', 'mentor'].includes(comment.role)) {
       return res.status(403).json({
         success: false,
-        error: 'Insufficient permissions to delete this comment'
+        error: 'Insufficient permissions to delete this comment',
       });
     }
 
-    await db('task_comments')
-      .where({ id: commentId })
-      .del();
+    await db('task_comments').where({ id: commentId }).del();
 
     res.status(200).json({
       success: true,
-      message: 'Comment deleted successfully'
+      message: 'Comment deleted successfully',
     });
   } catch (error) {
     next(error);
@@ -371,9 +372,12 @@ router.get('/:taskId/subtasks', protect, async (req, res, next) => {
     // Verify user has access to parent task
     const parentTask = await db('project_tasks as pt')
       .select(['pt.*', 'pm.role'])
-      .leftJoin('project_members as pm', function() {
-        this.on('pt.project_id', '=', 'pm.project_id')
-          .andOn('pm.user_id', '=', db.raw('?', [req.user.id]));
+      .leftJoin('project_members as pm', function () {
+        this.on('pt.project_id', '=', 'pm.project_id').andOn(
+          'pm.user_id',
+          '=',
+          db.raw('?', [req.user.id]),
+        );
       })
       .where('pt.id', taskId)
       .first();
@@ -381,7 +385,7 @@ router.get('/:taskId/subtasks', protect, async (req, res, next) => {
     if (!parentTask) {
       return res.status(404).json({
         success: false,
-        error: 'Parent task not found'
+        error: 'Parent task not found',
       });
     }
 
@@ -393,7 +397,7 @@ router.get('/:taskId/subtasks', protect, async (req, res, next) => {
         'creator.avatar_url as creator_avatar',
         'assignee.first_name as assignee_first_name',
         'assignee.last_name as assignee_last_name',
-        'assignee.avatar_url as assignee_avatar'
+        'assignee.avatar_url as assignee_avatar',
       ])
       .leftJoin('users as creator', 'pt.created_by', 'creator.id')
       .leftJoin('users as assignee', 'pt.assigned_to', 'assignee.id')
@@ -403,7 +407,7 @@ router.get('/:taskId/subtasks', protect, async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      data: subtasks
+      data: subtasks,
     });
   } catch (error) {
     next(error);
@@ -416,28 +420,24 @@ router.get('/:taskId/subtasks', protect, async (req, res, next) => {
 router.post('/:taskId/subtasks', protect, async (req, res, next) => {
   try {
     const { taskId } = req.params;
-    const {
-      title,
-      description,
-      assigned_to,
-      priority,
-      due_date,
-      estimated_hours
-    } = req.body;
+    const { title, description, assigned_to, priority, due_date, estimated_hours } = req.body;
 
     if (!title) {
       return res.status(400).json({
         success: false,
-        error: 'Subtask title is required'
+        error: 'Subtask title is required',
       });
     }
 
     // Verify user has access to parent task
     const parentTask = await db('project_tasks as pt')
       .select(['pt.*', 'pm.role'])
-      .leftJoin('project_members as pm', function() {
-        this.on('pt.project_id', '=', 'pm.project_id')
-          .andOn('pm.user_id', '=', db.raw('?', [req.user.id]));
+      .leftJoin('project_members as pm', function () {
+        this.on('pt.project_id', '=', 'pm.project_id').andOn(
+          'pm.user_id',
+          '=',
+          db.raw('?', [req.user.id]),
+        );
       })
       .where('pt.id', taskId)
       .first();
@@ -445,7 +445,7 @@ router.post('/:taskId/subtasks', protect, async (req, res, next) => {
     if (!parentTask) {
       return res.status(404).json({
         success: false,
-        error: 'Parent task not found'
+        error: 'Parent task not found',
       });
     }
 
@@ -459,14 +459,14 @@ router.post('/:taskId/subtasks', protect, async (req, res, next) => {
         description,
         priority: priority || 'medium',
         due_date: due_date ? new Date(due_date) : null,
-        estimated_hours
+        estimated_hours,
       })
       .returning('*');
 
     res.status(201).json({
       success: true,
       message: 'Subtask created successfully',
-      data: subtask[0]
+      data: subtask[0],
     });
   } catch (error) {
     next(error);
@@ -485,9 +485,12 @@ router.get('/:taskId/stats', protect, async (req, res, next) => {
     // Verify user has access to task
     const task = await db('project_tasks as pt')
       .select(['pt.*', 'pm.role'])
-      .leftJoin('project_members as pm', function() {
-        this.on('pt.project_id', '=', 'pm.project_id')
-          .andOn('pm.user_id', '=', db.raw('?', [req.user.id]));
+      .leftJoin('project_members as pm', function () {
+        this.on('pt.project_id', '=', 'pm.project_id').andOn(
+          'pm.user_id',
+          '=',
+          db.raw('?', [req.user.id]),
+        );
       })
       .where('pt.id', taskId)
       .first();
@@ -495,24 +498,24 @@ router.get('/:taskId/stats', protect, async (req, res, next) => {
     if (!task) {
       return res.status(404).json({
         success: false,
-        error: 'Task not found'
+        error: 'Task not found',
       });
     }
 
-    const [
-      commentsCount,
-      subtasksCount,
-      completedSubtasksCount,
-      timeSpent
-    ] = await Promise.all([
+    const [commentsCount, subtasksCount, completedSubtasksCount, timeSpent] = await Promise.all([
       db('task_comments').where({ task_id: taskId }).count('* as count').first(),
       db('project_tasks').where({ parent_task_id: taskId }).count('* as count').first(),
-      db('project_tasks').where({ parent_task_id: taskId, status: 'done' }).count('* as count').first(),
-      db('project_tasks').where({ id: taskId }).select('actual_hours').first()
+      db('project_tasks')
+        .where({ parent_task_id: taskId, status: 'done' })
+        .count('* as count')
+        .first(),
+      db('project_tasks').where({ id: taskId }).select('actual_hours').first(),
     ]);
 
-    const subtaskCompletionRate = subtasksCount.count > 0 ? 
-      (completedSubtasksCount.count / subtasksCount.count * 100).toFixed(1) : 0;
+    const subtaskCompletionRate =
+      subtasksCount.count > 0
+        ? ((completedSubtasksCount.count / subtasksCount.count) * 100).toFixed(1)
+        : 0;
 
     res.status(200).json({
       success: true,
@@ -522,8 +525,8 @@ router.get('/:taskId/stats', protect, async (req, res, next) => {
         completed_subtasks_count: parseInt(completedSubtasksCount.count),
         subtask_completion_rate: parseFloat(subtaskCompletionRate),
         time_spent_hours: task.actual_hours || 0,
-        estimated_hours: task.estimated_hours || 0
-      }
+        estimated_hours: task.estimated_hours || 0,
+      },
     });
   } catch (error) {
     next(error);

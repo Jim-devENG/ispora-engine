@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
-import { toast } from "sonner";
-import { Radio, Clock, Bell, ExternalLink } from "lucide-react";
-import { Button } from "./ui/button";
+import React, { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import { Radio, Clock, Bell, ExternalLink } from 'lucide-react';
+import { Button } from './ui/button';
 
 interface SessionNotification {
   id: string;
@@ -17,15 +17,15 @@ interface SessionNotification {
 // Mock notifications - in real app this would come from your notification system
 const mockNotifications: SessionNotification[] = [
   {
-    id: "1",
-    type: "starting_soon",
-    sessionId: "3",
-    sessionTitle: "Research Collaboration Meetup",
-    message: "Event starting in 10 mins",
+    id: '1',
+    type: 'starting_soon',
+    sessionId: '3',
+    sessionTitle: 'Research Collaboration Meetup',
+    message: 'Event starting in 10 mins',
     timeRemaining: 10,
-    actionLabel: "Join Now",
-    onAction: () => console.log("Joining session")
-  }
+    actionLabel: 'Join Now',
+    onAction: () => console.log('Joining session'),
+  },
 ];
 
 export function SessionNotifications() {
@@ -35,19 +35,19 @@ export function SessionNotifications() {
   useEffect(() => {
     // Check for notifications every minute
     const interval = setInterval(() => {
-      notifications.forEach(notification => {
+      notifications.forEach((notification) => {
         if (!shownNotifications.has(notification.id)) {
           showNotification(notification);
-          setShownNotifications(prev => new Set(prev).add(notification.id));
+          setShownNotifications((prev) => new Set(prev).add(notification.id));
         }
       });
     }, 60000); // Check every minute
 
     // Also check immediately on mount
-    notifications.forEach(notification => {
+    notifications.forEach((notification) => {
       if (!shownNotifications.has(notification.id)) {
         showNotification(notification);
-        setShownNotifications(prev => new Set(prev).add(notification.id));
+        setShownNotifications((prev) => new Set(prev).add(notification.id));
       }
     });
 
@@ -68,23 +68,25 @@ export function SessionNotifications() {
       }
     };
 
-    const getToastVariant = (): "default" | "destructive" => {
+    const getToastVariant = (): 'default' | 'destructive' => {
       switch (notification.type) {
         case 'live_now':
         case 'starting_soon':
-          return "default";
+          return 'default';
         default:
-          return "default";
+          return 'default';
       }
     };
 
     toast(notification.message, {
       description: `"${notification.sessionTitle}"`,
       icon: getIcon(),
-      action: notification.onAction ? {
-        label: notification.actionLabel || "View",
-        onClick: notification.onAction,
-      } : undefined,
+      action: notification.onAction
+        ? {
+            label: notification.actionLabel || 'View',
+            onClick: notification.onAction,
+          }
+        : undefined,
       duration: notification.type === 'live_now' ? 10000 : 8000, // Live sessions get longer display
       className: notification.type === 'live_now' ? 'border-red-200 bg-red-50' : undefined,
     });
@@ -96,12 +98,16 @@ export function SessionNotifications() {
 
 // Hook for managing session notifications throughout the app
 export function useSessionNotifications() {
-  const showSessionStartingSoon = (sessionTitle: string, timeRemaining: number, onJoin: () => void) => {
+  const showSessionStartingSoon = (
+    sessionTitle: string,
+    timeRemaining: number,
+    onJoin: () => void,
+  ) => {
     toast(`Session starting in ${timeRemaining} mins`, {
       description: `"${sessionTitle}"`,
       icon: <Clock className="h-4 w-4 text-orange-500" />,
       action: {
-        label: "Join Now",
+        label: 'Join Now',
         onClick: onJoin,
       },
       duration: 10000,
@@ -110,14 +116,16 @@ export function useSessionNotifications() {
   };
 
   const showSessionLive = (sessionTitle: string, onJoin: () => void) => {
-    toast("Session is now live!", {
+    toast('Session is now live!', {
       description: `"${sessionTitle}"`,
-      icon: <div className="flex items-center space-x-1">
-        <div className="h-2 w-2 bg-red-500 rounded-full animate-pulse"></div>
-        <Radio className="h-3 w-3 text-red-500" />
-      </div>,
+      icon: (
+        <div className="flex items-center space-x-1">
+          <div className="h-2 w-2 bg-red-500 rounded-full animate-pulse"></div>
+          <Radio className="h-3 w-3 text-red-500" />
+        </div>
+      ),
       action: {
-        label: "Join Session",
+        label: 'Join Session',
         onClick: onJoin,
       },
       duration: 15000,
@@ -135,7 +143,7 @@ export function useSessionNotifications() {
   };
 
   const showReminderSet = (sessionTitle: string) => {
-    toast("Reminder set!", {
+    toast('Reminder set!', {
       description: `You'll be notified before "${sessionTitle}" starts`,
       icon: <Bell className="h-4 w-4 text-green-500" />,
       duration: 4000,

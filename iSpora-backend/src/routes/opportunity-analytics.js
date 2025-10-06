@@ -35,7 +35,7 @@ router.post('/track', async (req, res) => {
       ip_address: req.ip,
       user_agent: req.get('User-Agent'),
       referrer: req.get('Referer'),
-      metadata: metadata ? JSON.stringify(metadata) : null
+      metadata: metadata ? JSON.stringify(metadata) : null,
     });
 
     res.status(201).json({ message: 'Event tracked successfully' });
@@ -52,9 +52,7 @@ router.get('/opportunity/:opportunityId', protect, async (req, res) => {
     const { period = '30', groupBy = 'day' } = req.query; // days
 
     // Check if user owns the opportunity or is admin
-    const opportunity = await knex('opportunities')
-      .where('id', opportunityId)
-      .first();
+    const opportunity = await knex('opportunities').where('id', opportunityId).first();
 
     if (!opportunity) {
       return res.status(404).json({ error: 'Opportunity not found' });
@@ -82,7 +80,7 @@ router.get('/opportunity/:opportunityId', protect, async (req, res) => {
         .select(
           knex.raw("DATE_TRUNC('hour', created_at) as period"),
           'event_type',
-          knex.raw('COUNT(*) as count')
+          knex.raw('COUNT(*) as count'),
         )
         .where('opportunity_id', opportunityId)
         .where('created_at', '>=', startDate)
@@ -93,7 +91,7 @@ router.get('/opportunity/:opportunityId', protect, async (req, res) => {
         .select(
           knex.raw("DATE_TRUNC('week', created_at) as period"),
           'event_type',
-          knex.raw('COUNT(*) as count')
+          knex.raw('COUNT(*) as count'),
         )
         .where('opportunity_id', opportunityId)
         .where('created_at', '>=', startDate)
@@ -104,7 +102,7 @@ router.get('/opportunity/:opportunityId', protect, async (req, res) => {
         .select(
           knex.raw("DATE_TRUNC('day', created_at) as period"),
           'event_type',
-          knex.raw('COUNT(*) as count')
+          knex.raw('COUNT(*) as count'),
         )
         .where('opportunity_id', opportunityId)
         .where('created_at', '>=', startDate)
@@ -142,7 +140,7 @@ router.get('/opportunity/:opportunityId', protect, async (req, res) => {
       topReferrers,
       userEngagement,
       period: parseInt(period),
-      groupBy
+      groupBy,
     });
   } catch (error) {
     console.error('Error fetching opportunity analytics:', error);
@@ -169,28 +167,19 @@ router.get('/platform', protect, authorize('admin'), async (req, res) => {
     let timeSeriesQuery;
     if (groupBy === 'hour') {
       timeSeriesQuery = knex('opportunity_analytics')
-        .select(
-          knex.raw("DATE_TRUNC('hour', created_at) as period"),
-          knex.raw('COUNT(*) as count')
-        )
+        .select(knex.raw("DATE_TRUNC('hour', created_at) as period"), knex.raw('COUNT(*) as count'))
         .where('created_at', '>=', startDate)
         .groupBy('period')
         .orderBy('period', 'asc');
     } else if (groupBy === 'week') {
       timeSeriesQuery = knex('opportunity_analytics')
-        .select(
-          knex.raw("DATE_TRUNC('week', created_at) as period"),
-          knex.raw('COUNT(*) as count')
-        )
+        .select(knex.raw("DATE_TRUNC('week', created_at) as period"), knex.raw('COUNT(*) as count'))
         .where('created_at', '>=', startDate)
         .groupBy('period')
         .orderBy('period', 'asc');
     } else {
       timeSeriesQuery = knex('opportunity_analytics')
-        .select(
-          knex.raw("DATE_TRUNC('day', created_at) as period"),
-          knex.raw('COUNT(*) as count')
-        )
+        .select(knex.raw("DATE_TRUNC('day', created_at) as period"), knex.raw('COUNT(*) as count'))
         .where('created_at', '>=', startDate)
         .groupBy('period')
         .orderBy('period', 'asc');
@@ -210,7 +199,10 @@ router.get('/platform', protect, authorize('admin'), async (req, res) => {
     // Get opportunity details for top opportunities
     const topOpportunityDetails = await knex('opportunities')
       .select('id', 'title', 'company', 'type', 'location')
-      .whereIn('id', topOpportunities.map(o => o.opportunity_id))
+      .whereIn(
+        'id',
+        topOpportunities.map((o) => o.opportunity_id),
+      )
       .where('is_active', true);
 
     // Get user activity
@@ -229,7 +221,7 @@ router.get('/platform', protect, authorize('admin'), async (req, res) => {
       topOpportunities: topOpportunityDetails,
       userActivity,
       period: parseInt(period),
-      groupBy
+      groupBy,
     });
   } catch (error) {
     console.error('Error fetching platform analytics:', error);
@@ -266,15 +258,15 @@ router.get('/user', protect, async (req, res) => {
     // Get opportunity details
     const opportunityDetails = await knex('opportunities')
       .select('id', 'title', 'company', 'type', 'location')
-      .whereIn('id', topEngagedOpportunities.map(o => o.opportunity_id))
+      .whereIn(
+        'id',
+        topEngagedOpportunities.map((o) => o.opportunity_id),
+      )
       .where('is_active', true);
 
     // Get daily activity
     const dailyActivity = await knex('opportunity_analytics')
-      .select(
-        knex.raw("DATE_TRUNC('day', created_at) as date"),
-        knex.raw('COUNT(*) as count')
-      )
+      .select(knex.raw("DATE_TRUNC('day', created_at) as date"), knex.raw('COUNT(*) as count'))
       .where('user_id', req.user.id)
       .where('created_at', '>=', startDate)
       .groupBy('date')
@@ -284,7 +276,7 @@ router.get('/user', protect, async (req, res) => {
       userActivity,
       topEngagedOpportunities: opportunityDetails,
       dailyActivity,
-      period: parseInt(period)
+      period: parseInt(period),
     });
   } catch (error) {
     console.error('Error fetching user analytics:', error);
@@ -299,9 +291,7 @@ router.get('/performance/:opportunityId', protect, async (req, res) => {
     const { period = '30' } = req.query; // days
 
     // Check if user owns the opportunity or is admin
-    const opportunity = await knex('opportunities')
-      .where('id', opportunityId)
-      .first();
+    const opportunity = await knex('opportunities').where('id', opportunityId).first();
 
     if (!opportunity) {
       return res.status(404).json({ error: 'Opportunity not found' });
@@ -338,9 +328,8 @@ router.get('/performance/:opportunityId', protect, async (req, res) => {
       .where('created_at', '>=', startDate)
       .first();
 
-    const engagementRate = totalViews.count > 0 
-      ? (totalEngagements.count / totalViews.count * 100).toFixed(2)
-      : 0;
+    const engagementRate =
+      totalViews.count > 0 ? ((totalEngagements.count / totalViews.count) * 100).toFixed(2) : 0;
 
     // Get geographic distribution
     const geographicData = await knex('opportunity_analytics')
@@ -355,7 +344,7 @@ router.get('/performance/:opportunityId', protect, async (req, res) => {
       totalViews: parseInt(totalViews.count) || 0,
       totalEngagements: parseInt(totalEngagements.count) || 0,
       geographicData,
-      period: parseInt(period)
+      period: parseInt(period),
     });
   } catch (error) {
     console.error('Error fetching performance metrics:', error);

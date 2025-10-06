@@ -16,11 +16,10 @@ router.get('/', protect, async (req, res) => {
         'ub.earned_date',
         'ub.progress',
         'ub.is_public',
-        'ub.show_on_profile'
+        'ub.show_on_profile',
       )
-      .leftJoin('user_badges as ub', function() {
-        this.on('b.id', '=', 'ub.badge_id')
-          .andOn('ub.user_id', '=', knex.raw('?', [userId]));
+      .leftJoin('user_badges as ub', function () {
+        this.on('b.id', '=', 'ub.badge_id').andOn('ub.user_id', '=', knex.raw('?', [userId]));
       })
       .where('b.is_active', true)
       .orderBy('b.sort_order', 'asc')
@@ -40,7 +39,7 @@ router.get('/', protect, async (req, res) => {
 
     const badges = await query;
 
-    const transformedBadges = badges.map(badge => ({
+    const transformedBadges = badges.map((badge) => ({
       id: badge.id,
       name: badge.name,
       description: badge.description,
@@ -59,7 +58,7 @@ router.get('/', protect, async (req, res) => {
       earnedDate: badge.earned_date,
       progress: badge.progress || 0,
       isPublic: badge.is_public !== false,
-      showOnProfile: badge.show_on_profile !== false
+      showOnProfile: badge.show_on_profile !== false,
     }));
 
     res.json(transformedBadges);
@@ -93,11 +92,9 @@ router.get('/my-badges', protect, async (req, res) => {
       query = query.where('ub.show_on_profile', true);
     }
 
-    const badges = await query
-      .orderBy('ub.earned_date', 'desc')
-      .orderBy('ub.display_order', 'asc');
+    const badges = await query.orderBy('ub.earned_date', 'desc').orderBy('ub.display_order', 'asc');
 
-    const transformedBadges = badges.map(badge => ({
+    const transformedBadges = badges.map((badge) => ({
       id: badge.badge_id,
       name: badge.name,
       description: badge.description,
@@ -119,7 +116,7 @@ router.get('/my-badges', protect, async (req, res) => {
       showOnProfile: badge.show_on_profile,
       shared: badge.shared,
       sharedDate: badge.shared_date,
-      sharedPlatforms: badge.shared_platforms ? JSON.parse(badge.shared_platforms) : []
+      sharedPlatforms: badge.shared_platforms ? JSON.parse(badge.shared_platforms) : [],
     }));
 
     res.json(transformedBadges);
@@ -143,11 +140,10 @@ router.get('/:badgeId', protect, async (req, res) => {
         'ub.progress',
         'ub.is_public',
         'ub.show_on_profile',
-        'ub.criteria_met'
+        'ub.criteria_met',
       )
-      .leftJoin('user_badges as ub', function() {
-        this.on('b.id', '=', 'ub.badge_id')
-          .andOn('ub.user_id', '=', knex.raw('?', [userId]));
+      .leftJoin('user_badges as ub', function () {
+        this.on('b.id', '=', 'ub.badge_id').andOn('ub.user_id', '=', knex.raw('?', [userId]));
       })
       .where('b.id', badgeId)
       .where('b.is_active', true)
@@ -190,8 +186,10 @@ router.get('/:badgeId', protect, async (req, res) => {
       stats: {
         earnedCount: parseInt(stats.earned_count),
         totalUsers: parseInt(totalUsers.total),
-        rarityPercentage: Math.round((parseInt(stats.earned_count) / parseInt(totalUsers.total)) * 100)
-      }
+        rarityPercentage: Math.round(
+          (parseInt(stats.earned_count) / parseInt(totalUsers.total)) * 100,
+        ),
+      },
     };
 
     res.json(transformedBadge);
@@ -212,10 +210,7 @@ router.post('/:badgeId/award', protect, async (req, res) => {
     }
 
     // Verify badge exists
-    const badge = await knex('badges')
-      .where('id', badgeId)
-      .where('is_active', true)
-      .first();
+    const badge = await knex('badges').where('id', badgeId).where('is_active', true).first();
 
     if (!badge) {
       return res.status(404).json({ error: 'Badge not found' });
@@ -233,15 +228,13 @@ router.post('/:badgeId/award', protect, async (req, res) => {
 
     // Award the badge
     if (existingBadge) {
-      await knex('user_badges')
-        .where('id', existingBadge.id)
-        .update({
-          earned: true,
-          earned_date: knex.fn.now(),
-          awarded_by: req.user.id,
-          award_reason: reason,
-          progress: 100
-        });
+      await knex('user_badges').where('id', existingBadge.id).update({
+        earned: true,
+        earned_date: knex.fn.now(),
+        awarded_by: req.user.id,
+        award_reason: reason,
+        progress: 100,
+      });
     } else {
       await knex('user_badges').insert({
         user_id,
@@ -252,7 +245,7 @@ router.post('/:badgeId/award', protect, async (req, res) => {
         award_reason: reason,
         progress: 100,
         is_public: true,
-        show_on_profile: true
+        show_on_profile: true,
       });
     }
 
@@ -265,13 +258,11 @@ router.post('/:badgeId/award', protect, async (req, res) => {
       points: badgePoints,
       description: `Earned ${badge.name} badge`,
       related_badge_id: badgeId,
-      source: 'system'
+      source: 'system',
     });
 
     // Update user credits
-    await knex('user_credits')
-      .where('user_id', user_id)
-      .increment('total_points', badgePoints);
+    await knex('user_credits').where('user_id', user_id).increment('total_points', badgePoints);
 
     // Update leaderboard
     const { updateLeaderboard } = require('./credits');
@@ -304,9 +295,10 @@ router.put('/:badgeId/settings', protect, async (req, res) => {
       .where('id', userBadge.id)
       .update({
         is_public: is_public !== undefined ? is_public : userBadge.is_public,
-        show_on_profile: show_on_profile !== undefined ? show_on_profile : userBadge.show_on_profile,
+        show_on_profile:
+          show_on_profile !== undefined ? show_on_profile : userBadge.show_on_profile,
         display_order: display_order !== undefined ? display_order : userBadge.display_order,
-        updated_at: knex.fn.now()
+        updated_at: knex.fn.now(),
       });
 
     res.json({ message: 'Badge settings updated successfully' });
@@ -338,7 +330,7 @@ router.post('/:badgeId/share', protect, async (req, res) => {
       .update({
         shared: true,
         shared_date: knex.fn.now(),
-        shared_platforms: JSON.stringify(platforms || [])
+        shared_platforms: JSON.stringify(platforms || []),
       });
 
     // Award points for sharing
@@ -350,13 +342,11 @@ router.post('/:badgeId/share', protect, async (req, res) => {
       points: sharePoints,
       description: `Shared ${userBadge.name} badge`,
       related_badge_id: badgeId,
-      source: 'system'
+      source: 'system',
     });
 
     // Update user credits
-    await knex('user_credits')
-      .where('user_id', userId)
-      .increment('total_points', sharePoints);
+    await knex('user_credits').where('user_id', userId).increment('total_points', sharePoints);
 
     res.json({ message: 'Badge shared successfully' });
   } catch (error) {
@@ -371,10 +361,7 @@ router.get('/:badgeId/progress', protect, async (req, res) => {
     const { badgeId } = req.params;
     const userId = req.user.id;
 
-    const badge = await knex('badges')
-      .where('id', badgeId)
-      .where('is_active', true)
-      .first();
+    const badge = await knex('badges').where('id', badgeId).where('is_active', true).first();
 
     if (!badge) {
       return res.status(404).json({ error: 'Badge not found' });
@@ -393,7 +380,7 @@ router.get('/:badgeId/progress', protect, async (req, res) => {
       criteria,
       progress,
       earned: userBadge?.earned || false,
-      earnedDate: userBadge?.earned_date
+      earnedDate: userBadge?.earned_date,
     });
   } catch (error) {
     console.error('Error checking badge progress:', error);
@@ -415,7 +402,7 @@ async function calculateBadgeProgress(userId, criteria) {
         progress[criterion.type] = {
           current: parseInt(projectsLaunched.count),
           required: criterion.value,
-          percentage: Math.min(100, (parseInt(projectsLaunched.count) / criterion.value) * 100)
+          percentage: Math.min(100, (parseInt(projectsLaunched.count) / criterion.value) * 100),
         };
         break;
 
@@ -428,7 +415,7 @@ async function calculateBadgeProgress(userId, criteria) {
         progress[criterion.type] = {
           current: parseInt(mentorshipSessions.count),
           required: criterion.value,
-          percentage: Math.min(100, (parseInt(mentorshipSessions.count) / criterion.value) * 100)
+          percentage: Math.min(100, (parseInt(mentorshipSessions.count) / criterion.value) * 100),
         };
         break;
 
@@ -440,7 +427,7 @@ async function calculateBadgeProgress(userId, criteria) {
         progress[criterion.type] = {
           current: parseInt(opportunitiesShared.count),
           required: criterion.value,
-          percentage: Math.min(100, (parseInt(opportunitiesShared.count) / criterion.value) * 100)
+          percentage: Math.min(100, (parseInt(opportunitiesShared.count) / criterion.value) * 100),
         };
         break;
 
@@ -453,7 +440,7 @@ async function calculateBadgeProgress(userId, criteria) {
         progress[criterion.type] = {
           current: parseInt(socialShares.count),
           required: criterion.value,
-          percentage: Math.min(100, (parseInt(socialShares.count) / criterion.value) * 100)
+          percentage: Math.min(100, (parseInt(socialShares.count) / criterion.value) * 100),
         };
         break;
 
@@ -466,18 +453,16 @@ async function calculateBadgeProgress(userId, criteria) {
         progress[criterion.type] = {
           current: parseInt(referralsSuccessful.count),
           required: criterion.value,
-          percentage: Math.min(100, (parseInt(referralsSuccessful.count) / criterion.value) * 100)
+          percentage: Math.min(100, (parseInt(referralsSuccessful.count) / criterion.value) * 100),
         };
         break;
 
       case 'points_earned':
-        const userCredits = await knex('user_credits')
-          .where('user_id', userId)
-          .first();
+        const userCredits = await knex('user_credits').where('user_id', userId).first();
         progress[criterion.type] = {
           current: userCredits?.total_points || 0,
           required: criterion.value,
-          percentage: Math.min(100, ((userCredits?.total_points || 0) / criterion.value) * 100)
+          percentage: Math.min(100, ((userCredits?.total_points || 0) / criterion.value) * 100),
         };
         break;
 
@@ -485,7 +470,7 @@ async function calculateBadgeProgress(userId, criteria) {
         progress[criterion.type] = {
           current: 0,
           required: criterion.value,
-          percentage: 0
+          percentage: 0,
         };
     }
   }

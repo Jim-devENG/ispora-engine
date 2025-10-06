@@ -26,13 +26,13 @@ router.post('/:projectId/issue', protect, async (req, res, next) => {
       expiry_date,
       skills_earned,
       competencies,
-      credits_earned
+      credits_earned,
     } = req.body;
 
     if (!user_id || !title || !type) {
       return res.status(400).json({
         success: false,
-        error: 'User ID, title, and type are required'
+        error: 'User ID, title, and type are required',
       });
     }
 
@@ -45,7 +45,7 @@ router.post('/:projectId/issue', protect, async (req, res, next) => {
     if (!projectAccess || !['admin', 'mentor'].includes(projectAccess.role)) {
       return res.status(403).json({
         success: false,
-        error: 'Insufficient permissions to issue certificates'
+        error: 'Insufficient permissions to issue certificates',
       });
     }
 
@@ -57,7 +57,7 @@ router.post('/:projectId/issue', protect, async (req, res, next) => {
     if (!userMembership) {
       return res.status(400).json({
         success: false,
-        error: 'User is not a member of this project'
+        error: 'User is not a member of this project',
       });
     }
 
@@ -69,7 +69,7 @@ router.post('/:projectId/issue', protect, async (req, res, next) => {
     if (existingCertificate) {
       return res.status(400).json({
         success: false,
-        error: 'Certificate of this type already exists for this user'
+        error: 'Certificate of this type already exists for this user',
       });
     }
 
@@ -94,14 +94,14 @@ router.post('/:projectId/issue', protect, async (req, res, next) => {
         verification_code: verificationCode,
         skills_earned: JSON.stringify(skills_earned),
         competencies: JSON.stringify(competencies),
-        credits_earned
+        credits_earned,
       })
       .returning('*');
 
     res.status(201).json({
       success: true,
       message: 'Certificate issued successfully',
-      data: certificate[0]
+      data: certificate[0],
     });
   } catch (error) {
     next(error);
@@ -119,9 +119,12 @@ router.put('/:certificateId', protect, async (req, res, next) => {
     // Verify user has permission to update certificate
     const certificate = await db('project_certificates as pc')
       .select(['pc.*', 'pm.role'])
-      .leftJoin('project_members as pm', function() {
-        this.on('pc.project_id', '=', 'pm.project_id')
-          .andOn('pm.user_id', '=', db.raw('?', [req.user.id]));
+      .leftJoin('project_members as pm', function () {
+        this.on('pc.project_id', '=', 'pm.project_id').andOn(
+          'pm.user_id',
+          '=',
+          db.raw('?', [req.user.id]),
+        );
       })
       .where('pc.id', certificateId)
       .first();
@@ -129,14 +132,14 @@ router.put('/:certificateId', protect, async (req, res, next) => {
     if (!certificate) {
       return res.status(404).json({
         success: false,
-        error: 'Certificate not found'
+        error: 'Certificate not found',
       });
     }
 
     if (certificate.issued_by !== req.user.id && !['admin', 'mentor'].includes(certificate.role)) {
       return res.status(403).json({
         success: false,
-        error: 'Insufficient permissions to update this certificate'
+        error: 'Insufficient permissions to update this certificate',
       });
     }
 
@@ -158,9 +161,7 @@ router.put('/:certificateId', protect, async (req, res, next) => {
 
     updateData.updated_at = new Date();
 
-    await db('project_certificates')
-      .where({ id: certificateId })
-      .update(updateData);
+    await db('project_certificates').where({ id: certificateId }).update(updateData);
 
     const updatedCertificate = await db('project_certificates')
       .where({ id: certificateId })
@@ -169,7 +170,7 @@ router.put('/:certificateId', protect, async (req, res, next) => {
     res.status(200).json({
       success: true,
       message: 'Certificate updated successfully',
-      data: updatedCertificate
+      data: updatedCertificate,
     });
   } catch (error) {
     next(error);
@@ -187,9 +188,12 @@ router.post('/:certificateId/revoke', protect, async (req, res, next) => {
     // Verify user has permission to revoke certificate
     const certificate = await db('project_certificates as pc')
       .select(['pc.*', 'pm.role'])
-      .leftJoin('project_members as pm', function() {
-        this.on('pc.project_id', '=', 'pm.project_id')
-          .andOn('pm.user_id', '=', db.raw('?', [req.user.id]));
+      .leftJoin('project_members as pm', function () {
+        this.on('pc.project_id', '=', 'pm.project_id').andOn(
+          'pm.user_id',
+          '=',
+          db.raw('?', [req.user.id]),
+        );
       })
       .where('pc.id', certificateId)
       .first();
@@ -197,29 +201,27 @@ router.post('/:certificateId/revoke', protect, async (req, res, next) => {
     if (!certificate) {
       return res.status(404).json({
         success: false,
-        error: 'Certificate not found'
+        error: 'Certificate not found',
       });
     }
 
     if (!['admin', 'mentor'].includes(certificate.role)) {
       return res.status(403).json({
         success: false,
-        error: 'Insufficient permissions to revoke certificates'
+        error: 'Insufficient permissions to revoke certificates',
       });
     }
 
-    await db('project_certificates')
-      .where({ id: certificateId })
-      .update({
-        status: 'revoked',
-        revoked_date: new Date(),
-        revocation_reason,
-        updated_at: new Date()
-      });
+    await db('project_certificates').where({ id: certificateId }).update({
+      status: 'revoked',
+      revoked_date: new Date(),
+      revocation_reason,
+      updated_at: new Date(),
+    });
 
     res.status(200).json({
       success: true,
-      message: 'Certificate revoked successfully'
+      message: 'Certificate revoked successfully',
     });
   } catch (error) {
     next(error);
@@ -245,7 +247,7 @@ router.get('/verify/:verificationCode', async (req, res, next) => {
         'p.description as project_description',
         'issuer.first_name as issuer_first_name',
         'issuer.last_name as issuer_last_name',
-        'issuer.avatar_url as issuer_avatar'
+        'issuer.avatar_url as issuer_avatar',
       ])
       .join('users as u', 'pc.user_id', 'u.id')
       .join('projects as p', 'pc.project_id', 'p.id')
@@ -257,7 +259,7 @@ router.get('/verify/:verificationCode', async (req, res, next) => {
     if (!certificate) {
       return res.status(404).json({
         success: false,
-        error: 'Certificate not found or not publicly accessible'
+        error: 'Certificate not found or not publicly accessible',
       });
     }
 
@@ -271,8 +273,8 @@ router.get('/verify/:verificationCode', async (req, res, next) => {
         ...certificate,
         is_expired: isExpired,
         is_revoked: isRevoked,
-        is_valid: !isExpired && !isRevoked && certificate.status === 'issued'
-      }
+        is_valid: !isExpired && !isRevoked && certificate.status === 'issued',
+      },
     });
   } catch (error) {
     next(error);
@@ -290,9 +292,12 @@ router.post('/:certificateId/verify', protect, async (req, res, next) => {
     // Verify user has permission to verify certificate
     const certificate = await db('project_certificates as pc')
       .select(['pc.*', 'pm.role'])
-      .leftJoin('project_members as pm', function() {
-        this.on('pc.project_id', '=', 'pm.project_id')
-          .andOn('pm.user_id', '=', db.raw('?', [req.user.id]));
+      .leftJoin('project_members as pm', function () {
+        this.on('pc.project_id', '=', 'pm.project_id').andOn(
+          'pm.user_id',
+          '=',
+          db.raw('?', [req.user.id]),
+        );
       })
       .where('pc.id', certificateId)
       .first();
@@ -300,29 +305,27 @@ router.post('/:certificateId/verify', protect, async (req, res, next) => {
     if (!certificate) {
       return res.status(404).json({
         success: false,
-        error: 'Certificate not found'
+        error: 'Certificate not found',
       });
     }
 
     if (!['admin', 'mentor'].includes(certificate.role)) {
       return res.status(403).json({
         success: false,
-        error: 'Insufficient permissions to verify certificates'
+        error: 'Insufficient permissions to verify certificates',
       });
     }
 
-    await db('project_certificates')
-      .where({ id: certificateId })
-      .update({
-        is_verified: true,
-        verified_at: new Date(),
-        verification_method,
-        updated_at: new Date()
-      });
+    await db('project_certificates').where({ id: certificateId }).update({
+      is_verified: true,
+      verified_at: new Date(),
+      verification_method,
+      updated_at: new Date(),
+    });
 
     res.status(200).json({
       success: true,
-      message: 'Certificate verified successfully'
+      message: 'Certificate verified successfully',
     });
   } catch (error) {
     next(error);
@@ -347,7 +350,7 @@ router.put('/:certificateId/sharing', protect, async (req, res, next) => {
     if (!certificate) {
       return res.status(404).json({
         success: false,
-        error: 'Certificate not found or insufficient permissions'
+        error: 'Certificate not found or insufficient permissions',
       });
     }
 
@@ -357,12 +360,12 @@ router.put('/:certificateId/sharing', protect, async (req, res, next) => {
         is_public: is_public !== undefined ? is_public : certificate.is_public,
         allow_sharing: allow_sharing !== undefined ? allow_sharing : certificate.allow_sharing,
         shared_platforms: JSON.stringify(shared_platforms || []),
-        updated_at: new Date()
+        updated_at: new Date(),
       });
 
     res.status(200).json({
       success: true,
-      message: 'Sharing settings updated successfully'
+      message: 'Sharing settings updated successfully',
     });
   } catch (error) {
     next(error);
@@ -380,7 +383,7 @@ router.post('/:certificateId/share', protect, async (req, res, next) => {
     if (!platform) {
       return res.status(400).json({
         success: false,
-        error: 'Platform is required'
+        error: 'Platform is required',
       });
     }
 
@@ -392,21 +395,21 @@ router.post('/:certificateId/share', protect, async (req, res, next) => {
     if (!certificate) {
       return res.status(404).json({
         success: false,
-        error: 'Certificate not found or insufficient permissions'
+        error: 'Certificate not found or insufficient permissions',
       });
     }
 
     if (!certificate.allow_sharing) {
       return res.status(400).json({
         success: false,
-        error: 'Certificate sharing is not enabled'
+        error: 'Certificate sharing is not enabled',
       });
     }
 
     // Update shared platforms
     const sharedPlatforms = JSON.parse(certificate.shared_platforms || '[]');
-    const existingPlatform = sharedPlatforms.find(p => p.platform === platform);
-    
+    const existingPlatform = sharedPlatforms.find((p) => p.platform === platform);
+
     if (existingPlatform) {
       existingPlatform.share_url = share_url;
       existingPlatform.shared_at = new Date();
@@ -414,7 +417,7 @@ router.post('/:certificateId/share', protect, async (req, res, next) => {
       sharedPlatforms.push({
         platform,
         share_url,
-        shared_at: new Date()
+        shared_at: new Date(),
       });
     }
 
@@ -423,13 +426,13 @@ router.post('/:certificateId/share', protect, async (req, res, next) => {
       .update({
         shared_platforms: JSON.stringify(sharedPlatforms),
         share_count: certificate.share_count + 1,
-        updated_at: new Date()
+        updated_at: new Date(),
       });
 
     res.status(200).json({
       success: true,
       message: `Certificate shared to ${platform} successfully`,
-      data: { platform, share_url }
+      data: { platform, share_url },
     });
   } catch (error) {
     next(error);
@@ -449,9 +452,12 @@ router.post('/:certificateId/generate', protect, async (req, res, next) => {
     // Verify user has access to certificate
     const certificate = await db('project_certificates as pc')
       .select(['pc.*', 'pm.role'])
-      .leftJoin('project_members as pm', function() {
-        this.on('pc.project_id', '=', 'pm.project_id')
-          .andOn('pm.user_id', '=', db.raw('?', [req.user.id]));
+      .leftJoin('project_members as pm', function () {
+        this.on('pc.project_id', '=', 'pm.project_id').andOn(
+          'pm.user_id',
+          '=',
+          db.raw('?', [req.user.id]),
+        );
       })
       .where('pc.id', certificateId)
       .first();
@@ -459,7 +465,7 @@ router.post('/:certificateId/generate', protect, async (req, res, next) => {
     if (!certificate) {
       return res.status(404).json({
         success: false,
-        error: 'Certificate not found'
+        error: 'Certificate not found',
       });
     }
 
@@ -467,7 +473,7 @@ router.post('/:certificateId/generate', protect, async (req, res, next) => {
     if (certificate.user_id !== req.user.id && !['admin', 'mentor'].includes(certificate.role)) {
       return res.status(403).json({
         success: false,
-        error: 'Insufficient permissions to generate certificate'
+        error: 'Insufficient permissions to generate certificate',
       });
     }
 
@@ -475,12 +481,10 @@ router.post('/:certificateId/generate', protect, async (req, res, next) => {
     // For now, we'll just return a placeholder URL
     const certificateUrl = `https://ispora.com/certificates/${certificate.verification_code}.${format}`;
 
-    await db('project_certificates')
-      .where({ id: certificateId })
-      .update({
-        certificate_url: certificateUrl,
-        updated_at: new Date()
-      });
+    await db('project_certificates').where({ id: certificateId }).update({
+      certificate_url: certificateUrl,
+      updated_at: new Date(),
+    });
 
     res.status(200).json({
       success: true,
@@ -488,8 +492,8 @@ router.post('/:certificateId/generate', protect, async (req, res, next) => {
       data: {
         certificate_url: certificateUrl,
         format,
-        download_url: certificateUrl
-      }
+        download_url: certificateUrl,
+      },
     });
   } catch (error) {
     next(error);
@@ -513,7 +517,7 @@ router.get('/:projectId/analytics', protect, async (req, res, next) => {
     if (!projectAccess || !['admin', 'mentor'].includes(projectAccess.role)) {
       return res.status(403).json({
         success: false,
-        error: 'Insufficient permissions to view analytics'
+        error: 'Insufficient permissions to view analytics',
       });
     }
 
@@ -524,7 +528,7 @@ router.get('/:projectId/analytics', protect, async (req, res, next) => {
       certificatesByStatus,
       averageScore,
       recentCertificates,
-      topPerformers
+      topPerformers,
     ] = await Promise.all([
       db('project_certificates').where({ project_id: projectId }).count('* as count').first(),
       db('project_certificates')
@@ -549,12 +553,7 @@ router.get('/:projectId/analytics', protect, async (req, res, next) => {
         .avg('score as avg')
         .first(),
       db('project_certificates as pc')
-        .select([
-          'pc.*',
-          'u.first_name',
-          'u.last_name',
-          'u.avatar_url'
-        ])
+        .select(['pc.*', 'u.first_name', 'u.last_name', 'u.avatar_url'])
         .join('users as u', 'pc.user_id', 'u.id')
         .where('pc.project_id', projectId)
         .orderBy('pc.issued_date', 'desc')
@@ -566,13 +565,13 @@ router.get('/:projectId/analytics', protect, async (req, res, next) => {
           'u.last_name',
           'u.avatar_url',
           db.raw('COUNT(*) as certificate_count'),
-          db.raw('AVG(pc.score) as avg_score')
+          db.raw('AVG(pc.score) as avg_score'),
         ])
         .join('users as u', 'pc.user_id', 'u.id')
         .where('pc.project_id', projectId)
         .groupBy('u.id', 'u.first_name', 'u.last_name', 'u.avatar_url')
         .orderBy('certificate_count', 'desc')
-        .limit(5)
+        .limit(5),
     ]);
 
     res.status(200).json({
@@ -584,8 +583,8 @@ router.get('/:projectId/analytics', protect, async (req, res, next) => {
         certificates_by_status: certificatesByStatus,
         average_score: parseFloat(averageScore.avg) || 0,
         recent_certificates: recentCertificates,
-        top_performers: topPerformers
-      }
+        top_performers: topPerformers,
+      },
     });
   } catch (error) {
     next(error);

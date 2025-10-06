@@ -1,21 +1,21 @@
 import { useState } from 'react';
-import { Button } from "./ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Input } from "./ui/input";
-import { Textarea } from "./ui/textarea";
-import { Badge } from "./ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { Switch } from "./ui/switch";
-import { Label } from "./ui/label";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "./ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { ScrollArea } from "./ui/scroll-area";
-import { 
-  Plus, 
-  Pin, 
-  PinOff, 
-  Edit, 
-  Trash2, 
+import { Button } from './ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Input } from './ui/input';
+import { Textarea } from './ui/textarea';
+import { Badge } from './ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { Switch } from './ui/switch';
+import { Label } from './ui/label';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import { ScrollArea } from './ui/scroll-area';
+import {
+  Plus,
+  Pin,
+  PinOff,
+  Edit,
+  Trash2,
   Eye,
   Calendar,
   Users,
@@ -29,10 +29,10 @@ import {
   Activity,
   Globe,
   Lock,
-  Zap
-} from "lucide-react";
-import { AdminHighlight, FeedItem, useFeedService, UserAction } from "./FeedService";
-import { ImageWithFallback } from "./figma/ImageWithFallback";
+  Zap,
+} from 'lucide-react';
+import { AdminHighlight, FeedItem, useFeedService, UserAction } from './FeedService';
+import { ImageWithFallback } from './figma/ImageWithFallback';
 
 interface AdminFeedManagerProps {
   isOpen: boolean;
@@ -40,8 +40,9 @@ interface AdminFeedManagerProps {
 }
 
 export function AdminFeedManager({ isOpen, onOpenChange }: AdminFeedManagerProps) {
-  const { feedItems, refreshFeed, createAdminHighlight, recordUserAction, getFeedStats } = useFeedService();
-  const [activeTab, setActiveTab] = useState("highlights");
+  const { feedItems, refreshFeed, createAdminHighlight, recordUserAction, getFeedStats } =
+    useFeedService();
+  const [activeTab, setActiveTab] = useState('highlights');
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showSimulateDialog, setShowSimulateDialog] = useState(false);
 
@@ -98,7 +99,9 @@ export function AdminFeedManager({ isOpen, onOpenChange }: AdminFeedManagerProps
 
     const highlightData = {
       ...formData,
-      image: formData.image || 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=600&h=300&fit=crop&auto=format',
+      image:
+        formData.image ||
+        'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=600&h=300&fit=crop&auto=format',
       createdBy: 'admin_user',
       expiresAt: formData.expiresAt || undefined,
     };
@@ -129,7 +132,9 @@ export function AdminFeedManager({ isOpen, onOpenChange }: AdminFeedManagerProps
     resetActionForm();
   };
 
-  const getEntityTypeFromAction = (actionType: UserAction['actionType']): UserAction['entityType'] => {
+  const getEntityTypeFromAction = (
+    actionType: UserAction['actionType'],
+  ): UserAction['entityType'] => {
     if (actionType.includes('project')) return 'project';
     if (actionType.includes('campaign')) return 'campaign';
     if (actionType.includes('opportunity')) return 'opportunity';
@@ -142,45 +147,62 @@ export function AdminFeedManager({ isOpen, onOpenChange }: AdminFeedManagerProps
 
   const getHighlightTypeIcon = (type: AdminHighlight['type']) => {
     switch (type) {
-      case 'top_mentor': return <Award className="h-4 w-4" />;
-      case 'spotlighted_opportunity': return <TrendingUp className="h-4 w-4" />;
-      case 'impact_stat': return <BarChart3 className="h-4 w-4" />;
-      case 'featured_project': return <Pin className="h-4 w-4" />;
-      case 'announcement': return <Megaphone className="h-4 w-4" />;
-      case 'success_spotlight': return <Award className="h-4 w-4" />;
-      case 'community_milestone': return <Users className="h-4 w-4" />;
-      default: return <Pin className="h-4 w-4" />;
+      case 'top_mentor':
+        return <Award className="h-4 w-4" />;
+      case 'spotlighted_opportunity':
+        return <TrendingUp className="h-4 w-4" />;
+      case 'impact_stat':
+        return <BarChart3 className="h-4 w-4" />;
+      case 'featured_project':
+        return <Pin className="h-4 w-4" />;
+      case 'announcement':
+        return <Megaphone className="h-4 w-4" />;
+      case 'success_spotlight':
+        return <Award className="h-4 w-4" />;
+      case 'community_milestone':
+        return <Users className="h-4 w-4" />;
+      default:
+        return <Pin className="h-4 w-4" />;
     }
   };
 
   const getHighlightTypeColor = (type: AdminHighlight['type']) => {
     switch (type) {
-      case 'top_mentor': return 'bg-yellow-100 text-yellow-800';
-      case 'spotlighted_opportunity': return 'bg-green-100 text-green-800';
-      case 'impact_stat': return 'bg-blue-100 text-blue-800';
-      case 'featured_project': return 'bg-purple-100 text-purple-800';
-      case 'announcement': return 'bg-orange-100 text-orange-800';
-      case 'success_spotlight': return 'bg-emerald-100 text-emerald-800';
-      case 'community_milestone': return 'bg-indigo-100 text-indigo-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'top_mentor':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'spotlighted_opportunity':
+        return 'bg-green-100 text-green-800';
+      case 'impact_stat':
+        return 'bg-blue-100 text-blue-800';
+      case 'featured_project':
+        return 'bg-purple-100 text-purple-800';
+      case 'announcement':
+        return 'bg-orange-100 text-orange-800';
+      case 'success_spotlight':
+        return 'bg-emerald-100 text-emerald-800';
+      case 'community_milestone':
+        return 'bg-indigo-100 text-indigo-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
-  const adminHighlights = feedItems.filter(item => item.isAdminCurated);
-  const userGeneratedItems = feedItems.filter(item => !item.isAdminCurated).slice(0, 10);
+  const adminHighlights = feedItems.filter((item) => item.isAdminCurated);
+  const userGeneratedItems = feedItems.filter((item) => !item.isAdminCurated).slice(0, 10);
   const stats = getFeedStats();
 
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-3xl max-h-[80vh] flex flex-col w-[95vw] sm:w-full">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Activity className="h-5 w-5" />
               Feed Management Dashboard
             </DialogTitle>
             <DialogDescription>
-              Manage admin highlights, monitor live feed activity, simulate user actions, and view feed analytics.
+              Manage admin highlights, monitor live feed activity, simulate user actions, and view
+              feed analytics.
             </DialogDescription>
           </DialogHeader>
 
@@ -196,9 +218,11 @@ export function AdminFeedManager({ isOpen, onOpenChange }: AdminFeedManagerProps
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-lg font-semibold">Admin Highlights</h3>
-                  <p className="text-sm text-gray-600">Curated content to spotlight important updates</p>
+                  <p className="text-sm text-gray-600">
+                    Curated content to spotlight important updates
+                  </p>
                 </div>
-                <Button 
+                <Button
                   onClick={() => setShowCreateDialog(true)}
                   className="bg-[#021ff6] hover:bg-[#021ff6]/90"
                 >
@@ -220,18 +244,22 @@ export function AdminFeedManager({ isOpen, onOpenChange }: AdminFeedManagerProps
                               className="w-full h-full object-cover"
                             />
                           </div>
-                          
+
                           <div className="flex-1 min-w-0">
                             <div className="flex items-start justify-between mb-2">
                               <div className="flex items-center gap-2">
-                                <Badge className={getHighlightTypeColor(item.metadata?.highlightType)}>
+                                <Badge
+                                  className={getHighlightTypeColor(item.metadata?.highlightType)}
+                                >
                                   {getHighlightTypeIcon(item.metadata?.highlightType)}
                                   <span className="ml-1 capitalize">
                                     {item.metadata?.highlightType?.replace('_', ' ')}
                                   </span>
                                 </Badge>
                                 {item.isPinned && <Pin className="h-4 w-4 text-orange-500" />}
-                                {item.visibility === 'authenticated' && <Lock className="h-4 w-4 text-gray-500" />}
+                                {item.visibility === 'authenticated' && (
+                                  <Lock className="h-4 w-4 text-gray-500" />
+                                )}
                               </div>
                               <div className="flex items-center gap-2">
                                 <Button variant="ghost" size="sm">
@@ -242,10 +270,10 @@ export function AdminFeedManager({ isOpen, onOpenChange }: AdminFeedManagerProps
                                 </Button>
                               </div>
                             </div>
-                            
+
                             <h4 className="font-medium mb-1">{item.title}</h4>
                             <p className="text-sm text-gray-600 mb-2">{item.description}</p>
-                            
+
                             <div className="flex items-center gap-4 text-xs text-gray-500">
                               <span className="flex items-center gap-1">
                                 <Calendar className="h-3 w-3" />
@@ -277,10 +305,7 @@ export function AdminFeedManager({ isOpen, onOpenChange }: AdminFeedManagerProps
                   <h3 className="text-lg font-semibold">Live Feed Monitor</h3>
                   <p className="text-sm text-gray-600">Recent auto-generated feed items</p>
                 </div>
-                <Button 
-                  variant="outline" 
-                  onClick={() => refreshFeed()}
-                >
+                <Button variant="outline" onClick={() => refreshFeed()}>
                   <TrendingUp className="h-4 w-4 mr-2" />
                   Refresh Feed
                 </Button>
@@ -327,9 +352,11 @@ export function AdminFeedManager({ isOpen, onOpenChange }: AdminFeedManagerProps
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-lg font-semibold">Simulate User Actions</h3>
-                  <p className="text-sm text-gray-600">Generate feed content by simulating platform activities</p>
+                  <p className="text-sm text-gray-600">
+                    Generate feed content by simulating platform activities
+                  </p>
                 </div>
-                <Button 
+                <Button
                   onClick={() => setShowSimulateDialog(true)}
                   className="bg-green-600 hover:bg-green-700"
                 >
@@ -344,8 +371,8 @@ export function AdminFeedManager({ isOpen, onOpenChange }: AdminFeedManagerProps
                     <CardTitle className="text-sm">Quick Actions</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-2">
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       className="w-full justify-start"
                       onClick={() => {
                         recordUserAction({
@@ -357,7 +384,9 @@ export function AdminFeedManager({ isOpen, onOpenChange }: AdminFeedManagerProps
                           entityType: 'project',
                           entityTitle: 'African Tech Innovation Hub',
                           entityCategory: 'Technology',
-                          metadata: { description: 'Building the next generation of African tech leaders' },
+                          metadata: {
+                            description: 'Building the next generation of African tech leaders',
+                          },
                           visibility: 'public',
                         });
                       }}
@@ -365,9 +394,9 @@ export function AdminFeedManager({ isOpen, onOpenChange }: AdminFeedManagerProps
                       <Plus className="h-4 w-4 mr-2" />
                       Create Project
                     </Button>
-                    
-                    <Button 
-                      variant="outline" 
+
+                    <Button
+                      variant="outline"
                       className="w-full justify-start"
                       onClick={() => {
                         recordUserAction({
@@ -387,9 +416,9 @@ export function AdminFeedManager({ isOpen, onOpenChange }: AdminFeedManagerProps
                       <Award className="h-4 w-4 mr-2" />
                       Achievement
                     </Button>
-                    
-                    <Button 
-                      variant="outline" 
+
+                    <Button
+                      variant="outline"
                       className="w-full justify-start"
                       onClick={() => {
                         recordUserAction({
@@ -419,7 +448,10 @@ export function AdminFeedManager({ isOpen, onOpenChange }: AdminFeedManagerProps
                   <CardContent>
                     <div className="space-y-2 text-sm">
                       {userGeneratedItems.slice(0, 5).map((item) => (
-                        <div key={item.id} className="flex items-center gap-2 p-2 bg-gray-50 rounded">
+                        <div
+                          key={item.id}
+                          className="flex items-center gap-2 p-2 bg-gray-50 rounded"
+                        >
                           <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                           <span className="truncate">{item.title}</span>
                         </div>
@@ -433,7 +465,9 @@ export function AdminFeedManager({ isOpen, onOpenChange }: AdminFeedManagerProps
             <TabsContent value="analytics" className="space-y-4">
               <div>
                 <h3 className="text-lg font-semibold">Feed Analytics</h3>
-                <p className="text-sm text-gray-600">Insights about feed performance and engagement</p>
+                <p className="text-sm text-gray-600">
+                  Insights about feed performance and engagement
+                </p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -520,7 +554,8 @@ export function AdminFeedManager({ isOpen, onOpenChange }: AdminFeedManagerProps
           <DialogHeader>
             <DialogTitle>Create Admin Highlight</DialogTitle>
             <DialogDescription>
-              Create curated content highlights to feature important announcements, top mentors, opportunities, and community milestones in the feed.
+              Create curated content highlights to feature important announcements, top mentors,
+              opportunities, and community milestones in the feed.
             </DialogDescription>
           </DialogHeader>
 
@@ -528,7 +563,12 @@ export function AdminFeedManager({ isOpen, onOpenChange }: AdminFeedManagerProps
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="type">Highlight Type</Label>
-                <Select value={formData.type} onValueChange={(value) => setFormData({...formData, type: value as AdminHighlight['type']})}>
+                <Select
+                  value={formData.type}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, type: value as AdminHighlight['type'] })
+                  }
+                >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -543,10 +583,15 @@ export function AdminFeedManager({ isOpen, onOpenChange }: AdminFeedManagerProps
                   </SelectContent>
                 </Select>
               </div>
-              
+
               <div>
                 <Label htmlFor="visibility">Visibility</Label>
-                <Select value={formData.visibility} onValueChange={(value) => setFormData({...formData, visibility: value as 'public' | 'authenticated'})}>
+                <Select
+                  value={formData.visibility}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, visibility: value as 'public' | 'authenticated' })
+                  }
+                >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -563,7 +608,7 @@ export function AdminFeedManager({ isOpen, onOpenChange }: AdminFeedManagerProps
               <Input
                 id="title"
                 value={formData.title}
-                onChange={(e) => setFormData({...formData, title: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 placeholder="Enter highlight title"
               />
             </div>
@@ -573,7 +618,7 @@ export function AdminFeedManager({ isOpen, onOpenChange }: AdminFeedManagerProps
               <Textarea
                 id="description"
                 value={formData.description}
-                onChange={(e) => setFormData({...formData, description: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 placeholder="Enter highlight description"
                 rows={3}
               />
@@ -584,7 +629,7 @@ export function AdminFeedManager({ isOpen, onOpenChange }: AdminFeedManagerProps
               <Input
                 id="image"
                 value={formData.image}
-                onChange={(e) => setFormData({...formData, image: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, image: e.target.value })}
                 placeholder="https://..."
               />
             </div>
@@ -595,17 +640,17 @@ export function AdminFeedManager({ isOpen, onOpenChange }: AdminFeedManagerProps
                 <Input
                   id="ctaText"
                   value={formData.ctaText}
-                  onChange={(e) => setFormData({...formData, ctaText: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, ctaText: e.target.value })}
                   placeholder="Learn More"
                 />
               </div>
-              
+
               <div>
                 <Label htmlFor="ctaLink">Call to Action Link</Label>
                 <Input
                   id="ctaLink"
                   value={formData.ctaLink}
-                  onChange={(e) => setFormData({...formData, ctaLink: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, ctaLink: e.target.value })}
                   placeholder="/projects/123"
                 />
               </div>
@@ -616,34 +661,28 @@ export function AdminFeedManager({ isOpen, onOpenChange }: AdminFeedManagerProps
                 <Switch
                   id="isPinned"
                   checked={formData.isPinned}
-                  onCheckedChange={(checked) => setFormData({...formData, isPinned: checked})}
+                  onCheckedChange={(checked) => setFormData({ ...formData, isPinned: checked })}
                 />
                 <Label htmlFor="isPinned">Pin to top of feed</Label>
               </div>
-              
+
               <div>
                 <Label htmlFor="expiresAt">Expires At (optional)</Label>
                 <Input
                   id="expiresAt"
                   type="datetime-local"
                   value={formData.expiresAt}
-                  onChange={(e) => setFormData({...formData, expiresAt: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, expiresAt: e.target.value })}
                 />
               </div>
             </div>
 
             <div className="flex items-center gap-2 pt-4">
-              <Button 
-                onClick={handleSubmit}
-                className="bg-[#021ff6] hover:bg-[#021ff6]/90"
-              >
+              <Button onClick={handleSubmit} className="bg-[#021ff6] hover:bg-[#021ff6]/90">
                 <CheckCircle className="h-4 w-4 mr-2" />
                 Create Highlight
               </Button>
-              <Button 
-                variant="outline" 
-                onClick={() => setShowCreateDialog(false)}
-              >
+              <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
                 <X className="h-4 w-4 mr-2" />
                 Cancel
               </Button>
@@ -658,7 +697,8 @@ export function AdminFeedManager({ isOpen, onOpenChange }: AdminFeedManagerProps
           <DialogHeader>
             <DialogTitle>Simulate User Action</DialogTitle>
             <DialogDescription>
-              Simulate platform activities like project creation, achievements, and milestones to generate feed content for testing purposes.
+              Simulate platform activities like project creation, achievements, and milestones to
+              generate feed content for testing purposes.
             </DialogDescription>
           </DialogHeader>
 
@@ -669,17 +709,17 @@ export function AdminFeedManager({ isOpen, onOpenChange }: AdminFeedManagerProps
                 <Input
                   id="userName"
                   value={actionData.userName}
-                  onChange={(e) => setActionData({...actionData, userName: e.target.value})}
+                  onChange={(e) => setActionData({ ...actionData, userName: e.target.value })}
                   placeholder="Enter user name"
                 />
               </div>
-              
+
               <div>
                 <Label htmlFor="userLocation">Location</Label>
                 <Input
                   id="userLocation"
                   value={actionData.userLocation}
-                  onChange={(e) => setActionData({...actionData, userLocation: e.target.value})}
+                  onChange={(e) => setActionData({ ...actionData, userLocation: e.target.value })}
                   placeholder="Ghana → USA"
                 />
               </div>
@@ -687,7 +727,12 @@ export function AdminFeedManager({ isOpen, onOpenChange }: AdminFeedManagerProps
 
             <div>
               <Label htmlFor="actionType">Action Type</Label>
-              <Select value={actionData.actionType} onValueChange={(value) => setActionData({...actionData, actionType: value as UserAction['actionType']})}>
+              <Select
+                value={actionData.actionType}
+                onValueChange={(value) =>
+                  setActionData({ ...actionData, actionType: value as UserAction['actionType'] })
+                }
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -711,14 +756,17 @@ export function AdminFeedManager({ isOpen, onOpenChange }: AdminFeedManagerProps
               <Input
                 id="entityTitle"
                 value={actionData.entityTitle}
-                onChange={(e) => setActionData({...actionData, entityTitle: e.target.value})}
+                onChange={(e) => setActionData({ ...actionData, entityTitle: e.target.value })}
                 placeholder="Enter project/campaign/opportunity title"
               />
             </div>
 
             <div>
               <Label htmlFor="entityCategory">Category</Label>
-              <Select value={actionData.entityCategory} onValueChange={(value) => setActionData({...actionData, entityCategory: value})}>
+              <Select
+                value={actionData.entityCategory}
+                onValueChange={(value) => setActionData({ ...actionData, entityCategory: value })}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -740,24 +788,18 @@ export function AdminFeedManager({ isOpen, onOpenChange }: AdminFeedManagerProps
               <Textarea
                 id="description"
                 value={actionData.description}
-                onChange={(e) => setActionData({...actionData, description: e.target.value})}
+                onChange={(e) => setActionData({ ...actionData, description: e.target.value })}
                 placeholder="Additional details..."
                 rows={2}
               />
             </div>
 
             <div className="flex items-center gap-2 pt-4">
-              <Button 
-                onClick={handleSimulateAction}
-                className="bg-green-600 hover:bg-green-700"
-              >
+              <Button onClick={handleSimulateAction} className="bg-green-600 hover:bg-green-700">
                 <Zap className="h-4 w-4 mr-2" />
                 Simulate Action
               </Button>
-              <Button 
-                variant="outline" 
-                onClick={() => setShowSimulateDialog(false)}
-              >
+              <Button variant="outline" onClick={() => setShowSimulateDialog(false)}>
                 <X className="h-4 w-4 mr-2" />
                 Cancel
               </Button>

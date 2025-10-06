@@ -21,7 +21,7 @@ const sendTokenResponse = (user, statusCode, res) => {
 
   const options = {
     expires: new Date(
-      Date.now() + 7 * 24 * 60 * 60 * 1000 // 7 days
+      Date.now() + 7 * 24 * 60 * 60 * 1000, // 7 days
     ),
     httpOnly: true,
   };
@@ -34,14 +34,11 @@ const sendTokenResponse = (user, statusCode, res) => {
   const userResponse = { ...user };
   delete userResponse.password_hash;
 
-  res
-    .status(statusCode)
-    .cookie('token', token, options)
-    .json({
-      success: true,
-      token,
-      user: userResponse,
-    });
+  res.status(statusCode).cookie('token', token, options).json({
+    success: true,
+    token,
+    user: userResponse,
+  });
 };
 
 // @desc    Register user
@@ -49,45 +46,34 @@ const sendTokenResponse = (user, statusCode, res) => {
 // @access  Public
 router.post('/register', async (req, res, next) => {
   try {
-    const {
-      email,
-      password,
-      firstName,
-      lastName,
-      userType = 'student',
-      username
-    } = req.body;
+    const { email, password, firstName, lastName, userType = 'student', username } = req.body;
 
     // Validation
     if (!email || !password || !firstName || !lastName) {
       return res.status(400).json({
         success: false,
-        error: 'Please provide email, password, first name, and last name'
+        error: 'Please provide email, password, first name, and last name',
       });
     }
 
     // Check if user exists
-    const existingUser = await db('users')
-      .where({ email })
-      .first();
+    const existingUser = await db('users').where({ email }).first();
 
     if (existingUser) {
       return res.status(400).json({
         success: false,
-        error: 'User already exists with this email'
+        error: 'User already exists with this email',
       });
     }
 
     // Check username if provided
     if (username) {
-      const existingUsername = await db('users')
-        .where({ username })
-        .first();
+      const existingUsername = await db('users').where({ username }).first();
 
       if (existingUsername) {
         return res.status(400).json({
           success: false,
-          error: 'Username already taken'
+          error: 'Username already taken',
         });
       }
     }
@@ -107,15 +93,13 @@ router.post('/register', async (req, res, next) => {
       user_type: userType,
       username: username || null,
       created_at: new Date(),
-      updated_at: new Date()
+      updated_at: new Date(),
     };
 
     await db('users').insert(userData);
 
     // Get created user
-    const user = await db('users')
-      .where({ id: userId })
-      .first();
+    const user = await db('users').where({ id: userId }).first();
 
     sendTokenResponse(user, 201, res);
   } catch (error) {
@@ -134,19 +118,17 @@ router.post('/login', async (req, res, next) => {
     if (!email || !password) {
       return res.status(400).json({
         success: false,
-        error: 'Please provide an email and password'
+        error: 'Please provide an email and password',
       });
     }
 
     // Check for user
-    const user = await db('users')
-      .where({ email: email.toLowerCase() })
-      .first();
+    const user = await db('users').where({ email: email.toLowerCase() }).first();
 
     if (!user) {
       return res.status(401).json({
         success: false,
-        error: 'Invalid credentials'
+        error: 'Invalid credentials',
       });
     }
 
@@ -156,23 +138,19 @@ router.post('/login', async (req, res, next) => {
     if (!isMatch) {
       return res.status(401).json({
         success: false,
-        error: 'Invalid credentials'
+        error: 'Invalid credentials',
       });
     }
 
     // Update last login
-    await db('users')
-      .where({ id: user.id })
-      .update({
-        last_login: new Date(),
-        is_online: true,
-        updated_at: new Date()
-      });
+    await db('users').where({ id: user.id }).update({
+      last_login: new Date(),
+      is_online: true,
+      updated_at: new Date(),
+    });
 
     // Get updated user
-    const updatedUser = await db('users')
-      .where({ id: user.id })
-      .first();
+    const updatedUser = await db('users').where({ id: user.id }).first();
 
     sendTokenResponse(updatedUser, 200, res);
   } catch (error) {
@@ -186,12 +164,10 @@ router.post('/login', async (req, res, next) => {
 router.post('/logout', protect, async (req, res, next) => {
   try {
     // Update user online status
-    await db('users')
-      .where({ id: req.user.id })
-      .update({
-        is_online: false,
-        updated_at: new Date()
-      });
+    await db('users').where({ id: req.user.id }).update({
+      is_online: false,
+      updated_at: new Date(),
+    });
 
     res.cookie('token', 'none', {
       expires: new Date(Date.now() + 10 * 1000),
@@ -200,7 +176,7 @@ router.post('/logout', protect, async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      message: 'User logged out successfully'
+      message: 'User logged out successfully',
     });
   } catch (error) {
     next(error);
@@ -212,14 +188,12 @@ router.post('/logout', protect, async (req, res, next) => {
 // @access  Private
 router.get('/me', protect, async (req, res, next) => {
   try {
-    const user = await db('users')
-      .where({ id: req.user.id })
-      .first();
+    const user = await db('users').where({ id: req.user.id }).first();
 
     if (!user) {
       return res.status(404).json({
         success: false,
-        error: 'User not found'
+        error: 'User not found',
       });
     }
 
@@ -229,7 +203,7 @@ router.get('/me', protect, async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      user: userResponse
+      user: userResponse,
     });
   } catch (error) {
     next(error);
@@ -246,14 +220,12 @@ router.put('/updatepassword', protect, async (req, res, next) => {
     if (!currentPassword || !newPassword) {
       return res.status(400).json({
         success: false,
-        error: 'Please provide current and new password'
+        error: 'Please provide current and new password',
       });
     }
 
     // Get user with password
-    const user = await db('users')
-      .where({ id: req.user.id })
-      .first();
+    const user = await db('users').where({ id: req.user.id }).first();
 
     // Check current password
     const isMatch = await bcrypt.compare(currentPassword, user.password_hash);
@@ -261,7 +233,7 @@ router.put('/updatepassword', protect, async (req, res, next) => {
     if (!isMatch) {
       return res.status(401).json({
         success: false,
-        error: 'Password is incorrect'
+        error: 'Password is incorrect',
       });
     }
 
@@ -270,17 +242,13 @@ router.put('/updatepassword', protect, async (req, res, next) => {
     const passwordHash = await bcrypt.hash(newPassword, salt);
 
     // Update password
-    await db('users')
-      .where({ id: req.user.id })
-      .update({
-        password_hash: passwordHash,
-        updated_at: new Date()
-      });
+    await db('users').where({ id: req.user.id }).update({
+      password_hash: passwordHash,
+      updated_at: new Date(),
+    });
 
     // Get updated user
-    const updatedUser = await db('users')
-      .where({ id: req.user.id })
-      .first();
+    const updatedUser = await db('users').where({ id: req.user.id }).first();
 
     sendTokenResponse(updatedUser, 200, res);
   } catch (error) {

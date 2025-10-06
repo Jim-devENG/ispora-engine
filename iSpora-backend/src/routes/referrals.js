@@ -14,9 +14,7 @@ router.post('/generate-code', protect, async (req, res) => {
     const referralCode = generateReferralCode(userId);
 
     // Check if code already exists
-    const existingCode = await knex('referrals')
-      .where('referral_code', referralCode)
-      .first();
+    const existingCode = await knex('referrals').where('referral_code', referralCode).first();
 
     if (existingCode) {
       return res.status(400).json({ error: 'Referral code already exists' });
@@ -29,14 +27,14 @@ router.post('/generate-code', protect, async (req, res) => {
         referral_code: referralCode,
         source: source || 'direct',
         campaign: campaign || 'default',
-        status: 'pending'
+        status: 'pending',
       })
       .returning('*');
 
     res.json({
       referralCode,
       referralUrl: `${process.env.FRONTEND_URL || 'https://ispora.com'}/signup?ref=${referralCode}`,
-      referral: referral[0]
+      referral: referral[0],
     });
   } catch (error) {
     console.error('Error generating referral code:', error);
@@ -59,7 +57,7 @@ router.get('/my-referrals', protect, async (req, res) => {
         'u.username',
         'u.avatar_url',
         'u.email',
-        'u.created_at as user_joined_date'
+        'u.created_at as user_joined_date',
       )
       .leftJoin('users as u', 'r.referred_id', 'u.id')
       .where('r.referrer_id', userId)
@@ -76,7 +74,7 @@ router.get('/my-referrals', protect, async (req, res) => {
     // Apply pagination
     const referrals = await query.limit(limit).offset(offset);
 
-    const transformedReferrals = referrals.map(referral => ({
+    const transformedReferrals = referrals.map((referral) => ({
       id: referral.id,
       referralCode: referral.referral_code,
       email: referral.email,
@@ -90,13 +88,15 @@ router.get('/my-referrals', protect, async (req, res) => {
       referredPoints: referral.referred_points,
       referrerRewarded: referral.referrer_rewarded,
       referredRewarded: referral.referred_rewarded,
-      referredUser: referral.referred_id ? {
-        id: referral.referred_id,
-        name: `${referral.first_name} ${referral.last_name}`.trim() || referral.username,
-        avatar: referral.avatar_url,
-        email: referral.email,
-        joinedDate: referral.user_joined_date
-      } : null
+      referredUser: referral.referred_id
+        ? {
+            id: referral.referred_id,
+            name: `${referral.first_name} ${referral.last_name}`.trim() || referral.username,
+            avatar: referral.avatar_url,
+            email: referral.email,
+            joinedDate: referral.user_joined_date,
+          }
+        : null,
     }));
 
     // Get referral statistics
@@ -123,15 +123,15 @@ router.get('/my-referrals', protect, async (req, res) => {
         page: parseInt(page),
         limit: parseInt(limit),
         total: parseInt(total),
-        pages: Math.ceil(total / limit)
+        pages: Math.ceil(total / limit),
       },
       stats: {
         total: parseInt(totalReferrals.total),
         successful: parseInt(successfulReferrals.count),
-        pending: stats.find(s => s.status === 'pending')?.count || 0,
-        expired: stats.find(s => s.status === 'expired')?.count || 0,
-        cancelled: stats.find(s => s.status === 'cancelled')?.count || 0
-      }
+        pending: stats.find((s) => s.status === 'pending')?.count || 0,
+        expired: stats.find((s) => s.status === 'expired')?.count || 0,
+        cancelled: stats.find((s) => s.status === 'cancelled')?.count || 0,
+      },
     });
   } catch (error) {
     console.error('Error fetching referrals:', error);
@@ -162,7 +162,7 @@ router.get('/stats', protect, async (req, res) => {
     const monthlyTrends = await knex('referrals')
       .select(
         knex.raw("DATE_TRUNC('month', referral_date) as month"),
-        knex.raw('COUNT(*) as count')
+        knex.raw('COUNT(*) as count'),
       )
       .where('referrer_id', userId)
       .where('referral_date', '>=', knex.raw("NOW() - INTERVAL '12 months'"))
@@ -180,17 +180,17 @@ router.get('/stats', protect, async (req, res) => {
 
     res.json({
       totalReferrals: stats.reduce((sum, stat) => sum + parseInt(stat.count), 0),
-      successfulReferrals: stats.find(s => s.status === 'completed')?.count || 0,
-      pendingReferrals: stats.find(s => s.status === 'pending')?.count || 0,
+      successfulReferrals: stats.find((s) => s.status === 'completed')?.count || 0,
+      pendingReferrals: stats.find((s) => s.status === 'pending')?.count || 0,
       totalPointsEarned: parseInt(totalPoints.total) || 0,
-      monthlyTrends: monthlyTrends.map(trend => ({
+      monthlyTrends: monthlyTrends.map((trend) => ({
         month: trend.month,
-        count: parseInt(trend.count)
+        count: parseInt(trend.count),
       })),
-      topSources: topSources.map(source => ({
+      topSources: topSources.map((source) => ({
         source: source.source,
-        count: parseInt(source.count)
-      }))
+        count: parseInt(source.count),
+      })),
     });
   } catch (error) {
     console.error('Error fetching referral stats:', error);
@@ -219,10 +219,8 @@ router.post('/process', async (req, res) => {
 
     // Check if referral is expired
     if (referral.expiry_date && new Date() > new Date(referral.expiry_date)) {
-      await knex('referrals')
-        .where('id', referral.id)
-        .update({ status: 'expired' });
-      
+      await knex('referrals').where('id', referral.id).update({ status: 'expired' });
+
       return res.status(400).json({ error: 'Referral code has expired' });
     }
 
@@ -232,13 +230,11 @@ router.post('/process', async (req, res) => {
     }
 
     // Update referral record
-    await knex('referrals')
-      .where('id', referral.id)
-      .update({
-        referred_id: userId,
-        status: 'completed',
-        completion_date: knex.fn.now()
-      });
+    await knex('referrals').where('id', referral.id).update({
+      referred_id: userId,
+      status: 'completed',
+      completion_date: knex.fn.now(),
+    });
 
     // Award points to both users
     const referrerPoints = 500; // REFERRAL_SUCCESS points
@@ -252,7 +248,7 @@ router.post('/process', async (req, res) => {
       points: referrerPoints,
       description: 'Successful referral',
       related_user_id: userId,
-      source: 'system'
+      source: 'system',
     });
 
     // Award points to referred user
@@ -263,7 +259,7 @@ router.post('/process', async (req, res) => {
       points: referredPoints,
       description: 'Welcome bonus from referral',
       related_user_id: referral.referrer_id,
-      source: 'system'
+      source: 'system',
     });
 
     // Update user credits
@@ -272,21 +268,17 @@ router.post('/process', async (req, res) => {
       .increment('total_points', referrerPoints)
       .increment('referrals_successful', 1);
 
-    await knex('user_credits')
-      .where('user_id', userId)
-      .increment('total_points', referredPoints);
+    await knex('user_credits').where('user_id', userId).increment('total_points', referredPoints);
 
     // Update referral record with points
-    await knex('referrals')
-      .where('id', referral.id)
-      .update({
-        referrer_points: referrerPoints,
-        referred_points: referredPoints,
-        referrer_rewarded: true,
-        referred_rewarded: true,
-        referrer_rewarded_at: knex.fn.now(),
-        referred_rewarded_at: knex.fn.now()
-      });
+    await knex('referrals').where('id', referral.id).update({
+      referrer_points: referrerPoints,
+      referred_points: referredPoints,
+      referrer_rewarded: true,
+      referred_rewarded: true,
+      referrer_rewarded_at: knex.fn.now(),
+      referred_rewarded_at: knex.fn.now(),
+    });
 
     // Update leaderboards
     const { updateLeaderboard } = require('./credits');
@@ -296,7 +288,7 @@ router.post('/process', async (req, res) => {
     res.json({
       message: 'Referral processed successfully',
       referrerPoints,
-      referredPoints
+      referredPoints,
     });
   } catch (error) {
     console.error('Error processing referral:', error);
@@ -328,10 +320,10 @@ router.get('/validate/:code', async (req, res) => {
     res.json({
       valid: true,
       referrer: {
-        name: `${referral.first_name} ${referral.last_name}`.trim() || referral.username
+        name: `${referral.first_name} ${referral.last_name}`.trim() || referral.username,
       },
       campaign: referral.campaign,
-      source: referral.source
+      source: referral.source,
     });
   } catch (error) {
     console.error('Error validating referral code:', error);
@@ -348,17 +340,25 @@ router.get('/leaderboard', protect, async (req, res) => {
       .select(
         'r.referrer_id',
         knex.raw('COUNT(*) as total_referrals'),
-        knex.raw('SUM(CASE WHEN r.status = \'completed\' THEN 1 ELSE 0 END) as successful_referrals'),
+        knex.raw("SUM(CASE WHEN r.status = 'completed' THEN 1 ELSE 0 END) as successful_referrals"),
         knex.raw('SUM(r.referrer_points) as total_points'),
         'u.first_name',
         'u.last_name',
         'u.username',
         'u.avatar_url',
         'u.location',
-        'u.university'
+        'u.university',
       )
       .join('users as u', 'r.referrer_id', 'u.id')
-      .groupBy('r.referrer_id', 'u.first_name', 'u.last_name', 'u.username', 'u.avatar_url', 'u.location', 'u.university')
+      .groupBy(
+        'r.referrer_id',
+        'u.first_name',
+        'u.last_name',
+        'u.username',
+        'u.avatar_url',
+        'u.location',
+        'u.university',
+      )
       .orderBy('successful_referrals', 'desc')
       .orderBy('total_points', 'desc');
 
@@ -381,11 +381,11 @@ router.get('/leaderboard', protect, async (req, res) => {
         name: `${entry.first_name} ${entry.last_name}`.trim() || entry.username,
         avatar: entry.avatar_url,
         location: entry.location,
-        university: entry.university
+        university: entry.university,
       },
       totalReferrals: parseInt(entry.total_referrals),
       successfulReferrals: parseInt(entry.successful_referrals),
-      totalPoints: parseInt(entry.total_points) || 0
+      totalPoints: parseInt(entry.total_points) || 0,
     }));
 
     res.json(transformedLeaderboard);
@@ -411,9 +411,7 @@ router.put('/:referralId/cancel', protect, async (req, res) => {
       return res.status(404).json({ error: 'Referral not found' });
     }
 
-    await knex('referrals')
-      .where('id', referralId)
-      .update({ status: 'cancelled' });
+    await knex('referrals').where('id', referralId).update({ status: 'cancelled' });
 
     res.json({ message: 'Referral cancelled successfully' });
   } catch (error) {

@@ -14,7 +14,7 @@ router.get('/overview', protect, async (req, res, next) => {
     // Calculate date range based on period
     const now = new Date();
     let startDate;
-    
+
     switch (period) {
       case '7d':
         startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -29,8 +29,7 @@ router.get('/overview', protect, async (req, res, next) => {
         startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
     }
 
-    let baseQuery = db('notifications')
-      .where('created_at', '>=', startDate);
+    let baseQuery = db('notifications').where('created_at', '>=', startDate);
 
     // Filter by user if specified (admin only)
     if (user_id && req.user.role === 'admin') {
@@ -40,7 +39,8 @@ router.get('/overview', protect, async (req, res, next) => {
     }
 
     // Get overall statistics
-    const overview = await baseQuery.clone()
+    const overview = await baseQuery
+      .clone()
       .select(
         db.raw('COUNT(*) as total_notifications'),
         db.raw('COUNT(CASE WHEN read = true THEN 1 END) as read_count'),
@@ -48,12 +48,15 @@ router.get('/overview', protect, async (req, res, next) => {
         db.raw('COUNT(CASE WHEN action_required = true THEN 1 END) as action_required_count'),
         db.raw('COUNT(CASE WHEN clicked_at IS NOT NULL THEN 1 END) as clicked_count'),
         db.raw('COUNT(CASE WHEN dismissed_at IS NOT NULL THEN 1 END) as dismissed_count'),
-        db.raw('ROUND(AVG(CASE WHEN read_at IS NOT NULL THEN (julianday(read_at) - julianday(created_at)) * 24 * 60 END), 2) as avg_read_time_minutes')
+        db.raw(
+          'ROUND(AVG(CASE WHEN read_at IS NOT NULL THEN (julianday(read_at) - julianday(created_at)) * 24 * 60 END), 2) as avg_read_time_minutes',
+        ),
       )
       .first();
 
     // Get statistics by type
-    const byType = await baseQuery.clone()
+    const byType = await baseQuery
+      .clone()
       .select('type')
       .count('* as count')
       .count(db.raw('CASE WHEN read = true THEN 1 END as read_count'))
@@ -62,7 +65,8 @@ router.get('/overview', protect, async (req, res, next) => {
       .orderBy('count', 'desc');
 
     // Get statistics by priority
-    const byPriority = await baseQuery.clone()
+    const byPriority = await baseQuery
+      .clone()
       .select('priority')
       .count('* as count')
       .count(db.raw('CASE WHEN read = true THEN 1 END as read_count'))
@@ -70,24 +74,31 @@ router.get('/overview', protect, async (req, res, next) => {
       .orderBy('count', 'desc');
 
     // Get daily statistics for the period
-    const dailyStats = await baseQuery.clone()
+    const dailyStats = await baseQuery
+      .clone()
       .select(
         db.raw('DATE(created_at) as date'),
         db.raw('COUNT(*) as sent'),
         db.raw('COUNT(CASE WHEN read = true THEN 1 END) as read'),
-        db.raw('COUNT(CASE WHEN clicked_at IS NOT NULL THEN 1 END) as clicked')
+        db.raw('COUNT(CASE WHEN clicked_at IS NOT NULL THEN 1 END) as clicked'),
       )
       .groupBy(db.raw('DATE(created_at)'))
       .orderBy('date', 'asc');
 
     // Calculate engagement rates
     const engagementRates = {
-      read_rate: overview.total_notifications > 0 ? 
-        ((overview.read_count / overview.total_notifications) * 100).toFixed(2) : 0,
-      click_rate: overview.total_notifications > 0 ? 
-        ((overview.clicked_count / overview.total_notifications) * 100).toFixed(2) : 0,
-      action_completion_rate: overview.action_required_count > 0 ? 
-        ((overview.clicked_count / overview.action_required_count) * 100).toFixed(2) : 0
+      read_rate:
+        overview.total_notifications > 0
+          ? ((overview.read_count / overview.total_notifications) * 100).toFixed(2)
+          : 0,
+      click_rate:
+        overview.total_notifications > 0
+          ? ((overview.clicked_count / overview.total_notifications) * 100).toFixed(2)
+          : 0,
+      action_completion_rate:
+        overview.action_required_count > 0
+          ? ((overview.clicked_count / overview.action_required_count) * 100).toFixed(2)
+          : 0,
     };
 
     res.status(200).json({
@@ -98,12 +109,12 @@ router.get('/overview', protect, async (req, res, next) => {
         end_date: now,
         overview: {
           ...overview,
-          ...engagementRates
+          ...engagementRates,
         },
         by_type: byType,
         by_priority: byPriority,
-        daily_stats: dailyStats
-      }
+        daily_stats: dailyStats,
+      },
     });
   } catch (error) {
     next(error);
@@ -120,16 +131,15 @@ router.get('/notification/:id', protect, async (req, res, next) => {
     // Check if user has access to this notification
     const notification = await db('notifications')
       .where({ id })
-      .where(function() {
-        this.where('user_id', req.user.id)
-          .orWhere(req.user.role === 'admin', true);
+      .where(function () {
+        this.where('user_id', req.user.id).orWhere(req.user.role === 'admin', true);
       })
       .first();
 
     if (!notification) {
       return res.status(404).json({
         success: false,
-        error: 'Notification not found'
+        error: 'Notification not found',
       });
     }
 
@@ -152,7 +162,7 @@ router.get('/notification/:id', protect, async (req, res, next) => {
       total_events: analytics.length,
       event_types: Object.keys(analyticsByType),
       first_event: analytics.length > 0 ? analytics[analytics.length - 1].event_timestamp : null,
-      last_event: analytics.length > 0 ? analytics[0].event_timestamp : null
+      last_event: analytics.length > 0 ? analytics[0].event_timestamp : null,
     };
 
     res.status(200).json({
@@ -161,8 +171,8 @@ router.get('/notification/:id', protect, async (req, res, next) => {
         notification_id: id,
         summary,
         analytics_by_type: analyticsByType,
-        all_events: analytics
-      }
+        all_events: analytics,
+      },
     });
   } catch (error) {
     next(error);
@@ -175,10 +185,7 @@ router.get('/notification/:id', protect, async (req, res, next) => {
 router.get('/preferences', protect, async (req, res, next) => {
   try {
     // Get user preferences
-    const user = await db('users')
-      .select('preferences')
-      .where({ id: req.user.id })
-      .first();
+    const user = await db('users').select('preferences').where({ id: req.user.id }).first();
 
     const preferences = user?.preferences?.notifications || {};
 
@@ -186,7 +193,7 @@ router.get('/preferences', protect, async (req, res, next) => {
     const { period = '30d' } = req.query;
     const now = new Date();
     let startDate;
-    
+
     switch (period) {
       case '7d':
         startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -212,24 +219,24 @@ router.get('/preferences', protect, async (req, res, next) => {
 
     // Map preferences to notification types
     const preferenceMapping = {
-      'connections': ['connection'],
-      'mentorship': ['mentorship'],
-      'projects': ['project'],
-      'opportunities': ['opportunity'],
-      'system': ['system', 'achievement']
+      connections: ['connection'],
+      mentorship: ['mentorship'],
+      projects: ['project'],
+      opportunities: ['opportunity'],
+      system: ['system', 'achievement'],
     };
 
-    const preferenceStats = Object.keys(preferenceMapping).map(pref => {
+    const preferenceStats = Object.keys(preferenceMapping).map((pref) => {
       const types = preferenceMapping[pref];
-      const typeStats = stats.filter(stat => types.includes(stat.type));
-      
+      const typeStats = stats.filter((stat) => types.includes(stat.type));
+
       return {
         preference: pref,
         enabled: preferences[pref] || false,
         types: types,
         total_notifications: typeStats.reduce((sum, stat) => sum + parseInt(stat.total), 0),
         read_count: typeStats.reduce((sum, stat) => sum + parseInt(stat.read), 0),
-        clicked_count: typeStats.reduce((sum, stat) => sum + parseInt(stat.clicked), 0)
+        clicked_count: typeStats.reduce((sum, stat) => sum + parseInt(stat.clicked), 0),
       };
     });
 
@@ -239,8 +246,8 @@ router.get('/preferences', protect, async (req, res, next) => {
         period,
         preferences,
         preference_stats: preferenceStats,
-        overall_stats: stats
-      }
+        overall_stats: stats,
+      },
     });
   } catch (error) {
     next(error);
@@ -252,19 +259,13 @@ router.get('/preferences', protect, async (req, res, next) => {
 // @access  Private
 router.post('/track', protect, async (req, res, next) => {
   try {
-    const {
-      notification_id,
-      event_type,
-      event_data,
-      user_agent,
-      ip_address
-    } = req.body;
+    const { notification_id, event_type, event_data, user_agent, ip_address } = req.body;
 
     // Validate required fields
     if (!notification_id || !event_type) {
       return res.status(400).json({
         success: false,
-        error: 'notification_id and event_type are required'
+        error: 'notification_id and event_type are required',
       });
     }
 
@@ -276,7 +277,7 @@ router.post('/track', protect, async (req, res, next) => {
     if (!notification) {
       return res.status(404).json({
         success: false,
-        error: 'Notification not found'
+        error: 'Notification not found',
       });
     }
 
@@ -291,14 +292,14 @@ router.post('/track', protect, async (req, res, next) => {
       ip_address: ip_address || req.ip,
       event_timestamp: new Date(),
       created_at: new Date(),
-      updated_at: new Date()
+      updated_at: new Date(),
     };
 
     await db('notification_analytics').insert(analyticsRecord);
 
     // Update notification based on event type
     const updateData = {};
-    
+
     switch (event_type) {
       case 'read':
         updateData.read = true;
@@ -314,15 +315,13 @@ router.post('/track', protect, async (req, res, next) => {
     }
 
     if (Object.keys(updateData).length > 0) {
-      await db('notifications')
-        .where({ id: notification_id })
-        .update(updateData);
+      await db('notifications').where({ id: notification_id }).update(updateData);
     }
 
     res.status(201).json({
       success: true,
       message: 'Event tracked successfully',
-      data: analyticsRecord
+      data: analyticsRecord,
     });
   } catch (error) {
     next(error);
@@ -339,7 +338,7 @@ router.get('/performance', protect, authorize('admin'), async (req, res, next) =
     // Calculate date range
     const now = new Date();
     let startDate;
-    
+
     switch (period) {
       case '7d':
         startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -376,12 +375,16 @@ router.get('/performance', protect, authorize('admin'), async (req, res, next) =
       .count(db.raw('CASE WHEN read = true THEN 1 END as total_read'))
       .count(db.raw('CASE WHEN clicked_at IS NOT NULL THEN 1 END as total_clicked'))
       .count(db.raw('CASE WHEN action_required = true THEN 1 END as total_action_required'))
-      .count(db.raw('CASE WHEN action_required = true AND clicked_at IS NOT NULL THEN 1 END as action_completed'))
+      .count(
+        db.raw(
+          'CASE WHEN action_required = true AND clicked_at IS NOT NULL THEN 1 END as action_completed',
+        ),
+      )
       .groupBy(groupByField)
       .orderBy('total_sent', 'desc');
 
     // Calculate performance metrics
-    const performanceWithMetrics = performance.map(item => {
+    const performanceWithMetrics = performance.map((item) => {
       const totalSent = parseInt(item.total_sent);
       const totalRead = parseInt(item.total_read);
       const totalClicked = parseInt(item.total_clicked);
@@ -392,8 +395,10 @@ router.get('/performance', protect, authorize('admin'), async (req, res, next) =
         ...item,
         read_rate: totalSent > 0 ? ((totalRead / totalSent) * 100).toFixed(2) : 0,
         click_rate: totalSent > 0 ? ((totalClicked / totalSent) * 100).toFixed(2) : 0,
-        action_completion_rate: totalActionRequired > 0 ? ((actionCompleted / totalActionRequired) * 100).toFixed(2) : 0,
-        engagement_score: totalSent > 0 ? (((totalRead + totalClicked) / (totalSent * 2)) * 100).toFixed(2) : 0
+        action_completion_rate:
+          totalActionRequired > 0 ? ((actionCompleted / totalActionRequired) * 100).toFixed(2) : 0,
+        engagement_score:
+          totalSent > 0 ? (((totalRead + totalClicked) / (totalSent * 2)) * 100).toFixed(2) : 0,
       };
     });
 
@@ -404,8 +409,8 @@ router.get('/performance', protect, authorize('admin'), async (req, res, next) =
         group_by,
         start_date: startDate,
         end_date: now,
-        performance: performanceWithMetrics
-      }
+        performance: performanceWithMetrics,
+      },
     });
   } catch (error) {
     next(error);

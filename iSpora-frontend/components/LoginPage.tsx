@@ -5,17 +5,17 @@ import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Alert, AlertDescription } from './ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { 
-  Mail, 
-  Lock, 
-  User, 
-  Eye, 
-  EyeOff, 
+import {
+  Mail,
+  Lock,
+  User,
+  Eye,
+  EyeOff,
   Loader2,
   Globe,
   GraduationCap,
   Users,
-  BookOpen
+  BookOpen,
 } from 'lucide-react';
 import { useAuth } from './AuthContext';
 import { toast } from 'sonner';
@@ -57,7 +57,7 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
     }
 
     const result = await login(loginData.email, loginData.password);
-    
+
     if (result.success) {
       toast.success('Welcome back!');
       onSuccess?.();
@@ -70,7 +70,12 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
     e.preventDefault();
     setError(null);
 
-    if (!registerData.email || !registerData.password || !registerData.firstName || !registerData.lastName) {
+    if (
+      !registerData.email ||
+      !registerData.password ||
+      !registerData.firstName ||
+      !registerData.lastName
+    ) {
       setError('Please fill in all required fields');
       return;
     }
@@ -93,7 +98,7 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
       userType: registerData.userType,
       username: registerData.username,
     });
-    
+
     if (result.success) {
       toast.success('Account created successfully!');
       onSuccess?.();
@@ -142,17 +147,29 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
 
         <Card className="shadow-lg border-0 bg-white/90 backdrop-blur-md rounded-xl overflow-hidden">
           <CardHeader className="space-y-1 pb-4 pt-4">
-            <CardTitle className="text-lg text-center font-bold text-gray-800">Welcome Back</CardTitle>
+            <CardTitle className="text-lg text-center font-bold text-gray-800">
+              Welcome Back
+            </CardTitle>
             <CardDescription className="text-center text-gray-600 text-sm">
               Sign in to your account or create a new one
             </CardDescription>
           </CardHeader>
-          
+
           <CardContent className="p-4">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="grid w-full grid-cols-2 mb-4 bg-gray-100 p-1 rounded-lg">
-                <TabsTrigger value="login" className="rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm text-sm">Sign In</TabsTrigger>
-                <TabsTrigger value="register" className="rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm text-sm">Sign Up</TabsTrigger>
+                <TabsTrigger
+                  value="login"
+                  className="rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm text-sm"
+                >
+                  Sign In
+                </TabsTrigger>
+                <TabsTrigger
+                  value="register"
+                  className="rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm text-sm"
+                >
+                  Sign Up
+                </TabsTrigger>
               </TabsList>
 
               {error && (
@@ -164,7 +181,9 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
               <TabsContent value="login" className="space-y-4">
                 <form onSubmit={handleLogin} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="login-email" className="text-xs font-medium text-gray-700">Email Address</Label>
+                    <Label htmlFor="login-email" className="text-xs font-medium text-gray-700">
+                      Email Address
+                    </Label>
                     <div className="relative group">
                       <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-[#021ff6] transition-colors">
                         <Mail className="h-4 w-4" />
@@ -174,7 +193,9 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
                         type="email"
                         placeholder="Enter your email"
                         value={loginData.email}
-                        onChange={(e) => setLoginData(prev => ({ ...prev, email: e.target.value }))}
+                        onChange={(e) =>
+                          setLoginData((prev) => ({ ...prev, email: e.target.value }))
+                        }
                         className="pl-10 h-9 border-gray-200 focus:border-[#021ff6] focus:ring-[#021ff6]/20 rounded-lg transition-all text-sm"
                         required
                       />
@@ -182,7 +203,9 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="login-password" className="text-xs font-medium text-gray-700">Password</Label>
+                    <Label htmlFor="login-password" className="text-xs font-medium text-gray-700">
+                      Password
+                    </Label>
                     <div className="relative group">
                       <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-[#021ff6] transition-colors">
                         <Lock className="h-4 w-4" />
@@ -192,7 +215,9 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
                         type={showPassword ? 'text' : 'password'}
                         placeholder="Enter your password"
                         value={loginData.password}
-                        onChange={(e) => setLoginData(prev => ({ ...prev, password: e.target.value }))}
+                        onChange={(e) =>
+                          setLoginData((prev) => ({ ...prev, password: e.target.value }))
+                        }
                         className="pl-10 pr-10 h-9 border-gray-200 focus:border-[#021ff6] focus:ring-[#021ff6]/20 rounded-lg transition-all text-sm"
                         required
                       />
@@ -201,14 +226,18 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
                         onClick={() => setShowPassword(!showPassword)}
                         className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                       >
-                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        {showPassword ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
                       </button>
                     </div>
                   </div>
 
-                  <Button 
-                    type="submit" 
-                    className="w-full h-9 bg-[#021ff6] hover:bg-[#021ff6]/90 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 text-sm" 
+                  <Button
+                    type="submit"
+                    className="w-full h-9 bg-[#021ff6] hover:bg-[#021ff6]/90 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 text-sm"
                     disabled={isLoading}
                   >
                     {isLoading ? (
@@ -227,33 +256,49 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
                 <form onSubmit={handleRegister} className="space-y-4">
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-2">
-                      <Label htmlFor="register-firstName" className="text-xs font-medium text-gray-700">First Name</Label>
+                      <Label
+                        htmlFor="register-firstName"
+                        className="text-xs font-medium text-gray-700"
+                      >
+                        First Name
+                      </Label>
                       <Input
                         id="register-firstName"
                         type="text"
                         placeholder="John"
                         value={registerData.firstName}
-                        onChange={(e) => setRegisterData(prev => ({ ...prev, firstName: e.target.value }))}
+                        onChange={(e) =>
+                          setRegisterData((prev) => ({ ...prev, firstName: e.target.value }))
+                        }
                         className="h-9 border-gray-200 focus:border-[#021ff6] focus:ring-[#021ff6]/20 rounded-lg transition-all text-sm"
                         required
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="register-lastName" className="text-xs font-medium text-gray-700">Last Name</Label>
+                      <Label
+                        htmlFor="register-lastName"
+                        className="text-xs font-medium text-gray-700"
+                      >
+                        Last Name
+                      </Label>
                       <Input
                         id="register-lastName"
                         type="text"
                         placeholder="Doe"
                         value={registerData.lastName}
-                        onChange={(e) => setRegisterData(prev => ({ ...prev, lastName: e.target.value }))}
+                        onChange={(e) =>
+                          setRegisterData((prev) => ({ ...prev, lastName: e.target.value }))
+                        }
                         className="h-9 border-gray-200 focus:border-[#021ff6] focus:ring-[#021ff6]/20 rounded-lg transition-all text-sm"
                         required
                       />
                     </div>
                   </div>
-                  
+
                   <div className="space-y-2">
-                    <Label htmlFor="register-email" className="text-xs font-medium text-gray-700">Email Address</Label>
+                    <Label htmlFor="register-email" className="text-xs font-medium text-gray-700">
+                      Email Address
+                    </Label>
                     <div className="relative group">
                       <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-[#021ff6] transition-colors">
                         <Mail className="h-4 w-4" />
@@ -263,7 +308,9 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
                         type="email"
                         placeholder="Enter your email"
                         value={registerData.email}
-                        onChange={(e) => setRegisterData(prev => ({ ...prev, email: e.target.value }))}
+                        onChange={(e) =>
+                          setRegisterData((prev) => ({ ...prev, email: e.target.value }))
+                        }
                         className="pl-10 h-9 border-gray-200 focus:border-[#021ff6] focus:ring-[#021ff6]/20 rounded-lg transition-all text-sm"
                         required
                       />
@@ -287,14 +334,21 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
                             name="userType"
                             value={option.value}
                             checked={registerData.userType === option.value}
-                            onChange={(e) => setRegisterData(prev => ({ ...prev, userType: e.target.value as 'student' | 'professional' | 'mentor' }))}
+                            onChange={(e) =>
+                              setRegisterData((prev) => ({
+                                ...prev,
+                                userType: e.target.value as 'student' | 'professional' | 'mentor',
+                              }))
+                            }
                             className="sr-only"
                           />
                           <div className={`flex-shrink-0 mr-3 ${option.color}`}>
                             <option.icon size={18} />
                           </div>
                           <div>
-                            <div className="font-semibold text-gray-900 text-sm">{option.label}</div>
+                            <div className="font-semibold text-gray-900 text-sm">
+                              {option.label}
+                            </div>
                             <div className="text-xs text-gray-500">{option.description}</div>
                           </div>
                         </label>
@@ -303,7 +357,12 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="register-password" className="text-xs font-medium text-gray-700">Password</Label>
+                    <Label
+                      htmlFor="register-password"
+                      className="text-xs font-medium text-gray-700"
+                    >
+                      Password
+                    </Label>
                     <div className="relative group">
                       <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-[#021ff6] transition-colors">
                         <Lock className="h-4 w-4" />
@@ -313,7 +372,9 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
                         type={showPassword ? 'text' : 'password'}
                         placeholder="Choose a strong password"
                         value={registerData.password}
-                        onChange={(e) => setRegisterData(prev => ({ ...prev, password: e.target.value }))}
+                        onChange={(e) =>
+                          setRegisterData((prev) => ({ ...prev, password: e.target.value }))
+                        }
                         className="pl-10 pr-10 h-9 border-gray-200 focus:border-[#021ff6] focus:ring-[#021ff6]/20 rounded-lg transition-all text-sm"
                         required
                       />
@@ -322,13 +383,22 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
                         onClick={() => setShowPassword(!showPassword)}
                         className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                       >
-                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        {showPassword ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
                       </button>
                     </div>
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="register-confirmPassword" className="text-xs font-medium text-gray-700">Confirm Password</Label>
+                    <Label
+                      htmlFor="register-confirmPassword"
+                      className="text-xs font-medium text-gray-700"
+                    >
+                      Confirm Password
+                    </Label>
                     <div className="relative group">
                       <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-[#021ff6] transition-colors">
                         <Lock className="h-4 w-4" />
@@ -338,7 +408,9 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
                         type={showPassword ? 'text' : 'password'}
                         placeholder="Confirm your password"
                         value={registerData.confirmPassword}
-                        onChange={(e) => setRegisterData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                        onChange={(e) =>
+                          setRegisterData((prev) => ({ ...prev, confirmPassword: e.target.value }))
+                        }
                         className="pl-10 h-9 border-gray-200 focus:border-[#021ff6] focus:ring-[#021ff6]/20 rounded-lg transition-all text-sm"
                         required
                       />
@@ -367,7 +439,16 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
 
         {/* Footer */}
         <div className="text-center mt-6 text-xs text-gray-500">
-          <p>By signing in, you agree to our <span className="text-[#021ff6] hover:text-[#021ff6]/80 cursor-pointer">Terms of Service</span> and <span className="text-[#021ff6] hover:text-[#021ff6]/80 cursor-pointer">Privacy Policy</span></p>
+          <p>
+            By signing in, you agree to our{' '}
+            <span className="text-[#021ff6] hover:text-[#021ff6]/80 cursor-pointer">
+              Terms of Service
+            </span>{' '}
+            and{' '}
+            <span className="text-[#021ff6] hover:text-[#021ff6]/80 cursor-pointer">
+              Privacy Policy
+            </span>
+          </p>
         </div>
       </div>
     </div>

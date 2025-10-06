@@ -1,19 +1,24 @@
-import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Badge } from "./ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { Progress } from "./ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { ScrollArea } from "./ui/scroll-area";
-import { Separator } from "./ui/separator";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
-import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
-import { useNavigation } from "./NavigationContext";
-import { useAuth } from "./AuthContext";
-import { toast } from "sonner";
+import { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Badge } from './ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { Progress } from './ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { ScrollArea } from './ui/scroll-area';
+import { Separator } from './ui/separator';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from './ui/dropdown-menu';
+import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
+import { useNavigation } from './NavigationContext';
+import { useAuth } from './AuthContext';
+import { toast } from 'sonner';
 import {
   Plus,
   Search,
@@ -56,8 +61,8 @@ import {
   Briefcase,
   Lightbulb,
   Users2,
-  Megaphone
-} from "lucide-react";
+  Megaphone,
+} from 'lucide-react';
 
 interface Project {
   id: string;
@@ -91,16 +96,36 @@ interface Update {
 }
 
 // API base URL
-  const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
 // All mock data removed – using real API data only
 
 const categoryConfig = {
-  mentorship: { icon: Users, color: "bg-orange-100 text-orange-700", label: "Mentorship & Coaching" },
-  academic: { icon: BookOpen, color: "bg-blue-100 text-blue-700", label: "Academic & Research Projects" },
-  career: { icon: Briefcase, color: "bg-amber-100 text-amber-700", label: "Career & Entrepreneurship" },
-  community: { icon: Heart, color: "bg-green-100 text-green-700", label: "Community Impact Projects" },
-  collaboration: { icon: Lightbulb, color: "bg-yellow-100 text-yellow-700", label: "Collaboration & Innovation Projects" }
+  mentorship: {
+    icon: Users,
+    color: 'bg-orange-100 text-orange-700',
+    label: 'Mentorship & Coaching',
+  },
+  academic: {
+    icon: BookOpen,
+    color: 'bg-blue-100 text-blue-700',
+    label: 'Academic & Research Projects',
+  },
+  career: {
+    icon: Briefcase,
+    color: 'bg-amber-100 text-amber-700',
+    label: 'Career & Entrepreneurship',
+  },
+  community: {
+    icon: Heart,
+    color: 'bg-green-100 text-green-700',
+    label: 'Community Impact Projects',
+  },
+  collaboration: {
+    icon: Lightbulb,
+    color: 'bg-yellow-100 text-yellow-700',
+    label: 'Collaboration & Innovation Projects',
+  },
 };
 
 function ProjectCard({ project }: { project: Project }) {
@@ -110,11 +135,16 @@ function ProjectCard({ project }: { project: Project }) {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'active': return 'bg-green-100 text-green-800';
-      case 'draft': return 'bg-gray-100 text-gray-800';
-      case 'paused': return 'bg-yellow-100 text-yellow-800';
-      case 'completed': return 'bg-blue-100 text-blue-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'active':
+        return 'bg-green-100 text-green-800';
+      case 'draft':
+        return 'bg-gray-100 text-gray-800';
+      case 'paused':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'completed':
+        return 'bg-blue-100 text-blue-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
@@ -123,20 +153,20 @@ function ProjectCard({ project }: { project: Project }) {
   };
 
   const handleEditProject = () => {
-    toast.info("Edit project functionality coming soon!");
+    toast.info('Edit project functionality coming soon!');
   };
 
   const handleProjectAnalytics = () => {
-    toast.info("Project analytics functionality coming soon!");
+    toast.info('Project analytics functionality coming soon!');
   };
 
   const handleShareProject = () => {
     navigator.clipboard.writeText(window.location.href);
-    toast.success("Project link copied to clipboard!");
+    toast.success('Project link copied to clipboard!');
   };
 
   const handleDeleteProject = () => {
-    toast.error("Delete project functionality coming soon!");
+    toast.error('Delete project functionality coming soon!');
   };
 
   return (
@@ -163,11 +193,9 @@ function ProjectCard({ project }: { project: Project }) {
                 </Badge>
               )}
             </div>
-            
+
             <h3 className="font-semibold mb-2">{project.title}</h3>
-            <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
-              {project.description}
-            </p>
+            <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{project.description}</p>
 
             <div className="flex items-center gap-4 text-xs text-muted-foreground mb-3">
               <div className="flex items-center gap-1">
@@ -251,8 +279,8 @@ function ProjectCard({ project }: { project: Project }) {
 
         {/* Action Buttons */}
         <div className="flex gap-2">
-          <Button 
-            size="sm" 
+          <Button
+            size="sm"
             className="flex-1 bg-[#021ff6] hover:bg-[#021ff6]/90"
             onClick={handleViewProject}
           >
@@ -287,21 +315,31 @@ function UpdateCard({ update }: { update: Update }) {
 
   const getTypeIcon = (type: string) => {
     switch (type) {
-      case 'milestone': return <Target className="h-4 w-4" />;
-      case 'announcement': return <Megaphone className="h-4 w-4" />;
-      case 'achievement': return <Award className="h-4 w-4" />;
-      case 'news': return <FileText className="h-4 w-4" />;
-      default: return <MessageSquare className="h-4 w-4" />;
+      case 'milestone':
+        return <Target className="h-4 w-4" />;
+      case 'announcement':
+        return <Megaphone className="h-4 w-4" />;
+      case 'achievement':
+        return <Award className="h-4 w-4" />;
+      case 'news':
+        return <FileText className="h-4 w-4" />;
+      default:
+        return <MessageSquare className="h-4 w-4" />;
     }
   };
 
   const getTypeColor = (type: string) => {
     switch (type) {
-      case 'milestone': return 'bg-blue-100 text-blue-700';
-      case 'announcement': return 'bg-purple-100 text-purple-700';
-      case 'achievement': return 'bg-green-100 text-green-700';
-      case 'news': return 'bg-orange-100 text-orange-700';
-      default: return 'bg-gray-100 text-gray-700';
+      case 'milestone':
+        return 'bg-blue-100 text-blue-700';
+      case 'announcement':
+        return 'bg-purple-100 text-purple-700';
+      case 'achievement':
+        return 'bg-green-100 text-green-700';
+      case 'news':
+        return 'bg-orange-100 text-orange-700';
+      default:
+        return 'bg-gray-100 text-gray-700';
     }
   };
 
@@ -312,15 +350,15 @@ function UpdateCard({ update }: { update: Update }) {
 
   const handleShareUpdate = () => {
     navigator.clipboard.writeText(window.location.href);
-    toast.success("Update link copied to clipboard!");
+    toast.success('Update link copied to clipboard!');
   };
 
   const handleEditUpdate = () => {
-    toast.info("Edit update functionality coming soon!");
+    toast.info('Edit update functionality coming soon!');
   };
 
   const handleDeleteUpdate = () => {
-    toast.error("Delete update functionality coming soon!");
+    toast.error('Delete update functionality coming soon!');
   };
 
   return (
@@ -359,9 +397,9 @@ function UpdateCard({ update }: { update: Update }) {
           <div className="flex gap-1">
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button 
-                  size="sm" 
-                  variant="ghost" 
+                <Button
+                  size="sm"
+                  variant="ghost"
                   className={`h-8 w-8 p-0 ${isLiked ? 'text-red-500' : ''}`}
                   onClick={handleLikeUpdate}
                 >
@@ -372,7 +410,12 @@ function UpdateCard({ update }: { update: Update }) {
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={handleShareUpdate}>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="h-8 w-8 p-0"
+                  onClick={handleShareUpdate}
+                >
                   <Share2 className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
@@ -410,10 +453,10 @@ function UpdateCard({ update }: { update: Update }) {
 export function MyProjects() {
   const { navigate } = useNavigation();
   const { user } = useAuth();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [filterCategory, setFilterCategory] = useState<string>("all");
-  const [filterStatus, setFilterStatus] = useState<string>("all");
-  const [sortBy, setSortBy] = useState<string>("recent");
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterCategory, setFilterCategory] = useState<string>('all');
+  const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [sortBy, setSortBy] = useState<string>('recent');
   const [projects, setProjects] = useState<Project[]>([]);
   const [updates, setUpdates] = useState<Update[]>([]);
   const [loading, setLoading] = useState(false);
@@ -428,7 +471,7 @@ export function MyProjects() {
   };
 
   const handleNewUpdate = () => {
-    toast.info("New update functionality coming soon!");
+    toast.info('New update functionality coming soon!');
   };
 
   // Load real projects and updates
@@ -446,14 +489,21 @@ export function MyProjects() {
 
         const [projRes, updRes] = await Promise.all([
           fetch(`${API_BASE_URL}/projects?mine=true`, { headers, signal: controller.signal }),
-          fetch(`${API_BASE_URL}/projects/updates?mine=true`, { headers, signal: controller.signal })
+          fetch(`${API_BASE_URL}/projects/updates?mine=true`, {
+            headers,
+            signal: controller.signal,
+          }),
         ]);
 
         const projJson = await projRes.json();
         const updJson = await updRes.json();
 
-        setProjects(Array.isArray(projJson.data) ? projJson.data : (Array.isArray(projJson) ? projJson : []));
-        setUpdates(Array.isArray(updJson.data) ? updJson.data : (Array.isArray(updJson) ? updJson : []));
+        setProjects(
+          Array.isArray(projJson.data) ? projJson.data : Array.isArray(projJson) ? projJson : [],
+        );
+        setUpdates(
+          Array.isArray(updJson.data) ? updJson.data : Array.isArray(updJson) ? updJson : [],
+        );
       } catch (e: any) {
         setError('Failed to load projects');
         setProjects([]);
@@ -471,26 +521,26 @@ export function MyProjects() {
   }, []);
 
   const filteredProjects = projects
-    .filter(project => {
-      const matchesSearch = 
+    .filter((project) => {
+      const matchesSearch =
         project.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         project.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        project.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
-      
-      const matchesCategory = filterCategory === "all" || project.category === filterCategory;
-      const matchesStatus = filterStatus === "all" || project.status === filterStatus;
-      
+        project.tags.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+
+      const matchesCategory = filterCategory === 'all' || project.category === filterCategory;
+      const matchesStatus = filterStatus === 'all' || project.status === filterStatus;
+
       return matchesSearch && matchesCategory && matchesStatus;
     })
     .sort((a, b) => {
       switch (sortBy) {
-        case "recent":
+        case 'recent':
           return new Date(b.startDate).getTime() - new Date(a.startDate).getTime();
-        case "progress":
+        case 'progress':
           return b.progress - a.progress;
-        case "participants":
+        case 'participants':
           return b.participants - a.participants;
-        case "impact":
+        case 'impact':
           return b.impactScore - a.impactScore;
         default:
           return 0;
@@ -499,9 +549,13 @@ export function MyProjects() {
 
   const stats = {
     totalProjects: projects.length,
-    activeProjects: projects.filter(p => p.status === 'active').length,
+    activeProjects: projects.filter((p) => p.status === 'active').length,
     totalParticipants: projects.reduce((sum, p) => sum + (p.participants || 0), 0),
-    avgImpactScore: projects.length ? Math.round((projects.reduce((sum, p) => sum + (p.impactScore || 0), 0) / projects.length) * 10) / 10 : 0
+    avgImpactScore: projects.length
+      ? Math.round(
+          (projects.reduce((sum, p) => sum + (p.impactScore || 0), 0) / projects.length) * 10,
+        ) / 10
+      : 0,
   };
 
   return (
@@ -510,7 +564,7 @@ export function MyProjects() {
       <div className="px-6 py-4 border-b border-border flex-shrink-0">
         {/* Back Navigation */}
         <div className="mb-4">
-          <button 
+          <button
             onClick={handleBackToProjects}
             className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
           >
@@ -518,19 +572,18 @@ export function MyProjects() {
             Back to Projects
           </button>
         </div>
-        
+
         <div className="flex items-center justify-between mb-4">
           <div>
             <h1 className="text-2xl font-semibold text-foreground flex items-center gap-2">
               <FolderOpen className="h-6 w-6 text-[#021ff6]" />
               {userName}'s Projects
             </h1>
-            <p className="text-sm text-muted-foreground">Manage and track your created projects and initiatives</p>
+            <p className="text-sm text-muted-foreground">
+              Manage and track your created projects and initiatives
+            </p>
           </div>
-          <Button 
-            className="bg-[#021ff6] hover:bg-[#021ff6]/90"
-            onClick={handleCreateProject}
-          >
+          <Button className="bg-[#021ff6] hover:bg-[#021ff6]/90" onClick={handleCreateProject}>
             <Plus className="h-4 w-4 mr-2" />
             Create Project
           </Button>
@@ -552,7 +605,9 @@ export function MyProjects() {
           </Card>
           <Card>
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-semibold text-orange-600">{stats.totalParticipants}</div>
+              <div className="text-2xl font-semibold text-orange-600">
+                {stats.totalParticipants}
+              </div>
               <div className="text-xs text-muted-foreground">Total Participants</div>
             </CardContent>
           </Card>
@@ -591,7 +646,7 @@ export function MyProjects() {
                     />
                   </div>
                 </div>
-                
+
                 <Select value={filterCategory} onValueChange={setFilterCategory}>
                   <SelectTrigger className="w-48">
                     <SelectValue placeholder="Category" />
@@ -602,7 +657,9 @@ export function MyProjects() {
                     <SelectItem value="academic">Academic & Research Projects</SelectItem>
                     <SelectItem value="career">Career & Entrepreneurship</SelectItem>
                     <SelectItem value="community">Community Impact Projects</SelectItem>
-                    <SelectItem value="collaboration">Collaboration & Innovation Projects</SelectItem>
+                    <SelectItem value="collaboration">
+                      Collaboration & Innovation Projects
+                    </SelectItem>
                   </SelectContent>
                 </Select>
 
@@ -639,7 +696,7 @@ export function MyProjects() {
                     <ProjectCard key={project.id} project={project} />
                   ))}
                 </div>
-                
+
                 {filteredProjects.length === 0 && (
                   <div className="text-center py-12">
                     <FolderOpen className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
@@ -647,7 +704,7 @@ export function MyProjects() {
                     <p className="text-sm text-muted-foreground mb-4">
                       Try adjusting your search criteria or create a new project
                     </p>
-                    <Button 
+                    <Button
                       className="bg-[#021ff6] hover:bg-[#021ff6]/90"
                       onClick={handleCreateProject}
                     >
@@ -664,8 +721,8 @@ export function MyProjects() {
             <div className="px-6 py-4">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-lg font-semibold">Project Updates</h2>
-                <Button 
-                  size="sm" 
+                <Button
+                  size="sm"
                   className="bg-[#021ff6] hover:bg-[#021ff6]/90"
                   onClick={handleNewUpdate}
                 >
@@ -673,7 +730,7 @@ export function MyProjects() {
                   New Update
                 </Button>
               </div>
-              
+
               <ScrollArea className="h-[calc(100vh-300px)]">
                 <div className="space-y-4">
                   {updates.map((update) => (
@@ -687,7 +744,7 @@ export function MyProjects() {
           <TabsContent value="analytics" className="flex-1 overflow-hidden">
             <div className="px-6 py-4">
               <h2 className="text-lg font-semibold mb-6">Project Analytics</h2>
-              
+
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 <Card>
                   <CardHeader>
@@ -707,9 +764,7 @@ export function MyProjects() {
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-semibold">{stats.avgImpactScore}/10</div>
-                    <p className="text-xs text-muted-foreground">
-                      Average impact across projects
-                    </p>
+                    <p className="text-xs text-muted-foreground">Average impact across projects</p>
                   </CardContent>
                 </Card>
 
@@ -719,13 +774,11 @@ export function MyProjects() {
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-semibold">85%</div>
-                    <p className="text-xs text-muted-foreground">
-                      Projects completed successfully
-                    </p>
+                    <p className="text-xs text-muted-foreground">Projects completed successfully</p>
                   </CardContent>
                 </Card>
               </div>
-              
+
               <div className="mt-8 text-center py-12 text-muted-foreground">
                 <BarChart3 className="h-12 w-12 mx-auto mb-4" />
                 <p>Detailed analytics coming soon...</p>

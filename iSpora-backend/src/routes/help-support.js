@@ -31,8 +31,8 @@ router.get('/', protect, async (req, res, next) => {
       data: {
         recent_tickets: userTickets,
         ticket_stats: ticketStats,
-        faq_categories: faqCategories
-      }
+        faq_categories: faqCategories,
+      },
     });
   } catch (error) {
     next(error);
@@ -47,8 +47,7 @@ router.get('/tickets', protect, async (req, res, next) => {
     const { page = 1, limit = 20, status, category, priority } = req.query;
     const offset = (page - 1) * limit;
 
-    let query = db('help_support_tickets')
-      .where({ user_id: req.user.id });
+    let query = db('help_support_tickets').where({ user_id: req.user.id });
 
     if (status) {
       query = query.where('status', status);
@@ -62,10 +61,7 @@ router.get('/tickets', protect, async (req, res, next) => {
       query = query.where('priority', priority);
     }
 
-    const tickets = await query
-      .orderBy('created_at', 'desc')
-      .limit(parseInt(limit))
-      .offset(offset);
+    const tickets = await query.orderBy('created_at', 'desc').limit(parseInt(limit)).offset(offset);
 
     const totalCount = await db('help_support_tickets')
       .where({ user_id: req.user.id })
@@ -79,9 +75,9 @@ router.get('/tickets', protect, async (req, res, next) => {
       pagination: {
         page: parseInt(page),
         limit: parseInt(limit),
-        pages: Math.ceil(totalCount.count / limit)
+        pages: Math.ceil(totalCount.count / limit),
       },
-      data: tickets
+      data: tickets,
     });
   } catch (error) {
     next(error);
@@ -100,18 +96,13 @@ router.get('/tickets/:id', protect, async (req, res, next) => {
     if (!ticket) {
       return res.status(404).json({
         success: false,
-        error: 'Ticket not found'
+        error: 'Ticket not found',
       });
     }
 
     // Get ticket messages
     const messages = await db('help_support_messages')
-      .select([
-        'hsm.*',
-        'u.first_name',
-        'u.last_name',
-        'u.avatar_url'
-      ])
+      .select(['hsm.*', 'u.first_name', 'u.last_name', 'u.avatar_url'])
       .leftJoin('users as u', 'hsm.user_id', 'u.id')
       .where('hsm.ticket_id', req.params.id)
       .orderBy('hsm.created_at', 'asc');
@@ -120,8 +111,8 @@ router.get('/tickets/:id', protect, async (req, res, next) => {
       success: true,
       data: {
         ticket,
-        messages
-      }
+        messages,
+      },
     });
   } catch (error) {
     next(error);
@@ -139,13 +130,13 @@ router.post('/tickets', protect, async (req, res, next) => {
       category,
       priority = 'medium',
       attachments = [],
-      tags = []
+      tags = [],
     } = req.body;
 
     if (!subject || !description || !category) {
       return res.status(400).json({
         success: false,
-        error: 'Subject, description, and category are required'
+        error: 'Subject, description, and category are required',
       });
     }
 
@@ -167,23 +158,22 @@ router.post('/tickets', protect, async (req, res, next) => {
         attachments: JSON.stringify(attachments),
         tags: JSON.stringify(tags),
         browser_info: browserInfo,
-        device_info: deviceInfo
+        device_info: deviceInfo,
       })
       .returning('*');
 
     // Create initial message
-    await db('help_support_messages')
-      .insert({
-        ticket_id: ticket[0].id,
-        user_id: req.user.id,
-        message: description,
-        message_type: 'text'
-      });
+    await db('help_support_messages').insert({
+      ticket_id: ticket[0].id,
+      user_id: req.user.id,
+      message: description,
+      message_type: 'text',
+    });
 
     res.status(201).json({
       success: true,
       message: 'Support ticket created successfully',
-      data: ticket[0]
+      data: ticket[0],
     });
   } catch (error) {
     next(error);
@@ -201,19 +191,17 @@ router.post('/tickets/:id/messages', protect, async (req, res, next) => {
     if (!message) {
       return res.status(400).json({
         success: false,
-        error: 'Message is required'
+        error: 'Message is required',
       });
     }
 
     // Verify ticket belongs to user
-    const ticket = await db('help_support_tickets')
-      .where({ id, user_id: req.user.id })
-      .first();
+    const ticket = await db('help_support_tickets').where({ id, user_id: req.user.id }).first();
 
     if (!ticket) {
       return res.status(404).json({
         success: false,
-        error: 'Ticket not found'
+        error: 'Ticket not found',
       });
     }
 
@@ -224,24 +212,22 @@ router.post('/tickets/:id/messages', protect, async (req, res, next) => {
         user_id: req.user.id,
         message,
         message_type: 'text',
-        attachments: JSON.stringify(attachments)
+        attachments: JSON.stringify(attachments),
       })
       .returning('*');
 
     // Update ticket status if it was resolved/closed
     if (ticket.status === 'resolved' || ticket.status === 'closed') {
-      await db('help_support_tickets')
-        .where({ id })
-        .update({
-          status: 'open',
-          updated_at: new Date()
-        });
+      await db('help_support_tickets').where({ id }).update({
+        status: 'open',
+        updated_at: new Date(),
+      });
     }
 
     res.status(201).json({
       success: true,
       message: 'Message added successfully',
-      data: newMessage[0]
+      data: newMessage[0],
     });
   } catch (error) {
     next(error);
@@ -256,14 +242,12 @@ router.put('/tickets/:id', protect, async (req, res, next) => {
     const { id } = req.params;
     const { subject, priority, tags } = req.body;
 
-    const ticket = await db('help_support_tickets')
-      .where({ id, user_id: req.user.id })
-      .first();
+    const ticket = await db('help_support_tickets').where({ id, user_id: req.user.id }).first();
 
     if (!ticket) {
       return res.status(404).json({
         success: false,
-        error: 'Ticket not found'
+        error: 'Ticket not found',
       });
     }
 
@@ -274,18 +258,14 @@ router.put('/tickets/:id', protect, async (req, res, next) => {
 
     updateData.updated_at = new Date();
 
-    await db('help_support_tickets')
-      .where({ id })
-      .update(updateData);
+    await db('help_support_tickets').where({ id }).update(updateData);
 
-    const updatedTicket = await db('help_support_tickets')
-      .where({ id })
-      .first();
+    const updatedTicket = await db('help_support_tickets').where({ id }).first();
 
     res.status(200).json({
       success: true,
       message: 'Ticket updated successfully',
-      data: updatedTicket
+      data: updatedTicket,
     });
   } catch (error) {
     next(error);
@@ -303,32 +283,28 @@ router.post('/tickets/:id/rate', protect, async (req, res, next) => {
     if (!rating || rating < 1 || rating > 5) {
       return res.status(400).json({
         success: false,
-        error: 'Rating must be between 1 and 5'
+        error: 'Rating must be between 1 and 5',
       });
     }
 
-    const ticket = await db('help_support_tickets')
-      .where({ id, user_id: req.user.id })
-      .first();
+    const ticket = await db('help_support_tickets').where({ id, user_id: req.user.id }).first();
 
     if (!ticket) {
       return res.status(404).json({
         success: false,
-        error: 'Ticket not found'
+        error: 'Ticket not found',
       });
     }
 
-    await db('help_support_tickets')
-      .where({ id })
-      .update({
-        satisfaction_rating: rating,
-        satisfaction_feedback: feedback,
-        updated_at: new Date()
-      });
+    await db('help_support_tickets').where({ id }).update({
+      satisfaction_rating: rating,
+      satisfaction_feedback: feedback,
+      updated_at: new Date(),
+    });
 
     res.status(200).json({
       success: true,
-      message: 'Rating submitted successfully'
+      message: 'Rating submitted successfully',
     });
   } catch (error) {
     next(error);
@@ -343,25 +319,25 @@ router.get('/faq', async (req, res, next) => {
     const { category } = req.query;
 
     const faqCategories = await getFAQCategories();
-    
+
     if (category) {
-      const categoryData = faqCategories.find(cat => cat.slug === category);
+      const categoryData = faqCategories.find((cat) => cat.slug === category);
       if (!categoryData) {
         return res.status(404).json({
           success: false,
-          error: 'FAQ category not found'
+          error: 'FAQ category not found',
         });
       }
-      
+
       return res.status(200).json({
         success: true,
-        data: categoryData
+        data: categoryData,
       });
     }
 
     res.status(200).json({
       success: true,
-      data: faqCategories
+      data: faqCategories,
     });
   } catch (error) {
     next(error);
@@ -378,21 +354,23 @@ router.get('/faq/search', async (req, res, next) => {
     if (!q) {
       return res.status(400).json({
         success: false,
-        error: 'Search query is required'
+        error: 'Search query is required',
       });
     }
 
     const faqCategories = await getFAQCategories();
     const searchResults = [];
 
-    faqCategories.forEach(category => {
-      category.questions.forEach(question => {
-        if (question.question.toLowerCase().includes(q.toLowerCase()) ||
-            question.answer.toLowerCase().includes(q.toLowerCase())) {
+    faqCategories.forEach((category) => {
+      category.questions.forEach((question) => {
+        if (
+          question.question.toLowerCase().includes(q.toLowerCase()) ||
+          question.answer.toLowerCase().includes(q.toLowerCase())
+        ) {
           searchResults.push({
             category: category.name,
             category_slug: category.slug,
-            ...question
+            ...question,
           });
         }
       });
@@ -401,7 +379,7 @@ router.get('/faq/search', async (req, res, next) => {
     res.status(200).json({
       success: true,
       count: searchResults.length,
-      data: searchResults
+      data: searchResults,
     });
   } catch (error) {
     next(error);
@@ -421,23 +399,23 @@ router.get('/contact', async (req, res, next) => {
         city: 'San Francisco',
         state: 'CA',
         zip: '94105',
-        country: 'United States'
+        country: 'United States',
       },
       hours: {
         monday_friday: '9:00 AM - 6:00 PM PST',
         saturday: '10:00 AM - 4:00 PM PST',
-        sunday: 'Closed'
+        sunday: 'Closed',
       },
       social_media: {
         twitter: '@AsporaSupport',
         linkedin: 'linkedin.com/company/aspora',
-        facebook: 'facebook.com/aspora'
-      }
+        facebook: 'facebook.com/aspora',
+      },
     };
 
     res.status(200).json({
       success: true,
-      data: contactInfo
+      data: contactInfo,
     });
   } catch (error) {
     next(error);
@@ -449,18 +427,12 @@ router.get('/contact', async (req, res, next) => {
 // @access  Public
 router.post('/contact', async (req, res, next) => {
   try {
-    const {
-      name,
-      email,
-      subject,
-      message,
-      category = 'general'
-    } = req.body;
+    const { name, email, subject, message, category = 'general' } = req.body;
 
     if (!name || !email || !subject || !message) {
       return res.status(400).json({
         success: false,
-        error: 'Name, email, subject, and message are required'
+        error: 'Name, email, subject, and message are required',
       });
     }
 
@@ -468,7 +440,7 @@ router.post('/contact', async (req, res, next) => {
     // For now, we'll just return success
     res.status(200).json({
       success: true,
-      message: 'Contact form submitted successfully. We will get back to you soon.'
+      message: 'Contact form submitted successfully. We will get back to you soon.',
     });
   } catch (error) {
     next(error);
@@ -491,7 +463,7 @@ router.get('/admin/tickets', protect, authorize('admin'), async (req, res, next)
         'u.last_name',
         'u.email',
         'assigned.first_name as assigned_first_name',
-        'assigned.last_name as assigned_last_name'
+        'assigned.last_name as assigned_last_name',
       ])
       .leftJoin('users as u', 'hst.user_id', 'u.id')
       .leftJoin('users as assigned', 'hst.assigned_to', 'assigned.id');
@@ -506,9 +478,7 @@ router.get('/admin/tickets', protect, authorize('admin'), async (req, res, next)
       .limit(parseInt(limit))
       .offset(offset);
 
-    const totalCount = await db('help_support_tickets')
-      .count('* as count')
-      .first();
+    const totalCount = await db('help_support_tickets').count('* as count').first();
 
     res.status(200).json({
       success: true,
@@ -517,9 +487,9 @@ router.get('/admin/tickets', protect, authorize('admin'), async (req, res, next)
       pagination: {
         page: parseInt(page),
         limit: parseInt(limit),
-        pages: Math.ceil(totalCount.count / limit)
+        pages: Math.ceil(totalCount.count / limit),
       },
-      data: tickets
+      data: tickets,
     });
   } catch (error) {
     next(error);
@@ -534,27 +504,23 @@ router.put('/admin/tickets/:id/assign', protect, authorize('admin'), async (req,
     const { id } = req.params;
     const { assigned_to } = req.body;
 
-    const ticket = await db('help_support_tickets')
-      .where({ id })
-      .first();
+    const ticket = await db('help_support_tickets').where({ id }).first();
 
     if (!ticket) {
       return res.status(404).json({
         success: false,
-        error: 'Ticket not found'
+        error: 'Ticket not found',
       });
     }
 
-    await db('help_support_tickets')
-      .where({ id })
-      .update({
-        assigned_to,
-        updated_at: new Date()
-      });
+    await db('help_support_tickets').where({ id }).update({
+      assigned_to,
+      updated_at: new Date(),
+    });
 
     res.status(200).json({
       success: true,
-      message: 'Ticket assigned successfully'
+      message: 'Ticket assigned successfully',
     });
   } catch (error) {
     next(error);
@@ -573,14 +539,16 @@ async function getFAQCategories() {
         {
           id: 1,
           question: 'How do I create an account?',
-          answer: 'You can create an account by clicking the "Sign Up" button on our homepage and following the registration process.'
+          answer:
+            'You can create an account by clicking the "Sign Up" button on our homepage and following the registration process.',
         },
         {
           id: 2,
           question: 'What is the difference between Diaspora and Local user types?',
-          answer: 'Diaspora users are professionals living abroad who want to mentor youth back home. Local users are students and young professionals seeking mentorship and opportunities.'
-        }
-      ]
+          answer:
+            'Diaspora users are professionals living abroad who want to mentor youth back home. Local users are students and young professionals seeking mentorship and opportunities.',
+        },
+      ],
     },
     {
       name: 'Account & Profile',
@@ -590,14 +558,16 @@ async function getFAQCategories() {
         {
           id: 3,
           question: 'How do I update my profile information?',
-          answer: 'Go to your profile page and click the "Edit Profile" button to update your information.'
+          answer:
+            'Go to your profile page and click the "Edit Profile" button to update your information.',
         },
         {
           id: 4,
           question: 'Can I change my user type after registration?',
-          answer: 'Yes, you can switch between Diaspora and Local user types at any time from your settings.'
-        }
-      ]
+          answer:
+            'Yes, you can switch between Diaspora and Local user types at any time from your settings.',
+        },
+      ],
     },
     {
       name: 'Mentorship',
@@ -607,14 +577,16 @@ async function getFAQCategories() {
         {
           id: 5,
           question: 'How do I find a mentor?',
-          answer: 'Use the search function to find mentors by expertise, location, or other criteria. Send connection requests to start mentorship relationships.'
+          answer:
+            'Use the search function to find mentors by expertise, location, or other criteria. Send connection requests to start mentorship relationships.',
         },
         {
           id: 6,
           question: 'What are the expectations for mentors?',
-          answer: 'Mentors should be committed to helping mentees grow professionally and personally through regular communication and guidance.'
-        }
-      ]
+          answer:
+            'Mentors should be committed to helping mentees grow professionally and personally through regular communication and guidance.',
+        },
+      ],
     },
     {
       name: 'Projects',
@@ -624,14 +596,15 @@ async function getFAQCategories() {
         {
           id: 7,
           question: 'How do I create a project?',
-          answer: 'Go to the Projects section and click "Create New Project" to start your own initiative.'
+          answer:
+            'Go to the Projects section and click "Create New Project" to start your own initiative.',
         },
         {
           id: 8,
           question: 'Can I join multiple projects?',
-          answer: 'Yes, you can join multiple projects based on your subscription plan limits.'
-        }
-      ]
+          answer: 'Yes, you can join multiple projects based on your subscription plan limits.',
+        },
+      ],
     },
     {
       name: 'Billing & Subscriptions',
@@ -641,15 +614,15 @@ async function getFAQCategories() {
         {
           id: 9,
           question: 'What payment methods do you accept?',
-          answer: 'We accept all major credit cards, PayPal, and bank transfers.'
+          answer: 'We accept all major credit cards, PayPal, and bank transfers.',
         },
         {
           id: 10,
           question: 'Can I cancel my subscription anytime?',
-          answer: 'Yes, you can cancel your subscription at any time from your billing settings.'
-        }
-      ]
-    }
+          answer: 'Yes, you can cancel your subscription at any time from your billing settings.',
+        },
+      ],
+    },
   ];
 }
 

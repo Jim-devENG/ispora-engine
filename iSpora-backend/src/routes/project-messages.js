@@ -23,18 +23,12 @@ router.get('/:projectId', protect, async (req, res, next) => {
     if (!projectAccess) {
       return res.status(403).json({
         success: false,
-        error: 'Access denied to this project'
+        error: 'Access denied to this project',
       });
     }
 
     let query = db('project_messages as pm')
-      .select([
-        'pm.*',
-        'u.first_name',
-        'u.last_name',
-        'u.avatar_url',
-        'u.user_type'
-      ])
+      .select(['pm.*', 'u.first_name', 'u.last_name', 'u.avatar_url', 'u.user_type'])
       .join('users as u', 'pm.user_id', 'u.id')
       .where('pm.project_id', projectId);
 
@@ -54,7 +48,7 @@ router.get('/:projectId', protect, async (req, res, next) => {
       .offset(offset);
 
     // Parse JSON fields
-    messages.forEach(message => {
+    messages.forEach((message) => {
       if (message.mentions) {
         message.mentions = JSON.parse(message.mentions);
       }
@@ -78,9 +72,9 @@ router.get('/:projectId', protect, async (req, res, next) => {
       pagination: {
         page: parseInt(page),
         limit: parseInt(limit),
-        pages: Math.ceil(totalCount.count / limit)
+        pages: Math.ceil(totalCount.count / limit),
       },
-      data: messages.reverse() // Return in chronological order
+      data: messages.reverse(), // Return in chronological order
     });
   } catch (error) {
     next(error);
@@ -104,13 +98,13 @@ router.post('/:projectId', protect, async (req, res, next) => {
       file_type,
       file_size,
       voice_url,
-      duration_seconds
+      duration_seconds,
     } = req.body;
 
     if (!content && type === 'text') {
       return res.status(400).json({
         success: false,
-        error: 'Message content is required'
+        error: 'Message content is required',
       });
     }
 
@@ -122,7 +116,7 @@ router.post('/:projectId', protect, async (req, res, next) => {
     if (!projectAccess) {
       return res.status(403).json({
         success: false,
-        error: 'Access denied to this project'
+        error: 'Access denied to this project',
       });
     }
 
@@ -136,7 +130,7 @@ router.post('/:projectId', protect, async (req, res, next) => {
       if (!parentMessage) {
         return res.status(404).json({
           success: false,
-          error: 'Parent message not found'
+          error: 'Parent message not found',
         });
       }
 
@@ -159,7 +153,7 @@ router.post('/:projectId', protect, async (req, res, next) => {
         file_size,
         voice_url,
         duration_seconds,
-        read_by: JSON.stringify({ [req.user.id]: new Date() })
+        read_by: JSON.stringify({ [req.user.id]: new Date() }),
       })
       .returning('*');
 
@@ -168,13 +162,13 @@ router.post('/:projectId', protect, async (req, res, next) => {
       ...message[0],
       mentions: JSON.parse(message[0].mentions),
       reactions: JSON.parse(message[0].reactions || '{}'),
-      read_by: JSON.parse(message[0].read_by)
+      read_by: JSON.parse(message[0].read_by),
     };
 
     res.status(201).json({
       success: true,
       message: 'Message sent successfully',
-      data: responseMessage
+      data: responseMessage,
     });
   } catch (error) {
     next(error);
@@ -192,7 +186,7 @@ router.put('/:messageId', protect, async (req, res, next) => {
     if (!content) {
       return res.status(400).json({
         success: false,
-        error: 'Message content is required'
+        error: 'Message content is required',
       });
     }
 
@@ -203,22 +197,20 @@ router.put('/:messageId', protect, async (req, res, next) => {
     if (!message) {
       return res.status(404).json({
         success: false,
-        error: 'Message not found or insufficient permissions'
+        error: 'Message not found or insufficient permissions',
       });
     }
 
-    await db('project_messages')
-      .where({ id: messageId })
-      .update({
-        content,
-        is_edited: true,
-        edited_at: new Date(),
-        updated_at: new Date()
-      });
+    await db('project_messages').where({ id: messageId }).update({
+      content,
+      is_edited: true,
+      edited_at: new Date(),
+      updated_at: new Date(),
+    });
 
     res.status(200).json({
       success: true,
-      message: 'Message updated successfully'
+      message: 'Message updated successfully',
     });
   } catch (error) {
     next(error);
@@ -234,9 +226,12 @@ router.delete('/:messageId', protect, async (req, res, next) => {
 
     const message = await db('project_messages as pm')
       .select(['pm.*', 'pm_member.role'])
-      .leftJoin('project_members as pm_member', function() {
-        this.on('pm.project_id', '=', 'pm_member.project_id')
-          .andOn('pm_member.user_id', '=', db.raw('?', [req.user.id]));
+      .leftJoin('project_members as pm_member', function () {
+        this.on('pm.project_id', '=', 'pm_member.project_id').andOn(
+          'pm_member.user_id',
+          '=',
+          db.raw('?', [req.user.id]),
+        );
       })
       .where('pm.id', messageId)
       .first();
@@ -244,7 +239,7 @@ router.delete('/:messageId', protect, async (req, res, next) => {
     if (!message) {
       return res.status(404).json({
         success: false,
-        error: 'Message not found'
+        error: 'Message not found',
       });
     }
 
@@ -252,17 +247,15 @@ router.delete('/:messageId', protect, async (req, res, next) => {
     if (message.user_id !== req.user.id && !['admin', 'mentor'].includes(message.role)) {
       return res.status(403).json({
         success: false,
-        error: 'Insufficient permissions to delete this message'
+        error: 'Insufficient permissions to delete this message',
       });
     }
 
-    await db('project_messages')
-      .where({ id: messageId })
-      .del();
+    await db('project_messages').where({ id: messageId }).del();
 
     res.status(200).json({
       success: true,
-      message: 'Message deleted successfully'
+      message: 'Message deleted successfully',
     });
   } catch (error) {
     next(error);
@@ -282,16 +275,19 @@ router.post('/:messageId/reactions', protect, async (req, res, next) => {
     if (!emoji) {
       return res.status(400).json({
         success: false,
-        error: 'Emoji is required'
+        error: 'Emoji is required',
       });
     }
 
     // Verify user has access to message
     const message = await db('project_messages as pm')
       .select(['pm.*', 'pm_member.role'])
-      .leftJoin('project_members as pm_member', function() {
-        this.on('pm.project_id', '=', 'pm_member.project_id')
-          .andOn('pm_member.user_id', '=', db.raw('?', [req.user.id]));
+      .leftJoin('project_members as pm_member', function () {
+        this.on('pm.project_id', '=', 'pm_member.project_id').andOn(
+          'pm_member.user_id',
+          '=',
+          db.raw('?', [req.user.id]),
+        );
       })
       .where('pm.id', messageId)
       .first();
@@ -299,19 +295,19 @@ router.post('/:messageId/reactions', protect, async (req, res, next) => {
     if (!message) {
       return res.status(404).json({
         success: false,
-        error: 'Message not found'
+        error: 'Message not found',
       });
     }
 
     const reactions = JSON.parse(message.reactions || '{}');
-    
+
     if (!reactions[emoji]) {
       reactions[emoji] = [];
     }
 
     // Remove user from other emoji reactions if they exist
-    Object.keys(reactions).forEach(key => {
-      reactions[key] = reactions[key].filter(userId => userId !== req.user.id);
+    Object.keys(reactions).forEach((key) => {
+      reactions[key] = reactions[key].filter((userId) => userId !== req.user.id);
     });
 
     // Add user to this emoji reaction
@@ -323,13 +319,13 @@ router.post('/:messageId/reactions', protect, async (req, res, next) => {
       .where({ id: messageId })
       .update({
         reactions: JSON.stringify(reactions),
-        updated_at: new Date()
+        updated_at: new Date(),
       });
 
     res.status(200).json({
       success: true,
       message: 'Reaction added successfully',
-      data: { emoji, reactions }
+      data: { emoji, reactions },
     });
   } catch (error) {
     next(error);
@@ -343,22 +339,20 @@ router.delete('/:messageId/reactions/:emoji', protect, async (req, res, next) =>
   try {
     const { messageId, emoji } = req.params;
 
-    const message = await db('project_messages')
-      .where({ id: messageId })
-      .first();
+    const message = await db('project_messages').where({ id: messageId }).first();
 
     if (!message) {
       return res.status(404).json({
         success: false,
-        error: 'Message not found'
+        error: 'Message not found',
       });
     }
 
     const reactions = JSON.parse(message.reactions || '{}');
-    
+
     if (reactions[emoji]) {
-      reactions[emoji] = reactions[emoji].filter(userId => userId !== req.user.id);
-      
+      reactions[emoji] = reactions[emoji].filter((userId) => userId !== req.user.id);
+
       // Remove emoji if no users left
       if (reactions[emoji].length === 0) {
         delete reactions[emoji];
@@ -369,13 +363,13 @@ router.delete('/:messageId/reactions/:emoji', protect, async (req, res, next) =>
       .where({ id: messageId })
       .update({
         reactions: JSON.stringify(reactions),
-        updated_at: new Date()
+        updated_at: new Date(),
       });
 
     res.status(200).json({
       success: true,
       message: 'Reaction removed successfully',
-      data: { emoji, reactions }
+      data: { emoji, reactions },
     });
   } catch (error) {
     next(error);
@@ -401,18 +395,12 @@ router.get('/:projectId/threads/:threadId', protect, async (req, res, next) => {
     if (!projectAccess) {
       return res.status(403).json({
         success: false,
-        error: 'Access denied to this project'
+        error: 'Access denied to this project',
       });
     }
 
     const messages = await db('project_messages as pm')
-      .select([
-        'pm.*',
-        'u.first_name',
-        'u.last_name',
-        'u.avatar_url',
-        'u.user_type'
-      ])
+      .select(['pm.*', 'u.first_name', 'u.last_name', 'u.avatar_url', 'u.user_type'])
       .join('users as u', 'pm.user_id', 'u.id')
       .where('pm.project_id', projectId)
       .where('pm.thread_id', threadId)
@@ -422,7 +410,7 @@ router.get('/:projectId/threads/:threadId', protect, async (req, res, next) => {
       .offset(offset);
 
     // Parse JSON fields
-    messages.forEach(message => {
+    messages.forEach((message) => {
       if (message.mentions) {
         message.mentions = JSON.parse(message.mentions);
       }
@@ -446,9 +434,9 @@ router.get('/:projectId/threads/:threadId', protect, async (req, res, next) => {
       pagination: {
         page: parseInt(page),
         limit: parseInt(limit),
-        pages: Math.ceil(totalCount.count / limit)
+        pages: Math.ceil(totalCount.count / limit),
       },
-      data: messages
+      data: messages,
     });
   } catch (error) {
     next(error);
@@ -466,9 +454,12 @@ router.post('/:messageId/pin', protect, async (req, res, next) => {
 
     const message = await db('project_messages as pm')
       .select(['pm.*', 'pm_member.role'])
-      .leftJoin('project_members as pm_member', function() {
-        this.on('pm.project_id', '=', 'pm_member.project_id')
-          .andOn('pm_member.user_id', '=', db.raw('?', [req.user.id]));
+      .leftJoin('project_members as pm_member', function () {
+        this.on('pm.project_id', '=', 'pm_member.project_id').andOn(
+          'pm_member.user_id',
+          '=',
+          db.raw('?', [req.user.id]),
+        );
       })
       .where('pm.id', messageId)
       .first();
@@ -476,7 +467,7 @@ router.post('/:messageId/pin', protect, async (req, res, next) => {
     if (!message) {
       return res.status(404).json({
         success: false,
-        error: 'Message not found'
+        error: 'Message not found',
       });
     }
 
@@ -484,22 +475,20 @@ router.post('/:messageId/pin', protect, async (req, res, next) => {
     if (!['admin', 'mentor'].includes(message.role)) {
       return res.status(403).json({
         success: false,
-        error: 'Insufficient permissions to pin messages'
+        error: 'Insufficient permissions to pin messages',
       });
     }
 
-    await db('project_messages')
-      .where({ id: messageId })
-      .update({
-        is_pinned: true,
-        pinned_at: new Date(),
-        pinned_by: req.user.id,
-        updated_at: new Date()
-      });
+    await db('project_messages').where({ id: messageId }).update({
+      is_pinned: true,
+      pinned_at: new Date(),
+      pinned_by: req.user.id,
+      updated_at: new Date(),
+    });
 
     res.status(200).json({
       success: true,
-      message: 'Message pinned successfully'
+      message: 'Message pinned successfully',
     });
   } catch (error) {
     next(error);
@@ -515,9 +504,12 @@ router.delete('/:messageId/pin', protect, async (req, res, next) => {
 
     const message = await db('project_messages as pm')
       .select(['pm.*', 'pm_member.role'])
-      .leftJoin('project_members as pm_member', function() {
-        this.on('pm.project_id', '=', 'pm_member.project_id')
-          .andOn('pm_member.user_id', '=', db.raw('?', [req.user.id]));
+      .leftJoin('project_members as pm_member', function () {
+        this.on('pm.project_id', '=', 'pm_member.project_id').andOn(
+          'pm_member.user_id',
+          '=',
+          db.raw('?', [req.user.id]),
+        );
       })
       .where('pm.id', messageId)
       .first();
@@ -525,7 +517,7 @@ router.delete('/:messageId/pin', protect, async (req, res, next) => {
     if (!message) {
       return res.status(404).json({
         success: false,
-        error: 'Message not found'
+        error: 'Message not found',
       });
     }
 
@@ -533,22 +525,20 @@ router.delete('/:messageId/pin', protect, async (req, res, next) => {
     if (!['admin', 'mentor'].includes(message.role) && message.pinned_by !== req.user.id) {
       return res.status(403).json({
         success: false,
-        error: 'Insufficient permissions to unpin messages'
+        error: 'Insufficient permissions to unpin messages',
       });
     }
 
-    await db('project_messages')
-      .where({ id: messageId })
-      .update({
-        is_pinned: false,
-        pinned_at: null,
-        pinned_by: null,
-        updated_at: new Date()
-      });
+    await db('project_messages').where({ id: messageId }).update({
+      is_pinned: false,
+      pinned_at: null,
+      pinned_by: null,
+      updated_at: new Date(),
+    });
 
     res.status(200).json({
       success: true,
-      message: 'Message unpinned successfully'
+      message: 'Message unpinned successfully',
     });
   } catch (error) {
     next(error);
@@ -564,14 +554,12 @@ router.post('/:messageId/read', protect, async (req, res, next) => {
   try {
     const { messageId } = req.params;
 
-    const message = await db('project_messages')
-      .where({ id: messageId })
-      .first();
+    const message = await db('project_messages').where({ id: messageId }).first();
 
     if (!message) {
       return res.status(404).json({
         success: false,
-        error: 'Message not found'
+        error: 'Message not found',
       });
     }
 
@@ -582,12 +570,12 @@ router.post('/:messageId/read', protect, async (req, res, next) => {
       .where({ id: messageId })
       .update({
         read_by: JSON.stringify(readBy),
-        updated_at: new Date()
+        updated_at: new Date(),
       });
 
     res.status(200).json({
       success: true,
-      message: 'Message marked as read'
+      message: 'Message marked as read',
     });
   } catch (error) {
     next(error);
@@ -611,7 +599,7 @@ router.get('/:projectId/channels', protect, async (req, res, next) => {
     if (!projectAccess) {
       return res.status(403).json({
         success: false,
-        error: 'Access denied to this project'
+        error: 'Access denied to this project',
       });
     }
 
@@ -625,7 +613,7 @@ router.get('/:projectId/channels', protect, async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      data: channels
+      data: channels,
     });
   } catch (error) {
     next(error);

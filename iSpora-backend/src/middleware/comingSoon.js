@@ -8,7 +8,7 @@ module.exports = function comingSoon(options = {}) {
     enabled = process.env.COMING_SOON === 'true',
     devHeader = 'x-dev-key',
     devKey = process.env.DEV_ACCESS_KEY || 'dev123',
-    allowPaths = ['/api/health', '/api/auth/login', '/api/auth/register']
+    allowPaths = ['/api/health', '/api/auth/login', '/api/auth/register'],
   } = options;
 
   return function (req, res, next) {
@@ -33,9 +33,8 @@ module.exports = function comingSoon(options = {}) {
     // Otherwise block with coming soon
     return res.status(503).json({
       success: false,
-      message: 'Coming soon. The platform is currently in preparation. For development access, provide a valid dev key.'
+      message:
+        'Coming soon. The platform is currently in preparation. For development access, provide a valid dev key.',
     });
   };
 };
-
-

@@ -20,13 +20,13 @@ router.get('/subscription', protect, async (req, res, next) => {
       const freeSubscription = await createFreeSubscription(req.user.id);
       return res.status(200).json({
         success: true,
-        data: freeSubscription
+        data: freeSubscription,
       });
     }
 
     res.status(200).json({
       success: true,
-      data: subscription
+      data: subscription,
     });
   } catch (error) {
     next(error);
@@ -41,8 +41,7 @@ router.get('/invoices', protect, async (req, res, next) => {
     const { page = 1, limit = 20, status } = req.query;
     const offset = (page - 1) * limit;
 
-    let query = db('billing_invoices')
-      .where({ user_id: req.user.id });
+    let query = db('billing_invoices').where({ user_id: req.user.id });
 
     if (status) {
       query = query.where('status', status);
@@ -65,9 +64,9 @@ router.get('/invoices', protect, async (req, res, next) => {
       pagination: {
         page: parseInt(page),
         limit: parseInt(limit),
-        pages: Math.ceil(totalCount.count / limit)
+        pages: Math.ceil(totalCount.count / limit),
       },
-      data: invoices
+      data: invoices,
     });
   } catch (error) {
     next(error);
@@ -86,13 +85,13 @@ router.get('/invoices/:id', protect, async (req, res, next) => {
     if (!invoice) {
       return res.status(404).json({
         success: false,
-        error: 'Invoice not found'
+        error: 'Invoice not found',
       });
     }
 
     res.status(200).json({
       success: true,
-      data: invoice
+      data: invoice,
     });
   } catch (error) {
     next(error);
@@ -110,14 +109,14 @@ router.post('/subscription', protect, async (req, res, next) => {
       amount,
       currency = 'USD',
       payment_method,
-      external_subscription_id
+      external_subscription_id,
     } = req.body;
 
     // Validate required fields
     if (!plan_name || !plan_type || amount === undefined) {
       return res.status(400).json({
         success: false,
-        error: 'Plan name, type, and amount are required'
+        error: 'Plan name, type, and amount are required',
       });
     }
 
@@ -125,7 +124,7 @@ router.post('/subscription', protect, async (req, res, next) => {
     const now = new Date();
     const periodStart = now;
     const periodEnd = new Date(now);
-    
+
     if (plan_type === 'monthly') {
       periodEnd.setMonth(periodEnd.getMonth() + 1);
     } else if (plan_type === 'yearly') {
@@ -155,7 +154,7 @@ router.post('/subscription', protect, async (req, res, next) => {
         status: 'active',
         payment_method,
         external_subscription_id,
-        ...planFeatures
+        ...planFeatures,
       })
       .returning('*');
 
@@ -164,11 +163,13 @@ router.post('/subscription', protect, async (req, res, next) => {
       amount,
       currency,
       description: `${plan_name} subscription - ${plan_type}`,
-      items: [{
-        description: `${plan_name} subscription`,
-        amount: amount,
-        quantity: 1
-      }]
+      items: [
+        {
+          description: `${plan_name} subscription`,
+          amount: amount,
+          quantity: 1,
+        },
+      ],
     });
 
     res.status(201).json({
@@ -176,8 +177,8 @@ router.post('/subscription', protect, async (req, res, next) => {
       message: 'Subscription created successfully',
       data: {
         subscription: subscription[0],
-        invoice
-      }
+        invoice,
+      },
     });
   } catch (error) {
     next(error);
@@ -199,7 +200,7 @@ router.put('/subscription/:id', protect, async (req, res, next) => {
     if (!subscription) {
       return res.status(404).json({
         success: false,
-        error: 'Subscription not found'
+        error: 'Subscription not found',
       });
     }
 
@@ -217,18 +218,14 @@ router.put('/subscription/:id', protect, async (req, res, next) => {
       Object.assign(updateData, planFeatures);
     }
 
-    await db('billing_subscriptions')
-      .where({ id })
-      .update(updateData);
+    await db('billing_subscriptions').where({ id }).update(updateData);
 
-    const updatedSubscription = await db('billing_subscriptions')
-      .where({ id })
-      .first();
+    const updatedSubscription = await db('billing_subscriptions').where({ id }).first();
 
     res.status(200).json({
       success: true,
       message: 'Subscription updated successfully',
-      data: updatedSubscription
+      data: updatedSubscription,
     });
   } catch (error) {
     next(error);
@@ -250,25 +247,23 @@ router.post('/subscription/:id/cancel', protect, async (req, res, next) => {
     if (!subscription) {
       return res.status(404).json({
         success: false,
-        error: 'Subscription not found'
+        error: 'Subscription not found',
       });
     }
 
     const updateData = {
       status: cancel_at_period_end ? 'active' : 'canceled',
       cancel_at_period_end: cancel_at_period_end ? new Date() : null,
-      updated_at: new Date()
+      updated_at: new Date(),
     };
 
-    await db('billing_subscriptions')
-      .where({ id })
-      .update(updateData);
+    await db('billing_subscriptions').where({ id }).update(updateData);
 
     res.status(200).json({
       success: true,
-      message: cancel_at_period_end 
+      message: cancel_at_period_end
         ? 'Subscription will be canceled at the end of the current period'
-        : 'Subscription canceled immediately'
+        : 'Subscription canceled immediately',
     });
   } catch (error) {
     next(error);
@@ -293,8 +288,8 @@ router.get('/plans', async (req, res, next) => {
           max_connections: 100,
           advanced_analytics: false,
           priority_support: false,
-          custom_branding: false
-        }
+          custom_branding: false,
+        },
       },
       {
         name: 'premium',
@@ -308,8 +303,8 @@ router.get('/plans', async (req, res, next) => {
           max_connections: 500,
           advanced_analytics: true,
           priority_support: true,
-          custom_branding: false
-        }
+          custom_branding: false,
+        },
       },
       {
         name: 'enterprise',
@@ -323,14 +318,14 @@ router.get('/plans', async (req, res, next) => {
           max_connections: -1, // unlimited
           advanced_analytics: true,
           priority_support: true,
-          custom_branding: true
-        }
-      }
+          custom_branding: true,
+        },
+      },
     ];
 
     res.status(200).json({
       success: true,
-      data: plans
+      data: plans,
     });
   } catch (error) {
     next(error);
@@ -347,22 +342,20 @@ router.put('/payment-method', protect, async (req, res, next) => {
     if (!payment_method) {
       return res.status(400).json({
         success: false,
-        error: 'Payment method is required'
+        error: 'Payment method is required',
       });
     }
 
     // Update all active subscriptions
-    await db('billing_subscriptions')
-      .where({ user_id: req.user.id, status: 'active' })
-      .update({
-        payment_method,
-        external_payment_method_id,
-        updated_at: new Date()
-      });
+    await db('billing_subscriptions').where({ user_id: req.user.id, status: 'active' }).update({
+      payment_method,
+      external_payment_method_id,
+      updated_at: new Date(),
+    });
 
     res.status(200).json({
       success: true,
-      message: 'Payment method updated successfully'
+      message: 'Payment method updated successfully',
     });
   } catch (error) {
     next(error);
@@ -391,7 +384,7 @@ async function createFreeSubscription(userId) {
       max_connections: 100,
       advanced_analytics: false,
       priority_support: false,
-      custom_branding: false
+      custom_branding: false,
     })
     .returning('*');
 
@@ -400,7 +393,7 @@ async function createFreeSubscription(userId) {
 
 async function createInvoice(userId, subscriptionId, invoiceData) {
   const invoiceNumber = `INV-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
-  
+
   const invoice = await db('billing_invoices')
     .insert({
       user_id: userId,
@@ -412,7 +405,7 @@ async function createInvoice(userId, subscriptionId, invoiceData) {
       status: 'paid', // Assuming immediate payment for simplicity
       due_date: new Date(),
       paid_at: new Date(),
-      items: JSON.stringify(invoiceData.items)
+      items: JSON.stringify(invoiceData.items),
     })
     .returning('*');
 
@@ -427,7 +420,7 @@ function getPlanFeatures(planName) {
       max_connections: 100,
       advanced_analytics: false,
       priority_support: false,
-      custom_branding: false
+      custom_branding: false,
     },
     premium: {
       max_projects: 25,
@@ -435,7 +428,7 @@ function getPlanFeatures(planName) {
       max_connections: 500,
       advanced_analytics: true,
       priority_support: true,
-      custom_branding: false
+      custom_branding: false,
     },
     enterprise: {
       max_projects: -1, // unlimited
@@ -443,8 +436,8 @@ function getPlanFeatures(planName) {
       max_connections: -1, // unlimited
       advanced_analytics: true,
       priority_support: true,
-      custom_branding: true
-    }
+      custom_branding: true,
+    },
   };
 
   return planFeatures[planName] || planFeatures.free;

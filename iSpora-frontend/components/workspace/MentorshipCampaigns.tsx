@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
   Users,
   Heart,
@@ -18,17 +18,17 @@ import {
   ArrowRight,
   Star,
   MessageCircle,
-  Share2
-} from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Button } from "../ui/button";
-import { Badge } from "../ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { Input } from "../ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { Progress } from "../ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-import { ScrollArea } from "../ui/scroll-area";
+  Share2,
+} from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Button } from '../ui/button';
+import { Badge } from '../ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { Input } from '../ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { Progress } from '../ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
+import { ScrollArea } from '../ui/scroll-area';
 
 interface Campaign {
   id: string;
@@ -58,98 +58,106 @@ interface Campaign {
 // Mock mentorship campaigns data
 const mockCampaigns: Campaign[] = [
   {
-    id: "1",
-    title: "CS Mentorship Program - Stanford Alumni",
-    description: "Connecting Stanford CS graduates with current students for career guidance, technical mentorship, and project collaboration.",
-    type: "mentorship",
-    status: "active",
-    almaMater: "Stanford University",
+    id: '1',
+    title: 'CS Mentorship Program - Stanford Alumni',
+    description:
+      'Connecting Stanford CS graduates with current students for career guidance, technical mentorship, and project collaboration.',
+    type: 'mentorship',
+    status: 'active',
+    almaMater: 'Stanford University',
     organizer: {
-      name: "Dr. Sarah Chen",
-      avatar: "https://images.unsplash.com/photo-1494790108755-2616b25f5e55?w=150&h=150&fit=crop&crop=face",
-      role: "Alumni Relations Director"
+      name: 'Dr. Sarah Chen',
+      avatar:
+        'https://images.unsplash.com/photo-1494790108755-2616b25f5e55?w=150&h=150&fit=crop&crop=face',
+      role: 'Alumni Relations Director',
     },
     participants: 245,
     goal: 500,
     raised: 380,
-    endDate: "2024-12-31",
-    category: "Career Development",
-    tags: ["Computer Science", "Career Guidance", "Technical Skills"],
-    mentorshipFocus: "Technical Career Development",
-    skillsRequired: ["Programming", "System Design", "Career Planning"],
-    timeCommitment: "2-3 hours/week",
-    isRemote: true
+    endDate: '2024-12-31',
+    category: 'Career Development',
+    tags: ['Computer Science', 'Career Guidance', 'Technical Skills'],
+    mentorshipFocus: 'Technical Career Development',
+    skillsRequired: ['Programming', 'System Design', 'Career Planning'],
+    timeCommitment: '2-3 hours/week',
+    isRemote: true,
   },
   {
-    id: "2",
-    title: "Entrepreneurship Mentorship Initiative",
-    description: "Supporting MIT alumni and students in launching tech startups through structured mentorship and funding opportunities.",
-    type: "project",
-    status: "active",
-    almaMater: "MIT",
+    id: '2',
+    title: 'Entrepreneurship Mentorship Initiative',
+    description:
+      'Supporting MIT alumni and students in launching tech startups through structured mentorship and funding opportunities.',
+    type: 'project',
+    status: 'active',
+    almaMater: 'MIT',
     organizer: {
-      name: "Michael Rodriguez",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
-      role: "Startup Accelerator Director"
+      name: 'Michael Rodriguez',
+      avatar:
+        'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+      role: 'Startup Accelerator Director',
     },
     participants: 89,
     goal: 200,
     raised: 156,
-    endDate: "2024-11-15",
-    category: "Entrepreneurship",
-    tags: ["Startup", "Business Development", "Funding"],
-    mentorshipFocus: "Business Strategy & Operations",
-    skillsRequired: ["Business Planning", "Pitch Development", "Market Analysis"],
-    timeCommitment: "5-8 hours/week",
-    location: "Boston, MA",
-    isRemote: false
+    endDate: '2024-11-15',
+    category: 'Entrepreneurship',
+    tags: ['Startup', 'Business Development', 'Funding'],
+    mentorshipFocus: 'Business Strategy & Operations',
+    skillsRequired: ['Business Planning', 'Pitch Development', 'Market Analysis'],
+    timeCommitment: '5-8 hours/week',
+    location: 'Boston, MA',
+    isRemote: false,
   },
   {
-    id: "3",
-    title: "Research Collaboration Network",
-    description: "Harvard alumni mentoring current PhD students and postdocs in research methodology, publication strategies, and academic career paths.",
-    type: "research",
-    status: "upcoming",
-    almaMater: "Harvard University",
+    id: '3',
+    title: 'Research Collaboration Network',
+    description:
+      'Harvard alumni mentoring current PhD students and postdocs in research methodology, publication strategies, and academic career paths.',
+    type: 'research',
+    status: 'upcoming',
+    almaMater: 'Harvard University',
     organizer: {
-      name: "Prof. Emily Watson",
-      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
-      role: "Research Director"
+      name: 'Prof. Emily Watson',
+      avatar:
+        'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
+      role: 'Research Director',
     },
     participants: 34,
     goal: 100,
     raised: 67,
-    endDate: "2024-10-01",
-    category: "Academic Research",
-    tags: ["Research", "Publications", "Academic Career"],
-    mentorshipFocus: "Academic & Research Excellence",
-    skillsRequired: ["Research Methods", "Writing", "Grant Applications"],
-    timeCommitment: "3-4 hours/week",
-    isRemote: true
+    endDate: '2024-10-01',
+    category: 'Academic Research',
+    tags: ['Research', 'Publications', 'Academic Career'],
+    mentorshipFocus: 'Academic & Research Excellence',
+    skillsRequired: ['Research Methods', 'Writing', 'Grant Applications'],
+    timeCommitment: '3-4 hours/week',
+    isRemote: true,
   },
   {
-    id: "4",
-    title: "Women in STEM Mentorship",
-    description: "Creating a supportive network for women in STEM fields through peer mentorship, career advancement workshops, and leadership development.",
-    type: "mentorship",
-    status: "active",
-    almaMater: "UC Berkeley",
+    id: '4',
+    title: 'Women in STEM Mentorship',
+    description:
+      'Creating a supportive network for women in STEM fields through peer mentorship, career advancement workshops, and leadership development.',
+    type: 'mentorship',
+    status: 'active',
+    almaMater: 'UC Berkeley',
     organizer: {
-      name: "Dr. Lisa Park",
-      avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&h=150&fit=crop&crop=face",
-      role: "STEM Diversity Coordinator"
+      name: 'Dr. Lisa Park',
+      avatar:
+        'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&h=150&fit=crop&crop=face',
+      role: 'STEM Diversity Coordinator',
     },
     participants: 178,
     goal: 300,
     raised: 234,
-    endDate: "2024-12-20",
-    category: "Diversity & Inclusion",
-    tags: ["Women in STEM", "Leadership", "Career Advancement"],
-    mentorshipFocus: "Leadership & Career Growth",
-    skillsRequired: ["Leadership", "Communication", "Technical Skills"],
-    timeCommitment: "2-4 hours/week",
-    isRemote: true
-  }
+    endDate: '2024-12-20',
+    category: 'Diversity & Inclusion',
+    tags: ['Women in STEM', 'Leadership', 'Career Advancement'],
+    mentorshipFocus: 'Leadership & Career Growth',
+    skillsRequired: ['Leadership', 'Communication', 'Technical Skills'],
+    timeCommitment: '2-4 hours/week',
+    isRemote: true,
+  },
 ];
 
 interface MentorshipCampaignsProps {
@@ -157,26 +165,42 @@ interface MentorshipCampaignsProps {
   onCreateCampaign?: () => void;
 }
 
-function CampaignCard({ campaign, onNavigate }: { campaign: Campaign; onNavigate?: (id: string) => void }) {
+function CampaignCard({
+  campaign,
+  onNavigate,
+}: {
+  campaign: Campaign;
+  onNavigate?: (id: string) => void;
+}) {
   const progressPercentage = (campaign.raised / campaign.goal) * 100;
-  
+
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'active': return 'bg-green-100 text-green-800';
-      case 'upcoming': return 'bg-blue-100 text-blue-800';
-      case 'completed': return 'bg-gray-100 text-gray-800';
-      case 'draft': return 'bg-yellow-100 text-yellow-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'active':
+        return 'bg-green-100 text-green-800';
+      case 'upcoming':
+        return 'bg-blue-100 text-blue-800';
+      case 'completed':
+        return 'bg-gray-100 text-gray-800';
+      case 'draft':
+        return 'bg-yellow-100 text-yellow-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
   const getTypeIcon = (type: string) => {
     switch (type) {
-      case 'mentorship': return <Users className="h-4 w-4" />;
-      case 'project': return <Briefcase className="h-4 w-4" />;
-      case 'scholarship': return <GraduationCap className="h-4 w-4" />;
-      case 'research': return <BookOpen className="h-4 w-4" />;
-      default: return <Target className="h-4 w-4" />;
+      case 'mentorship':
+        return <Users className="h-4 w-4" />;
+      case 'project':
+        return <Briefcase className="h-4 w-4" />;
+      case 'scholarship':
+        return <GraduationCap className="h-4 w-4" />;
+      case 'research':
+        return <BookOpen className="h-4 w-4" />;
+      default:
+        return <Target className="h-4 w-4" />;
     }
   };
 
@@ -185,9 +209,7 @@ function CampaignCard({ campaign, onNavigate }: { campaign: Campaign; onNavigate
       <CardContent className="p-6">
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-[#021ff6]/10 rounded-lg">
-              {getTypeIcon(campaign.type)}
-            </div>
+            <div className="p-2 bg-[#021ff6]/10 rounded-lg">{getTypeIcon(campaign.type)}</div>
             <div className="flex-1">
               <h3 className="font-medium mb-1 group-hover:text-[#021ff6] transition-colors">
                 {campaign.title}
@@ -200,15 +222,18 @@ function CampaignCard({ campaign, onNavigate }: { campaign: Campaign; onNavigate
           </Badge>
         </div>
 
-        <p className="text-sm text-gray-600 mb-4 line-clamp-2">
-          {campaign.description}
-        </p>
+        <p className="text-sm text-gray-600 mb-4 line-clamp-2">{campaign.description}</p>
 
         {/* Organizer Info */}
         <div className="flex items-center gap-2 mb-4">
           <Avatar className="h-6 w-6">
             <AvatarImage src={campaign.organizer.avatar} />
-            <AvatarFallback>{campaign.organizer.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+            <AvatarFallback>
+              {campaign.organizer.name
+                .split(' ')
+                .map((n) => n[0])
+                .join('')}
+            </AvatarFallback>
           </Avatar>
           <span className="text-sm text-gray-600">{campaign.organizer.name}</span>
           <span className="text-xs text-gray-500">• {campaign.organizer.role}</span>
@@ -218,7 +243,9 @@ function CampaignCard({ campaign, onNavigate }: { campaign: Campaign; onNavigate
         <div className="mb-4">
           <div className="flex justify-between text-sm mb-2">
             <span className="text-gray-600">Participants</span>
-            <span className="font-medium">{campaign.participants}/{campaign.goal}</span>
+            <span className="font-medium">
+              {campaign.participants}/{campaign.goal}
+            </span>
           </div>
           <Progress value={progressPercentage} className="h-2" />
         </div>
@@ -295,24 +322,28 @@ function CampaignCard({ campaign, onNavigate }: { campaign: Campaign; onNavigate
   );
 }
 
-export function MentorshipCampaigns({ onNavigateToCampaign, onCreateCampaign }: MentorshipCampaignsProps) {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [filterType, setFilterType] = useState<string>("all");
-  const [filterStatus, setFilterStatus] = useState<string>("all");
+export function MentorshipCampaigns({
+  onNavigateToCampaign,
+  onCreateCampaign,
+}: MentorshipCampaignsProps) {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterType, setFilterType] = useState<string>('all');
+  const [filterStatus, setFilterStatus] = useState<string>('all');
 
-  const filteredCampaigns = mockCampaigns.filter(campaign => {
-    const matchesSearch = campaign.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         campaign.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         campaign.almaMater.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    const matchesType = filterType === "all" || campaign.type === filterType;
-    const matchesStatus = filterStatus === "all" || campaign.status === filterStatus;
-    
+  const filteredCampaigns = mockCampaigns.filter((campaign) => {
+    const matchesSearch =
+      campaign.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      campaign.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      campaign.almaMater.toLowerCase().includes(searchQuery.toLowerCase());
+
+    const matchesType = filterType === 'all' || campaign.type === filterType;
+    const matchesStatus = filterStatus === 'all' || campaign.status === filterStatus;
+
     return matchesSearch && matchesType && matchesStatus;
   });
 
-  const activeCampaigns = filteredCampaigns.filter(c => c.status === 'active');
-  const upcomingCampaigns = filteredCampaigns.filter(c => c.status === 'upcoming');
+  const activeCampaigns = filteredCampaigns.filter((c) => c.status === 'active');
+  const upcomingCampaigns = filteredCampaigns.filter((c) => c.status === 'upcoming');
   const myCampaigns = filteredCampaigns.slice(0, 2); // Mock: user's campaigns
 
   return (
@@ -422,7 +453,9 @@ export function MentorshipCampaigns({ onNavigateToCampaign, onCreateCampaign }: 
                 <div className="text-center py-8 text-gray-500">
                   <Target className="h-12 w-12 mx-auto mb-4 text-gray-300" />
                   <h3 className="font-medium mb-2">No campaigns created yet</h3>
-                  <p className="text-sm mb-4">Start creating mentorship campaigns for your alma mater</p>
+                  <p className="text-sm mb-4">
+                    Start creating mentorship campaigns for your alma mater
+                  </p>
                   <Button onClick={onCreateCampaign} className="bg-[#021ff6] hover:bg-[#021ff6]/90">
                     <Plus className="h-4 w-4 mr-2" />
                     Create Your First Campaign
@@ -450,7 +483,7 @@ export function MentorshipCampaigns({ onNavigateToCampaign, onCreateCampaign }: 
                         </div>
                         <Badge className="bg-green-100 text-green-800">Participating</Badge>
                       </div>
-                      
+
                       <div className="flex items-center justify-between">
                         <div className="text-sm text-gray-600">
                           Role: Mentor • {campaign.timeCommitment}

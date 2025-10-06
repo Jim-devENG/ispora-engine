@@ -26,7 +26,7 @@ router.get('/my-profile', protect, async (req, res) => {
         'unp.allow_connection_requests',
         'uos.is_online',
         'uos.last_seen',
-        'uos.status_message'
+        'uos.status_message',
       )
       .leftJoin('user_network_profiles as unp', 'u.id', 'unp.user_id')
       .leftJoin('user_online_status as uos', 'u.id', 'uos.user_id')
@@ -65,7 +65,7 @@ router.get('/my-profile', protect, async (req, res) => {
       isPublic: profile.is_public,
       showOnlineStatus: profile.show_online_status,
       allowConnectionRequests: profile.allow_connection_requests,
-      statusMessage: profile.status_message
+      statusMessage: profile.status_message,
     };
 
     res.json(transformedProfile);
@@ -93,13 +93,11 @@ router.put('/my-profile', protect, async (req, res) => {
       is_public,
       show_online_status,
       allow_connection_requests,
-      status_message
+      status_message,
     } = req.body;
 
     // Check if network profile exists
-    const existingProfile = await knex('user_network_profiles')
-      .where('user_id', userId)
-      .first();
+    const existingProfile = await knex('user_network_profiles').where('user_id', userId).first();
 
     const profileData = {
       user_id: userId,
@@ -116,7 +114,7 @@ router.put('/my-profile', protect, async (req, res) => {
       is_public,
       show_online_status,
       allow_connection_requests,
-      updated_at: knex.fn.now()
+      updated_at: knex.fn.now(),
     };
 
     let networkProfile;
@@ -128,30 +126,23 @@ router.put('/my-profile', protect, async (req, res) => {
         .returning('*');
     } else {
       // Create new profile
-      [networkProfile] = await knex('user_network_profiles')
-        .insert(profileData)
-        .returning('*');
+      [networkProfile] = await knex('user_network_profiles').insert(profileData).returning('*');
     }
 
     // Update online status if status_message is provided
     if (status_message !== undefined) {
-      const existingStatus = await knex('user_online_status')
-        .where('user_id', userId)
-        .first();
+      const existingStatus = await knex('user_online_status').where('user_id', userId).first();
 
       if (existingStatus) {
-        await knex('user_online_status')
-          .where('user_id', userId)
-          .update({
-            status_message: status_message,
-            updated_at: knex.fn.now()
-          });
+        await knex('user_online_status').where('user_id', userId).update({
+          status_message: status_message,
+          updated_at: knex.fn.now(),
+        });
       } else {
-        await knex('user_online_status')
-          .insert({
-            user_id: userId,
-            status_message: status_message
-          });
+        await knex('user_online_status').insert({
+          user_id: userId,
+          status_message: status_message,
+        });
       }
     }
 
@@ -197,7 +188,7 @@ router.get('/profile/:userId', protect, async (req, res) => {
         'unp.allow_connection_requests',
         'uos.is_online',
         'uos.last_seen',
-        'uos.status_message'
+        'uos.status_message',
       )
       .leftJoin('user_network_profiles as unp', 'u.id', 'unp.user_id')
       .leftJoin('user_online_status as uos', 'u.id', 'uos.user_id')
@@ -214,9 +205,11 @@ router.get('/profile/:userId', protect, async (req, res) => {
 
     // Check connection status
     const connection = await knex('connections')
-      .where(function() {
-        this.where({ requester_id: req.user.id, receiver_id: userId })
-          .orWhere({ requester_id: userId, receiver_id: req.user.id });
+      .where(function () {
+        this.where({ requester_id: req.user.id, receiver_id: userId }).orWhere({
+          requester_id: userId,
+          receiver_id: req.user.id,
+        });
       })
       .first();
 
@@ -233,9 +226,12 @@ router.get('/profile/:userId', protect, async (req, res) => {
 
     // Calculate mutual connections
     const mutualConnections = await knex('connections as c1')
-      .join('connections as c2', function() {
-        this.on('c1.receiver_id', '=', 'c2.requester_id')
-          .andOn('c1.requester_id', '=', 'c2.receiver_id');
+      .join('connections as c2', function () {
+        this.on('c1.receiver_id', '=', 'c2.requester_id').andOn(
+          'c1.requester_id',
+          '=',
+          'c2.receiver_id',
+        );
       })
       .where('c1.requester_id', req.user.id)
       .where('c1.status', 'accepted')
@@ -250,7 +246,7 @@ router.get('/profile/:userId', protect, async (req, res) => {
       event_type: 'profile_view',
       related_user_id: req.user.id,
       ip_address: req.ip,
-      user_agent: req.get('User-Agent')
+      user_agent: req.get('User-Agent'),
     });
 
     // Transform the data
@@ -274,14 +270,17 @@ router.get('/profile/:userId', protect, async (req, res) => {
       responseRate: profile.response_rate || 0,
       isVerified: profile.is_verified,
       isOnline: profile.show_online_status ? profile.is_online : null,
-      lastActive: profile.show_online_status && profile.last_seen ? new Date(profile.last_seen).toISOString() : null,
+      lastActive:
+        profile.show_online_status && profile.last_seen
+          ? new Date(profile.last_seen).toISOString()
+          : null,
       interests: profile.interests || [],
       socialLinks: profile.social_links,
       achievements: profile.achievements || [],
       availability: profile.availability || {},
       openTo: profile.open_to || [],
       statusMessage: profile.show_online_status ? profile.status_message : null,
-      allowConnectionRequests: profile.allow_connection_requests
+      allowConnectionRequests: profile.allow_connection_requests,
     };
 
     res.json(transformedProfile);
@@ -297,16 +296,14 @@ router.put('/online-status', protect, async (req, res) => {
     const { is_online, status_message } = req.body;
     const userId = req.user.id;
 
-    const existingStatus = await knex('user_online_status')
-      .where('user_id', userId)
-      .first();
+    const existingStatus = await knex('user_online_status').where('user_id', userId).first();
 
     const statusData = {
       user_id: userId,
       is_online: is_online !== undefined ? is_online : true,
       last_seen: knex.fn.now(),
       status_message,
-      updated_at: knex.fn.now()
+      updated_at: knex.fn.now(),
     };
 
     let onlineStatus;
@@ -316,9 +313,7 @@ router.put('/online-status', protect, async (req, res) => {
         .update(statusData)
         .returning('*');
     } else {
-      [onlineStatus] = await knex('user_online_status')
-        .insert(statusData)
-        .returning('*');
+      [onlineStatus] = await knex('user_online_status').insert(statusData).returning('*');
     }
 
     res.json(onlineStatus);
@@ -362,10 +357,7 @@ router.get('/analytics', protect, async (req, res) => {
 
     // Get daily profile views
     const dailyViews = await knex('network_analytics')
-      .select(
-        knex.raw("DATE_TRUNC('day', created_at) as date"),
-        knex.raw('COUNT(*) as count')
-      )
+      .select(knex.raw("DATE_TRUNC('day', created_at) as date"), knex.raw('COUNT(*) as count'))
       .where('user_id', userId)
       .where('event_type', 'profile_view')
       .where('created_at', '>=', startDate)
@@ -387,18 +379,23 @@ router.get('/analytics', protect, async (req, res) => {
     // Get viewer details
     const viewerDetails = await knex('users')
       .select('id', 'first_name', 'last_name', 'username', 'avatar_url', 'title', 'company')
-      .whereIn('id', topViewers.map(v => v.related_user_id));
+      .whereIn(
+        'id',
+        topViewers.map((v) => v.related_user_id),
+      );
 
-    const topViewersWithDetails = topViewers.map(viewer => {
-      const details = viewerDetails.find(d => d.id === viewer.related_user_id);
+    const topViewersWithDetails = topViewers.map((viewer) => {
+      const details = viewerDetails.find((d) => d.id === viewer.related_user_id);
       return {
         ...viewer,
-        user: details ? {
-          name: `${details.first_name} ${details.last_name}`.trim() || details.username,
-          avatar: details.avatar_url,
-          title: details.title,
-          company: details.company
-        } : null
+        user: details
+          ? {
+              name: `${details.first_name} ${details.last_name}`.trim() || details.username,
+              avatar: details.avatar_url,
+              title: details.title,
+              company: details.company,
+            }
+          : null,
       };
     });
 
@@ -408,7 +405,7 @@ router.get('/analytics', protect, async (req, res) => {
       connectionRequestsSent: parseInt(connectionRequestsSent.count) || 0,
       dailyViews,
       topViewers: topViewersWithDetails,
-      period: parseInt(period)
+      period: parseInt(period),
     });
   } catch (error) {
     console.error('Error fetching network analytics:', error);
@@ -435,14 +432,13 @@ router.post('/generate-recommendations', protect, async (req, res) => {
     // Get user's connections
     const userConnections = await knex('connections')
       .select('requester_id', 'receiver_id')
-      .where(function() {
-        this.where('requester_id', userId)
-          .orWhere('receiver_id', userId);
+      .where(function () {
+        this.where('requester_id', userId).orWhere('receiver_id', userId);
       })
       .where('status', 'accepted');
 
-    const connectedUserIds = userConnections.map(conn => 
-      conn.requester_id === userId ? conn.receiver_id : conn.requester_id
+    const connectedUserIds = userConnections.map((conn) =>
+      conn.requester_id === userId ? conn.receiver_id : conn.requester_id,
     );
 
     // Find potential connections based on various criteria
@@ -451,7 +447,16 @@ router.post('/generate-recommendations', protect, async (req, res) => {
     // 1. Same university
     if (userProfile.university) {
       const universityMatches = await knex('users as u')
-        .select('u.id', 'u.first_name', 'u.last_name', 'u.username', 'u.title', 'u.company', 'u.avatar_url', 'u.is_verified')
+        .select(
+          'u.id',
+          'u.first_name',
+          'u.last_name',
+          'u.username',
+          'u.title',
+          'u.company',
+          'u.avatar_url',
+          'u.is_verified',
+        )
         .leftJoin('user_network_profiles as unp', 'u.id', 'unp.user_id')
         .where('u.university', userProfile.university)
         .where('u.id', '!=', userId)
@@ -459,13 +464,13 @@ router.post('/generate-recommendations', protect, async (req, res) => {
         .where('unp.is_public', true)
         .limit(5);
 
-      universityMatches.forEach(user => {
+      universityMatches.forEach((user) => {
         recommendations.push({
           user_id: user.id,
           recommended_user_id: user.id,
           recommendation_type: 'same_university',
           score: 85,
-          reasons: [`Both graduated from ${userProfile.university}`]
+          reasons: [`Both graduated from ${userProfile.university}`],
         });
       });
     }
@@ -473,7 +478,16 @@ router.post('/generate-recommendations', protect, async (req, res) => {
     // 2. Similar skills
     if (userProfile.skills && userProfile.skills.length > 0) {
       const skillMatches = await knex('users as u')
-        .select('u.id', 'u.first_name', 'u.last_name', 'u.username', 'u.title', 'u.company', 'u.avatar_url', 'u.is_verified')
+        .select(
+          'u.id',
+          'u.first_name',
+          'u.last_name',
+          'u.username',
+          'u.title',
+          'u.company',
+          'u.avatar_url',
+          'u.is_verified',
+        )
         .leftJoin('user_network_profiles as unp', 'u.id', 'unp.user_id')
         .where('u.id', '!=', userId)
         .whereNotIn('u.id', connectedUserIds)
@@ -481,13 +495,13 @@ router.post('/generate-recommendations', protect, async (req, res) => {
         .whereRaw('unp.skills ?| array[?]', [userProfile.skills])
         .limit(5);
 
-      skillMatches.forEach(user => {
+      skillMatches.forEach((user) => {
         recommendations.push({
           user_id: userId,
           recommended_user_id: user.id,
           recommendation_type: 'similar_skills',
           score: 75,
-          reasons: ['Has similar skills and expertise']
+          reasons: ['Has similar skills and expertise'],
         });
       });
     }
@@ -495,7 +509,16 @@ router.post('/generate-recommendations', protect, async (req, res) => {
     // 3. Same location
     if (userProfile.location) {
       const locationMatches = await knex('users as u')
-        .select('u.id', 'u.first_name', 'u.last_name', 'u.username', 'u.title', 'u.company', 'u.avatar_url', 'u.is_verified')
+        .select(
+          'u.id',
+          'u.first_name',
+          'u.last_name',
+          'u.username',
+          'u.title',
+          'u.company',
+          'u.avatar_url',
+          'u.is_verified',
+        )
         .leftJoin('user_network_profiles as unp', 'u.id', 'unp.user_id')
         .where('u.location', 'ilike', `%${userProfile.location.split(',')[0]}%`)
         .where('u.id', '!=', userId)
@@ -503,39 +526,39 @@ router.post('/generate-recommendations', protect, async (req, res) => {
         .where('unp.is_public', true)
         .limit(5);
 
-      locationMatches.forEach(user => {
+      locationMatches.forEach((user) => {
         recommendations.push({
           user_id: userId,
           recommended_user_id: user.id,
           recommendation_type: 'same_location',
           score: 70,
-          reasons: [`Located in ${userProfile.location}`]
+          reasons: [`Located in ${userProfile.location}`],
         });
       });
     }
 
     // Remove duplicates and insert recommendations
-    const uniqueRecommendations = recommendations.filter((rec, index, self) => 
-      index === self.findIndex(r => r.recommended_user_id === rec.recommended_user_id)
+    const uniqueRecommendations = recommendations.filter(
+      (rec, index, self) =>
+        index === self.findIndex((r) => r.recommended_user_id === rec.recommended_user_id),
     );
 
     // Clear existing recommendations
-    await knex('network_recommendations')
-      .where('user_id', userId)
-      .del();
+    await knex('network_recommendations').where('user_id', userId).del();
 
     // Insert new recommendations
     if (uniqueRecommendations.length > 0) {
-      await knex('network_recommendations')
-        .insert(uniqueRecommendations.map(rec => ({
+      await knex('network_recommendations').insert(
+        uniqueRecommendations.map((rec) => ({
           ...rec,
-          reasons: JSON.stringify(rec.reasons)
-        })));
+          reasons: JSON.stringify(rec.reasons),
+        })),
+      );
     }
 
     res.json({
       message: 'Recommendations generated successfully',
-      count: uniqueRecommendations.length
+      count: uniqueRecommendations.length,
     });
   } catch (error) {
     console.error('Error generating recommendations:', error);
@@ -554,7 +577,7 @@ router.put('/dismiss-recommendation/:recommendedUserId', protect, async (req, re
       .where('recommended_user_id', recommendedUserId)
       .update({
         is_dismissed: true,
-        dismissed_at: knex.fn.now()
+        dismissed_at: knex.fn.now(),
       });
 
     res.json({ message: 'Recommendation dismissed successfully' });

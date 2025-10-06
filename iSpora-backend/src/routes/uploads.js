@@ -11,15 +11,15 @@ const storage = multer.diskStorage({
     cb(null, 'uploads/');
   },
   filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
     cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
-  }
+  },
 });
 
-const upload = multer({ 
+const upload = multer({
   storage: storage,
   limits: {
-    fileSize: 10 * 1024 * 1024 // 10MB
+    fileSize: 10 * 1024 * 1024, // 10MB
   },
   fileFilter: function (req, file, cb) {
     const allowedTypes = /jpeg|jpg|png|gif|pdf|doc|docx/;
@@ -31,7 +31,7 @@ const upload = multer({
     } else {
       cb(new Error('Invalid file type'));
     }
-  }
+  },
 });
 
 // @desc    Upload file
@@ -42,7 +42,7 @@ router.post('/', protect, upload.single('file'), async (req, res, next) => {
     if (!req.file) {
       return res.status(400).json({
         success: false,
-        error: 'No file uploaded'
+        error: 'No file uploaded',
       });
     }
 
@@ -53,8 +53,8 @@ router.post('/', protect, upload.single('file'), async (req, res, next) => {
         filename: req.file.filename,
         originalName: req.file.originalname,
         size: req.file.size,
-        url: `/uploads/${req.file.filename}`
-      }
+        url: `/uploads/${req.file.filename}`,
+      },
     });
   } catch (error) {
     next(error);

@@ -22,11 +22,11 @@ router.get('/', async (req, res) => {
       min_amount,
       max_amount,
       deadline_after,
-      deadline_before
+      deadline_before,
     } = req.query;
 
     const offset = (page - 1) * limit;
-    
+
     let query = knex('opportunities')
       .select(
         'opportunities.*',
@@ -36,7 +36,7 @@ router.get('/', async (req, res) => {
         'users.title as user_title',
         'users.company as user_company',
         'users.avatar_url',
-        'users.is_verified as user_verified'
+        'users.is_verified as user_verified',
       )
       .leftJoin('users', 'opportunities.posted_by', 'users.id')
       .where('opportunities.is_active', true);
@@ -71,7 +71,7 @@ router.get('/', async (req, res) => {
     }
 
     if (search) {
-      query = query.where(function() {
+      query = query.where(function () {
         this.where('opportunities.title', 'ilike', `%${search}%`)
           .orWhere('opportunities.description', 'ilike', `%${search}%`)
           .orWhere('opportunities.company', 'ilike', `%${search}%`)
@@ -99,18 +99,18 @@ router.get('/', async (req, res) => {
     const validSortFields = ['posted_date', 'deadline', 'boost', 'applicants', 'title'];
     const sortField = validSortFields.includes(sort_by) ? sort_by : 'posted_date';
     const sortDirection = sort_order === 'asc' ? 'asc' : 'desc';
-    
+
     query = query.orderBy(`opportunities.${sortField}`, sortDirection);
 
     // Get total count for pagination
     const countQuery = query.clone().count('* as total');
     const [{ total }] = await countQuery;
-    
+
     // Apply pagination
     const opportunities = await query.limit(limit).offset(offset);
 
     // Transform the data to match frontend expectations
-    const transformedOpportunities = opportunities.map(opp => ({
+    const transformedOpportunities = opportunities.map((opp) => ({
       id: opp.id,
       title: opp.title,
       type: opp.type,
@@ -128,7 +128,7 @@ router.get('/', async (req, res) => {
         title: opp.user_title,
         company: opp.user_company,
         avatar: opp.avatar_url,
-        isVerified: opp.user_verified
+        isVerified: opp.user_verified,
       },
       university: opp.university,
       tags: opp.tags || [],
@@ -146,7 +146,7 @@ router.get('/', async (req, res) => {
       comments: opp.comments,
       fullDescription: opp.full_description,
       applicationProcess: opp.application_process || [],
-      contactInfo: opp.contact_info
+      contactInfo: opp.contact_info,
     }));
 
     res.json({
@@ -155,8 +155,8 @@ router.get('/', async (req, res) => {
         page: parseInt(page),
         limit: parseInt(limit),
         total: parseInt(total),
-        pages: Math.ceil(total / limit)
-      }
+        pages: Math.ceil(total / limit),
+      },
     });
   } catch (error) {
     console.error('Error fetching opportunities:', error);
@@ -178,7 +178,7 @@ router.get('/:id', async (req, res) => {
         'users.title as user_title',
         'users.company as user_company',
         'users.avatar_url',
-        'users.is_verified as user_verified'
+        'users.is_verified as user_verified',
       )
       .leftJoin('users', 'opportunities.posted_by', 'users.id')
       .where('opportunities.id', id)
@@ -196,7 +196,7 @@ router.get('/:id', async (req, res) => {
       user_id: req.user?.id || null,
       ip_address: req.ip,
       user_agent: req.get('User-Agent'),
-      referrer: req.get('Referer')
+      referrer: req.get('Referer'),
     });
 
     // Transform the data
@@ -214,11 +214,13 @@ router.get('/:id', async (req, res) => {
       duration: opportunity.duration,
       commitment: opportunity.commitment,
       postedBy: {
-        name: `${opportunity.first_name || ''} ${opportunity.last_name || ''}`.trim() || opportunity.username,
+        name:
+          `${opportunity.first_name || ''} ${opportunity.last_name || ''}`.trim() ||
+          opportunity.username,
         title: opportunity.user_title,
         company: opportunity.user_company,
         avatar: opportunity.avatar_url,
-        isVerified: opportunity.user_verified
+        isVerified: opportunity.user_verified,
       },
       university: opportunity.university,
       tags: opportunity.tags || [],
@@ -237,7 +239,7 @@ router.get('/:id', async (req, res) => {
       fullDescription: opportunity.full_description,
       applicationProcess: opportunity.application_process || [],
       contactInfo: opportunity.contact_info,
-      isVerified: opportunity.is_verified
+      isVerified: opportunity.is_verified,
     };
 
     res.json(transformedOpportunity);
@@ -272,7 +274,7 @@ router.post('/', protect, async (req, res) => {
       applicationLink,
       fullDescription,
       applicationProcess = [],
-      contactInfo
+      contactInfo,
     } = req.body;
 
     // Validate required fields
@@ -304,7 +306,7 @@ router.post('/', protect, async (req, res) => {
         application_link: applicationLink,
         full_description: fullDescription,
         application_process: JSON.stringify(applicationProcess),
-        contact_info: contactInfo ? JSON.stringify(contactInfo) : null
+        contact_info: contactInfo ? JSON.stringify(contactInfo) : null,
       })
       .returning('*');
 
@@ -322,9 +324,7 @@ router.put('/:id', protect, async (req, res) => {
     const updateData = req.body;
 
     // Check if user owns the opportunity or is admin
-    const opportunity = await knex('opportunities')
-      .where('id', id)
-      .first();
+    const opportunity = await knex('opportunities').where('id', id).first();
 
     if (!opportunity) {
       return res.status(404).json({ error: 'Opportunity not found' });
@@ -336,17 +336,38 @@ router.put('/:id', protect, async (req, res) => {
 
     // Prepare update data
     const allowedFields = [
-      'title', 'type', 'company', 'location', 'remote', 'description',
-      'requirements', 'benefits', 'amount', 'duration', 'commitment',
-      'university', 'tags', 'deadline', 'event_date', 'experience_level',
-      'category', 'eligibility', 'application_link', 'full_description',
-      'application_process', 'contact_info', 'featured', 'urgent'
+      'title',
+      'type',
+      'company',
+      'location',
+      'remote',
+      'description',
+      'requirements',
+      'benefits',
+      'amount',
+      'duration',
+      'commitment',
+      'university',
+      'tags',
+      'deadline',
+      'event_date',
+      'experience_level',
+      'category',
+      'eligibility',
+      'application_link',
+      'full_description',
+      'application_process',
+      'contact_info',
+      'featured',
+      'urgent',
     ];
 
     const updateFields = {};
-    allowedFields.forEach(field => {
+    allowedFields.forEach((field) => {
       if (updateData[field] !== undefined) {
-        if (['requirements', 'benefits', 'tags', 'eligibility', 'application_process'].includes(field)) {
+        if (
+          ['requirements', 'benefits', 'tags', 'eligibility', 'application_process'].includes(field)
+        ) {
           updateFields[field] = JSON.stringify(updateData[field]);
         } else if (field === 'amount' && updateData[field]) {
           updateFields[field] = JSON.stringify(updateData[field]);
@@ -378,9 +399,7 @@ router.delete('/:id', protect, async (req, res) => {
     const { id } = req.params;
 
     // Check if user owns the opportunity or is admin
-    const opportunity = await knex('opportunities')
-      .where('id', id)
-      .first();
+    const opportunity = await knex('opportunities').where('id', id).first();
 
     if (!opportunity) {
       return res.status(404).json({ error: 'Opportunity not found' });
@@ -432,7 +451,7 @@ router.get('/:id/stats', async (req, res) => {
       analytics: stats,
       applications: parseInt(applications.total) || 0,
       saves: parseInt(saves.total) || 0,
-      boosts: parseInt(boosts.total) || 0
+      boosts: parseInt(boosts.total) || 0,
     });
   } catch (error) {
     console.error('Error fetching opportunity stats:', error);

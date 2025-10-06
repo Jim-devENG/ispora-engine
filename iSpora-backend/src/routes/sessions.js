@@ -39,7 +39,9 @@ router.get('/', optionalAuth, async (req, res, next) => {
     if (status && status !== 'all') q = q.where('status', status);
     const rows = await q;
     res.json({ success: true, data: rows });
-  } catch (e) { next(e); }
+  } catch (e) {
+    next(e);
+  }
 });
 
 // Create session
@@ -49,8 +51,19 @@ router.post('/', protect, async (req, res, next) => {
     const id = `sess_${Date.now()}`;
     const now = new Date();
     const {
-      projectId, title, description, scheduledDate, scheduledTime, duration,
-      type, location, isPublic, maxParticipants, tags, agenda, meetingLink
+      projectId,
+      title,
+      description,
+      scheduledDate,
+      scheduledTime,
+      duration,
+      type,
+      location,
+      isPublic,
+      maxParticipants,
+      tags,
+      agenda,
+      meetingLink,
     } = req.body;
 
     const scheduled_at = new Date(`${scheduledDate}T${scheduledTime || '00:00'}`);
@@ -67,16 +80,18 @@ router.post('/', protect, async (req, res, next) => {
       location: location || null,
       is_public: !!isPublic,
       max_participants: maxParticipants || null,
-      tags: Array.isArray(tags) ? tags.join(',') : (tags || ''),
-      agenda: Array.isArray(agenda) ? agenda.join('\n') : (agenda || ''),
+      tags: Array.isArray(tags) ? tags.join(',') : tags || '',
+      agenda: Array.isArray(agenda) ? agenda.join('\n') : agenda || '',
       notes: null,
       creator_id: req.user?.id || null,
       created_at: now,
-      updated_at: now
+      updated_at: now,
     };
     await db('sessions').insert(row);
     res.status(201).json({ success: true, data: row });
-  } catch (e) { next(e); }
+  } catch (e) {
+    next(e);
+  }
 });
 
 // Update session
@@ -96,7 +111,9 @@ router.put('/:id', protect, async (req, res, next) => {
     await db('sessions').where({ id }).update(payload);
     const updated = await db('sessions').where({ id }).first();
     res.json({ success: true, data: updated });
-  } catch (e) { next(e); }
+  } catch (e) {
+    next(e);
+  }
 });
 
 // Delete session
@@ -106,7 +123,9 @@ router.delete('/:id', protect, async (req, res, next) => {
     const { id } = req.params;
     await db('sessions').where({ id }).del();
     res.json({ success: true, data: { id } });
-  } catch (e) { next(e); }
+  } catch (e) {
+    next(e);
+  }
 });
 
 module.exports = router;

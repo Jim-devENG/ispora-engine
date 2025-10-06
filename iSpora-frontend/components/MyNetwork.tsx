@@ -1,25 +1,39 @@
-import React, { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Button } from "./ui/button";
-import { Badge } from "./ui/badge";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription, DialogOverlay, DialogPortal } from "./ui/dialog";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { ScrollArea } from "./ui/scroll-area";
-import { Textarea } from "./ui/textarea";
-import { Separator } from "./ui/separator";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
-import { toast } from "sonner";
-import { UserProfileModal } from "./UserProfileModal";
-import { MessagingPopover, MessagingUser } from "./MessagingPopover";
-import { useNavigation } from "./NavigationContext";
-import { useProfile, profileToNetworkUser } from "./ProfileContext";
-import { 
-  Users, 
-  Search, 
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Button } from './ui/button';
+import { Badge } from './ui/badge';
+import { Input } from './ui/input';
+import { Label } from './ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogDescription,
+  DialogOverlay,
+  DialogPortal,
+} from './ui/dialog';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { ScrollArea } from './ui/scroll-area';
+import { Textarea } from './ui/textarea';
+import { Separator } from './ui/separator';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from './ui/dropdown-menu';
+import { toast } from 'sonner';
+import { UserProfileModal } from './UserProfileModal';
+import { MessagingPopover, MessagingUser } from './MessagingPopover';
+import { useNavigation } from './NavigationContext';
+import { useProfile, profileToNetworkUser } from './ProfileContext';
+import {
+  Users,
+  Search,
   Filter,
   UserPlus,
   UserCheck,
@@ -66,8 +80,8 @@ import {
   Phone,
   Clock,
   HelpCircle,
-  Sparkles
-} from "lucide-react";
+  Sparkles,
+} from 'lucide-react';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
@@ -145,49 +159,55 @@ const roleConfig = {
   alumni: { color: 'bg-purple-100 text-purple-800', icon: GraduationCap },
   student: { color: 'bg-orange-100 text-orange-800', icon: BookOpen },
   researcher: { color: 'bg-indigo-100 text-indigo-800', icon: Target },
-  entrepreneur: { color: 'bg-red-100 text-red-800', icon: Rocket }
+  entrepreneur: { color: 'bg-red-100 text-red-800', icon: Rocket },
 };
 
 // "Open To" tag configurations with colors and icons
 const openToConfig = {
-  'Mentorship': { 
-    color: 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950 dark:text-blue-300 dark:border-blue-800', 
-    icon: Users 
+  Mentorship: {
+    color:
+      'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950 dark:text-blue-300 dark:border-blue-800',
+    icon: Users,
   },
-  'Collaboration': { 
-    color: 'bg-green-50 text-green-700 border-green-200 dark:bg-green-950 dark:text-green-300 dark:border-green-800', 
-    icon: Users2 
+  Collaboration: {
+    color:
+      'bg-green-50 text-green-700 border-green-200 dark:bg-green-950 dark:text-green-300 dark:border-green-800',
+    icon: Users2,
   },
-  'Volunteering': { 
-    color: 'bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950 dark:text-purple-300 dark:border-purple-800', 
-    icon: Heart 
+  Volunteering: {
+    color:
+      'bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950 dark:text-purple-300 dark:border-purple-800',
+    icon: Heart,
   },
-  'Consulting': { 
-    color: 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-950 dark:text-orange-300 dark:border-orange-800', 
-    icon: Briefcase 
+  Consulting: {
+    color:
+      'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-950 dark:text-orange-300 dark:border-orange-800',
+    icon: Briefcase,
   },
-  'Speaking': { 
-    color: 'bg-pink-50 text-pink-700 border-pink-200 dark:bg-pink-950 dark:text-pink-300 dark:border-pink-800', 
-    icon: Video 
+  Speaking: {
+    color:
+      'bg-pink-50 text-pink-700 border-pink-200 dark:bg-pink-950 dark:text-pink-300 dark:border-pink-800',
+    icon: Video,
   },
-  'Advising': { 
-    color: 'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-950 dark:text-yellow-300 dark:border-yellow-800', 
-    icon: Lightbulb 
-  }
+  Advising: {
+    color:
+      'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-950 dark:text-yellow-300 dark:border-yellow-800',
+    icon: Lightbulb,
+  },
 };
 
 // Skill icons mapping
 const skillIcons: Record<string, any> = {
   'Machine Learning': Zap,
   'Product Management': Target,
-  'Design': Palette,
-  'Research': BookOpen,
-  'Healthcare': Heart,
-  'Entrepreneurship': Rocket,
-  'Investment': TrendingUp,
-  'Strategy': BarChart3,
-  'Engineering': Code,
-  'Leadership': Award
+  Design: Palette,
+  Research: BookOpen,
+  Healthcare: Heart,
+  Entrepreneurship: Rocket,
+  Investment: TrendingUp,
+  Strategy: BarChart3,
+  Engineering: Code,
+  Leadership: Award,
 };
 
 // Connection purpose options
@@ -200,15 +220,15 @@ const connectionPurposes = [
   'Partnership or business opportunity',
   'Speaking or event opportunity',
   'Learning and knowledge sharing',
-  'Custom - I\'ll explain in my message'
+  "Custom - I'll explain in my message",
 ];
 
 // Enhanced Connection Request Modal Component
-function ConnectionRequestModal({ 
-  user, 
-  isOpen, 
-  onClose, 
-  onSubmit 
+function ConnectionRequestModal({
+  user,
+  isOpen,
+  onClose,
+  onSubmit,
 }: {
   user: NetworkUser;
   isOpen: boolean;
@@ -231,7 +251,7 @@ function ConnectionRequestModal({
     'Partnership or business opportunity',
     'Speaking or event opportunity',
     'Learning and knowledge sharing',
-    'Custom - I\'ll explain in my message'
+    "Custom - I'll explain in my message",
   ];
 
   // Reset form when modal opens
@@ -285,12 +305,12 @@ function ConnectionRequestModal({
   const handleOptionSelect = (purpose: string, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     // Add visual feedback
     const target = e.target as HTMLElement;
     target.style.backgroundColor = '#3b82f6';
     target.style.color = 'white';
-    
+
     // Reset after a brief moment and apply the selection
     setTimeout(() => {
       handlePurposeChange(purpose);
@@ -307,7 +327,7 @@ function ConnectionRequestModal({
       toast.error('Please add a personal message to your connection request.');
       return;
     }
-    
+
     onSubmit(selectedPurpose, customMessage);
     onClose();
   };
@@ -316,120 +336,130 @@ function ConnectionRequestModal({
     <div className="connection-request-modal">
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent className="max-w-lg z-[51]">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <UserPlus className="h-5 w-5" />
-            Connect with {user.name}
-          </DialogTitle>
-          <DialogDescription>
-            Tell them why you're reaching out
-          </DialogDescription>
-        </DialogHeader>
-        
-        <div className="space-y-6">
-          {/* User Preview */}
-          <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-            <Avatar className="h-10 w-10">
-              <AvatarImage src={user.avatar} alt={user.name} />
-              <AvatarFallback>{user.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-            </Avatar>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <UserPlus className="h-5 w-5" />
+              Connect with {user.name}
+            </DialogTitle>
+            <DialogDescription>Tell them why you're reaching out</DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-6">
+            {/* User Preview */}
+            <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+              <Avatar className="h-10 w-10">
+                <AvatarImage src={user.avatar} alt={user.name} />
+                <AvatarFallback>
+                  {user.name
+                    .split(' ')
+                    .map((n) => n[0])
+                    .join('')}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <p className="font-medium">{user.name}</p>
+                <p className="text-sm text-muted-foreground">
+                  {user.title} at {user.company}
+                </p>
+              </div>
+            </div>
+
+            {/* Request Purpose - Custom Dropdown */}
+            <div className="relative" ref={dropdownRef}>
+              <Label className="text-sm font-medium mb-2 block">Request Purpose</Label>
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={handleDropdownToggle}
+                  onKeyDown={handleKeyDown}
+                  className="flex h-10 w-full items-center justify-between rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
+                  aria-expanded={dropdownOpen}
+                  aria-haspopup="listbox"
+                >
+                  <span
+                    className={
+                      selectedPurpose
+                        ? 'text-gray-900 dark:text-gray-100 font-medium'
+                        : 'text-gray-500 dark:text-gray-400'
+                    }
+                  >
+                    {selectedPurpose || 'Select why you want to connect...'}
+                  </span>
+                  <ChevronDown
+                    className={`h-4 w-4 transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''} text-gray-500 dark:text-gray-400`}
+                  />
+                </button>
+
+                {dropdownOpen && (
+                  <div className="absolute top-full left-0 right-0 z-[60] mt-1 max-h-[300px] min-w-full overflow-auto rounded-md border bg-white dark:bg-gray-800 shadow-lg border-gray-200 dark:border-gray-700 p-1">
+                    {connectionPurposes.map((purpose, index) => (
+                      <button
+                        key={`purpose-${index}`}
+                        type="button"
+                        onClick={(e) => handleOptionSelect(purpose, e)}
+                        className="relative flex w-full cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-gray-100 dark:hover:bg-gray-700 focus:bg-gray-100 dark:focus:bg-gray-700 text-left text-gray-900 dark:text-gray-100 transition-colors"
+                      >
+                        {purpose}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Personal Message */}
             <div>
-              <p className="font-medium">{user.name}</p>
-              <p className="text-sm text-muted-foreground">{user.title} at {user.company}</p>
+              <Label className="text-sm font-medium mb-2 block">Personal Message</Label>
+              <Textarea
+                placeholder={
+                  isCustomPurpose
+                    ? "Explain your custom request and why you'd like to connect..."
+                    : 'Write a personalized message explaining more about your request...'
+                }
+                value={customMessage}
+                onChange={(e) => setCustomMessage(e.target.value)}
+                className="min-h-[120px] resize-none"
+              />
             </div>
-          </div>
 
-          {/* Request Purpose - Custom Dropdown */}
-          <div className="relative" ref={dropdownRef}>
-            <Label className="text-sm font-medium mb-2 block">Request Purpose</Label>
-            <div className="relative">
-              <button
-                type="button"
-                onClick={handleDropdownToggle}
-                onKeyDown={handleKeyDown}
-                className="flex h-10 w-full items-center justify-between rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
-                aria-expanded={dropdownOpen}
-                aria-haspopup="listbox"
-              >
-                <span className={selectedPurpose ? "text-gray-900 dark:text-gray-100 font-medium" : "text-gray-500 dark:text-gray-400"}>
-                  {selectedPurpose || "Select why you want to connect..."}
-                </span>
-                <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''} text-gray-500 dark:text-gray-400`} />
-              </button>
-              
-              {dropdownOpen && (
-                <div className="absolute top-full left-0 right-0 z-[60] mt-1 max-h-[300px] min-w-full overflow-auto rounded-md border bg-white dark:bg-gray-800 shadow-lg border-gray-200 dark:border-gray-700 p-1">
-                  {connectionPurposes.map((purpose, index) => (
-                    <button
-                      key={`purpose-${index}`}
-                      type="button"
-                      onClick={(e) => handleOptionSelect(purpose, e)}
-                      className="relative flex w-full cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-gray-100 dark:hover:bg-gray-700 focus:bg-gray-100 dark:focus:bg-gray-700 text-left text-gray-900 dark:text-gray-100 transition-colors"
-                    >
-                      {purpose}
-                    </button>
-                  ))}
+            {/* Selected Purpose Confirmation */}
+            {selectedPurpose && (
+              <div className="bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-lg p-3">
+                <div className="flex items-start gap-2">
+                  <Check className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                  <div className="text-sm text-green-800 dark:text-green-200">
+                    <p className="font-medium mb-1">Purpose Selected</p>
+                    <p>{selectedPurpose}</p>
+                  </div>
                 </div>
-              )}
-            </div>
-          </div>
+              </div>
+            )}
 
-          {/* Personal Message */}
-          <div>
-            <Label className="text-sm font-medium mb-2 block">Personal Message</Label>
-            <Textarea
-              placeholder={isCustomPurpose 
-                ? "Explain your custom request and why you'd like to connect..."
-                : "Write a personalized message explaining more about your request..."
-              }
-              value={customMessage}
-              onChange={(e) => setCustomMessage(e.target.value)}
-              className="min-h-[120px] resize-none"
-            />
-          </div>
-
-          {/* Selected Purpose Confirmation */}
-          {selectedPurpose && (
-            <div className="bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-lg p-3">
+            {/* Helper Text */}
+            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
               <div className="flex items-start gap-2">
-                <Check className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
-                <div className="text-sm text-green-800 dark:text-green-200">
-                  <p className="font-medium mb-1">Purpose Selected</p>
-                  <p>{selectedPurpose}</p>
+                <HelpCircle className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                <div className="text-sm text-blue-800 dark:text-blue-200">
+                  <p className="font-medium mb-1">💡 Connection Tip</p>
+                  <p>
+                    Let them know what you're looking for. Be clear and specific to build meaningful
+                    connections.
+                  </p>
                 </div>
               </div>
             </div>
-          )}
 
-          {/* Helper Text */}
-          <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
-            <div className="flex items-start gap-2">
-              <HelpCircle className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
-              <div className="text-sm text-blue-800 dark:text-blue-200">
-                <p className="font-medium mb-1">💡 Connection Tip</p>
-                <p>Let them know what you're looking for. Be clear and specific to build meaningful connections.</p>
-              </div>
+            {/* Action Buttons */}
+            <div className="flex gap-3 pt-2">
+              <Button variant="outline" onClick={onClose} className="flex-1">
+                Cancel
+              </Button>
+              <Button onClick={handleSubmit} className="flex-1 bg-[#021ff6] hover:bg-[#021ff6]/90">
+                <Send className="h-4 w-4 mr-2" />
+                Send Request
+              </Button>
             </div>
           </div>
-
-          {/* Action Buttons */}
-          <div className="flex gap-3 pt-2">
-            <Button 
-              variant="outline" 
-              onClick={onClose}
-              className="flex-1"
-            >
-              Cancel
-            </Button>
-            <Button 
-              onClick={handleSubmit}
-              className="flex-1 bg-[#021ff6] hover:bg-[#021ff6]/90"
-            >
-              <Send className="h-4 w-4 mr-2" />
-              Send Request
-            </Button>
-          </div>
-        </div>
         </DialogContent>
       </Dialog>
     </div>
@@ -442,11 +472,15 @@ const convertToMessagingUser = (user: NetworkUser): MessagingUser => ({
   name: user.name,
   avatar: user.avatar,
   isOnline: user.isOnline,
-  lastSeen: user.lastActive
+  lastSeen: user.lastActive,
 });
 
 // User Discovery Component
-function UserDiscovery({ users, onConnect, onViewProfile }: {
+function UserDiscovery({
+  users,
+  onConnect,
+  onViewProfile,
+}: {
   users: NetworkUser[];
   onConnect: (userId: string, purpose: string, message: string) => void;
   onViewProfile: (userId: string) => void;
@@ -457,27 +491,34 @@ function UserDiscovery({ users, onConnect, onViewProfile }: {
   const [availabilityFilter, setAvailabilityFilter] = useState<string>('all');
   const [showFilters, setShowFilters] = useState(false);
 
-  const filteredUsers = users.filter(user => {
-    const matchesSearch = user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         user.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         user.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         user.skills.some(skill => skill.toLowerCase().includes(searchQuery.toLowerCase()));
-    
+  const filteredUsers = users.filter((user) => {
+    const matchesSearch =
+      user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.skills.some((skill) => skill.toLowerCase().includes(searchQuery.toLowerCase()));
+
     const matchesRole = roleFilter === 'all' || user.role === roleFilter;
-    
-    const matchesLocation = locationFilter === 'all' || 
-                           user.location.toLowerCase().includes(locationFilter.toLowerCase());
-    
-    const matchesAvailability = availabilityFilter === 'all' || 
-                               (availabilityFilter === 'mentoring' && user.availability?.mentoring) ||
-                               (availabilityFilter === 'collaboration' && user.availability?.collaboration) ||
-                               (availabilityFilter === 'consultation' && user.availability?.consultation);
+
+    const matchesLocation =
+      locationFilter === 'all' ||
+      user.location.toLowerCase().includes(locationFilter.toLowerCase());
+
+    const matchesAvailability =
+      availabilityFilter === 'all' ||
+      (availabilityFilter === 'mentoring' && user.availability?.mentoring) ||
+      (availabilityFilter === 'collaboration' && user.availability?.collaboration) ||
+      (availabilityFilter === 'consultation' && user.availability?.consultation);
 
     return matchesSearch && matchesRole && matchesLocation && matchesAvailability;
   });
 
   // Get unique locations for filter
-  const locations = Array.from(new Set(users.map(user => user.location.split(',')[1]?.trim() || user.location.split(',')[0])));
+  const locations = Array.from(
+    new Set(
+      users.map((user) => user.location.split(',')[1]?.trim() || user.location.split(',')[0]),
+    ),
+  );
 
   return (
     <div className="space-y-6">
@@ -533,8 +574,10 @@ function UserDiscovery({ users, onConnect, onViewProfile }: {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Locations</SelectItem>
-                    {locations.map(location => (
-                      <SelectItem key={location} value={location}>{location}</SelectItem>
+                    {locations.map((location) => (
+                      <SelectItem key={location} value={location}>
+                        {location}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -561,21 +604,20 @@ function UserDiscovery({ users, onConnect, onViewProfile }: {
 
       {/* Results */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {filteredUsers.map(user => (
-          <UserCard 
-            key={user.id} 
-            user={user} 
-            onConnect={onConnect}
-            onViewProfile={onViewProfile}
-          />
+        {filteredUsers.map((user) => (
+          <UserCard key={user.id} user={user} onConnect={onConnect} onViewProfile={onViewProfile} />
         ))}
       </div>
 
       {filteredUsers.length === 0 && (
         <div className="text-center py-12">
           <Users className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No users found</h3>
-          <p className="text-gray-500 dark:text-gray-400">Try adjusting your search criteria or filters.</p>
+          <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+            No users found
+          </h3>
+          <p className="text-gray-500 dark:text-gray-400">
+            Try adjusting your search criteria or filters.
+          </p>
         </div>
       )}
     </div>
@@ -583,14 +625,18 @@ function UserDiscovery({ users, onConnect, onViewProfile }: {
 }
 
 // Enhanced User Card Component with "Open To" tags and View Profile button
-function UserCard({ user, onConnect, onViewProfile }: {
+function UserCard({
+  user,
+  onConnect,
+  onViewProfile,
+}: {
   user: NetworkUser;
   onConnect: (userId: string, purpose: string, message: string) => void;
   onViewProfile: (userId: string) => void;
 }) {
   const [showConnectModal, setShowConnectModal] = useState(false);
 
-  const roleInfo = roleConfig[user.role];
+  const roleInfo = roleConfig[user.role] || { icon: Users, label: user.role || 'Member' };
   const RoleIcon = roleInfo.icon;
 
   const handleConnect = (purpose: string, message: string) => {
@@ -632,8 +678,8 @@ function UserCard({ user, onConnect, onViewProfile }: {
       default:
         return (
           <>
-            <Button 
-              size="sm" 
+            <Button
+              size="sm"
               className="flex-1 bg-[#021ff6] hover:bg-[#021ff6]/90"
               onClick={() => setShowConnectModal(true)}
             >
@@ -661,7 +707,12 @@ function UserCard({ user, onConnect, onViewProfile }: {
               <div className="relative">
                 <Avatar className="h-12 w-12">
                   <AvatarImage src={user.avatar} alt={user.name} />
-                  <AvatarFallback>{user.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                  <AvatarFallback>
+                    {user.name
+                      .split(' ')
+                      .map((n) => n[0])
+                      .join('')}
+                  </AvatarFallback>
                 </Avatar>
                 {user.isOnline && (
                   <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
@@ -695,7 +746,7 @@ function UserCard({ user, onConnect, onViewProfile }: {
                   <Eye className="h-4 w-4 mr-2" />
                   View Profile
                 </DropdownMenuItem>
-                <DropdownMenuItem 
+                <DropdownMenuItem
                   onClick={() => toast.success(`Opening chat with ${user.name}...`)}
                 >
                   <MessageCircle className="h-4 w-4 mr-2" />
@@ -755,9 +806,9 @@ function UserCard({ user, onConnect, onViewProfile }: {
           {/* Action Buttons */}
           <div className="flex gap-2 pt-2">
             {getConnectionButton()}
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => onViewProfile(user.id)}
               className="flex items-center gap-2"
             >
@@ -772,7 +823,12 @@ function UserCard({ user, onConnect, onViewProfile }: {
 }
 
 // Enhanced Connection Request Card with View Profile functionality
-function ConnectionRequestCard({ request, onAccept, onDecline, onViewProfile }: {
+function ConnectionRequestCard({
+  request,
+  onAccept,
+  onDecline,
+  onViewProfile,
+}: {
   request: ConnectionRequest;
   onAccept: (requestId: string) => void;
   onDecline: (requestId: string) => void;
@@ -782,7 +838,7 @@ function ConnectionRequestCard({ request, onAccept, onDecline, onViewProfile }: 
     const date = new Date(timestamp);
     const now = new Date();
     const diffHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
-    
+
     if (diffHours < 1) return 'Just now';
     if (diffHours < 24) return `${diffHours}h ago`;
     return `${Math.floor(diffHours / 24)}d ago`;
@@ -805,7 +861,10 @@ function ConnectionRequestCard({ request, onAccept, onDecline, onViewProfile }: 
                 <Avatar className="h-12 w-12">
                   <AvatarImage src={request.from.avatar} alt={request.from.name} />
                   <AvatarFallback>
-                    {request.from.name.split(' ').map(n => n[0]).join('')}
+                    {request.from.name
+                      .split(' ')
+                      .map((n) => n[0])
+                      .join('')}
                   </AvatarFallback>
                 </Avatar>
                 {request.from.isOnline && (
@@ -839,7 +898,7 @@ function ConnectionRequestCard({ request, onAccept, onDecline, onViewProfile }: 
                     <Eye className="h-4 w-4 mr-2" />
                     View Profile
                   </DropdownMenuItem>
-                  <DropdownMenuItem 
+                  <DropdownMenuItem
                     onClick={() => toast.success(`Opening chat with ${request.from.name}...`)}
                   >
                     <MessageCircle className="h-4 w-4 mr-2" />
@@ -856,11 +915,14 @@ function ConnectionRequestCard({ request, onAccept, onDecline, onViewProfile }: 
               <RoleIcon className="h-3 w-3 mr-1" />
               {request.from.role}
             </Badge>
-            <Badge variant="outline" className={
-              request.type === 'mentorship' 
-                ? 'bg-blue-50 text-blue-700 border-blue-200' 
-                : 'bg-green-50 text-green-700 border-green-200'
-            }>
+            <Badge
+              variant="outline"
+              className={
+                request.type === 'mentorship'
+                  ? 'bg-blue-50 text-blue-700 border-blue-200'
+                  : 'bg-green-50 text-green-700 border-green-200'
+              }
+            >
               {request.type === 'mentorship' ? 'Mentorship Request' : 'Connection Request'}
             </Badge>
           </div>
@@ -905,23 +967,19 @@ function ConnectionRequestCard({ request, onAccept, onDecline, onViewProfile }: 
 
           {/* Action Buttons */}
           <div className="flex gap-2 pt-2">
-            <Button 
+            <Button
               onClick={() => onAccept(request.id)}
               className="flex-1 bg-[#021ff6] hover:bg-[#021ff6]/90"
             >
               <Check className="h-4 w-4 mr-2" />
               Accept
             </Button>
-            <Button 
-              variant="outline" 
-              onClick={() => onDecline(request.id)}
-              className="flex-1"
-            >
+            <Button variant="outline" onClick={() => onDecline(request.id)} className="flex-1">
               <X className="h-4 w-4 mr-2" />
               Decline
             </Button>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={() => onViewProfile(request.from.id)}
               className="flex items-center gap-2"
             >
@@ -936,7 +994,10 @@ function ConnectionRequestCard({ request, onAccept, onDecline, onViewProfile }: 
 }
 
 // Connected User Card with View Profile functionality
-function ConnectedUserCard({ user, onViewProfile }: {
+function ConnectedUserCard({
+  user,
+  onViewProfile,
+}: {
   user: NetworkUser;
   onViewProfile: (userId: string) => void;
 }) {
@@ -956,7 +1017,12 @@ function ConnectedUserCard({ user, onViewProfile }: {
               <div className="relative">
                 <Avatar className="h-12 w-12">
                   <AvatarImage src={user.avatar} alt={user.name} />
-                  <AvatarFallback>{user.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                  <AvatarFallback>
+                    {user.name
+                      .split(' ')
+                      .map((n) => n[0])
+                      .join('')}
+                  </AvatarFallback>
                 </Avatar>
                 {user.isOnline && (
                   <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
@@ -991,13 +1057,15 @@ function ConnectedUserCard({ user, onViewProfile }: {
                   <Eye className="h-4 w-4 mr-2" />
                   View Profile
                 </DropdownMenuItem>
-                <DropdownMenuItem 
+                <DropdownMenuItem
                   onClick={() => toast.success(`Opening chat with ${user.name}...`)}
                 >
                   <MessageCircle className="h-4 w-4 mr-2" />
                   Send Message
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => toast.success(`Scheduling meeting with ${user.name}...`)}>
+                <DropdownMenuItem
+                  onClick={() => toast.success(`Scheduling meeting with ${user.name}...`)}
+                >
                   <Video className="h-4 w-4 mr-2" />
                   Schedule Meeting
                 </DropdownMenuItem>
@@ -1054,9 +1122,9 @@ function ConnectedUserCard({ user, onViewProfile }: {
                 </Button>
               }
             />
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => onViewProfile(user.id)}
               className="flex items-center gap-2"
             >
@@ -1085,14 +1153,16 @@ export function MyNetwork() {
   // Calculate dynamic stats based on actual data
   const currentUserAsNetworkUser = profileToNetworkUser(profile);
   const allConnectedUsers = [currentUserAsNetworkUser, ...connectedUsers];
-  const sentRequests = discoveryUsers.filter(user => user.connectionStatus === 'pending_sent').length;
-  
+  const sentRequests = discoveryUsers.filter(
+    (user) => user.connectionStatus === 'pending_sent',
+  ).length;
+
   const networkStats: NetworkStats = {
     totalConnections: allConnectedUsers.length,
     pendingRequests: connectionRequests.length,
     sentRequests: sentRequests,
     profileViews: 0,
-    monthlyGrowth: 0
+    monthlyGrowth: 0,
   };
 
   // Fetch network data
@@ -1111,12 +1181,15 @@ export function MyNetwork() {
         const [discRes, connRes, reqRes] = await Promise.all([
           fetch(`${API_BASE_URL}/network/discovery`, { headers, signal: controller.signal }),
           fetch(`${API_BASE_URL}/network/connections`, { headers, signal: controller.signal }),
-          fetch(`${API_BASE_URL}/network/connections/requests`, { headers, signal: controller.signal })
+          fetch(`${API_BASE_URL}/network/connections/requests`, {
+            headers,
+            signal: controller.signal,
+          }),
         ]);
         const [discJson, connJson, reqJson] = await Promise.all([
           discRes.ok ? discRes.json() : Promise.resolve({ data: [] }),
           connRes.ok ? connRes.json() : Promise.resolve({ data: [] }),
-          reqRes.ok ? reqRes.json() : Promise.resolve({ data: [] })
+          reqRes.ok ? reqRes.json() : Promise.resolve({ data: [] }),
         ]);
         const discovery = discJson?.data || [];
         const connections = connJson?.data || [];
@@ -1146,7 +1219,7 @@ export function MyNetwork() {
       const res = await fetch(`${API_BASE_URL}/network/connections/requests`, {
         method: 'POST',
         headers,
-        body: JSON.stringify({ userId, purpose, message })
+        body: JSON.stringify({ userId, purpose, message }),
       });
       if (!res.ok) throw new Error('Failed to send request');
       toast.success('Connection request sent successfully!');
@@ -1162,7 +1235,7 @@ export function MyNetwork() {
       navigate('Profile');
       return;
     }
-    
+
     // Otherwise, show profile modal
     setSelectedProfileUserId(userId);
     setIsProfileModalOpen(true);
@@ -1182,9 +1255,12 @@ export function MyNetwork() {
       const token = localStorage.getItem('token');
       if (devKey) headers['X-Dev-Key'] = devKey;
       if (token) headers['Authorization'] = `Bearer ${token}`;
-      const res = await fetch(`${API_BASE_URL}/network/connections/requests/${requestId}/accept`, { method: 'POST', headers });
+      const res = await fetch(`${API_BASE_URL}/network/connections/requests/${requestId}/accept`, {
+        method: 'POST',
+        headers,
+      });
       if (!res.ok) throw new Error('Failed to accept request');
-      setConnectionRequests(prev => prev.filter(req => req.id !== requestId));
+      setConnectionRequests((prev) => prev.filter((req) => req.id !== requestId));
       toast.success('Connection request accepted!');
     } catch (e: any) {
       toast.error(e.message || 'Failed to accept request');
@@ -1199,9 +1275,12 @@ export function MyNetwork() {
       const token = localStorage.getItem('token');
       if (devKey) headers['X-Dev-Key'] = devKey;
       if (token) headers['Authorization'] = `Bearer ${token}`;
-      const res = await fetch(`${API_BASE_URL}/network/connections/requests/${requestId}/decline`, { method: 'POST', headers });
+      const res = await fetch(`${API_BASE_URL}/network/connections/requests/${requestId}/decline`, {
+        method: 'POST',
+        headers,
+      });
       if (!res.ok) throw new Error('Failed to decline request');
-      setConnectionRequests(prev => prev.filter(req => req.id !== requestId));
+      setConnectionRequests((prev) => prev.filter((req) => req.id !== requestId));
       toast.success('Connection request declined');
     } catch (e: any) {
       toast.error(e.message || 'Failed to decline request');
@@ -1209,8 +1288,10 @@ export function MyNetwork() {
   };
 
   // Get selected user for profile modal
-  const selectedUser = selectedProfileUserId 
-    ? [...discoveryUsers, ...connectedUsers, currentUserAsNetworkUser].find(u => u.id === selectedProfileUserId) 
+  const selectedUser = selectedProfileUserId
+    ? [...discoveryUsers, ...connectedUsers, currentUserAsNetworkUser].find(
+        (u) => u.id === selectedProfileUserId,
+      )
     : null;
 
   return (
@@ -1224,10 +1305,7 @@ export function MyNetwork() {
               Connect with professionals across the diaspora community
             </p>
           </div>
-          <Button 
-            className="bg-[#021ff6] hover:bg-[#021ff6]/90"
-            onClick={handleViewMyProfile}
-          >
+          <Button className="bg-[#021ff6] hover:bg-[#021ff6]/90" onClick={handleViewMyProfile}>
             <UserPlus className="h-4 w-4 mr-2" />
             View My Profile
           </Button>
@@ -1237,25 +1315,33 @@ export function MyNetwork() {
         <div className="grid grid-cols-4 gap-4 mt-6">
           <Card>
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-semibold text-[#021ff6]">{networkStats.totalConnections}</div>
+              <div className="text-2xl font-semibold text-[#021ff6]">
+                {networkStats.totalConnections}
+              </div>
               <div className="text-sm text-muted-foreground">Connections</div>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-semibold text-orange-600">{networkStats.pendingRequests}</div>
+              <div className="text-2xl font-semibold text-orange-600">
+                {networkStats.pendingRequests}
+              </div>
               <div className="text-sm text-muted-foreground">Pending Requests</div>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-semibold text-green-600">{networkStats.profileViews}</div>
+              <div className="text-2xl font-semibold text-green-600">
+                {networkStats.profileViews}
+              </div>
               <div className="text-sm text-muted-foreground">Profile Views</div>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-semibold text-purple-600">{networkStats.sentRequests}</div>
+              <div className="text-2xl font-semibold text-purple-600">
+                {networkStats.sentRequests}
+              </div>
               <div className="text-sm text-muted-foreground">Sent Requests</div>
             </CardContent>
           </Card>
@@ -1290,8 +1376,8 @@ export function MyNetwork() {
                   </p>
                 </div>
                 <ScrollArea className="h-[calc(100%-120px)]">
-                  <UserDiscovery 
-                    users={discoveryUsers} 
+                  <UserDiscovery
+                    users={discoveryUsers}
                     onConnect={handleConnect}
                     onViewProfile={handleViewProfile}
                   />
@@ -1309,7 +1395,7 @@ export function MyNetwork() {
                 </div>
                 <ScrollArea className="h-[calc(100%-120px)]">
                   <div className="space-y-4">
-                    {connectionRequests.map(request => (
+                    {connectionRequests.map((request) => (
                       <ConnectionRequestCard
                         key={request.id}
                         request={request}
@@ -1321,8 +1407,12 @@ export function MyNetwork() {
                     {connectionRequests.length === 0 && (
                       <div className="text-center py-12">
                         <UserCheck className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No pending requests</h3>
-                        <p className="text-gray-500 dark:text-gray-400">You're all caught up! New requests will appear here.</p>
+                        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+                          No pending requests
+                        </h3>
+                        <p className="text-gray-500 dark:text-gray-400">
+                          You're all caught up! New requests will appear here.
+                        </p>
                       </div>
                     )}
                   </div>
@@ -1340,7 +1430,7 @@ export function MyNetwork() {
                 </div>
                 <ScrollArea className="h-[calc(100%-120px)]">
                   <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    {allConnectedUsers.map(user => (
+                    {allConnectedUsers.map((user) => (
                       <ConnectedUserCard
                         key={user.id}
                         user={user}
@@ -1351,8 +1441,12 @@ export function MyNetwork() {
                   {allConnectedUsers.length === 0 && (
                     <div className="text-center py-12">
                       <Users className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                      <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No connections yet</h3>
-                      <p className="text-gray-500 dark:text-gray-400">Start connecting with people to build your network!</p>
+                      <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+                        No connections yet
+                      </h3>
+                      <p className="text-gray-500 dark:text-gray-400">
+                        Start connecting with people to build your network!
+                      </p>
                     </div>
                   )}
                 </ScrollArea>

@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
-import { FileText, Upload, Download, CheckCircle, Clock, AlertCircle } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Button } from "../ui/button";
-import { Badge } from "../ui/badge";
-import { ScrollArea } from "../ui/scroll-area";
+import React, { useState, useEffect } from 'react';
+import { FileText, Upload, Download, CheckCircle, Clock, AlertCircle } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Button } from '../ui/button';
+import { Badge } from '../ui/badge';
+import { ScrollArea } from '../ui/scroll-area';
 
 interface Submission {
   id: string;
@@ -29,15 +29,15 @@ interface DeliverableSubmissionsProps {
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://ispora-backend.onrender.com/api';
 
 const statusColors = {
-  pending: "bg-yellow-100 text-yellow-800",
-  approved: "bg-green-100 text-green-800",
-  'needs-revision': "bg-red-100 text-red-800"
+  pending: 'bg-yellow-100 text-yellow-800',
+  approved: 'bg-green-100 text-green-800',
+  'needs-revision': 'bg-red-100 text-red-800',
 };
 
 const statusIcons = {
   pending: Clock,
   approved: CheckCircle,
-  'needs-revision': AlertCircle
+  'needs-revision': AlertCircle,
 };
 
 export function DeliverableSubmissions({ mentee }: DeliverableSubmissionsProps) {
@@ -56,18 +56,23 @@ export function DeliverableSubmissions({ mentee }: DeliverableSubmissionsProps) 
         const token = localStorage.getItem('token');
         if (devKey) headers['X-Dev-Key'] = devKey;
         if (token) headers['Authorization'] = `Bearer ${token}`;
-        const res = await fetch(`${API_BASE_URL}/deliverables`, { headers, signal: controller.signal });
+        const res = await fetch(`${API_BASE_URL}/deliverables`, {
+          headers,
+          signal: controller.signal,
+        });
         const json = await res.json();
         const rows = Array.isArray(json.data) ? json.data : [];
         const mapped: Submission[] = rows.map((r: any) => ({
           id: r.id,
           title: r.title,
           description: r.description || '',
-          status: (r.status || 'pending'),
-          submittedDate: r.submitted_at ? new Date(r.submitted_at) : new Date(r.created_at || Date.now()),
+          status: r.status || 'pending',
+          submittedDate: r.submitted_at
+            ? new Date(r.submitted_at)
+            : new Date(r.created_at || Date.now()),
           fileName: 'file',
           fileSize: 0,
-          feedback: r.feedback || undefined
+          feedback: r.feedback || undefined,
         }));
         setSubmissions(mapped);
       } catch (e) {
@@ -79,7 +84,10 @@ export function DeliverableSubmissions({ mentee }: DeliverableSubmissionsProps) 
     };
     load();
     const id = setInterval(load, 30000);
-    return () => { controller.abort(); clearInterval(id); };
+    return () => {
+      controller.abort();
+      clearInterval(id);
+    };
   }, []);
 
   const formatFileSize = (bytes: number) => {
@@ -107,7 +115,7 @@ export function DeliverableSubmissions({ mentee }: DeliverableSubmissionsProps) 
       <div className="flex-1 min-h-0 overflow-hidden">
         <ScrollArea className="h-full">
           <div className="p-6 space-y-4">
-            {(!loading && submissions.length === 0) && (
+            {!loading && submissions.length === 0 && (
               <div className="text-center py-12 text-gray-500">
                 <FileText className="h-12 w-12 text-gray-300 mx-auto mb-4" />
                 <p>No deliverables yet</p>
@@ -115,7 +123,7 @@ export function DeliverableSubmissions({ mentee }: DeliverableSubmissionsProps) 
             )}
             {submissions.map((submission) => {
               const StatusIcon = statusIcons[submission.status];
-              
+
               return (
                 <Card key={submission.id} className="hover:shadow-md transition-shadow">
                   <CardHeader>
@@ -130,7 +138,7 @@ export function DeliverableSubmissions({ mentee }: DeliverableSubmissionsProps) 
                       </Badge>
                     </div>
                   </CardHeader>
-                  
+
                   <CardContent className="space-y-4">
                     <div className="flex items-center gap-4 text-sm text-gray-600">
                       <div className="flex items-center gap-1">

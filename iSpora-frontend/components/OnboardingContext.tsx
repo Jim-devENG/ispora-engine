@@ -26,7 +26,7 @@ const defaultState: OnboardingState = {
   userType: null,
   completedSteps: [],
   currentStep: null,
-  showOnboarding: false
+  showOnboarding: false,
 };
 
 const OnboardingContext = createContext<OnboardingContextType | undefined>(undefined);
@@ -49,64 +49,64 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
   }, [state]);
 
   const setUserType = (type: UserType) => {
-    setState(prev => ({ 
-      ...prev, 
-      userType: type, 
+    setState((prev) => ({
+      ...prev,
+      userType: type,
       showOnboarding: type !== null,
-      currentStep: type ? `${type}-welcome` : null 
+      currentStep: type ? `${type}-welcome` : null,
     }));
   };
 
   const completeStep = (stepId: string) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
-      completedSteps: [...prev.completedSteps, stepId]
+      completedSteps: [...prev.completedSteps, stepId],
     }));
   };
 
   const setCurrentStep = (stepId: string | null) => {
-    setState(prev => ({ ...prev, currentStep: stepId }));
+    setState((prev) => ({ ...prev, currentStep: stepId }));
   };
 
   const skipOnboarding = () => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       isFirstTime: false,
       showOnboarding: false,
-      currentStep: null
+      currentStep: null,
     }));
   };
 
   const restartOnboarding = () => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       isFirstTime: true,
       completedSteps: [],
       currentStep: prev.userType ? `${prev.userType}-welcome` : null,
-      showOnboarding: true
+      showOnboarding: true,
     }));
   };
 
   const switchUserType = (newType: UserType) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       userType: newType,
       currentStep: newType ? `${newType}-welcome` : null,
       completedSteps: [], // Reset progress for new user type
-      showOnboarding: newType !== null
+      showOnboarding: newType !== null,
     }));
   };
 
   const showOnboardingFlow = () => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       showOnboarding: true,
-      currentStep: prev.userType ? `${prev.userType}-welcome` : null
+      currentStep: prev.userType ? `${prev.userType}-welcome` : null,
     }));
   };
 
   return (
-    <OnboardingContext.Provider 
+    <OnboardingContext.Provider
       value={{
         state,
         setUserType,
@@ -115,7 +115,7 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
         skipOnboarding,
         restartOnboarding,
         switchUserType,
-        showOnboardingFlow
+        showOnboardingFlow,
       }}
     >
       {children}

@@ -1,10 +1,10 @@
-import React, { useState } from "react";
-import { 
-  Calendar, 
-  Clock, 
-  ChevronLeft, 
-  ChevronRight, 
-  Plus, 
+import React, { useState } from 'react';
+import {
+  Calendar,
+  Clock,
+  ChevronLeft,
+  ChevronRight,
+  Plus,
   Video,
   CheckSquare,
   FileText,
@@ -13,14 +13,14 @@ import {
   TrendingUp,
   Users,
   Target,
-  BarChart3
-} from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Button } from "../ui/button";
-import { Badge } from "../ui/badge";
-import { ScrollArea } from "../ui/scroll-area";
-import { Progress } from "../ui/progress";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+  BarChart3,
+} from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Button } from '../ui/button';
+import { Badge } from '../ui/badge';
+import { ScrollArea } from '../ui/scroll-area';
+import { Progress } from '../ui/progress';
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 
 interface Mentee {
   id: string;
@@ -71,93 +71,93 @@ interface ProgressMetric {
 // Mock data for calendar events
 const mockEvents: CalendarEvent[] = [
   {
-    id: "1",
-    title: "AI/ML Career Discussion",
-    time: "2:00 PM",
-    date: "Today",
-    type: "session",
-    status: "upcoming",
-    mentee: "Amara Okafor"
+    id: '1',
+    title: 'AI/ML Career Discussion',
+    time: '2:00 PM',
+    date: 'Today',
+    type: 'session',
+    status: 'upcoming',
+    mentee: 'Amara Okafor',
   },
   {
-    id: "2",
-    title: "Project Review Session",
-    time: "10:00 AM",
-    date: "Tomorrow",
-    type: "session",
-    status: "upcoming",
-    mentee: "David Mensah"
+    id: '2',
+    title: 'Project Review Session',
+    time: '10:00 AM',
+    date: 'Tomorrow',
+    type: 'session',
+    status: 'upcoming',
+    mentee: 'David Mensah',
   },
   {
-    id: "3",
-    title: "Weekly Progress Review",
-    time: "3:00 PM",
-    date: "Friday",
-    type: "review",
-    status: "upcoming",
-    mentee: "Fatima Al-Rashid"
-  }
+    id: '3',
+    title: 'Weekly Progress Review',
+    time: '3:00 PM',
+    date: 'Friday',
+    type: 'review',
+    status: 'upcoming',
+    mentee: 'Fatima Al-Rashid',
+  },
 ];
 
 // Mock task summaries
 const mockTasks: TaskSummary[] = [
   {
-    id: "1",
-    title: "Complete ML Project",
-    status: "in-progress",
-    dueDate: "2 days",
-    priority: "high"
+    id: '1',
+    title: 'Complete ML Project',
+    status: 'in-progress',
+    dueDate: '2 days',
+    priority: 'high',
   },
   {
-    id: "2",
-    title: "Read Chapter 3",
-    status: "todo",
-    dueDate: "5 days",
-    priority: "medium"
+    id: '2',
+    title: 'Read Chapter 3',
+    status: 'todo',
+    dueDate: '5 days',
+    priority: 'medium',
   },
   {
-    id: "3",
-    title: "Portfolio Update",
-    status: "done",
-    dueDate: "Completed",
-    priority: "low"
-  }
+    id: '3',
+    title: 'Portfolio Update',
+    status: 'done',
+    dueDate: 'Completed',
+    priority: 'low',
+  },
 ];
 
 const eventTypeColors = {
-  session: "bg-blue-100 text-blue-800",
-  task: "bg-green-100 text-green-800",
-  submission: "bg-purple-100 text-purple-800",
-  review: "bg-orange-100 text-orange-800"
+  session: 'bg-blue-100 text-blue-800',
+  task: 'bg-green-100 text-green-800',
+  submission: 'bg-purple-100 text-purple-800',
+  review: 'bg-orange-100 text-orange-800',
 };
 
 const taskStatusColors = {
-  todo: "bg-gray-100 text-gray-800",
-  "in-progress": "bg-blue-100 text-blue-800",
-  done: "bg-green-100 text-green-800"
+  todo: 'bg-gray-100 text-gray-800',
+  'in-progress': 'bg-blue-100 text-blue-800',
+  done: 'bg-green-100 text-green-800',
 };
 
 const priorityColors = {
-  low: "bg-green-100 text-green-800",
-  medium: "bg-yellow-100 text-yellow-800",
-  high: "bg-red-100 text-red-800"
+  low: 'bg-green-100 text-green-800',
+  medium: 'bg-yellow-100 text-yellow-800',
+  high: 'bg-red-100 text-red-800',
 };
 
 function MiniCalendar() {
   const [currentDate] = useState(new Date());
   const today = currentDate.getDate();
-  
+
   // Simple calendar grid (for demo purposes)
   const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
   const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay();
-  
+
   const calendarDays = [];
-  
+
   // Add empty cells for days before the first day of the month
   for (let i = 0; i < firstDay; i++) {
     calendarDays.push(null);
   }
-  
+
   // Add days of the month
   for (let day = 1; day <= daysInMonth; day++) {
     calendarDays.push(day);
@@ -178,14 +178,17 @@ function MiniCalendar() {
           </Button>
         </div>
       </div>
-      
+
       <div className="grid grid-cols-7 gap-1 text-xs">
         {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, index) => (
-          <div key={`day-header-${index}-${day}`} className="p-1 text-center font-medium text-gray-500">
+          <div
+            key={`day-header-${index}-${day}`}
+            className="p-1 text-center font-medium text-gray-500"
+          >
             {day}
           </div>
         ))}
-        
+
         {calendarDays.map((day, index) => (
           <div
             key={`calendar-day-${index}-${day || 'empty'}`}
@@ -201,7 +204,12 @@ function MiniCalendar() {
   );
 }
 
-function ProgressCard({ title, progress, color, icon: Icon }: {
+function ProgressCard({
+  title,
+  progress,
+  color,
+  icon: Icon,
+}: {
   title: string;
   progress: number;
   color: string;
@@ -232,41 +240,43 @@ export function WorkspaceCalendar({ selectedMentee }: WorkspaceCalendarProps) {
   const [tasks] = useState<TaskSummary[]>(mockTasks);
 
   // Filter events for selected mentee if provided
-  const filteredEvents = selectedMentee 
-    ? events.filter(event => event.mentee === selectedMentee.name)
+  const filteredEvents = selectedMentee
+    ? events.filter((event) => event.mentee === selectedMentee.name)
     : events;
 
   // Calculate progress metrics for selected mentee
-  const progressMetrics: ProgressMetric[] = selectedMentee ? [
-    {
-      label: "Sessions",
-      value: selectedMentee.completedSessions,
-      total: selectedMentee.totalSessions,
-      color: "bg-blue-500",
-      icon: Video
-    },
-    {
-      label: "Tasks",
-      value: selectedMentee.completedTasks,
-      total: selectedMentee.totalTasks,
-      color: "bg-green-500",
-      icon: CheckSquare
-    },
-    {
-      label: "Submissions",
-      value: selectedMentee.submittedDeliverables,
-      total: selectedMentee.totalDeliverables,
-      color: "bg-purple-500",
-      icon: FileText
-    },
-    {
-      label: "Certificates",
-      value: selectedMentee.certificatesEarned,
-      total: 3, // Example total certificates available
-      color: "bg-orange-500",
-      icon: Award
-    }
-  ] : [];
+  const progressMetrics: ProgressMetric[] = selectedMentee
+    ? [
+        {
+          label: 'Sessions',
+          value: selectedMentee.completedSessions,
+          total: selectedMentee.totalSessions,
+          color: 'bg-blue-500',
+          icon: Video,
+        },
+        {
+          label: 'Tasks',
+          value: selectedMentee.completedTasks,
+          total: selectedMentee.totalTasks,
+          color: 'bg-green-500',
+          icon: CheckSquare,
+        },
+        {
+          label: 'Submissions',
+          value: selectedMentee.submittedDeliverables,
+          total: selectedMentee.totalDeliverables,
+          color: 'bg-purple-500',
+          icon: FileText,
+        },
+        {
+          label: 'Certificates',
+          value: selectedMentee.certificatesEarned,
+          total: 3, // Example total certificates available
+          color: 'bg-orange-500',
+          icon: Award,
+        },
+      ]
+    : [];
 
   return (
     <ScrollArea className="h-full">
@@ -288,17 +298,24 @@ export function WorkspaceCalendar({ selectedMentee }: WorkspaceCalendarProps) {
                 <Avatar className="h-10 w-10">
                   <AvatarImage src={selectedMentee.avatar} alt={selectedMentee.name} />
                   <AvatarFallback>
-                    {selectedMentee.name.split(' ').map(n => n[0]).join('')}
+                    {selectedMentee.name
+                      .split(' ')
+                      .map((n) => n[0])
+                      .join('')}
                   </AvatarFallback>
                 </Avatar>
                 <div>
                   <h4 className="font-medium">{selectedMentee.name}</h4>
                   <div className="flex items-center gap-2">
-                    <Badge className={
-                      selectedMentee.status === 'active' ? 'bg-green-100 text-green-800' :
-                      selectedMentee.status === 'paused' ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-blue-100 text-blue-800'
-                    }>
+                    <Badge
+                      className={
+                        selectedMentee.status === 'active'
+                          ? 'bg-green-100 text-green-800'
+                          : selectedMentee.status === 'paused'
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : 'bg-blue-100 text-blue-800'
+                      }
+                    >
                       {selectedMentee.status}
                     </Badge>
                     <span className="text-xs text-gray-600">
@@ -307,7 +324,7 @@ export function WorkspaceCalendar({ selectedMentee }: WorkspaceCalendarProps) {
                   </div>
                 </div>
               </div>
-              
+
               <div className="space-y-1">
                 <div className="flex justify-between text-xs">
                   <span>Overall Progress</span>
@@ -348,10 +365,15 @@ export function WorkspaceCalendar({ selectedMentee }: WorkspaceCalendarProps) {
                 </p>
               ) : (
                 filteredEvents.map((event) => (
-                  <div key={event.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                  <div
+                    key={event.id}
+                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                  >
                     <div className="flex-1">
                       <h5 className="text-sm font-medium">{event.title}</h5>
-                      <p className="text-xs text-gray-600">{event.date} at {event.time}</p>
+                      <p className="text-xs text-gray-600">
+                        {event.date} at {event.time}
+                      </p>
                       <Badge className={`${eventTypeColors[event.type]} text-xs mt-1`}>
                         {event.type}
                       </Badge>
@@ -385,7 +407,7 @@ export function WorkspaceCalendar({ selectedMentee }: WorkspaceCalendarProps) {
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="w-16 bg-gray-200 rounded-full h-1.5">
-                        <div 
+                        <div
                           className={`${metric.color} h-1.5 rounded-full`}
                           style={{ width: `${(metric.value / metric.total) * 100}%` }}
                         />
@@ -412,7 +434,10 @@ export function WorkspaceCalendar({ selectedMentee }: WorkspaceCalendarProps) {
           <CardContent>
             <div className="space-y-3">
               {tasks.map((task) => (
-                <div key={task.id} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                <div
+                  key={task.id}
+                  className="flex items-center justify-between p-2 bg-gray-50 rounded"
+                >
                   <div className="flex-1">
                     <h5 className="text-sm font-medium">{task.title}</h5>
                     <p className="text-xs text-gray-600">Due {task.dueDate}</p>
@@ -474,22 +499,22 @@ export function WorkspaceCalendar({ selectedMentee }: WorkspaceCalendarProps) {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                <ProgressCard 
-                  title="Technical Skills" 
-                  progress={85} 
-                  color="bg-blue-500" 
+                <ProgressCard
+                  title="Technical Skills"
+                  progress={85}
+                  color="bg-blue-500"
                   icon={CheckSquare}
                 />
-                <ProgressCard 
-                  title="Career Development" 
-                  progress={70} 
-                  color="bg-green-500" 
+                <ProgressCard
+                  title="Career Development"
+                  progress={70}
+                  color="bg-green-500"
                   icon={TrendingUp}
                 />
-                <ProgressCard 
-                  title="Communication" 
-                  progress={90} 
-                  color="bg-purple-500" 
+                <ProgressCard
+                  title="Communication"
+                  progress={90}
+                  color="bg-purple-500"
                   icon={Users}
                 />
               </div>

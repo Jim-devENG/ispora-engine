@@ -4,15 +4,15 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Badge } from './ui/badge';
-import { 
-  Shield, 
-  Key, 
-  Lock, 
-  Unlock, 
-  Eye, 
-  EyeOff, 
-  CheckCircle, 
-  XCircle, 
+import {
+  Shield,
+  Key,
+  Lock,
+  Unlock,
+  Eye,
+  EyeOff,
+  CheckCircle,
+  XCircle,
   AlertTriangle,
   Rocket,
   Settings,
@@ -21,7 +21,7 @@ import {
   Code,
   Terminal,
   Zap,
-  Activity
+  Activity,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -39,44 +39,50 @@ export function DevAccess({ onAccessGranted }: DevAccessProps) {
     setIsAuthenticating(true);
 
     // Simulate authentication delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     // Check for development key (you can set this in environment variables)
     const validDevKey = import.meta.env.VITE_DEV_KEY || 'dev123';
-    
+
     if (devKey === validDevKey) {
       // Set development mode
       localStorage.setItem('devMode', 'true');
-      localStorage.setItem('devUser', JSON.stringify({
-        id: 'dev-admin',
-        email: 'admin@ispora.dev',
-        firstName: 'Dev',
-        lastName: 'Admin',
-        userType: 'admin',
-        username: 'dev-admin'
-      }));
-      
+      localStorage.setItem(
+        'devUser',
+        JSON.stringify({
+          id: 'dev-admin',
+          email: 'admin@ispora.dev',
+          firstName: 'Dev',
+          lastName: 'Admin',
+          userType: 'admin',
+          username: 'dev-admin',
+        }),
+      );
+
       toast.success('Development access granted!');
       onAccessGranted();
     } else {
       toast.error('Invalid development key');
     }
-    
+
     setIsAuthenticating(false);
   };
 
   const handleQuickAccess = () => {
     // Quick access for development (bypass authentication)
     localStorage.setItem('devMode', 'true');
-    localStorage.setItem('devUser', JSON.stringify({
-      id: 'dev-admin',
-      email: 'admin@ispora.dev',
-      firstName: 'Dev',
-      lastName: 'Admin',
-      userType: 'admin',
-      username: 'dev-admin'
-    }));
-    
+    localStorage.setItem(
+      'devUser',
+      JSON.stringify({
+        id: 'dev-admin',
+        email: 'admin@ispora.dev',
+        firstName: 'Dev',
+        lastName: 'Admin',
+        userType: 'admin',
+        username: 'dev-admin',
+      }),
+    );
+
     toast.success('Quick development access granted!');
     onAccessGranted();
   };
@@ -107,7 +113,9 @@ export function DevAccess({ onAccessGranted }: DevAccessProps) {
           <CardContent>
             <form onSubmit={handleDevAccess} className="space-y-4">
               <div>
-                <Label htmlFor="dev-key" className="text-white">Development Key</Label>
+                <Label htmlFor="dev-key" className="text-white">
+                  Development Key
+                </Label>
                 <div className="relative">
                   <Input
                     id="dev-key"
@@ -128,8 +136,8 @@ export function DevAccess({ onAccessGranted }: DevAccessProps) {
                 </div>
               </div>
 
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
                 disabled={isAuthenticating}
               >
@@ -151,8 +159,8 @@ export function DevAccess({ onAccessGranted }: DevAccessProps) {
             <div className="mt-6 pt-6 border-t border-white/20">
               <div className="text-center">
                 <p className="text-sm text-gray-400 mb-3">Quick Development Access</p>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   onClick={handleQuickAccess}
                   className="w-full border-white/30 text-white hover:bg-white/10"
                 >
@@ -174,7 +182,9 @@ export function DevAccess({ onAccessGranted }: DevAccessProps) {
             <div className="space-y-2 text-xs text-gray-300">
               <div className="flex items-center gap-2">
                 <Server className="h-3 w-3 text-green-400" />
-                <span>Backend: {import.meta.env.VITE_API_URL || 'https://ispora-backend.onrender.com'}</span>
+                <span>
+                  Backend: {import.meta.env.VITE_API_URL || 'https://ispora-backend.onrender.com'}
+                </span>
               </div>
               <div className="flex items-center gap-2">
                 <Database className="h-3 w-3 text-blue-400" />
@@ -195,7 +205,8 @@ export function DevAccess({ onAccessGranted }: DevAccessProps) {
             <div>
               <p className="text-sm font-medium text-yellow-400">Security Notice</p>
               <p className="text-xs text-yellow-300 mt-1">
-                This is a development environment. Do not use production credentials or sensitive data.
+                This is a development environment. Do not use production credentials or sensitive
+                data.
               </p>
             </div>
           </div>

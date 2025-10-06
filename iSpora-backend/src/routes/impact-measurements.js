@@ -14,19 +14,16 @@ router.get('/:metricId', protect, async (req, res, next) => {
     const offset = (page - 1) * limit;
 
     // Verify metric belongs to user
-    const metric = await db('impact_metrics')
-      .where({ id: metricId, user_id: req.user.id })
-      .first();
+    const metric = await db('impact_metrics').where({ id: metricId, user_id: req.user.id }).first();
 
     if (!metric) {
       return res.status(404).json({
         success: false,
-        error: 'Metric not found'
+        error: 'Metric not found',
       });
     }
 
-    let query = db('impact_measurements')
-      .where({ metric_id: metricId });
+    let query = db('impact_measurements').where({ metric_id: metricId });
 
     if (start_date) {
       query = query.where('measurement_date', '>=', new Date(start_date));
@@ -52,9 +49,9 @@ router.get('/:metricId', protect, async (req, res, next) => {
       pagination: {
         page: parseInt(page),
         limit: parseInt(limit),
-        pages: Math.ceil(totalCount.count / limit)
+        pages: Math.ceil(totalCount.count / limit),
       },
-      data: measurements
+      data: measurements,
     });
   } catch (error) {
     next(error);
@@ -79,7 +76,7 @@ router.put('/:id', protect, async (req, res, next) => {
     if (!measurement) {
       return res.status(404).json({
         success: false,
-        error: 'Measurement not found'
+        error: 'Measurement not found',
       });
     }
 
@@ -99,18 +96,14 @@ router.put('/:id', protect, async (req, res, next) => {
 
     updateData.updated_at = new Date();
 
-    await db('impact_measurements')
-      .where({ id })
-      .update(updateData);
+    await db('impact_measurements').where({ id }).update(updateData);
 
-    const updatedMeasurement = await db('impact_measurements')
-      .where({ id })
-      .first();
+    const updatedMeasurement = await db('impact_measurements').where({ id }).first();
 
     res.status(200).json({
       success: true,
       message: 'Measurement updated successfully',
-      data: updatedMeasurement
+      data: updatedMeasurement,
     });
   } catch (error) {
     next(error);
@@ -134,17 +127,15 @@ router.delete('/:id', protect, async (req, res, next) => {
     if (!measurement) {
       return res.status(404).json({
         success: false,
-        error: 'Measurement not found'
+        error: 'Measurement not found',
       });
     }
 
-    await db('impact_measurements')
-      .where({ id })
-      .del();
+    await db('impact_measurements').where({ id }).del();
 
     res.status(200).json({
       success: true,
-      message: 'Measurement deleted successfully'
+      message: 'Measurement deleted successfully',
     });
   } catch (error) {
     next(error);
@@ -168,7 +159,7 @@ router.post('/:id/verify', protect, async (req, res, next) => {
     if (!measurement) {
       return res.status(404).json({
         success: false,
-        error: 'Measurement not found'
+        error: 'Measurement not found',
       });
     }
 
@@ -176,23 +167,21 @@ router.post('/:id/verify', protect, async (req, res, next) => {
     if (measurement.user_id !== req.user.id && req.user.user_type !== 'admin') {
       return res.status(403).json({
         success: false,
-        error: 'Not authorized to verify this measurement'
+        error: 'Not authorized to verify this measurement',
       });
     }
 
-    await db('impact_measurements')
-      .where({ id })
-      .update({
-        is_verified: true,
-        verified_by: req.user.id,
-        verified_at: new Date(),
-        verification_notes,
-        updated_at: new Date()
-      });
+    await db('impact_measurements').where({ id }).update({
+      is_verified: true,
+      verified_by: req.user.id,
+      verified_at: new Date(),
+      verification_notes,
+      updated_at: new Date(),
+    });
 
     res.status(200).json({
       success: true,
-      message: 'Measurement verified successfully'
+      message: 'Measurement verified successfully',
     });
   } catch (error) {
     next(error);
@@ -207,14 +196,12 @@ router.get('/:metricId/stats', protect, async (req, res, next) => {
     const { metricId } = req.params;
 
     // Verify metric belongs to user
-    const metric = await db('impact_metrics')
-      .where({ id: metricId, user_id: req.user.id })
-      .first();
+    const metric = await db('impact_metrics').where({ id: metricId, user_id: req.user.id }).first();
 
     if (!metric) {
       return res.status(404).json({
         success: false,
-        error: 'Metric not found'
+        error: 'Metric not found',
       });
     }
 
@@ -225,23 +212,30 @@ router.get('/:metricId/stats', protect, async (req, res, next) => {
       averageValue,
       minValue,
       maxValue,
-      trendData
+      trendData,
     ] = await Promise.all([
       db('impact_measurements').where({ metric_id: metricId }).count('* as count').first(),
-      db('impact_measurements').where({ metric_id: metricId, is_verified: true }).count('* as count').first(),
-      db('impact_measurements').where({ metric_id: metricId }).orderBy('measurement_date', 'desc').first(),
+      db('impact_measurements')
+        .where({ metric_id: metricId, is_verified: true })
+        .count('* as count')
+        .first(),
+      db('impact_measurements')
+        .where({ metric_id: metricId })
+        .orderBy('measurement_date', 'desc')
+        .first(),
       db('impact_measurements').where({ metric_id: metricId }).avg('value as avg').first(),
       db('impact_measurements').where({ metric_id: metricId }).min('value as min').first(),
       db('impact_measurements').where({ metric_id: metricId }).max('value as max').first(),
       db('impact_measurements')
         .select(['measurement_date', 'value'])
         .where({ metric_id: metricId })
-        .orderBy('measurement_date', 'asc')
+        .orderBy('measurement_date', 'asc'),
     ]);
 
-    const verificationRate = totalMeasurements.count > 0 
-      ? (verifiedMeasurements.count / totalMeasurements.count * 100).toFixed(1)
-      : 0;
+    const verificationRate =
+      totalMeasurements.count > 0
+        ? ((verifiedMeasurements.count / totalMeasurements.count) * 100).toFixed(1)
+        : 0;
 
     res.status(200).json({
       success: true,
@@ -253,10 +247,10 @@ router.get('/:metricId/stats', protect, async (req, res, next) => {
         statistics: {
           average: parseFloat(averageValue.avg) || 0,
           minimum: parseFloat(minValue.min) || 0,
-          maximum: parseFloat(maxValue.max) || 0
+          maximum: parseFloat(maxValue.max) || 0,
         },
-        trend_data: trendData
-      }
+        trend_data: trendData,
+      },
     });
   } catch (error) {
     next(error);
@@ -273,7 +267,7 @@ router.post('/bulk-import', protect, async (req, res, next) => {
     if (!metric_id || !measurements || !Array.isArray(measurements)) {
       return res.status(400).json({
         success: false,
-        error: 'Metric ID and measurements array are required'
+        error: 'Metric ID and measurements array are required',
       });
     }
 
@@ -285,14 +279,14 @@ router.post('/bulk-import', protect, async (req, res, next) => {
     if (!metric) {
       return res.status(404).json({
         success: false,
-        error: 'Metric not found'
+        error: 'Metric not found',
       });
     }
 
     // Validate and prepare measurements
     const validMeasurements = measurements
-      .filter(m => m.value !== undefined && m.measurement_date)
-      .map(m => ({
+      .filter((m) => m.value !== undefined && m.measurement_date)
+      .map((m) => ({
         metric_id,
         user_id: req.user.id,
         value: m.value,
@@ -306,13 +300,13 @@ router.post('/bulk-import', protect, async (req, res, next) => {
         is_estimate: m.is_estimate || false,
         margin_of_error: m.margin_of_error,
         context: JSON.stringify(m.context),
-        tags: JSON.stringify(m.tags)
+        tags: JSON.stringify(m.tags),
       }));
 
     if (validMeasurements.length === 0) {
       return res.status(400).json({
         success: false,
-        error: 'No valid measurements found'
+        error: 'No valid measurements found',
       });
     }
 
@@ -327,8 +321,8 @@ router.post('/bulk-import', protect, async (req, res, next) => {
       data: {
         imported_count: insertedMeasurements.length,
         total_provided: measurements.length,
-        measurements: insertedMeasurements
-      }
+        measurements: insertedMeasurements,
+      },
     });
   } catch (error) {
     next(error);
@@ -344,19 +338,16 @@ router.get('/:metricId/export', protect, async (req, res, next) => {
     const { format = 'json', start_date, end_date } = req.query;
 
     // Verify metric belongs to user
-    const metric = await db('impact_metrics')
-      .where({ id: metricId, user_id: req.user.id })
-      .first();
+    const metric = await db('impact_metrics').where({ id: metricId, user_id: req.user.id }).first();
 
     if (!metric) {
       return res.status(404).json({
         success: false,
-        error: 'Metric not found'
+        error: 'Metric not found',
       });
     }
 
-    let query = db('impact_measurements')
-      .where({ metric_id: metricId });
+    let query = db('impact_measurements').where({ metric_id: metricId });
 
     if (start_date) {
       query = query.where('measurement_date', '>=', new Date(start_date));
@@ -365,20 +356,26 @@ router.get('/:metricId/export', protect, async (req, res, next) => {
       query = query.where('measurement_date', '<=', new Date(end_date));
     }
 
-    const measurements = await query
-      .orderBy('measurement_date', 'asc');
+    const measurements = await query.orderBy('measurement_date', 'asc');
 
     if (format === 'csv') {
       // Generate CSV format
-      const csvHeader = 'Date,Value,Unit,Data Source,Collection Method,Notes,Verified,Confidence Level,Data Quality\n';
-      const csvRows = measurements.map(m => 
-        `${m.measurement_date},${m.value},${m.unit || ''},${m.data_source || ''},${m.collection_method || ''},${m.notes || ''},${m.is_verified},${m.confidence_level || ''},${m.data_quality || ''}`
-      ).join('\n');
-      
+      const csvHeader =
+        'Date,Value,Unit,Data Source,Collection Method,Notes,Verified,Confidence Level,Data Quality\n';
+      const csvRows = measurements
+        .map(
+          (m) =>
+            `${m.measurement_date},${m.value},${m.unit || ''},${m.data_source || ''},${m.collection_method || ''},${m.notes || ''},${m.is_verified},${m.confidence_level || ''},${m.data_quality || ''}`,
+        )
+        .join('\n');
+
       const csv = csvHeader + csvRows;
-      
+
       res.setHeader('Content-Type', 'text/csv');
-      res.setHeader('Content-Disposition', `attachment; filename="${metric.name}_measurements.csv"`);
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename="${metric.name}_measurements.csv"`,
+      );
       res.send(csv);
     } else {
       // Return JSON format
@@ -390,7 +387,7 @@ router.get('/:metricId/export', protect, async (req, res, next) => {
             name: metric.name,
             description: metric.description,
             category: metric.category,
-            unit: metric.unit
+            unit: metric.unit,
           },
           measurements,
           export_info: {
@@ -398,10 +395,10 @@ router.get('/:metricId/export', protect, async (req, res, next) => {
             total_measurements: measurements.length,
             date_range: {
               start: start_date,
-              end: end_date
-            }
-          }
-        }
+              end: end_date,
+            },
+          },
+        },
       });
     }
   } catch (error) {

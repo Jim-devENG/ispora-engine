@@ -17,7 +17,7 @@ router.get('/opportunity/:opportunityId', async (req, res) => {
         'users.last_name',
         'users.username',
         'users.avatar_url',
-        'users.is_verified as user_verified'
+        'users.is_verified as user_verified',
       )
       .leftJoin('users', 'opportunity_comments.user_id', 'users.id')
       .where('opportunity_comments.opportunity_id', opportunityId)
@@ -35,25 +35,28 @@ router.get('/opportunity/:opportunityId', async (req, res) => {
       .offset(offset);
 
     // Get replies for each comment
-    const commentIds = comments.map(c => c.id);
-    const replies = commentIds.length > 0 ? await knex('opportunity_comments')
-      .select(
-        'opportunity_comments.*',
-        'users.first_name',
-        'users.last_name',
-        'users.username',
-        'users.avatar_url',
-        'users.is_verified as user_verified'
-      )
-      .leftJoin('users', 'opportunity_comments.user_id', 'users.id')
-      .whereIn('opportunity_comments.parent_comment_id', commentIds)
-      .where('opportunity_comments.is_deleted', false)
-      .orderBy('opportunity_comments.created_at', 'asc') : [];
+    const commentIds = comments.map((c) => c.id);
+    const replies =
+      commentIds.length > 0
+        ? await knex('opportunity_comments')
+            .select(
+              'opportunity_comments.*',
+              'users.first_name',
+              'users.last_name',
+              'users.username',
+              'users.avatar_url',
+              'users.is_verified as user_verified',
+            )
+            .leftJoin('users', 'opportunity_comments.user_id', 'users.id')
+            .whereIn('opportunity_comments.parent_comment_id', commentIds)
+            .where('opportunity_comments.is_deleted', false)
+            .orderBy('opportunity_comments.created_at', 'asc')
+        : [];
 
     // Transform the data
-    const transformedComments = comments.map(comment => {
-      const commentReplies = replies.filter(reply => reply.parent_comment_id === comment.id);
-      
+    const transformedComments = comments.map((comment) => {
+      const commentReplies = replies.filter((reply) => reply.parent_comment_id === comment.id);
+
       return {
         id: comment.id,
         opportunityId: comment.opportunity_id,
@@ -63,7 +66,7 @@ router.get('/opportunity/:opportunityId', async (req, res) => {
         isEdited: comment.is_edited,
         editedAt: comment.edited_at,
         likes: comment.likes,
-        replies: commentReplies.map(reply => ({
+        replies: commentReplies.map((reply) => ({
           id: reply.id,
           opportunityId: reply.opportunity_id,
           userId: reply.user_id,
@@ -76,15 +79,15 @@ router.get('/opportunity/:opportunityId', async (req, res) => {
           user: {
             name: `${reply.first_name || ''} ${reply.last_name || ''}`.trim() || reply.username,
             avatar: reply.avatar_url,
-            isVerified: reply.user_verified
-          }
+            isVerified: reply.user_verified,
+          },
         })),
         createdAt: comment.created_at,
         user: {
           name: `${comment.first_name || ''} ${comment.last_name || ''}`.trim() || comment.username,
           avatar: comment.avatar_url,
-          isVerified: comment.user_verified
-        }
+          isVerified: comment.user_verified,
+        },
       };
     });
 
@@ -94,8 +97,8 @@ router.get('/opportunity/:opportunityId', async (req, res) => {
         page: parseInt(page),
         limit: parseInt(limit),
         total: parseInt(total),
-        pages: Math.ceil(total / limit)
-      }
+        pages: Math.ceil(total / limit),
+      },
     });
   } catch (error) {
     console.error('Error fetching comments:', error);
@@ -141,20 +144,16 @@ router.post('/comment', protect, async (req, res) => {
         opportunity_id: opportunityId,
         user_id: req.user.id,
         parent_comment_id: parentCommentId || null,
-        content: content.trim()
+        content: content.trim(),
       })
       .returning('*');
 
     // Update opportunity comments count
-    await knex('opportunities')
-      .where('id', opportunityId)
-      .increment('comments', 1);
+    await knex('opportunities').where('id', opportunityId).increment('comments', 1);
 
     // If it's a reply, update parent comment replies count
     if (parentCommentId) {
-      await knex('opportunity_comments')
-        .where('id', parentCommentId)
-        .increment('replies', 1);
+      await knex('opportunity_comments').where('id', parentCommentId).increment('replies', 1);
     }
 
     // Get user info for response
@@ -177,8 +176,8 @@ router.post('/comment', protect, async (req, res) => {
       user: {
         name: `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.username,
         avatar: user.avatar_url,
-        isVerified: user.is_verified
-      }
+        isVerified: user.is_verified,
+      },
     };
 
     res.status(201).json(transformedComment);
@@ -220,7 +219,7 @@ router.put('/:id', protect, async (req, res) => {
         content: content.trim(),
         is_edited: true,
         edited_at: knex.fn.now(),
-        updated_at: knex.fn.now()
+        updated_at: knex.fn.now(),
       })
       .returning('*');
 
@@ -252,18 +251,14 @@ router.delete('/:id', protect, async (req, res) => {
     }
 
     // Soft delete comment
-    await knex('opportunity_comments')
-      .where('id', id)
-      .update({
-        is_deleted: true,
-        deleted_at: knex.fn.now(),
-        content: '[This comment has been deleted]'
-      });
+    await knex('opportunity_comments').where('id', id).update({
+      is_deleted: true,
+      deleted_at: knex.fn.now(),
+      content: '[This comment has been deleted]',
+    });
 
     // Update opportunity comments count
-    await knex('opportunities')
-      .where('id', comment.opportunity_id)
-      .decrement('comments', 1);
+    await knex('opportunities').where('id', comment.opportunity_id).decrement('comments', 1);
 
     // If it's a reply, update parent comment replies count
     if (comment.parent_comment_id) {
@@ -290,7 +285,7 @@ router.get('/my-comments', protect, async (req, res) => {
         'opportunity_comments.*',
         'opportunities.title as opportunity_title',
         'opportunities.company as opportunity_company',
-        'opportunities.type as opportunity_type'
+        'opportunities.type as opportunity_type',
       )
       .leftJoin('opportunities', 'opportunity_comments.opportunity_id', 'opportunities.id')
       .where('opportunity_comments.user_id', req.user.id)
@@ -308,7 +303,7 @@ router.get('/my-comments', protect, async (req, res) => {
       .offset(offset);
 
     // Transform the data
-    const transformedComments = comments.map(comment => ({
+    const transformedComments = comments.map((comment) => ({
       id: comment.id,
       opportunityId: comment.opportunity_id,
       parentCommentId: comment.parent_comment_id,
@@ -321,8 +316,8 @@ router.get('/my-comments', protect, async (req, res) => {
       opportunity: {
         title: comment.opportunity_title,
         company: comment.opportunity_company,
-        type: comment.opportunity_type
-      }
+        type: comment.opportunity_type,
+      },
     }));
 
     res.json({
@@ -331,8 +326,8 @@ router.get('/my-comments', protect, async (req, res) => {
         page: parseInt(page),
         limit: parseInt(limit),
         total: parseInt(total),
-        pages: Math.ceil(total / limit)
-      }
+        pages: Math.ceil(total / limit),
+      },
     });
   } catch (error) {
     console.error('Error fetching user comments:', error);
@@ -375,7 +370,7 @@ router.get('/stats', protect, async (req, res) => {
     res.json({
       totalComments: parseInt(totalComments.total) || 0,
       recentComments: parseInt(recentComments.total) || 0,
-      commentsByType
+      commentsByType,
     });
   } catch (error) {
     console.error('Error fetching comment statistics:', error);

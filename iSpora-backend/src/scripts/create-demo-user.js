@@ -7,9 +7,7 @@ async function createDemoUser() {
     console.log('Creating demo user...');
 
     // Check if demo user already exists
-    const existingUser = await db('users')
-      .where({ email: 'demo@ispora.com' })
-      .first();
+    const existingUser = await db('users').where({ email: 'demo@ispora.com' }).first();
 
     if (existingUser) {
       console.log('Demo user already exists!');
@@ -33,7 +31,7 @@ async function createDemoUser() {
       user_type: 'student',
       username: 'demo_user',
       created_at: new Date(),
-      updated_at: new Date()
+      updated_at: new Date(),
     };
 
     await db('users').insert(userData);
@@ -42,7 +40,6 @@ async function createDemoUser() {
     console.log('Email: demo@ispora.com');
     console.log('Password: demo123');
     console.log('User ID:', userId);
-
   } catch (error) {
     console.error('Error creating demo user:', error);
   } finally {

@@ -1,16 +1,21 @@
-import React, { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Badge } from "./ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { Progress } from "./ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { ScrollArea } from "./ui/scroll-area";
-import { Separator } from "./ui/separator";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
-import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Badge } from './ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { Progress } from './ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { ScrollArea } from './ui/scroll-area';
+import { Separator } from './ui/separator';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from './ui/dropdown-menu';
+import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 import {
   Plus,
   Search,
@@ -52,8 +57,8 @@ import {
   Briefcase,
   Lightbulb,
   Users2,
-  Megaphone
-} from "lucide-react";
+  Megaphone,
+} from 'lucide-react';
 
 interface Program {
   id: string;
@@ -88,131 +93,139 @@ interface Update {
 
 const mockPrograms: Program[] = [
   {
-    id: "1",
-    title: "AI Ethics Mentorship Program",
-    description: "A comprehensive mentorship program connecting AI professionals with students to promote ethical AI development practices.",
-    category: "mentorship",
-    status: "active",
+    id: '1',
+    title: 'AI Ethics Mentorship Program',
+    description:
+      'A comprehensive mentorship program connecting AI professionals with students to promote ethical AI development practices.',
+    category: 'mentorship',
+    status: 'active',
     participants: 156,
-    startDate: "2024-01-15",
-    endDate: "2024-12-15",
+    startDate: '2024-01-15',
+    endDate: '2024-12-15',
     progress: 75,
     impactScore: 8.7,
     updates: 12,
-    tags: ["AI", "Ethics", "Mentorship", "Technology"],
+    tags: ['AI', 'Ethics', 'Mentorship', 'Technology'],
     isPublic: true,
-    university: "Stanford University"
+    university: 'Stanford University',
   },
   {
-    id: "2",
-    title: "African Healthcare Innovation Campaign",
-    description: "University campaign raising funds and awareness for healthcare innovation projects in Africa.",
-    category: "campaign",
-    status: "active",
+    id: '2',
+    title: 'African Healthcare Innovation Campaign',
+    description:
+      'University campaign raising funds and awareness for healthcare innovation projects in Africa.',
+    category: 'campaign',
+    status: 'active',
     participants: 89,
-    startDate: "2024-02-01",
-    endDate: "2024-08-31",
+    startDate: '2024-02-01',
+    endDate: '2024-08-31',
     progress: 60,
     impactScore: 9.2,
     updates: 8,
-    tags: ["Healthcare", "Africa", "Innovation", "Fundraising"],
+    tags: ['Healthcare', 'Africa', 'Innovation', 'Fundraising'],
     isPublic: true,
-    university: "Harvard University"
+    university: 'Harvard University',
   },
   {
-    id: "3",
-    title: "Tech Skills Bootcamp",
-    description: "Paid intensive coding bootcamp for diaspora youth to develop market-ready technical skills.",
-    category: "work-earn",
-    status: "active",
+    id: '3',
+    title: 'Tech Skills Bootcamp',
+    description:
+      'Paid intensive coding bootcamp for diaspora youth to develop market-ready technical skills.',
+    category: 'work-earn',
+    status: 'active',
     participants: 45,
-    startDate: "2024-03-01",
-    endDate: "2024-09-30",
+    startDate: '2024-03-01',
+    endDate: '2024-09-30',
     progress: 40,
     impactScore: 8.5,
     updates: 15,
-    tags: ["Technology", "Education", "Career", "Youth"],
-    isPublic: true
+    tags: ['Technology', 'Education', 'Career', 'Youth'],
+    isPublic: true,
   },
   {
-    id: "4",
-    title: "Climate Action Research Initiative",
-    description: "Research program investigating climate resilience solutions for developing nations.",
-    category: "research",
-    status: "active",
+    id: '4',
+    title: 'Climate Action Research Initiative',
+    description:
+      'Research program investigating climate resilience solutions for developing nations.',
+    category: 'research',
+    status: 'active',
     participants: 23,
-    startDate: "2024-01-01",
-    endDate: "2024-12-31",
+    startDate: '2024-01-01',
+    endDate: '2024-12-31',
     progress: 55,
     impactScore: 9.0,
     updates: 6,
-    tags: ["Climate", "Research", "Environment", "Sustainability"],
+    tags: ['Climate', 'Research', 'Environment', 'Sustainability'],
     isPublic: true,
-    university: "MIT"
+    university: 'MIT',
   },
   {
-    id: "5",
-    title: "Digital Literacy Community Outreach",
-    description: "Community service program teaching digital skills to underserved rural populations.",
-    category: "community",
-    status: "completed",
+    id: '5',
+    title: 'Digital Literacy Community Outreach',
+    description:
+      'Community service program teaching digital skills to underserved rural populations.',
+    category: 'community',
+    status: 'completed',
     participants: 234,
-    startDate: "2023-09-01",
-    endDate: "2024-02-28",
+    startDate: '2023-09-01',
+    endDate: '2024-02-28',
     progress: 100,
     impactScore: 8.9,
     updates: 20,
-    tags: ["Digital Literacy", "Community", "Education", "Rural"],
-    isPublic: true
-  }
+    tags: ['Digital Literacy', 'Community', 'Education', 'Rural'],
+    isPublic: true,
+  },
 ];
 
 const mockUpdates: Update[] = [
   {
-    id: "1",
-    programId: "1",
-    type: "milestone",
-    title: "Completed Module 3: Bias in AI Systems",
-    content: "Successfully completed the third module of our AI Ethics curriculum focusing on identifying and mitigating bias in AI systems. 45 mentor-mentee pairs participated in intensive workshops.",
-    date: "2024-06-15",
-    author: "Dr. Sarah Chen",
+    id: '1',
+    programId: '1',
+    type: 'milestone',
+    title: 'Completed Module 3: Bias in AI Systems',
+    content:
+      'Successfully completed the third module of our AI Ethics curriculum focusing on identifying and mitigating bias in AI systems. 45 mentor-mentee pairs participated in intensive workshops.',
+    date: '2024-06-15',
+    author: 'Dr. Sarah Chen',
     likes: 23,
     comments: 8,
-    isPublished: true
+    isPublished: true,
   },
   {
-    id: "2",
-    programId: "2",
-    type: "achievement",
-    title: "Reached 75% of Fundraising Goal",
-    content: "Excited to announce that our healthcare innovation campaign has reached 75% of our $50,000 fundraising goal! Thank you to all our supporters.",
-    date: "2024-06-10",
-    author: "Campaign Team",
+    id: '2',
+    programId: '2',
+    type: 'achievement',
+    title: 'Reached 75% of Fundraising Goal',
+    content:
+      'Excited to announce that our healthcare innovation campaign has reached 75% of our $50,000 fundraising goal! Thank you to all our supporters.',
+    date: '2024-06-10',
+    author: 'Campaign Team',
     likes: 67,
     comments: 15,
-    isPublished: true
+    isPublished: true,
   },
   {
-    id: "3",
-    programId: "3",
-    type: "announcement",
-    title: "New Industry Partnership with TechCorp",
-    content: "We're thrilled to announce a new partnership with TechCorp, which will provide guaranteed internships for our top-performing bootcamp graduates.",
-    date: "2024-06-08",
-    author: "Program Director",
+    id: '3',
+    programId: '3',
+    type: 'announcement',
+    title: 'New Industry Partnership with TechCorp',
+    content:
+      "We're thrilled to announce a new partnership with TechCorp, which will provide guaranteed internships for our top-performing bootcamp graduates.",
+    date: '2024-06-08',
+    author: 'Program Director',
     likes: 34,
     comments: 12,
-    isPublished: true
-  }
+    isPublished: true,
+  },
 ];
 
 const categoryConfig = {
-  mentorship: { icon: Users, color: "bg-blue-100 text-blue-700", label: "Mentorship" },
-  campaign: { icon: Megaphone, color: "bg-purple-100 text-purple-700", label: "Campaign" },
-  "work-earn": { icon: Briefcase, color: "bg-orange-100 text-orange-700", label: "Work & Earn" },
-  community: { icon: Heart, color: "bg-pink-100 text-pink-700", label: "Community Service" },
-  research: { icon: Lightbulb, color: "bg-yellow-100 text-yellow-700", label: "Research" },
-  partnership: { icon: Users2, color: "bg-indigo-100 text-indigo-700", label: "Partnership" }
+  mentorship: { icon: Users, color: 'bg-blue-100 text-blue-700', label: 'Mentorship' },
+  campaign: { icon: Megaphone, color: 'bg-purple-100 text-purple-700', label: 'Campaign' },
+  'work-earn': { icon: Briefcase, color: 'bg-orange-100 text-orange-700', label: 'Work & Earn' },
+  community: { icon: Heart, color: 'bg-pink-100 text-pink-700', label: 'Community Service' },
+  research: { icon: Lightbulb, color: 'bg-yellow-100 text-yellow-700', label: 'Research' },
+  partnership: { icon: Users2, color: 'bg-indigo-100 text-indigo-700', label: 'Partnership' },
 };
 
 function ProgramCard({ program }: { program: Program }) {
@@ -221,11 +234,16 @@ function ProgramCard({ program }: { program: Program }) {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'active': return 'bg-green-100 text-green-800';
-      case 'draft': return 'bg-gray-100 text-gray-800';
-      case 'paused': return 'bg-yellow-100 text-yellow-800';
-      case 'completed': return 'bg-blue-100 text-blue-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'active':
+        return 'bg-green-100 text-green-800';
+      case 'draft':
+        return 'bg-gray-100 text-gray-800';
+      case 'paused':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'completed':
+        return 'bg-blue-100 text-blue-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
@@ -253,11 +271,9 @@ function ProgramCard({ program }: { program: Program }) {
                 </Badge>
               )}
             </div>
-            
+
             <h3 className="font-semibold mb-2">{program.title}</h3>
-            <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
-              {program.description}
-            </p>
+            <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{program.description}</p>
 
             <div className="flex items-center gap-4 text-xs text-muted-foreground mb-3">
               <div className="flex items-center gap-1">
@@ -360,21 +376,31 @@ function ProgramCard({ program }: { program: Program }) {
 function UpdateCard({ update }: { update: Update }) {
   const getTypeIcon = (type: string) => {
     switch (type) {
-      case 'milestone': return <Target className="h-4 w-4" />;
-      case 'announcement': return <Megaphone className="h-4 w-4" />;
-      case 'achievement': return <Award className="h-4 w-4" />;
-      case 'news': return <FileText className="h-4 w-4" />;
-      default: return <MessageSquare className="h-4 w-4" />;
+      case 'milestone':
+        return <Target className="h-4 w-4" />;
+      case 'announcement':
+        return <Megaphone className="h-4 w-4" />;
+      case 'achievement':
+        return <Award className="h-4 w-4" />;
+      case 'news':
+        return <FileText className="h-4 w-4" />;
+      default:
+        return <MessageSquare className="h-4 w-4" />;
     }
   };
 
   const getTypeColor = (type: string) => {
     switch (type) {
-      case 'milestone': return 'bg-blue-100 text-blue-700';
-      case 'announcement': return 'bg-purple-100 text-purple-700';
-      case 'achievement': return 'bg-green-100 text-green-700';
-      case 'news': return 'bg-orange-100 text-orange-700';
-      default: return 'bg-gray-100 text-gray-700';
+      case 'milestone':
+        return 'bg-blue-100 text-blue-700';
+      case 'announcement':
+        return 'bg-purple-100 text-purple-700';
+      case 'achievement':
+        return 'bg-green-100 text-green-700';
+      case 'news':
+        return 'bg-orange-100 text-orange-700';
+      default:
+        return 'bg-gray-100 text-gray-700';
     }
   };
 
@@ -448,32 +474,32 @@ function UpdateCard({ update }: { update: Update }) {
 }
 
 export function MyPrograms() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [filterCategory, setFilterCategory] = useState<string>("all");
-  const [filterStatus, setFilterStatus] = useState<string>("all");
-  const [sortBy, setSortBy] = useState<string>("recent");
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterCategory, setFilterCategory] = useState<string>('all');
+  const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [sortBy, setSortBy] = useState<string>('recent');
 
   const filteredPrograms = mockPrograms
-    .filter(program => {
-      const matchesSearch = 
+    .filter((program) => {
+      const matchesSearch =
         program.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         program.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        program.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
-      
-      const matchesCategory = filterCategory === "all" || program.category === filterCategory;
-      const matchesStatus = filterStatus === "all" || program.status === filterStatus;
-      
+        program.tags.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+
+      const matchesCategory = filterCategory === 'all' || program.category === filterCategory;
+      const matchesStatus = filterStatus === 'all' || program.status === filterStatus;
+
       return matchesSearch && matchesCategory && matchesStatus;
     })
     .sort((a, b) => {
       switch (sortBy) {
-        case "recent":
+        case 'recent':
           return new Date(b.startDate).getTime() - new Date(a.startDate).getTime();
-        case "progress":
+        case 'progress':
           return b.progress - a.progress;
-        case "participants":
+        case 'participants':
           return b.participants - a.participants;
-        case "impact":
+        case 'impact':
           return b.impactScore - a.impactScore;
         default:
           return 0;
@@ -482,9 +508,12 @@ export function MyPrograms() {
 
   const stats = {
     totalPrograms: mockPrograms.length,
-    activePrograms: mockPrograms.filter(p => p.status === 'active').length,
+    activePrograms: mockPrograms.filter((p) => p.status === 'active').length,
     totalParticipants: mockPrograms.reduce((sum, p) => sum + p.participants, 0),
-    avgImpactScore: Math.round((mockPrograms.reduce((sum, p) => sum + p.impactScore, 0) / mockPrograms.length) * 10) / 10
+    avgImpactScore:
+      Math.round(
+        (mockPrograms.reduce((sum, p) => sum + p.impactScore, 0) / mockPrograms.length) * 10,
+      ) / 10,
   };
 
   return (
@@ -497,7 +526,9 @@ export function MyPrograms() {
               <Sparkles className="h-6 w-6 text-[#021ff6]" />
               My Programs
             </h1>
-            <p className="text-sm text-muted-foreground">Manage and track your created programs and initiatives</p>
+            <p className="text-sm text-muted-foreground">
+              Manage and track your created programs and initiatives
+            </p>
           </div>
           <Button className="bg-[#021ff6] hover:bg-[#021ff6]/90">
             <Plus className="h-4 w-4 mr-2" />
@@ -521,7 +552,9 @@ export function MyPrograms() {
           </Card>
           <Card>
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-semibold text-orange-600">{stats.totalParticipants}</div>
+              <div className="text-2xl font-semibold text-orange-600">
+                {stats.totalParticipants}
+              </div>
               <div className="text-xs text-muted-foreground">Total Participants</div>
             </CardContent>
           </Card>
@@ -560,7 +593,7 @@ export function MyPrograms() {
                     />
                   </div>
                 </div>
-                
+
                 <Select value={filterCategory} onValueChange={setFilterCategory}>
                   <SelectTrigger className="w-48">
                     <SelectValue placeholder="Category" />
@@ -609,7 +642,7 @@ export function MyPrograms() {
                     <ProgramCard key={program.id} program={program} />
                   ))}
                 </div>
-                
+
                 {filteredPrograms.length === 0 && (
                   <div className="text-center py-12">
                     <Sparkles className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
@@ -636,7 +669,7 @@ export function MyPrograms() {
                   New Update
                 </Button>
               </div>
-              
+
               <ScrollArea className="h-[calc(100vh-300px)]">
                 <div className="space-y-4">
                   {mockUpdates.map((update) => (
@@ -650,7 +683,7 @@ export function MyPrograms() {
           <TabsContent value="analytics" className="flex-1 overflow-hidden">
             <div className="px-6 py-4">
               <h2 className="text-lg font-semibold mb-6">Program Analytics</h2>
-              
+
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 <Card>
                   <CardHeader>
@@ -670,9 +703,7 @@ export function MyPrograms() {
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-semibold">{stats.avgImpactScore}/10</div>
-                    <p className="text-xs text-muted-foreground">
-                      Average impact across programs
-                    </p>
+                    <p className="text-xs text-muted-foreground">Average impact across programs</p>
                   </CardContent>
                 </Card>
 
@@ -682,13 +713,11 @@ export function MyPrograms() {
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-semibold">85%</div>
-                    <p className="text-xs text-muted-foreground">
-                      Programs completed successfully
-                    </p>
+                    <p className="text-xs text-muted-foreground">Programs completed successfully</p>
                   </CardContent>
                 </Card>
               </div>
-              
+
               <div className="mt-8 text-center py-12 text-muted-foreground">
                 <BarChart3 className="h-12 w-12 mx-auto mb-4" />
                 <p>Detailed analytics coming soon...</p>

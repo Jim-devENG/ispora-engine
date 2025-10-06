@@ -1,24 +1,24 @@
-import React, { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
-import { Button } from "./ui/button";
-import { Badge } from "./ui/badge";
-import { Switch } from "./ui/switch";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { 
-  Shield, 
-  Smartphone, 
-  Key, 
+import React, { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import { Button } from './ui/button';
+import { Badge } from './ui/badge';
+import { Switch } from './ui/switch';
+import { Input } from './ui/input';
+import { Label } from './ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import {
+  Shield,
+  Smartphone,
+  Key,
   AlertTriangle,
   CheckCircle,
   Clock,
   Globe,
   Lock,
   Eye,
-  Download
-} from "lucide-react";
-import { DashboardHeader } from "./DashboardHeader";
+  Download,
+} from 'lucide-react';
+import { DashboardHeader } from './DashboardHeader';
 
 export function SecurityPage() {
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
@@ -27,55 +27,52 @@ export function SecurityPage() {
 
   const [loginActivity] = useState([
     {
-      id: "1",
-      device: "Chrome on Windows",
-      location: "San Francisco, CA",
-      ipAddress: "192.168.1.100",
-      timestamp: "2024-01-15 14:30:00",
-      status: "success"
+      id: '1',
+      device: 'Chrome on Windows',
+      location: 'San Francisco, CA',
+      ipAddress: '192.168.1.100',
+      timestamp: '2024-01-15 14:30:00',
+      status: 'success',
     },
     {
-      id: "2",
-      device: "Safari on iPhone",
-      location: "San Francisco, CA",
-      ipAddress: "192.168.1.101",
-      timestamp: "2024-01-15 09:15:00",
-      status: "success"
+      id: '2',
+      device: 'Safari on iPhone',
+      location: 'San Francisco, CA',
+      ipAddress: '192.168.1.101',
+      timestamp: '2024-01-15 09:15:00',
+      status: 'success',
     },
     {
-      id: "3",
-      device: "Firefox on Linux",
-      location: "Unknown Location",
-      ipAddress: "203.0.113.195",
-      timestamp: "2024-01-14 22:45:00",
-      status: "blocked"
-    }
+      id: '3',
+      device: 'Firefox on Linux',
+      location: 'Unknown Location',
+      ipAddress: '203.0.113.195',
+      timestamp: '2024-01-14 22:45:00',
+      status: 'blocked',
+    },
   ]);
 
   const [activeSessions] = useState([
     {
-      id: "1",
-      device: "Chrome on Windows",
-      location: "San Francisco, CA",
-      lastActive: "Active now",
-      current: true
+      id: '1',
+      device: 'Chrome on Windows',
+      location: 'San Francisco, CA',
+      lastActive: 'Active now',
+      current: true,
     },
     {
-      id: "2",
-      device: "Safari on iPhone",
-      location: "San Francisco, CA",
-      lastActive: "2 hours ago",
-      current: false
-    }
+      id: '2',
+      device: 'Safari on iPhone',
+      location: 'San Francisco, CA',
+      lastActive: '2 hours ago',
+      current: false,
+    },
   ]);
 
   return (
     <div className="h-full">
-      <DashboardHeader 
-        userName="John" 
-        userTitle="Manage your account security"
-      />
-      
+      <DashboardHeader userName="John" userTitle="Manage your account security" />
+
       <div className="p-6 space-y-6">
         {/* Page Header */}
         <div className="flex items-center justify-between">
@@ -159,8 +156,12 @@ export function SecurityPage() {
                   <div className="flex items-center space-x-3">
                     <AlertTriangle className="h-5 w-5 text-yellow-600" />
                     <div>
-                      <p className="font-medium text-yellow-800">Enable Two-Factor Authentication</p>
-                      <p className="text-sm text-yellow-700">Add an extra layer of security to your account</p>
+                      <p className="font-medium text-yellow-800">
+                        Enable Two-Factor Authentication
+                      </p>
+                      <p className="text-sm text-yellow-700">
+                        Add an extra layer of security to your account
+                      </p>
                     </div>
                   </div>
                   <Button size="sm" className="bg-yellow-600 hover:bg-yellow-700 text-white">
@@ -173,7 +174,9 @@ export function SecurityPage() {
                     <CheckCircle className="h-5 w-5 text-green-600" />
                     <div>
                       <p className="font-medium text-green-800">Strong Password</p>
-                      <p className="text-sm text-green-700">Your password meets security requirements</p>
+                      <p className="text-sm text-green-700">
+                        Your password meets security requirements
+                      </p>
                     </div>
                   </div>
                   <Badge className="bg-green-100 text-green-800">Completed</Badge>
@@ -184,7 +187,9 @@ export function SecurityPage() {
                     <CheckCircle className="h-5 w-5 text-green-600" />
                     <div>
                       <p className="font-medium text-green-800">Login Alerts Enabled</p>
-                      <p className="text-sm text-green-700">You'll be notified of suspicious login attempts</p>
+                      <p className="text-sm text-green-700">
+                        You'll be notified of suspicious login attempts
+                      </p>
                     </div>
                   </div>
                   <Badge className="bg-green-100 text-green-800">Completed</Badge>
@@ -202,32 +207,27 @@ export function SecurityPage() {
                   <Smartphone className="h-5 w-5" />
                   <span>Two-Factor Authentication</span>
                 </CardTitle>
-                <CardDescription>
-                  Add an extra layer of security to your account
-                </CardDescription>
+                <CardDescription>Add an extra layer of security to your account</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="font-medium">Two-Factor Authentication</p>
                     <p className="text-sm text-gray-600">
-                      {twoFactorEnabled 
-                        ? "Your account is protected with 2FA" 
-                        : "Protect your account with 2FA"}
+                      {twoFactorEnabled
+                        ? 'Your account is protected with 2FA'
+                        : 'Protect your account with 2FA'}
                     </p>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <Badge 
-                      variant={twoFactorEnabled ? "default" : "destructive"}
-                      className={twoFactorEnabled ? "bg-green-100 text-green-800" : ""}
+                    <Badge
+                      variant={twoFactorEnabled ? 'default' : 'destructive'}
+                      className={twoFactorEnabled ? 'bg-green-100 text-green-800' : ''}
                     >
-                      {twoFactorEnabled ? "Enabled" : "Disabled"}
+                      {twoFactorEnabled ? 'Enabled' : 'Disabled'}
                     </Badge>
-                    <Button 
-                      size="sm"
-                      onClick={() => setTwoFactorEnabled(!twoFactorEnabled)}
-                    >
-                      {twoFactorEnabled ? "Disable" : "Setup"}
+                    <Button size="sm" onClick={() => setTwoFactorEnabled(!twoFactorEnabled)}>
+                      {twoFactorEnabled ? 'Disable' : 'Setup'}
                     </Button>
                   </div>
                 </div>
@@ -252,9 +252,7 @@ export function SecurityPage() {
                   <Key className="h-5 w-5" />
                   <span>Password</span>
                 </CardTitle>
-                <CardDescription>
-                  Manage your account password
-                </CardDescription>
+                <CardDescription>Manage your account password</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
@@ -262,9 +260,7 @@ export function SecurityPage() {
                     <p className="font-medium">Password</p>
                     <p className="text-sm text-gray-600">Last changed 3 months ago</p>
                   </div>
-                  <Button variant="outline">
-                    Change Password
-                  </Button>
+                  <Button variant="outline">Change Password</Button>
                 </div>
               </CardContent>
             </Card>
@@ -273,9 +269,7 @@ export function SecurityPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Security Preferences</CardTitle>
-                <CardDescription>
-                  Configure additional security settings
-                </CardDescription>
+                <CardDescription>Configure additional security settings</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
@@ -283,20 +277,14 @@ export function SecurityPage() {
                     <p className="font-medium">Login Alerts</p>
                     <p className="text-sm text-gray-600">Get notified of new login attempts</p>
                   </div>
-                  <Switch
-                    checked={loginAlerts}
-                    onCheckedChange={setLoginAlerts}
-                  />
+                  <Switch checked={loginAlerts} onCheckedChange={setLoginAlerts} />
                 </div>
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="font-medium">Session Timeout</p>
                     <p className="text-sm text-gray-600">Automatically log out after 24 hours</p>
                   </div>
-                  <Switch
-                    checked={sessionTimeout}
-                    onCheckedChange={setSessionTimeout}
-                  />
+                  <Switch checked={sessionTimeout} onCheckedChange={setSessionTimeout} />
                 </div>
               </CardContent>
             </Card>
@@ -309,9 +297,7 @@ export function SecurityPage() {
                 <h3 className="text-lg font-medium">Active Sessions</h3>
                 <p className="text-sm text-gray-600">Manage devices that are currently signed in</p>
               </div>
-              <Button variant="outline">
-                Sign Out All Other Sessions
-              </Button>
+              <Button variant="outline">Sign Out All Other Sessions</Button>
             </div>
 
             <div className="space-y-4">
@@ -327,7 +313,9 @@ export function SecurityPage() {
                           <div className="flex items-center space-x-2">
                             <p className="font-medium">{session.device}</p>
                             {session.current && (
-                              <Badge variant="secondary" className="text-xs">Current</Badge>
+                              <Badge variant="secondary" className="text-xs">
+                                Current
+                              </Badge>
                             )}
                           </div>
                           <p className="text-sm text-gray-600">{session.location}</p>
@@ -380,9 +368,11 @@ export function SecurityPage() {
                           <td className="p-4 text-sm font-mono">{activity.ipAddress}</td>
                           <td className="p-4 text-sm">{activity.timestamp}</td>
                           <td className="p-4">
-                            <Badge 
+                            <Badge
                               variant={activity.status === 'success' ? 'default' : 'destructive'}
-                              className={activity.status === 'success' ? 'bg-green-100 text-green-800' : ''}
+                              className={
+                                activity.status === 'success' ? 'bg-green-100 text-green-800' : ''
+                              }
                             >
                               {activity.status === 'success' ? 'Success' : 'Blocked'}
                             </Badge>

@@ -32,7 +32,7 @@ router.get('/my-saves', protect, async (req, res) => {
         'users.title as user_title',
         'users.company as user_company',
         'users.avatar_url',
-        'users.is_verified as user_verified'
+        'users.is_verified as user_verified',
       )
       .leftJoin('opportunities', 'opportunity_saves.opportunity_id', 'opportunities.id')
       .leftJoin('users', 'opportunities.posted_by', 'users.id')
@@ -50,7 +50,7 @@ router.get('/my-saves', protect, async (req, res) => {
       .offset(offset);
 
     // Transform the data
-    const transformedSaves = saves.map(save => ({
+    const transformedSaves = saves.map((save) => ({
       id: save.id,
       savedAt: save.saved_at,
       opportunity: {
@@ -74,9 +74,9 @@ router.get('/my-saves', protect, async (req, res) => {
           title: save.user_title,
           company: save.user_company,
           avatar: save.avatar_url,
-          isVerified: save.user_verified
-        }
-      }
+          isVerified: save.user_verified,
+        },
+      },
     }));
 
     res.json({
@@ -85,8 +85,8 @@ router.get('/my-saves', protect, async (req, res) => {
         page: parseInt(page),
         limit: parseInt(limit),
         total: parseInt(total),
-        pages: Math.ceil(total / limit)
-      }
+        pages: Math.ceil(total / limit),
+      },
     });
   } catch (error) {
     console.error('Error fetching saved opportunities:', error);
@@ -127,7 +127,7 @@ router.post('/save', protect, async (req, res) => {
     const [save] = await knex('opportunity_saves')
       .insert({
         opportunity_id: opportunityId,
-        user_id: req.user.id
+        user_id: req.user.id,
       })
       .returning('*');
 
@@ -137,7 +137,7 @@ router.post('/save', protect, async (req, res) => {
       event_type: 'save',
       user_id: req.user.id,
       ip_address: req.ip,
-      user_agent: req.get('User-Agent')
+      user_agent: req.get('User-Agent'),
     });
 
     res.status(201).json(save);
@@ -217,7 +217,7 @@ router.get('/stats', protect, async (req, res) => {
     res.json({
       totalSaves: parseInt(totalSaves.total) || 0,
       recentSaves: parseInt(recentSaves.total) || 0,
-      savesByType
+      savesByType,
     });
   } catch (error) {
     console.error('Error fetching save statistics:', error);

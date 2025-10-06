@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 import {
   Search,
   Filter,
@@ -37,27 +37,43 @@ import {
   AlertCircle,
   X,
   Link,
-
-} from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Badge } from "./ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { Separator } from "./ui/separator";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
-import { Textarea } from "./ui/textarea";
-import { Label } from "./ui/label";
-import { Checkbox } from "./ui/checkbox";
-import { ScrollArea } from "./ui/scroll-area";
-import { toast } from "sonner";
+} from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Badge } from './ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { Separator } from './ui/separator';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from './ui/dialog';
+import { Textarea } from './ui/textarea';
+import { Label } from './ui/label';
+import { Checkbox } from './ui/checkbox';
+import { ScrollArea } from './ui/scroll-area';
+import { toast } from 'sonner';
+import { PostOpportunityModal } from '../src/components/PostOpportunityModal';
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 interface Opportunity {
   id: string;
   title: string;
-  type: 'scholarship' | 'job' | 'internship' | 'fellowship' | 'accelerator' | 'grant' | 'event' | 'community' | 'others';
+  type:
+    | 'scholarship'
+    | 'job'
+    | 'internship'
+    | 'fellowship'
+    | 'accelerator'
+    | 'grant'
+    | 'event'
+    | 'community'
+    | 'others';
   company: string;
   location: string;
   remote: boolean;
@@ -105,89 +121,100 @@ interface Opportunity {
 
 const opportunityCategories = [
   {
-    id: "all",
-    label: "All Opportunities",
+    id: 'all',
+    label: 'All Opportunities',
     icon: Target,
-    color: "bg-gray-100 text-gray-700",
-    description: "Browse all available opportunities"
+    color: 'bg-gray-100 text-gray-700',
+    description: 'Browse all available opportunities',
   },
   {
-    id: "scholarship",
-    label: "🎓 Scholarships",
+    id: 'scholarship',
+    label: '🎓 Scholarships',
     icon: GraduationCap,
-    color: "bg-blue-100 text-blue-700",
-    description: "Academic and research scholarships at all levels"
+    color: 'bg-blue-100 text-blue-700',
+    description: 'Academic and research scholarships at all levels',
   },
   {
-    id: "job",
-    label: "💼 Jobs & Remote Work",
+    id: 'job',
+    label: '💼 Jobs & Remote Work',
     icon: Briefcase,
-    color: "bg-green-100 text-green-700",
-    description: "Global and local job postings (full-time, part-time, freelance)"
+    color: 'bg-green-100 text-green-700',
+    description: 'Global and local job postings (full-time, part-time, freelance)',
   },
   {
-    id: "internship",
-    label: "🤝 Internships",
+    id: 'internship',
+    label: '🤝 Internships',
     icon: Users2,
-    color: "bg-purple-100 text-purple-700",
-    description: "Virtual and physical internships, local or international"
+    color: 'bg-purple-100 text-purple-700',
+    description: 'Virtual and physical internships, local or international',
   },
   {
-    id: "fellowship",
-    label: "🧪 Fellowships",
+    id: 'fellowship',
+    label: '🧪 Fellowships',
     icon: Lightbulb,
-    color: "bg-orange-100 text-orange-700",
-    description: "Research or leadership-focused fellowships"
+    color: 'bg-orange-100 text-orange-700',
+    description: 'Research or leadership-focused fellowships',
   },
   {
-    id: "accelerator",
-    label: "🚀 Accelerators",
+    id: 'accelerator',
+    label: '🚀 Accelerators',
     icon: Rocket,
-    color: "bg-red-100 text-red-700",
-    description: "Startup programs, pitch competitions, incubation offers"
+    color: 'bg-red-100 text-red-700',
+    description: 'Startup programs, pitch competitions, incubation offers',
   },
   {
-    id: "grant",
-    label: "💰 Grants",
+    id: 'grant',
+    label: '💰 Grants',
     icon: Banknote,
-    color: "bg-emerald-100 text-emerald-700",
-    description: "Research grants, innovation funds, NGO & impact-driven funding"
+    color: 'bg-emerald-100 text-emerald-700',
+    description: 'Research grants, innovation funds, NGO & impact-driven funding',
   },
   {
-    id: "event",
-    label: "📅 Events/Conferences",
+    id: 'event',
+    label: '📅 Events/Conferences',
     icon: Calendar,
-    color: "bg-indigo-100 text-indigo-700",
-    description: "Hackathons, summits, and global callouts"
+    color: 'bg-indigo-100 text-indigo-700',
+    description: 'Hackathons, summits, and global callouts',
   },
   {
-    id: "community",
-    label: "📢 Community Highlights",
+    id: 'community',
+    label: '📢 Community Highlights',
     icon: Megaphone,
-    color: "bg-pink-100 text-pink-700",
-    description: "User-submitted gigs, calls for collaborators, peer support opportunities"
+    color: 'bg-pink-100 text-pink-700',
+    description: 'User-submitted gigs, calls for collaborators, peer support opportunities',
   },
   {
-    id: "others",
-    label: "🔗 Others",
+    id: 'others',
+    label: '🔗 Others',
     icon: MoreHorizontal,
-    color: "bg-gray-100 text-gray-700",
-    description: "Miscellaneous opportunities, special programs, and unique offerings"
-  }
+    color: 'bg-gray-100 text-gray-700',
+    description: 'Miscellaneous opportunities, special programs, and unique offerings',
+  },
 ];
 
 // Live data will be fetched from backend
 
-const locations = ["All Locations", "Remote", "USA", "UK", "Nigeria", "Kenya", "South Africa", "Ghana", "Canada", "Germany"];
-const experienceLevels = ["All Levels", "Entry Level", "Mid Level", "Senior Level"];
-const sortOptions = ["Most Recent", "Deadline", "Most Boosted", "Most Applied", "Amount"];
+const locations = [
+  'All Locations',
+  'Remote',
+  'USA',
+  'UK',
+  'Nigeria',
+  'Kenya',
+  'South Africa',
+  'Ghana',
+  'Canada',
+  'Germany',
+];
+const experienceLevels = ['All Levels', 'Entry Level', 'Mid Level', 'Senior Level'];
+const sortOptions = ['Most Recent', 'Deadline', 'Most Boosted', 'Most Applied', 'Amount'];
 
 export function OpportunitiesPage() {
-  const [selectedCategory, setSelectedCategory] = useState("all");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedLocation, setSelectedLocation] = useState("All Locations");
-  const [selectedLevel, setSelectedLevel] = useState("All Levels");
-  const [sortBy, setSortBy] = useState("Most Recent");
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedLocation, setSelectedLocation] = useState('All Locations');
+  const [selectedLevel, setSelectedLevel] = useState('All Levels');
+  const [sortBy, setSortBy] = useState('Most Recent');
   const [showRemoteOnly, setShowRemoteOnly] = useState(false);
   const [showSavedOnly, setShowSavedOnly] = useState(false);
   const [savedOpportunities, setSavedOpportunities] = useState<string[]>([]);
@@ -201,68 +228,79 @@ export function OpportunitiesPage() {
 
   // Form state for posting new opportunity
   const [newOpportunity, setNewOpportunity] = useState({
-    title: "",
-    type: "",
-    company: "",
-    location: "",
-    description: "",
-    requirements: "",
-    benefits: "",
-    applicationLink: "",
-    deadline: "",
-    amount: "",
-    tags: "",
-    remote: false
+    title: '',
+    type: '',
+    company: '',
+    location: '',
+    description: '',
+    requirements: '',
+    benefits: '',
+    applicationLink: '',
+    deadline: '',
+    amount: '',
+    tags: '',
+    remote: false,
   });
 
-  const filteredOpportunities = opportunities.filter(opp => {
-    const matchesCategory = selectedCategory === "all" || opp.type === selectedCategory;
-    const matchesSearch = opp.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         opp.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         opp.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         opp.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
-    const matchesLocation = selectedLocation === "All Locations" ||
-                           (selectedLocation === "Remote" && opp.remote) ||
-                           opp.location.includes(selectedLocation);
-    const matchesLevel = selectedLevel === "All Levels" ||
-                        (selectedLevel === "Entry Level" && opp.experienceLevel === "entry") ||
-                        (selectedLevel === "Mid Level" && opp.experienceLevel === "mid") ||
-                        (selectedLevel === "Senior Level" && opp.experienceLevel === "senior");
+  const filteredOpportunities = opportunities.filter((opp) => {
+    const matchesCategory = selectedCategory === 'all' || opp.type === selectedCategory;
+    const matchesSearch =
+      opp.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      opp.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      opp.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      opp.tags.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+    const matchesLocation =
+      selectedLocation === 'All Locations' ||
+      (selectedLocation === 'Remote' && opp.remote) ||
+      opp.location.includes(selectedLocation);
+    const matchesLevel =
+      selectedLevel === 'All Levels' ||
+      (selectedLevel === 'Entry Level' && opp.experienceLevel === 'entry') ||
+      (selectedLevel === 'Mid Level' && opp.experienceLevel === 'mid') ||
+      (selectedLevel === 'Senior Level' && opp.experienceLevel === 'senior');
     const matchesRemote = !showRemoteOnly || opp.remote;
     const matchesSaved = !showSavedOnly || savedOpportunities.includes(opp.id);
 
-    return matchesCategory && matchesSearch && matchesLocation && matchesLevel && matchesRemote && matchesSaved;
+    return (
+      matchesCategory &&
+      matchesSearch &&
+      matchesLocation &&
+      matchesLevel &&
+      matchesRemote &&
+      matchesSaved
+    );
   });
 
-  const categoryStats = opportunityCategories.map(category => ({
+  const categoryStats = opportunityCategories.map((category) => ({
     ...category,
-    count: category.id === "all" 
-      ? opportunities.length 
-      : opportunities.filter(opp => opp.type === category.id).length
+    count:
+      category.id === 'all'
+        ? opportunities.length
+        : opportunities.filter((opp) => opp.type === category.id).length,
   }));
 
   const handleSaveOpportunity = (oppId: string) => {
     if (savedOpportunities.includes(oppId)) {
-      setSavedOpportunities(prev => prev.filter(id => id !== oppId));
-      toast.success("Opportunity removed from saved list");
+      setSavedOpportunities((prev) => prev.filter((id) => id !== oppId));
+      toast.success('Opportunity removed from saved list');
     } else {
-      setSavedOpportunities(prev => [...prev, oppId]);
-      toast.success("Opportunity saved!");
+      setSavedOpportunities((prev) => [...prev, oppId]);
+      toast.success('Opportunity saved!');
     }
   };
 
   const handleBoostOpportunity = (oppId: string) => {
     if (boostedOpportunities.includes(oppId)) {
-      setBoostedOpportunities(prev => prev.filter(id => id !== oppId));
-      toast.success("Boost removed");
+      setBoostedOpportunities((prev) => prev.filter((id) => id !== oppId));
+      toast.success('Boost removed');
     } else {
-      setBoostedOpportunities(prev => [...prev, oppId]);
-      toast.success("Opportunity boosted!");
+      setBoostedOpportunities((prev) => [...prev, oppId]);
+      toast.success('Opportunity boosted!');
     }
   };
 
   const handleApply = (oppId: string) => {
-    const opp = opportunities.find(o => o.id === oppId);
+    const opp = opportunities.find((o) => o.id === oppId);
     if (opp) {
       if (opp.applicationLink) {
         window.open(opp.applicationLink, '_blank');
@@ -276,30 +314,38 @@ export function OpportunitiesPage() {
     setIsDetailDialogOpen(true);
   };
 
-  const handlePostOpportunity = () => {
+  const handlePostOpportunity = (data?: any) => {
+    // If data is provided from the new modal, use it; otherwise use the old form data
+    const opportunityData = data || newOpportunity;
+    
     // Validate required fields
-    if (!newOpportunity.title || !newOpportunity.type || !newOpportunity.company || !newOpportunity.description) {
-      toast.error("Please fill in all required fields");
+    if (
+      !opportunityData.title ||
+      !opportunityData.type ||
+      !opportunityData.company ||
+      !opportunityData.description
+    ) {
+      toast.error('Please fill in all required fields');
       return;
     }
 
     toast.success("Opportunity submitted for review! We'll notify you once it's approved.");
     setIsPostDialogOpen(false);
-    
+
     // Reset form
     setNewOpportunity({
-      title: "",
-      type: "",
-      company: "",
-      location: "",
-      description: "",
-      requirements: "",
-      benefits: "",
-      applicationLink: "",
-      deadline: "",
-      amount: "",
-      tags: "",
-      remote: false
+      title: '',
+      type: '',
+      company: '',
+      location: '',
+      description: '',
+      requirements: '',
+      benefits: '',
+      applicationLink: '',
+      deadline: '',
+      amount: '',
+      tags: '',
+      remote: false,
     });
   };
 
@@ -318,15 +364,23 @@ export function OpportunitiesPage() {
         const params = new URLSearchParams();
         if (selectedCategory !== 'all') params.append('type', selectedCategory);
         if (searchQuery) params.append('q', searchQuery);
-        if (selectedLocation && selectedLocation !== 'All Locations') params.append('location', selectedLocation);
+        if (selectedLocation && selectedLocation !== 'All Locations')
+          params.append('location', selectedLocation);
         if (showRemoteOnly) params.append('remote', 'true');
         // normalize experience level
         if (selectedLevel !== 'All Levels') {
-          const map: Record<string, string> = { 'Entry Level': 'entry', 'Mid Level': 'mid', 'Senior Level': 'senior' };
+          const map: Record<string, string> = {
+            'Entry Level': 'entry',
+            'Mid Level': 'mid',
+            'Senior Level': 'senior',
+          };
           const level = map[selectedLevel] || 'any';
           params.append('experience', level);
         }
-        const res = await fetch(`${API_BASE_URL}/opportunities?${params.toString()}`, { headers, signal: controller.signal });
+        const res = await fetch(`${API_BASE_URL}/opportunities?${params.toString()}`, {
+          headers,
+          signal: controller.signal,
+        });
         if (!res.ok) throw new Error(`Failed to fetch opportunities (${res.status})`);
         const json = await res.json();
         const data = json?.data || json;
@@ -344,7 +398,7 @@ export function OpportunitiesPage() {
   }, [selectedCategory, searchQuery, selectedLocation, selectedLevel, showRemoteOnly]);
 
   const getTypeIcon = (type: string) => {
-    const category = opportunityCategories.find(cat => cat.id === type);
+    const category = opportunityCategories.find((cat) => cat.id === type);
     if (category) {
       const Icon = category.icon;
       return <Icon className="h-4 w-4" />;
@@ -353,29 +407,30 @@ export function OpportunitiesPage() {
   };
 
   const getTypeColor = (type: string) => {
-    const category = opportunityCategories.find(cat => cat.id === type);
-    return category?.color || "bg-gray-100 text-gray-700";
+    const category = opportunityCategories.find((cat) => cat.id === type);
+    return category?.color || 'bg-gray-100 text-gray-700';
   };
 
   const formatAmount = (amount: Opportunity['amount']) => {
     if (!amount) return null;
-    const value = amount.value >= 1000000 
-      ? `${(amount.value / 1000000).toFixed(1)}M`
-      : amount.value >= 1000 
-      ? `${(amount.value / 1000).toFixed(0)}K`
-      : amount.value.toString();
+    const value =
+      amount.value >= 1000000
+        ? `${(amount.value / 1000000).toFixed(1)}M`
+        : amount.value >= 1000
+          ? `${(amount.value / 1000).toFixed(0)}K`
+          : amount.value.toString();
     return `${amount.currency} ${value}`;
   };
 
   const getUrgencyColor = (deadline?: string) => {
-    if (!deadline) return "";
+    if (!deadline) return '';
     const deadlineDate = new Date(deadline);
     const now = new Date();
     const diffDays = Math.ceil((deadlineDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-    
-    if (diffDays <= 7) return "text-red-600";
-    if (diffDays <= 30) return "text-orange-600";
-    return "text-muted-foreground";
+
+    if (diffDays <= 7) return 'text-red-600';
+    if (diffDays <= 30) return 'text-orange-600';
+    return 'text-muted-foreground';
   };
 
   return (
@@ -392,193 +447,13 @@ export function OpportunitiesPage() {
               Discover scholarships, jobs, internships, and more from the global diaspora community
             </p>
           </div>
-          <Dialog open={isPostDialogOpen} onOpenChange={setIsPostDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="bg-[#021ff6] hover:bg-[#021ff6]/90">
-                <Plus className="h-4 w-4 mr-2" />
-                Post Opportunity
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-xl max-h-[80vh] overflow-y-auto z-50">
-              <DialogHeader>
-                <DialogTitle>Share an Opportunity</DialogTitle>
-                <DialogDescription>
-                  Help others in the diaspora community discover amazing opportunities. Provide details to help applicants understand what's required and what they'll gain.
-                </DialogDescription>
-              </DialogHeader>
-              
-              <ScrollArea className="max-h-[75vh] pr-4">
-                <div className="space-y-4">
-                  {/* Essential Information */}
-                  <div className="space-y-4">
-                    <div>
-                      <Label htmlFor="title">Opportunity Title *</Label>
-                      <Input 
-                        id="title" 
-                        placeholder="e.g., Software Engineer at Google, Rhodes Scholarship 2027"
-                        value={newOpportunity.title}
-                        onChange={(e) => setNewOpportunity({...newOpportunity, title: e.target.value})}
-                      />
-                    </div>
-
-                    <div>
-                      <Label htmlFor="type">Category *</Label>
-                      <Select 
-                        value={newOpportunity.type} 
-                        onValueChange={(value) => {
-                          console.log('Category selected:', value);
-                          setNewOpportunity({...newOpportunity, type: value});
-                        }}
-                        onOpenChange={(open) => {
-                          console.log('Category dropdown opened:', open);
-                        }}
-                      >
-                        <SelectTrigger 
-                          id="type" 
-                          className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
-                        >
-                          <SelectValue placeholder="Select category" />
-                        </SelectTrigger>
-                        <SelectContent 
-                          className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-lg z-[60] max-h-60"
-                          position="popper"
-                          sideOffset={4}
-                        >
-                          {opportunityCategories.slice(1).map((category) => (
-                            <SelectItem 
-                              key={category.id} 
-                              value={category.id}
-                              className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 focus:bg-gray-100 dark:focus:bg-gray-700 cursor-pointer py-2 px-3"
-                            >
-                              {category.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="company">Organization/Company *</Label>
-                        <Input 
-                          id="company" 
-                          placeholder="e.g., Google, Oxford University"
-                          value={newOpportunity.company}
-                          onChange={(e) => setNewOpportunity({...newOpportunity, company: e.target.value})}
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="location">Location</Label>
-                        <Input 
-                          id="location" 
-                          placeholder="e.g., San Francisco, Remote, Global"
-                          value={newOpportunity.location}
-                          onChange={(e) => setNewOpportunity({...newOpportunity, location: e.target.value})}
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <Label htmlFor="description">Description *</Label>
-                      <Textarea 
-                        id="description" 
-                        placeholder="Describe what this opportunity is about, who it's for, and what makes it special..."
-                        rows={4}
-                        value={newOpportunity.description}
-                        onChange={(e) => setNewOpportunity({...newOpportunity, description: e.target.value})}
-                      />
-                      <p className="text-xs text-muted-foreground mt-1">
-                        💡 Provide a clear overview that helps people understand the opportunity
-                      </p>
-                    </div>
-
-                    {/* Requirements Section */}
-                    <div>
-                      <Label htmlFor="requirements">Requirements</Label>
-                      <Textarea 
-                        id="requirements" 
-                        placeholder="List key requirements, qualifications, or criteria (one per line)"
-                        rows={3}
-                        value={newOpportunity.requirements}
-                        onChange={(e) => setNewOpportunity({...newOpportunity, requirements: e.target.value})}
-                      />
-                    </div>
-
-                    <div>
-                      <Label htmlFor="benefits">Benefits & What's Included</Label>
-                      <Textarea 
-                        id="benefits" 
-                        placeholder="What benefits, perks, or support does this opportunity provide? (one per line)"
-                        rows={3}
-                        value={newOpportunity.benefits}
-                        onChange={(e) => setNewOpportunity({...newOpportunity, benefits: e.target.value})}
-                      />
-                    </div>
-
-                    {/* Optional Details */}
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="deadline">Application Deadline</Label>
-                        <Input 
-                          id="deadline" 
-                          type="date"
-                          value={newOpportunity.deadline}
-                          onChange={(e) => setNewOpportunity({...newOpportunity, deadline: e.target.value})}
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="amount">Compensation/Award Amount</Label>
-                        <Input 
-                          id="amount" 
-                          placeholder="e.g., $50,000, €25,000"
-                          value={newOpportunity.amount}
-                          onChange={(e) => setNewOpportunity({...newOpportunity, amount: e.target.value})}
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <Label htmlFor="applicationLink">Application Link</Label>
-                      <Input 
-                        id="applicationLink" 
-                        placeholder="https://..."
-                        value={newOpportunity.applicationLink}
-                        onChange={(e) => setNewOpportunity({...newOpportunity, applicationLink: e.target.value})}
-                      />
-                    </div>
-
-                    <div>
-                      <Label htmlFor="tags">Tags (comma-separated)</Label>
-                      <Input 
-                        id="tags" 
-                        placeholder="e.g., Remote, Full-time, Research, Africa"
-                        value={newOpportunity.tags}
-                        onChange={(e) => setNewOpportunity({...newOpportunity, tags: e.target.value})}
-                      />
-                    </div>
-
-                    <div className="flex items-center space-x-2">
-                      <Checkbox 
-                        id="remote" 
-                        checked={newOpportunity.remote}
-                        onCheckedChange={(checked) => setNewOpportunity({...newOpportunity, remote: !!checked})}
-                      />
-                      <Label htmlFor="remote">This is a remote opportunity</Label>
-                    </div>
-                  </div>
-
-                  <div className="flex justify-end gap-3 pt-4">
-                    <Button variant="outline" onClick={() => setIsPostDialogOpen(false)}>
-                      Cancel
-                    </Button>
-                    <Button onClick={handlePostOpportunity} className="bg-[#021ff6] hover:bg-[#021ff6]/90">
-                      Submit for Review
-                    </Button>
-                  </div>
-                </div>
-              </ScrollArea>
-            </DialogContent>
-          </Dialog>
+          <Button 
+            className="bg-[#021ff6] hover:bg-[#021ff6]/90"
+            onClick={() => setIsPostDialogOpen(true)}
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Post Opportunity
+          </Button>
         </div>
 
         {/* Category Filter Tabs */}
@@ -589,12 +464,12 @@ export function OpportunitiesPage() {
             return (
               <Button
                 key={cat.id}
-                variant={isActive ? "default" : "outline"}
+                variant={isActive ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setSelectedCategory(cat.id)}
                 className={`flex-shrink-0 ${
-                  isActive 
-                    ? 'bg-[#021ff6] hover:bg-[#021ff6]/90' 
+                  isActive
+                    ? 'bg-[#021ff6] hover:bg-[#021ff6]/90'
                     : `${cat.color} border-transparent hover:shadow-md`
                 }`}
               >
@@ -623,7 +498,7 @@ export function OpportunitiesPage() {
               />
             </div>
           </div>
-          
+
           <Select value={selectedLocation} onValueChange={setSelectedLocation}>
             <SelectTrigger className="w-32">
               <SelectValue />
@@ -636,7 +511,7 @@ export function OpportunitiesPage() {
               ))}
             </SelectContent>
           </Select>
-          
+
           <Select value={selectedLevel} onValueChange={setSelectedLevel}>
             <SelectTrigger className="w-32">
               <SelectValue />
@@ -670,13 +545,14 @@ export function OpportunitiesPage() {
         {loading && (
           <div className="text-center py-8 text-muted-foreground">Loading opportunities...</div>
         )}
-        {error && (
-          <div className="text-center py-8 text-red-600">{error}</div>
-        )}
+        {error && <div className="text-center py-8 text-red-600">{error}</div>}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {filteredOpportunities.map((opportunity) => (
-            <Card key={opportunity.id} className="hover:shadow-lg transition-shadow duration-200 cursor-pointer group"
-                  onClick={() => handleViewDetails(opportunity)}>
+            <Card
+              key={opportunity.id}
+              className="hover:shadow-lg transition-shadow duration-200 cursor-pointer group"
+              onClick={() => handleViewDetails(opportunity)}
+            >
               <CardHeader className="pb-4">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-2 mb-2">
@@ -706,14 +582,16 @@ export function OpportunitiesPage() {
                       handleSaveOpportunity(opportunity.id);
                     }}
                   >
-                    <Bookmark className={`h-4 w-4 ${savedOpportunities.includes(opportunity.id) ? 'fill-current' : ''}`} />
+                    <Bookmark
+                      className={`h-4 w-4 ${savedOpportunities.includes(opportunity.id) ? 'fill-current' : ''}`}
+                    />
                   </Button>
                 </div>
-                
+
                 <CardTitle className="group-hover:text-[#021ff6] transition-colors line-clamp-2">
                   {opportunity.title}
                 </CardTitle>
-                
+
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Building className="h-4 w-4" />
                   <span>{opportunity.company}</span>
@@ -723,7 +601,9 @@ export function OpportunitiesPage() {
                   {opportunity.remote && (
                     <>
                       <span>•</span>
-                      <Badge variant="outline" className="text-xs">Remote</Badge>
+                      <Badge variant="outline" className="text-xs">
+                        Remote
+                      </Badge>
                     </>
                   )}
                 </div>
@@ -733,8 +613,6 @@ export function OpportunitiesPage() {
                 <CardDescription className="line-clamp-3">
                   {opportunity.description}
                 </CardDescription>
-
-
 
                 {opportunity.amount && (
                   <div className="flex items-center gap-2">
@@ -772,9 +650,11 @@ export function OpportunitiesPage() {
                       <span>{opportunity.boost}</span>
                     </div>
                   </div>
-                  
+
                   {opportunity.deadline && (
-                    <div className={`flex items-center gap-1 ${getUrgencyColor(opportunity.deadline)}`}>
+                    <div
+                      className={`flex items-center gap-1 ${getUrgencyColor(opportunity.deadline)}`}
+                    >
                       <Clock className="h-4 w-4" />
                       <span className="font-medium">
                         {new Date(opportunity.deadline).toLocaleDateString()}
@@ -784,14 +664,18 @@ export function OpportunitiesPage() {
                 </div>
 
                 <div className="flex gap-2">
-                  <Button 
+                  <Button
                     className="flex-1 bg-[#021ff6] hover:bg-[#021ff6]/90"
                     onClick={(e) => {
                       e.stopPropagation();
                       handleApply(opportunity.id);
                     }}
                   >
-                    {opportunity.applied ? <CheckCircle className="h-4 w-4 mr-2" /> : <Send className="h-4 w-4 mr-2" />}
+                    {opportunity.applied ? (
+                      <CheckCircle className="h-4 w-4 mr-2" />
+                    ) : (
+                      <Send className="h-4 w-4 mr-2" />
+                    )}
                     {opportunity.applied ? 'Applied' : 'Apply'}
                   </Button>
                   <Button
@@ -829,7 +713,10 @@ export function OpportunitiesPage() {
             <p className="text-muted-foreground mb-4">
               Try adjusting your search criteria or check back later for new opportunities.
             </p>
-            <Button onClick={() => setIsPostDialogOpen(true)} className="bg-[#021ff6] hover:bg-[#021ff6]/90">
+            <Button
+              onClick={() => setIsPostDialogOpen(true)}
+              className="bg-[#021ff6] hover:bg-[#021ff6]/90"
+            >
               <Plus className="h-4 w-4 mr-2" />
               Post an Opportunity
             </Button>
@@ -842,16 +729,15 @@ export function OpportunitiesPage() {
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              {selectedOpportunity ? selectedOpportunity.title : "Opportunity Details"}
+              {selectedOpportunity ? selectedOpportunity.title : 'Opportunity Details'}
             </DialogTitle>
             <DialogDescription>
-              {selectedOpportunity 
+              {selectedOpportunity
                 ? `Detailed information about this ${selectedOpportunity.type} opportunity at ${selectedOpportunity.company}.`
-                : "View detailed information about this opportunity."
-              }
+                : 'View detailed information about this opportunity.'}
             </DialogDescription>
           </DialogHeader>
-          
+
           {selectedOpportunity && (
             <>
               <div className="space-y-6">
@@ -866,9 +752,7 @@ export function OpportunitiesPage() {
                         <MapPin className="h-4 w-4" />
                         <span>{selectedOpportunity.location}</span>
                       </div>
-                      {selectedOpportunity.remote && (
-                        <Badge variant="outline">Remote</Badge>
-                      )}
+                      {selectedOpportunity.remote && <Badge variant="outline">Remote</Badge>}
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
@@ -889,7 +773,9 @@ export function OpportunitiesPage() {
 
                 <div className="flex items-center justify-between">
                   {selectedOpportunity.deadline && (
-                    <div className={`flex items-center gap-2 ${getUrgencyColor(selectedOpportunity.deadline)}`}>
+                    <div
+                      className={`flex items-center gap-2 ${getUrgencyColor(selectedOpportunity.deadline)}`}
+                    >
                       <Clock className="h-5 w-5" />
                       <div className="text-right">
                         <div className="font-medium">Deadline</div>
@@ -910,19 +796,20 @@ export function OpportunitiesPage() {
                   </p>
                 </div>
 
-                {selectedOpportunity.requirements && selectedOpportunity.requirements.length > 0 && (
-                  <div>
-                    <h3 className="font-semibold mb-2">Requirements</h3>
-                    <ul className="space-y-1">
-                      {selectedOpportunity.requirements.map((req, index) => (
-                        <li key={index} className="flex items-start gap-2 text-muted-foreground">
-                          <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
-                          <span>{req}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+                {selectedOpportunity.requirements &&
+                  selectedOpportunity.requirements.length > 0 && (
+                    <div>
+                      <h3 className="font-semibold mb-2">Requirements</h3>
+                      <ul className="space-y-1">
+                        {selectedOpportunity.requirements.map((req, index) => (
+                          <li key={index} className="flex items-start gap-2 text-muted-foreground">
+                            <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                            <span>{req}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
 
                 {selectedOpportunity.benefits && selectedOpportunity.benefits.length > 0 && (
                   <div>
@@ -969,7 +856,8 @@ export function OpportunitiesPage() {
                         )}
                       </div>
                       <div className="text-sm text-muted-foreground">
-                        {selectedOpportunity.postedBy.title} at {selectedOpportunity.postedBy.company}
+                        {selectedOpportunity.postedBy.title} at{' '}
+                        {selectedOpportunity.postedBy.company}
                       </div>
                     </div>
                   </div>
@@ -984,18 +872,24 @@ export function OpportunitiesPage() {
                 </div>
 
                 <div className="flex gap-3 pt-4">
-                  <Button 
+                  <Button
                     className="flex-1 bg-[#021ff6] hover:bg-[#021ff6]/90"
                     onClick={() => handleApply(selectedOpportunity.id)}
                   >
-                    {selectedOpportunity.applied ? <CheckCircle className="h-4 w-4 mr-2" /> : <Send className="h-4 w-4 mr-2" />}
+                    {selectedOpportunity.applied ? (
+                      <CheckCircle className="h-4 w-4 mr-2" />
+                    ) : (
+                      <Send className="h-4 w-4 mr-2" />
+                    )}
                     {selectedOpportunity.applied ? 'Already Applied' : 'Apply Now'}
                   </Button>
                   <Button
                     variant="outline"
                     onClick={() => handleSaveOpportunity(selectedOpportunity.id)}
                   >
-                    <Bookmark className={`h-4 w-4 mr-2 ${savedOpportunities.includes(selectedOpportunity.id) ? 'fill-current' : ''}`} />
+                    <Bookmark
+                      className={`h-4 w-4 mr-2 ${savedOpportunities.includes(selectedOpportunity.id) ? 'fill-current' : ''}`}
+                    />
                     {savedOpportunities.includes(selectedOpportunity.id) ? 'Saved' : 'Save'}
                   </Button>
                   {selectedOpportunity.applicationLink && (
@@ -1013,6 +907,13 @@ export function OpportunitiesPage() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* New Modern Post Opportunity Modal */}
+      <PostOpportunityModal
+        isOpen={isPostDialogOpen}
+        onClose={() => setIsPostDialogOpen(false)}
+        onSubmit={handlePostOpportunity}
+      />
     </div>
   );
 }

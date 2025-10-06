@@ -21,7 +21,7 @@ router.get('/stories', protect, authorize('admin'), async (req, res, next) => {
         'u.last_name',
         'u.email',
         'u.avatar_url',
-        'p.title as project_title'
+        'p.title as project_title',
       ])
       .leftJoin('users as u', 'is.user_id', 'u.id')
       .leftJoin('projects as p', 'is.project_id', 'p.id');
@@ -51,9 +51,9 @@ router.get('/stories', protect, authorize('admin'), async (req, res, next) => {
       pagination: {
         page: parseInt(page),
         limit: parseInt(limit),
-        pages: Math.ceil(totalCount.count / limit)
+        pages: Math.ceil(totalCount.count / limit),
       },
-      data: stories
+      data: stories,
     });
   } catch (error) {
     next(error);
@@ -66,21 +66,14 @@ router.get('/stories', protect, authorize('admin'), async (req, res, next) => {
 router.post('/stories/:id/verify', protect, authorize('admin'), async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { 
-      is_verified, 
-      verification_notes, 
-      impact_score_adjustment,
-      is_featured 
-    } = req.body;
+    const { is_verified, verification_notes, impact_score_adjustment, is_featured } = req.body;
 
-    const story = await db('impact_stories')
-      .where({ id })
-      .first();
+    const story = await db('impact_stories').where({ id }).first();
 
     if (!story) {
       return res.status(404).json({
         success: false,
-        error: 'Story not found'
+        error: 'Story not found',
       });
     }
 
@@ -89,7 +82,7 @@ router.post('/stories/:id/verify', protect, authorize('admin'), async (req, res,
       verified_by: req.user.id,
       verified_at: new Date(),
       verification_notes,
-      updated_at: new Date()
+      updated_at: new Date(),
     };
 
     if (impact_score_adjustment !== undefined) {
@@ -103,13 +96,9 @@ router.post('/stories/:id/verify', protect, authorize('admin'), async (req, res,
       }
     }
 
-    await db('impact_stories')
-      .where({ id })
-      .update(updateData);
+    await db('impact_stories').where({ id }).update(updateData);
 
-    const updatedStory = await db('impact_stories')
-      .where({ id })
-      .first();
+    const updatedStory = await db('impact_stories').where({ id }).first();
 
     // Create feed item for verification
     if (is_verified) {
@@ -118,14 +107,14 @@ router.post('/stories/:id/verify', protect, authorize('admin'), async (req, res,
         title: `Story verified: ${story.title}`,
         description: verification_notes,
         related_story_id: id,
-        related_project_id: story.project_id
+        related_project_id: story.project_id,
       });
     }
 
     res.status(200).json({
       success: true,
       message: is_verified ? 'Story verified successfully' : 'Story verification updated',
-      data: updatedStory
+      data: updatedStory,
     });
   } catch (error) {
     next(error);
@@ -143,13 +132,7 @@ router.get('/metrics', protect, authorize('admin'), async (req, res, next) => {
     const offset = (page - 1) * limit;
 
     let query = db('impact_metrics as im')
-      .select([
-        'im.*',
-        'u.first_name',
-        'u.last_name',
-        'u.email',
-        'p.title as project_title'
-      ])
+      .select(['im.*', 'u.first_name', 'u.last_name', 'u.email', 'p.title as project_title'])
       .leftJoin('users as u', 'im.user_id', 'u.id')
       .leftJoin('projects as p', 'im.project_id', 'p.id');
 
@@ -176,9 +159,9 @@ router.get('/metrics', protect, authorize('admin'), async (req, res, next) => {
       pagination: {
         page: parseInt(page),
         limit: parseInt(limit),
-        pages: Math.ceil(totalCount.count / limit)
+        pages: Math.ceil(totalCount.count / limit),
       },
-      data: metrics
+      data: metrics,
     });
   } catch (error) {
     next(error);
@@ -191,21 +174,14 @@ router.get('/metrics', protect, authorize('admin'), async (req, res, next) => {
 router.post('/metrics/:id/verify', protect, authorize('admin'), async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { 
-      is_verified, 
-      verification_notes,
-      impact_score,
-      impact_description
-    } = req.body;
+    const { is_verified, verification_notes, impact_score, impact_description } = req.body;
 
-    const metric = await db('impact_metrics')
-      .where({ id })
-      .first();
+    const metric = await db('impact_metrics').where({ id }).first();
 
     if (!metric) {
       return res.status(404).json({
         success: false,
-        error: 'Metric not found'
+        error: 'Metric not found',
       });
     }
 
@@ -213,7 +189,7 @@ router.post('/metrics/:id/verify', protect, authorize('admin'), async (req, res,
       is_verified: is_verified !== undefined ? is_verified : true,
       verified_by: req.user.id,
       verified_at: new Date(),
-      updated_at: new Date()
+      updated_at: new Date(),
     };
 
     if (verification_notes) {
@@ -228,13 +204,9 @@ router.post('/metrics/:id/verify', protect, authorize('admin'), async (req, res,
       updateData.impact_description = impact_description;
     }
 
-    await db('impact_metrics')
-      .where({ id })
-      .update(updateData);
+    await db('impact_metrics').where({ id }).update(updateData);
 
-    const updatedMetric = await db('impact_metrics')
-      .where({ id })
-      .first();
+    const updatedMetric = await db('impact_metrics').where({ id }).first();
 
     // Create feed item for verification
     if (is_verified) {
@@ -243,14 +215,14 @@ router.post('/metrics/:id/verify', protect, authorize('admin'), async (req, res,
         title: `Metric verified: ${metric.name}`,
         description: verification_notes,
         related_metric_id: id,
-        related_project_id: metric.project_id
+        related_project_id: metric.project_id,
       });
     }
 
     res.status(200).json({
       success: true,
       message: is_verified ? 'Metric verified successfully' : 'Metric verification updated',
-      data: updatedMetric
+      data: updatedMetric,
     });
   } catch (error) {
     next(error);
@@ -270,14 +242,17 @@ router.get('/dashboard', protect, authorize('admin'), async (req, res, next) => 
       verifiedStories,
       verifiedMetrics,
       verificationStats,
-      recentVerifications
+      recentVerifications,
     ] = await Promise.all([
-      db('impact_stories').where({ is_verified: false, status: 'published' }).count('* as count').first(),
+      db('impact_stories')
+        .where({ is_verified: false, status: 'published' })
+        .count('* as count')
+        .first(),
       db('impact_metrics').where({ is_verified: false }).count('* as count').first(),
       db('impact_stories').where({ is_verified: true }).count('* as count').first(),
       db('impact_metrics').where({ is_verified: true }).count('* as count').first(),
       getVerificationStats(),
-      getRecentVerifications()
+      getRecentVerifications(),
     ]);
 
     res.status(200).json({
@@ -286,16 +261,16 @@ router.get('/dashboard', protect, authorize('admin'), async (req, res, next) => 
         pending: {
           stories: parseInt(pendingStories.count),
           metrics: parseInt(pendingMetrics.count),
-          total: parseInt(pendingStories.count) + parseInt(pendingMetrics.count)
+          total: parseInt(pendingStories.count) + parseInt(pendingMetrics.count),
         },
         verified: {
           stories: parseInt(verifiedStories.count),
           metrics: parseInt(verifiedMetrics.count),
-          total: parseInt(verifiedStories.count) + parseInt(verifiedMetrics.count)
+          total: parseInt(verifiedStories.count) + parseInt(verifiedMetrics.count),
         },
         stats: verificationStats,
-        recent_verifications: recentVerifications
-      }
+        recent_verifications: recentVerifications,
+      },
     });
   } catch (error) {
     next(error);
@@ -314,7 +289,7 @@ router.post('/stories/bulk-verify', protect, authorize('admin'), async (req, res
     if (!story_ids || !Array.isArray(story_ids) || story_ids.length === 0) {
       return res.status(400).json({
         success: false,
-        error: 'Story IDs array is required'
+        error: 'Story IDs array is required',
       });
     }
 
@@ -323,7 +298,7 @@ router.post('/stories/bulk-verify', protect, authorize('admin'), async (req, res
       verified_by: req.user.id,
       verified_at: new Date(),
       verification_notes,
-      updated_at: new Date()
+      updated_at: new Date(),
     };
 
     const updatedStories = await db('impact_stories')
@@ -336,8 +311,8 @@ router.post('/stories/bulk-verify', protect, authorize('admin'), async (req, res
       message: `${updatedStories.length} stories ${is_verified ? 'verified' : 'unverified'} successfully`,
       data: {
         updated_count: updatedStories.length,
-        stories: updatedStories
-      }
+        stories: updatedStories,
+      },
     });
   } catch (error) {
     next(error);
@@ -354,7 +329,7 @@ router.post('/metrics/bulk-verify', protect, authorize('admin'), async (req, res
     if (!metric_ids || !Array.isArray(metric_ids) || metric_ids.length === 0) {
       return res.status(400).json({
         success: false,
-        error: 'Metric IDs array is required'
+        error: 'Metric IDs array is required',
       });
     }
 
@@ -363,7 +338,7 @@ router.post('/metrics/bulk-verify', protect, authorize('admin'), async (req, res
       verified_by: req.user.id,
       verified_at: new Date(),
       verification_notes,
-      updated_at: new Date()
+      updated_at: new Date(),
     };
 
     const updatedMetrics = await db('impact_metrics')
@@ -376,8 +351,8 @@ router.post('/metrics/bulk-verify', protect, authorize('admin'), async (req, res
       message: `${updatedMetrics.length} metrics ${is_verified ? 'verified' : 'unverified'} successfully`,
       data: {
         updated_count: updatedMetrics.length,
-        metrics: updatedMetrics
-      }
+        metrics: updatedMetrics,
+      },
     });
   } catch (error) {
     next(error);
@@ -399,7 +374,7 @@ router.get('/report', protect, authorize('admin'), async (req, res, next) => {
         'u.first_name',
         'u.last_name',
         'verifier.first_name as verifier_first_name',
-        'verifier.last_name as verifier_last_name'
+        'verifier.last_name as verifier_last_name',
       ])
       .leftJoin('users as u', 'is.user_id', 'u.id')
       .leftJoin('users as verifier', 'is.verified_by', 'verifier.id')
@@ -419,11 +394,11 @@ router.get('/report', protect, authorize('admin'), async (req, res, next) => {
       by_category: {},
       by_verifier: {},
       average_impact_score: 0,
-      total_beneficiaries: 0
+      total_beneficiaries: 0,
     };
 
     // Calculate summary statistics
-    verifiedStories.forEach(story => {
+    verifiedStories.forEach((story) => {
       // By category
       if (!verificationSummary.by_category[story.category]) {
         verificationSummary.by_category[story.category] = 0;
@@ -431,8 +406,9 @@ router.get('/report', protect, authorize('admin'), async (req, res, next) => {
       verificationSummary.by_category[story.category]++;
 
       // By verifier
-      const verifierName = story.verifier_first_name ? 
-        `${story.verifier_first_name} ${story.verifier_last_name}` : 'Unknown';
+      const verifierName = story.verifier_first_name
+        ? `${story.verifier_first_name} ${story.verifier_last_name}`
+        : 'Unknown';
       if (!verificationSummary.by_verifier[verifierName]) {
         verificationSummary.by_verifier[verifierName] = 0;
       }
@@ -446,21 +422,29 @@ router.get('/report', protect, authorize('admin'), async (req, res, next) => {
     });
 
     if (verifiedStories.length > 0) {
-      verificationSummary.average_impact_score = 
-        (verificationSummary.average_impact_score / verifiedStories.length).toFixed(1);
+      verificationSummary.average_impact_score = (
+        verificationSummary.average_impact_score / verifiedStories.length
+      ).toFixed(1);
     }
 
     if (format === 'csv') {
       // Generate CSV report
-      const csvHeader = 'Title,Category,Author,Verifier,Verified At,Impact Score,Beneficiaries,Verification Notes\n';
-      const csvRows = verifiedStories.map(story => 
-        `"${story.title}","${story.category}","${story.first_name} ${story.last_name}","${story.verifier_first_name} ${story.verifier_last_name}","${story.verified_at}","${story.impact_score || ''}","${story.beneficiaries_count || 0}","${story.verification_notes || ''}"`
-      ).join('\n');
-      
+      const csvHeader =
+        'Title,Category,Author,Verifier,Verified At,Impact Score,Beneficiaries,Verification Notes\n';
+      const csvRows = verifiedStories
+        .map(
+          (story) =>
+            `"${story.title}","${story.category}","${story.first_name} ${story.last_name}","${story.verifier_first_name} ${story.verifier_last_name}","${story.verified_at}","${story.impact_score || ''}","${story.beneficiaries_count || 0}","${story.verification_notes || ''}"`,
+        )
+        .join('\n');
+
       const csv = csvHeader + csvRows;
-      
+
       res.setHeader('Content-Type', 'text/csv');
-      res.setHeader('Content-Disposition', `attachment; filename="verification_report_${new Date().toISOString().split('T')[0]}.csv"`);
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename="verification_report_${new Date().toISOString().split('T')[0]}.csv"`,
+      );
       res.send(csv);
     } else {
       res.status(200).json({
@@ -472,10 +456,10 @@ router.get('/report', protect, authorize('admin'), async (req, res, next) => {
             generated_at: new Date(),
             period: {
               start: period_start,
-              end: period_end
-            }
-          }
-        }
+              end: period_end,
+            },
+          },
+        },
       });
     }
   } catch (error) {
@@ -489,7 +473,7 @@ async function createVerificationFeedItem(userId, feedData) {
     await db('impact_feed').insert({
       user_id: userId,
       ...feedData,
-      published_at: new Date()
+      published_at: new Date(),
     });
   } catch (error) {
     console.error('Failed to create verification feed item:', error);
@@ -497,26 +481,21 @@ async function createVerificationFeedItem(userId, feedData) {
 }
 
 async function getVerificationStats() {
-  const [
-    totalStories,
-    verifiedStories,
-    totalMetrics,
-    verifiedMetrics,
-    avgImpactScore
-  ] = await Promise.all([
-    db('impact_stories').where({ status: 'published' }).count('* as count').first(),
-    db('impact_stories').where({ is_verified: true }).count('* as count').first(),
-    db('impact_metrics').count('* as count').first(),
-    db('impact_metrics').where({ is_verified: true }).count('* as count').first(),
-    db('impact_stories').where({ is_verified: true }).avg('impact_score as avg').first()
-  ]);
+  const [totalStories, verifiedStories, totalMetrics, verifiedMetrics, avgImpactScore] =
+    await Promise.all([
+      db('impact_stories').where({ status: 'published' }).count('* as count').first(),
+      db('impact_stories').where({ is_verified: true }).count('* as count').first(),
+      db('impact_metrics').count('* as count').first(),
+      db('impact_metrics').where({ is_verified: true }).count('* as count').first(),
+      db('impact_stories').where({ is_verified: true }).avg('impact_score as avg').first(),
+    ]);
 
   return {
-    stories_verification_rate: totalStories.count > 0 ? 
-      (verifiedStories.count / totalStories.count * 100).toFixed(1) : 0,
-    metrics_verification_rate: totalMetrics.count > 0 ? 
-      (verifiedMetrics.count / totalMetrics.count * 100).toFixed(1) : 0,
-    average_verified_impact_score: parseFloat(avgImpactScore.avg) || 0
+    stories_verification_rate:
+      totalStories.count > 0 ? ((verifiedStories.count / totalStories.count) * 100).toFixed(1) : 0,
+    metrics_verification_rate:
+      totalMetrics.count > 0 ? ((verifiedMetrics.count / totalMetrics.count) * 100).toFixed(1) : 0,
+    average_verified_impact_score: parseFloat(avgImpactScore.avg) || 0,
   };
 }
 
@@ -529,7 +508,7 @@ async function getRecentVerifications() {
       'u.first_name',
       'u.last_name',
       'verifier.first_name as verifier_first_name',
-      'verifier.last_name as verifier_last_name'
+      'verifier.last_name as verifier_last_name',
     ])
     .leftJoin('users as u', 'is.user_id', 'u.id')
     .leftJoin('users as verifier', 'is.verified_by', 'verifier.id')

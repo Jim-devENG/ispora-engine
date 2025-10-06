@@ -1,5 +1,5 @@
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Users, FolderOpen, Star, UserCheck, CheckCircle, Clock, UserPlus } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Users, FolderOpen, Star, UserCheck, CheckCircle, Clock, UserPlus } from 'lucide-react';
 
 interface MetricCardProps {
   title: string;
@@ -14,9 +14,7 @@ function MetricCard({ title, value, subtitle, icon, iconColor }: MetricCardProps
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium">{title}</CardTitle>
-        <div className={`h-4 w-4 ${iconColor}`}>
-          {icon}
-        </div>
+        <div className={`h-4 w-4 ${iconColor}`}>{icon}</div>
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold">{value}</div>
@@ -53,7 +51,7 @@ function ProjectsContributedCard() {
               <p className="text-xs text-muted-foreground">completed</p>
             </div>
           </div>
-          
+
           {/* Progress indicator */}
           <div className="space-y-1">
             <div className="flex justify-between text-xs text-muted-foreground">
@@ -61,8 +59,8 @@ function ProjectsContributedCard() {
               <span>71% completion rate</span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-1.5">
-              <div 
-                className="bg-gradient-to-r from-green-500 to-green-600 h-1.5 rounded-full transition-all duration-500" 
+              <div
+                className="bg-gradient-to-r from-green-500 to-green-600 h-1.5 rounded-full transition-all duration-500"
                 style={{ width: '71%' }}
               ></div>
             </div>
@@ -103,7 +101,7 @@ function MentorshipSessionsCard() {
               <p className="text-xs text-muted-foreground">completed</p>
             </div>
           </div>
-          
+
           {/* Progress indicator */}
           <div className="space-y-1">
             <div className="flex justify-between text-xs text-muted-foreground">
@@ -111,8 +109,8 @@ function MentorshipSessionsCard() {
               <span>80% completion rate</span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-1.5">
-              <div 
-                className="bg-gradient-to-r from-blue-500 to-blue-600 h-1.5 rounded-full transition-all duration-500" 
+              <div
+                className="bg-gradient-to-r from-blue-500 to-blue-600 h-1.5 rounded-full transition-all duration-500"
                 style={{ width: '80%' }}
               ></div>
             </div>
@@ -153,7 +151,7 @@ function MenteesReachedCard() {
               <p className="text-xs text-muted-foreground">requests</p>
             </div>
           </div>
-          
+
           {/* Summary */}
           <div className="space-y-1">
             <div className="flex justify-between text-xs text-muted-foreground">
@@ -161,8 +159,8 @@ function MenteesReachedCard() {
               <span>75% engaged</span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-1.5">
-              <div 
-                className="bg-gradient-to-r from-orange-500 to-orange-600 h-1.5 rounded-full transition-all duration-500" 
+              <div
+                className="bg-gradient-to-r from-orange-500 to-orange-600 h-1.5 rounded-full transition-all duration-500"
                 style={{ width: '75%' }}
               ></div>
             </div>
@@ -178,13 +176,13 @@ export function ImpactOverviewCards() {
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       {/* Projects Contributed card - First position */}
       <ProjectsContributedCard />
-      
+
       {/* Mentorship Sessions card - Second position */}
       <MentorshipSessionsCard />
-      
+
       {/* Mentees Reached card - Third position */}
       <MenteesReachedCard />
-      
+
       {/* Credits Earned card - Fourth position */}
       <MetricCard
         title="Credits Earned"

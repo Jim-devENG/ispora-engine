@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import {
   Plus,
   Search,
@@ -31,16 +31,21 @@ import {
   Shield,
   TreePine,
   Zap as Energy,
-  Calendar
-} from "lucide-react";
-import { useNavigation } from "./NavigationContext";
-import { Card, CardContent, CardHeader } from "./ui/card";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Badge } from "./ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
-import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
+  Calendar,
+} from 'lucide-react';
+import { useNavigation } from './NavigationContext';
+import { Card, CardContent, CardHeader } from './ui/card';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Badge } from './ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from './ui/dropdown-menu';
+import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 
 interface Project {
   id: string;
@@ -75,28 +80,64 @@ interface ProjectDashboardProps {
 
 // Project field categories (domain-specific fields)
 const traditionalCategories = [
-  { id: "education", label: "Education", icon: BookOpen },
-  { id: "healthcare", label: "Healthcare", icon: Stethoscope },
-  { id: "agriculture", label: "Agriculture", icon: Sprout },
-  { id: "technology", label: "Technology", icon: Zap },
-  { id: "environment", label: "Environment", icon: TreePine },
-  { id: "energy", label: "Energy", icon: Energy },
-  { id: "manufacturing", label: "Manufacturing", icon: Factory },
-  { id: "arts-culture", label: "Arts & Culture", icon: Palette },
-  { id: "social-services", label: "Social Services", icon: Heart },
-  { id: "security", label: "Security & Defense", icon: Shield },
-  { id: "entrepreneurship", label: "Entrepreneurship", icon: Lightbulb },
-  { id: "research", label: "Research & Development", icon: FileText }
+  { id: 'education', label: 'Education', icon: BookOpen },
+  { id: 'healthcare', label: 'Healthcare', icon: Stethoscope },
+  { id: 'agriculture', label: 'Agriculture', icon: Sprout },
+  { id: 'technology', label: 'Technology', icon: Zap },
+  { id: 'environment', label: 'Environment', icon: TreePine },
+  { id: 'energy', label: 'Energy', icon: Energy },
+  { id: 'manufacturing', label: 'Manufacturing', icon: Factory },
+  { id: 'arts-culture', label: 'Arts & Culture', icon: Palette },
+  { id: 'social-services', label: 'Social Services', icon: Heart },
+  { id: 'security', label: 'Security & Defense', icon: Shield },
+  { id: 'entrepreneurship', label: 'Entrepreneurship', icon: Lightbulb },
+  { id: 'research', label: 'Research & Development', icon: FileText },
 ];
 
 // High-level categories for tabs/chips
 const aspiraCategories = [
-  { id: "all", label: "All Projects", icon: Folder, color: "bg-gray-100 text-gray-700 hover:bg-gray-200", darkColor: "dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700" },
-  { id: "mentorship", label: "Mentorship & Coaching", icon: Users, color: "bg-orange-100 text-orange-700 hover:bg-orange-200", darkColor: "dark:bg-orange-900 dark:text-orange-200 dark:hover:bg-orange-800" },
-  { id: "academic", label: "Academic & Research Projects", icon: BookOpen, color: "bg-blue-100 text-blue-700 hover:bg-blue-200", darkColor: "dark:bg-blue-900 dark:text-blue-200 dark:hover:bg-blue-800" },
-  { id: "career", label: "Career & Entrepreneurship", icon: Briefcase, color: "bg-amber-100 text-amber-700 hover:bg-amber-200", darkColor: "dark:bg-amber-900 dark:text-amber-200 dark:hover:bg-amber-800" },
-  { id: "community", label: "Community Impact Projects", icon: Heart, color: "bg-green-100 text-green-700 hover:bg-green-200", darkColor: "dark:bg-green-900 dark:text-green-200 dark:hover:bg-green-800" },
-  { id: "collaboration", label: "Collaboration & Innovation Projects", icon: Lightbulb, color: "bg-yellow-100 text-yellow-700 hover:bg-yellow-200", darkColor: "dark:bg-yellow-900 dark:text-yellow-200 dark:hover:bg-yellow-800" },
+  {
+    id: 'all',
+    label: 'All Projects',
+    icon: Folder,
+    color: 'bg-gray-100 text-gray-700 hover:bg-gray-200',
+    darkColor: 'dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700',
+  },
+  {
+    id: 'mentorship',
+    label: 'Mentorship & Coaching',
+    icon: Users,
+    color: 'bg-orange-100 text-orange-700 hover:bg-orange-200',
+    darkColor: 'dark:bg-orange-900 dark:text-orange-200 dark:hover:bg-orange-800',
+  },
+  {
+    id: 'academic',
+    label: 'Academic & Research Projects',
+    icon: BookOpen,
+    color: 'bg-blue-100 text-blue-700 hover:bg-blue-200',
+    darkColor: 'dark:bg-blue-900 dark:text-blue-200 dark:hover:bg-blue-800',
+  },
+  {
+    id: 'career',
+    label: 'Career & Entrepreneurship',
+    icon: Briefcase,
+    color: 'bg-amber-100 text-amber-700 hover:bg-amber-200',
+    darkColor: 'dark:bg-amber-900 dark:text-amber-200 dark:hover:bg-amber-800',
+  },
+  {
+    id: 'community',
+    label: 'Community Impact Projects',
+    icon: Heart,
+    color: 'bg-green-100 text-green-700 hover:bg-green-200',
+    darkColor: 'dark:bg-green-900 dark:text-green-200 dark:hover:bg-green-800',
+  },
+  {
+    id: 'collaboration',
+    label: 'Collaboration & Innovation Projects',
+    icon: Lightbulb,
+    color: 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200',
+    darkColor: 'dark:bg-yellow-900 dark:text-yellow-200 dark:hover:bg-yellow-800',
+  },
 ];
 
 // Helper function to get a date within the last 7 days
@@ -105,40 +146,56 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://ispora-backend.onr
 
 // All demo projects removed – projects will be loaded from API
 
-function ProjectCard({ project, onView, onEdit }: { 
-  project: Project; 
+function ProjectCard({
+  project,
+  onView,
+  onEdit,
+}: {
+  project: Project;
   onView?: (id: string) => void;
   onEdit?: (id: string) => void;
 }) {
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'active': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
-      case 'still-open': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
-      case 'closed': return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
-      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
+      case 'active':
+        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+      case 'still-open':
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
+      case 'closed':
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
+      default:
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'active': return <PlayCircle className="h-4 w-4" />;
-      case 'still-open': return <DoorOpen className="h-4 w-4" />;
-      case 'closed': return <XCircle className="h-4 w-4" />;
-      default: return <AlertCircle className="h-4 w-4" />;
+      case 'active':
+        return <PlayCircle className="h-4 w-4" />;
+      case 'still-open':
+        return <DoorOpen className="h-4 w-4" />;
+      case 'closed':
+        return <XCircle className="h-4 w-4" />;
+      default:
+        return <AlertCircle className="h-4 w-4" />;
     }
   };
 
   const getStatusLabel = (status: string) => {
     switch (status) {
-      case 'active': return 'Active';
-      case 'still-open': return 'Still Open';
-      case 'closed': return 'Closed';
-      default: return status;
+      case 'active':
+        return 'Active';
+      case 'still-open':
+        return 'Still Open';
+      case 'closed':
+        return 'Closed';
+      default:
+        return status;
     }
   };
 
   const getCategoryIcon = (category: string) => {
-    const categoryConfig = traditionalCategories.find(c => c.id === category);
+    const categoryConfig = traditionalCategories.find((c) => c.id === category);
     if (categoryConfig) {
       const Icon = categoryConfig.icon;
       return <Icon className="h-3 w-3" />;
@@ -148,17 +205,17 @@ function ProjectCard({ project, onView, onEdit }: {
 
   const formatDateInfo = (project: Project) => {
     const now = new Date();
-    
+
     if (project.status === 'still-open') {
       // Show "started X days ago"
       const startDate = new Date(project.startDate);
       const diffTime = now.getTime() - startDate.getTime();
       const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-      
+
       if (diffDays === 0) {
-        return "Started today";
+        return 'Started today';
       } else if (diffDays === 1) {
-        return "Started yesterday";
+        return 'Started yesterday';
       } else {
         return `Started ${diffDays} days ago`;
       }
@@ -168,49 +225,49 @@ function ProjectCard({ project, onView, onEdit }: {
       const day = deadline.getDate().toString().padStart(2, '0');
       const month = (deadline.getMonth() + 1).toString().padStart(2, '0');
       const year = deadline.getFullYear();
-      
+
       return `Deadline: ${day}/${month}/${year}`;
     } else if (project.status === 'closed' && project.closedDate) {
       // Show "closed X days ago"
       const closedDate = new Date(project.closedDate);
       const diffTime = now.getTime() - closedDate.getTime();
       const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-      
+
       if (diffDays === 0) {
-        return "Closed today";
+        return 'Closed today';
       } else if (diffDays === 1) {
-        return "Closed yesterday";
+        return 'Closed yesterday';
       } else {
         return `Closed ${diffDays} days ago`;
       }
     }
-    
-    return "";
+
+    return '';
   };
 
   const getDateColor = (project: Project) => {
     if (project.status === 'still-open') {
-      return "text-blue-600";
+      return 'text-blue-600';
     } else if (project.status === 'active') {
       const deadline = new Date(project.deadline);
       const now = new Date();
       const diffTime = deadline.getTime() - now.getTime();
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      
+
       if (diffDays < 0) {
-        return "text-red-600";
+        return 'text-red-600';
       } else if (diffDays <= 3) {
-        return "text-red-600";
+        return 'text-red-600';
       } else if (diffDays <= 7) {
-        return "text-orange-600";
+        return 'text-orange-600';
       } else {
-        return "text-green-600";
+        return 'text-green-600';
       }
     } else if (project.status === 'closed') {
-      return "text-red-600";
+      return 'text-red-600';
     }
-    
-    return "text-muted-foreground";
+
+    return 'text-muted-foreground';
   };
 
   return (
@@ -223,10 +280,12 @@ function ProjectCard({ project, onView, onEdit }: {
                 {getStatusIcon(project.status)}
                 <span className="ml-1">{getStatusLabel(project.status)}</span>
               </Badge>
-              
+
               <Badge className="glass-effect border-white/30 text-slate-700 text-xs px-2 py-1 rounded-lg">
                 {getCategoryIcon(project.category)}
-                <span className="ml-1">{traditionalCategories.find(c => c.id === project.category)?.label}</span>
+                <span className="ml-1">
+                  {traditionalCategories.find((c) => c.id === project.category)?.label}
+                </span>
               </Badge>
 
               {project.mentorshipConnection && (
@@ -255,15 +314,16 @@ function ProjectCard({ project, onView, onEdit }: {
             <h3 className="font-semibold mb-1 group-hover:text-blue-600 transition-colors text-sm line-clamp-1">
               {project.title}
             </h3>
-            <p className="text-xs text-muted-foreground mb-2 line-clamp-2">
-              {project.description}
-            </p>
-            
+            <p className="text-xs text-muted-foreground mb-2 line-clamp-2">{project.description}</p>
+
             {project.seekingSupport.length > 0 && (
               <div className="mb-2">
                 <div className="flex flex-wrap gap-1">
                   {project.seekingSupport.slice(0, 2).map((support) => (
-                    <Badge key={support} className="text-xs bg-amber-50 text-amber-700 px-2 py-0.5 rounded-lg">
+                    <Badge
+                      key={support}
+                      className="text-xs bg-amber-50 text-amber-700 px-2 py-0.5 rounded-lg"
+                    >
                       {support.replace('-', ' ')}
                     </Badge>
                   ))}
@@ -285,7 +345,7 @@ function ProjectCard({ project, onView, onEdit }: {
                   </div>
                 )}
               </div>
-              
+
               <div className={`flex items-center gap-1 ${getDateColor(project)}`}>
                 <Calendar className="h-3 w-3" />
                 <span className="font-medium truncate">{formatDateInfo(project)}</span>
@@ -335,8 +395,8 @@ function ProjectCard({ project, onView, onEdit }: {
         </div>
 
         <div className="flex gap-2">
-          <Button 
-            size="sm" 
+          <Button
+            size="sm"
             className="flex-1 bg-[#021ff6] hover:bg-[#021ff6]/90"
             onClick={() => onView?.(project.id)}
           >
@@ -354,11 +414,11 @@ function ProjectCard({ project, onView, onEdit }: {
 
 export function ProjectDashboard({ onCreateProject, onViewProject }: ProjectDashboardProps) {
   const { navigate } = useNavigation();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("all");
-  const [sortBy, setSortBy] = useState("recent");
-  const [filterStatus, setFilterStatus] = useState("all");
-  const [filterField, setFilterField] = useState("all");
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [sortBy, setSortBy] = useState('recent');
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [filterField, setFilterField] = useState('all');
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -385,7 +445,7 @@ export function ProjectDashboard({ onCreateProject, onViewProject }: ProjectDash
         const url = `${API_BASE_URL}/projects${params.toString() ? `?${params.toString()}` : ''}`;
         const res = await fetch(url, { headers, signal: controller.signal });
         const json = await res.json();
-        setProjects(Array.isArray(json.data) ? json.data : (Array.isArray(json) ? json : []));
+        setProjects(Array.isArray(json.data) ? json.data : Array.isArray(json) ? json : []);
       } catch (e: any) {
         setError('Failed to load projects');
         setProjects([]);
@@ -395,30 +455,37 @@ export function ProjectDashboard({ onCreateProject, onViewProject }: ProjectDash
     };
     load();
     const id = setInterval(load, 30000);
-    return () => { controller.abort(); clearInterval(id); };
+    return () => {
+      controller.abort();
+      clearInterval(id);
+    };
   }, [filterStatus, filterField, selectedCategory, searchQuery]);
 
-  const filteredProjects = projects
-    .filter(project => {
-      const matchesSearch = 
-        project.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        project.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        project.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
-      
-      const projectType = (project as any).aspiraCategory || (project as any).type || project.category;
-      const matchesCategory = selectedCategory === "all" || projectType === selectedCategory;
-      const matchesStatus = filterStatus === "all" || project.status === filterStatus;
-      const matchesField = filterField === "all" || project.category === filterField || project.type === filterField;
-      
-      return matchesSearch && matchesCategory && matchesStatus && matchesField;
-    });
+  const filteredProjects = projects.filter((project) => {
+    const matchesSearch =
+      project.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      project.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      project.tags.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()));
 
-  const categoryStats = aspiraCategories.map(category => ({
+    const projectType =
+      (project as any).aspiraCategory || (project as any).type || project.category;
+    const matchesCategory = selectedCategory === 'all' || projectType === selectedCategory;
+    const matchesStatus = filterStatus === 'all' || project.status === filterStatus;
+    const matchesField =
+      filterField === 'all' || project.category === filterField || project.type === filterField;
+
+    return matchesSearch && matchesCategory && matchesStatus && matchesField;
+  });
+
+  const categoryStats = aspiraCategories.map((category) => ({
     ...category,
-    count: category.id === 'all' ? projects.length : projects.filter(p => {
-      const t = (p as any).aspiraCategory || (p as any).type || p.category;
-      return t === category.id;
-    }).length
+    count:
+      category.id === 'all'
+        ? projects.length
+        : projects.filter((p) => {
+            const t = (p as any).aspiraCategory || (p as any).type || p.category;
+            return t === category.id;
+          }).length,
   }));
 
   return (
@@ -432,8 +499,8 @@ export function ProjectDashboard({ onCreateProject, onViewProject }: ProjectDash
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               className="border-[#021ff6] text-[#021ff6] hover:bg-[#021ff6]/10"
               onClick={() => navigate('My Projects')}
             >
@@ -454,12 +521,12 @@ export function ProjectDashboard({ onCreateProject, onViewProject }: ProjectDash
             return (
               <Button
                 key={cat.id}
-                variant={isActive ? "default" : "outline"}
+                variant={isActive ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setSelectedCategory(cat.id)}
                 className={`flex-shrink-0 ${
-                  isActive 
-                    ? 'bg-[#021ff6] hover:bg-[#021ff6]/90' 
+                  isActive
+                    ? 'bg-[#021ff6] hover:bg-[#021ff6]/90'
                     : `${cat.color} ${cat.darkColor} border-transparent`
                 }`}
               >
@@ -488,7 +555,7 @@ export function ProjectDashboard({ onCreateProject, onViewProject }: ProjectDash
                 />
               </div>
             </div>
-            
+
             <Select value={filterField} onValueChange={setFilterField}>
               <SelectTrigger className="w-32">
                 <SelectValue placeholder="All Fields" />
@@ -498,7 +565,7 @@ export function ProjectDashboard({ onCreateProject, onViewProject }: ProjectDash
                 {/* Dynamic options could be added here if backend provides categories */}
               </SelectContent>
             </Select>
-            
+
             <Select value={filterStatus} onValueChange={setFilterStatus}>
               <SelectTrigger className="w-32">
                 <SelectValue placeholder="Status" />
@@ -535,7 +602,7 @@ export function ProjectDashboard({ onCreateProject, onViewProject }: ProjectDash
             ))}
           </div>
 
-          {(!loading && filteredProjects.length === 0) && (
+          {!loading && filteredProjects.length === 0 && (
             <div className="text-center py-12">
               <Folder className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-medium text-foreground mb-2">No projects found</h3>

@@ -1,32 +1,36 @@
-import React, { useState, useEffect } from "react";
-import { Sidebar } from "./Sidebar";
-import { Dashboard } from "./Dashboard";
-import { ProfilePage } from "./ProfilePage";
-import { SettingsPage } from "./SettingsPage";
-import { NotificationsPage } from "./NotificationsPage";
-import { BillingPage } from "./BillingPage";
-import { SecurityPage } from "./SecurityPage";
-import { HelpSupportPage } from "./HelpSupportPage";
-import { CampaignDetail } from "./CampaignDetail";
-import { CreateCampaign } from "./CreateCampaign";
-import { MentorshipWorkspace } from "./MentorshipWorkspace";
-import { ProjectWorkspace } from "./ProjectWorkspace";
-import { ProjectDashboard } from "./ProjectDashboard";
-import { ProjectDetail } from "./ProjectDetail";
-import { CreateProject } from "./CreateProject";
-import { MyProjects } from "./MyProjects";
-import { OpportunitiesPage } from "./OpportunitiesPage";
-import { AdminDashboard } from "./AdminDashboard";
-import { NavigationProvider, useNavigation } from "./NavigationContext";
-import { ThemeProvider } from "./ThemeProvider";
-import { SessionNotifications } from "./SessionNotifications";
-import { Menu, X, ChevronLeft, ChevronRight } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
-import { Toaster } from "./ui/sonner";
+import React, { useState, useEffect } from 'react';
+import { Sidebar } from './Sidebar';
+import { Dashboard } from './Dashboard';
+import { ProfilePage } from './ProfilePage';
+import { SettingsPage } from './SettingsPage';
+import { NotificationsPage } from './NotificationsPage';
+import { BillingPage } from './BillingPage';
+import { SecurityPage } from './SecurityPage';
+import { HelpSupportPage } from './HelpSupportPage';
+import { CampaignDetail } from './CampaignDetail';
+import { CreateCampaign } from './CreateCampaign';
+import { MentorshipWorkspace } from './MentorshipWorkspace';
+import { ProjectWorkspace } from './ProjectWorkspace';
+import { ProjectDashboard } from './ProjectDashboard';
+import { ProjectDetail } from './ProjectDetail';
+import { CreateProject } from './CreateProject';
+import { MyProjects } from './MyProjects';
+import { OpportunitiesPage } from './OpportunitiesPage';
+import { AdminDashboard } from './AdminDashboard';
+import { NavigationProvider, useNavigation } from './NavigationContext';
+import { ThemeProvider } from './ThemeProvider';
+import { SessionNotifications } from './SessionNotifications';
+import { Menu, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
+import { Toaster } from './ui/sonner';
+import { MobileNavigation } from '../src/components/MobileNavigation';
+import { MobileBottomNav } from '../src/components/MobileBottomNav';
+import { MobileViewport } from '../src/components/MobileViewport';
+import { useMobile } from '../src/hooks/useMobile';
 
 function MainContent() {
   const { currentPage, setCurrentPage, selectedProject } = useNavigation();
-  
+
   // Handle campaign navigation from mentorship workspace
   const handleNavigateToCampaign = (campaignId: string) => {
     // You could store the campaignId in context or pass it differently
@@ -50,7 +54,7 @@ function MainContent() {
   const handleJoinProject = (projectId: string, role: string, area: string) => {
     // Navigate to appropriate area based on role and project type
     console.log('Joining project:', { projectId, role, area });
-    
+
     switch (area) {
       case 'mentorship':
       case 'workroom':
@@ -75,7 +79,7 @@ function MainContent() {
         setCurrentPage('Project Dashboard');
     }
   };
-  
+
   switch (currentPage) {
     case 'Profile':
       return <ProfilePage />;
@@ -97,7 +101,7 @@ function MainContent() {
       return <MyProjects />;
     case 'Workroom':
       return (
-        <ProjectWorkspace 
+        <ProjectWorkspace
           onNavigateToCampaign={handleNavigateToCampaign}
           onCreateCampaign={handleCreateCampaign}
           onBackToProjects={() => setCurrentPage('Project Dashboard')}
@@ -107,7 +111,7 @@ function MainContent() {
     case 'Mentorship':
     case 'Mentorship Workspace':
       return (
-        <MentorshipWorkspace 
+        <MentorshipWorkspace
           onNavigateToCampaign={handleNavigateToCampaign}
           onCreateCampaign={handleCreateCampaign}
         />
@@ -115,20 +119,19 @@ function MainContent() {
     case 'Projects':
     case 'Project Dashboard':
       return (
-        <ProjectDashboard 
-          onCreateProject={handleCreateProject}
-          onViewProject={handleViewProject}
-        />
+        <ProjectDashboard onCreateProject={handleCreateProject} onViewProject={handleViewProject} />
       );
     case 'Project Detail':
-      return <ProjectDetail 
-        projectId="1" 
-        onBack={() => setCurrentPage('Project Dashboard')}
-        onJoinProject={handleJoinProject}
-      />;
+      return (
+        <ProjectDetail
+          projectId="1"
+          onBack={() => setCurrentPage('Project Dashboard')}
+          onJoinProject={handleJoinProject}
+        />
+      );
     case 'Create Project':
       return (
-        <CreateProject 
+        <CreateProject
           onBack={() => setCurrentPage('Project Dashboard')}
           onSave={(projectData) => {
             console.log('Project created:', projectData);
@@ -149,31 +152,11 @@ function MainContent() {
 
 function LayoutContent() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-  const { currentPage } = useNavigation();
+  const { isMobile } = useMobile();
+  const { currentPage, setCurrentPage } = useNavigation();
 
   // Define workroom pages that should have collapsed sidebar
-  const workroomPages = [
-    'Workroom',
-    'Mentorship',
-    'Mentorship Workspace'
-  ];
-
-  // Check for mobile screen size
-  useEffect(() => {
-    const checkMobile = () => {
-      const mobile = window.innerWidth < 768;
-      setIsMobile(mobile);
-      if (mobile) {
-        setIsSidebarCollapsed(true);
-      }
-    };
-    
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
+  const workroomPages = ['Workroom', 'Mentorship', 'Mentorship Workspace'];
 
   // Keep sidebar open in Workroom on desktop
   useEffect(() => {
@@ -197,62 +180,41 @@ function LayoutContent() {
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isSidebarCollapsed, isMobile]);
-  
+
   const sidebarWidth = isSidebarCollapsed ? 60 : 220;
 
   const handleToggleSidebar = () => {
-    if (isMobile) {
-      setIsMobileMenuOpen(false);
-    } else {
-      setIsSidebarCollapsed(!isSidebarCollapsed);
-    }
+    setIsSidebarCollapsed(!isSidebarCollapsed);
   };
 
   return (
-    <div className="h-screen w-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex overflow-hidden relative">
-      {/* Modern Background Pattern */}
-      <div className="absolute inset-0 bg-pattern opacity-20"></div>
-      
-      {/* Mobile Menu Button */}
-      {isMobile && (
-        <button
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="absolute top-4 left-4 z-30 glass-effect shadow-blue hover:shadow-blue-lg h-12 w-12 p-0 rounded-2xl flex items-center justify-center transition-all duration-300 hover:scale-110"
+    <MobileViewport>
+      <div className="h-screen w-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex overflow-hidden relative">
+        {/* Modern Background Pattern */}
+        <div className="absolute inset-0 bg-pattern opacity-20"></div>
+
+      {/* Mobile Navigation */}
+      <MobileNavigation 
+        currentPage={currentPage} 
+        onNavigate={setCurrentPage} 
+      />
+
+      {/* Desktop Sidebar */}
+      {!isMobile && (
+        <div
+          className="flex-shrink-0 transition-all duration-300 ease-in-out z-10 relative"
+          style={{ width: `${sidebarWidth}px` }}
         >
-          {isMobileMenuOpen ? (
-            <X className="h-6 w-6 text-gray-700" />
-          ) : (
-            <Menu className="h-6 w-6 text-gray-700" />
-          )}
-        </button>
+          <Sidebar
+            isCollapsed={isSidebarCollapsed}
+            onToggle={handleToggleSidebar}
+          />
+        </div>
       )}
-
-      {/* Mobile Overlay */}
-      {isMobile && isMobileMenuOpen && (
-        <div 
-          className="absolute inset-0 bg-black/30 backdrop-blur-sm z-20"
-          onClick={() => setIsMobileMenuOpen(false)}
-        />
-      )}
-
-      {/* Sidebar */}
-      <div 
-        className={`flex-shrink-0 transition-all duration-300 ease-in-out z-10 ${
-          isMobile 
-            ? `absolute top-0 left-0 h-full ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`
-            : 'relative'
-        }`}
-        style={{ width: isMobile ? '280px' : `${sidebarWidth}px` }}
-      >
-        <Sidebar 
-          isCollapsed={isMobile ? false : isSidebarCollapsed}
-          onToggle={handleToggleSidebar}
-        />
-      </div>
 
       {/* Sidebar Toggle Button - Positioned on the dividing line */}
       {!isMobile && (
-        <div 
+        <div
           className="absolute top-1/2 z-10 transform -translate-y-1/2 transition-all duration-300 ease-in-out"
           style={{ left: `${sidebarWidth - 12}px` }}
         >
@@ -270,20 +232,29 @@ function LayoutContent() {
               </button>
             </TooltipTrigger>
             <TooltipContent side="right" className="font-medium">
-              {isSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+              {isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
               <span className="text-xs text-muted-foreground ml-2">Ctrl+B</span>
             </TooltipContent>
           </Tooltip>
         </div>
       )}
-      
+
       {/* Main Content - Fixed the scrolling issue here */}
       <div className="flex-1 overflow-y-auto overflow-x-hidden relative modern-scrollbar scrollbar-beautiful">
         <div className="animate-fade-in bg-white/80 backdrop-blur-sm min-h-full">
           <MainContent />
         </div>
+        
+        {/* Mobile Bottom Navigation */}
+        {isMobile && (
+          <MobileBottomNav 
+            currentPage={currentPage} 
+            onNavigate={setCurrentPage} 
+          />
+        )}
       </div>
-    </div>
+      </div>
+    </MobileViewport>
   );
 }
 
@@ -292,10 +263,10 @@ export function Layout() {
     <ThemeProvider>
       <NavigationProvider>
         <LayoutContent />
-        
+
         {/* Session Notifications Handler */}
         <SessionNotifications />
-        
+
         {/* Toast Notifications */}
         <Toaster position="top-right" />
       </NavigationProvider>

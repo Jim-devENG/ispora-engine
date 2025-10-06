@@ -38,11 +38,11 @@ router.get('/', protect, async (req, res, next) => {
         settings: {
           ...securitySettings,
           email_verified: user?.email_verified || false,
-          two_factor_enabled: user?.two_factor_enabled || false
+          two_factor_enabled: user?.two_factor_enabled || false,
         },
         recent_logs: recentLogs,
-        active_sessions: activeSessions
-      }
+        active_sessions: activeSessions,
+      },
     });
   } catch (error) {
     next(error);
@@ -59,33 +59,37 @@ router.put('/password', protect, async (req, res, next) => {
     if (!current_password || !new_password) {
       return res.status(400).json({
         success: false,
-        error: 'Current password and new password are required'
+        error: 'Current password and new password are required',
       });
     }
 
     // Get current user
-    const user = await db('users')
-      .select('password')
-      .where({ id: req.user.id })
-      .first();
+    const user = await db('users').select('password').where({ id: req.user.id }).first();
 
     if (!user) {
       return res.status(404).json({
         success: false,
-        error: 'User not found'
+        error: 'User not found',
       });
     }
 
     // Verify current password
     const isCurrentPasswordValid = await bcrypt.compare(current_password, user.password);
     if (!isCurrentPasswordValid) {
-      await logSecurityEvent(req.user.id, 'password_change_failed', 'authentication', 'warning', {
-        reason: 'invalid_current_password'
-      }, req);
+      await logSecurityEvent(
+        req.user.id,
+        'password_change_failed',
+        'authentication',
+        'warning',
+        {
+          reason: 'invalid_current_password',
+        },
+        req,
+      );
 
       return res.status(400).json({
         success: false,
-        error: 'Current password is incorrect'
+        error: 'Current password is incorrect',
       });
     }
 
@@ -93,7 +97,7 @@ router.put('/password', protect, async (req, res, next) => {
     if (new_password.length < 8) {
       return res.status(400).json({
         success: false,
-        error: 'New password must be at least 8 characters long'
+        error: 'New password must be at least 8 characters long',
       });
     }
 
@@ -102,21 +106,26 @@ router.put('/password', protect, async (req, res, next) => {
     const hashedPassword = await bcrypt.hash(new_password, saltRounds);
 
     // Update password
-    await db('users')
-      .where({ id: req.user.id })
-      .update({
-        password: hashedPassword,
-        updated_at: new Date()
-      });
+    await db('users').where({ id: req.user.id }).update({
+      password: hashedPassword,
+      updated_at: new Date(),
+    });
 
     // Log security event
-    await logSecurityEvent(req.user.id, 'password_changed', 'authentication', 'info', {
-      password_changed_at: new Date()
-    }, req);
+    await logSecurityEvent(
+      req.user.id,
+      'password_changed',
+      'authentication',
+      'info',
+      {
+        password_changed_at: new Date(),
+      },
+      req,
+    );
 
     res.status(200).json({
       success: true,
-      message: 'Password changed successfully'
+      message: 'Password changed successfully',
     });
   } catch (error) {
     next(error);
@@ -133,96 +142,108 @@ router.put('/two-factor', protect, async (req, res, next) => {
     if (enabled === undefined) {
       return res.status(400).json({
         success: false,
-        error: 'Enabled status is required'
+        error: 'Enabled status is required',
       });
     }
 
     if (enabled && !verification_code) {
       // Generate 2FA secret (in a real app, you'd use a proper 2FA library)
       const twoFactorSecret = generateTwoFactorSecret();
-      
+
       // Store temporary secret for verification
-      await db('users')
-        .where({ id: req.user.id })
-        .update({
-          two_factor_secret: twoFactorSecret,
-          updated_at: new Date()
-        });
+      await db('users').where({ id: req.user.id }).update({
+        two_factor_secret: twoFactorSecret,
+        updated_at: new Date(),
+      });
 
       return res.status(200).json({
         success: true,
         message: 'Two-factor authentication setup initiated',
         data: {
           secret: twoFactorSecret,
-          qr_code_url: `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(`otpauth://totp/Aspora:${req.user.email}?secret=${twoFactorSecret}&issuer=Aspora`)}`
-        }
+          qr_code_url: `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(`otpauth://totp/Aspora:${req.user.email}?secret=${twoFactorSecret}&issuer=Aspora`)}`,
+        },
       });
     }
 
     if (enabled && verification_code) {
       // Verify the code (simplified - in real app use proper 2FA library)
-      const user = await db('users')
-        .select('two_factor_secret')
-        .where({ id: req.user.id })
-        .first();
+      const user = await db('users').select('two_factor_secret').where({ id: req.user.id }).first();
 
       if (!user.two_factor_secret) {
         return res.status(400).json({
           success: false,
-          error: 'No two-factor secret found. Please start the setup process again.'
+          error: 'No two-factor secret found. Please start the setup process again.',
         });
       }
 
       // In a real app, verify the TOTP code here
       const isValidCode = verifyTwoFactorCode(user.two_factor_secret, verification_code);
-      
+
       if (!isValidCode) {
-        await logSecurityEvent(req.user.id, 'two_factor_verification_failed', 'authentication', 'warning', {
-          reason: 'invalid_verification_code'
-        }, req);
+        await logSecurityEvent(
+          req.user.id,
+          'two_factor_verification_failed',
+          'authentication',
+          'warning',
+          {
+            reason: 'invalid_verification_code',
+          },
+          req,
+        );
 
         return res.status(400).json({
           success: false,
-          error: 'Invalid verification code'
+          error: 'Invalid verification code',
         });
       }
 
       // Enable 2FA
-      await db('users')
-        .where({ id: req.user.id })
-        .update({
-          two_factor_enabled: true,
-          two_factor_secret: user.two_factor_secret, // Keep the secret
-          updated_at: new Date()
-        });
+      await db('users').where({ id: req.user.id }).update({
+        two_factor_enabled: true,
+        two_factor_secret: user.two_factor_secret, // Keep the secret
+        updated_at: new Date(),
+      });
 
-      await logSecurityEvent(req.user.id, 'two_factor_enabled', 'authentication', 'info', {
-        enabled_at: new Date()
-      }, req);
+      await logSecurityEvent(
+        req.user.id,
+        'two_factor_enabled',
+        'authentication',
+        'info',
+        {
+          enabled_at: new Date(),
+        },
+        req,
+      );
 
       return res.status(200).json({
         success: true,
-        message: 'Two-factor authentication enabled successfully'
+        message: 'Two-factor authentication enabled successfully',
       });
     }
 
     if (!enabled) {
       // Disable 2FA
-      await db('users')
-        .where({ id: req.user.id })
-        .update({
-          two_factor_enabled: false,
-          two_factor_secret: null,
-          updated_at: new Date()
-        });
+      await db('users').where({ id: req.user.id }).update({
+        two_factor_enabled: false,
+        two_factor_secret: null,
+        updated_at: new Date(),
+      });
 
-      await logSecurityEvent(req.user.id, 'two_factor_disabled', 'authentication', 'info', {
-        disabled_at: new Date()
-      }, req);
+      await logSecurityEvent(
+        req.user.id,
+        'two_factor_disabled',
+        'authentication',
+        'info',
+        {
+          disabled_at: new Date(),
+        },
+        req,
+      );
 
       return res.status(200).json({
         success: true,
-        message: 'Two-factor authentication disabled successfully'
+        message: 'Two-factor authentication disabled successfully',
       });
     }
   } catch (error) {
@@ -238,8 +259,7 @@ router.get('/logs', protect, async (req, res, next) => {
     const { page = 1, limit = 20, event_type, severity, start_date, end_date } = req.query;
     const offset = (page - 1) * limit;
 
-    let query = db('security_logs')
-      .where({ user_id: req.user.id });
+    let query = db('security_logs').where({ user_id: req.user.id });
 
     if (event_type) {
       query = query.where('event_type', event_type);
@@ -257,10 +277,7 @@ router.get('/logs', protect, async (req, res, next) => {
       query = query.where('created_at', '<=', new Date(end_date));
     }
 
-    const logs = await query
-      .orderBy('created_at', 'desc')
-      .limit(parseInt(limit))
-      .offset(offset);
+    const logs = await query.orderBy('created_at', 'desc').limit(parseInt(limit)).offset(offset);
 
     const totalCount = await db('security_logs')
       .where({ user_id: req.user.id })
@@ -274,9 +291,9 @@ router.get('/logs', protect, async (req, res, next) => {
       pagination: {
         page: parseInt(page),
         limit: parseInt(limit),
-        pages: Math.ceil(totalCount.count / limit)
+        pages: Math.ceil(totalCount.count / limit),
       },
-      data: logs
+      data: logs,
     });
   } catch (error) {
     next(error);
@@ -296,7 +313,7 @@ router.get('/sessions', protect, async (req, res, next) => {
     res.status(200).json({
       success: true,
       count: sessions.length,
-      data: sessions
+      data: sessions,
     });
   } catch (error) {
     next(error);
@@ -310,32 +327,35 @@ router.delete('/sessions/:id', protect, async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    const session = await db('sessions')
-      .where({ id, user_id: req.user.id })
-      .first();
+    const session = await db('sessions').where({ id, user_id: req.user.id }).first();
 
     if (!session) {
       return res.status(404).json({
         success: false,
-        error: 'Session not found'
+        error: 'Session not found',
       });
     }
 
-    await db('sessions')
-      .where({ id })
-      .update({
-        expires_at: new Date(),
-        updated_at: new Date()
-      });
+    await db('sessions').where({ id }).update({
+      expires_at: new Date(),
+      updated_at: new Date(),
+    });
 
-    await logSecurityEvent(req.user.id, 'session_revoked', 'authentication', 'info', {
-      session_id: id,
-      revoked_at: new Date()
-    }, req);
+    await logSecurityEvent(
+      req.user.id,
+      'session_revoked',
+      'authentication',
+      'info',
+      {
+        session_id: id,
+        revoked_at: new Date(),
+      },
+      req,
+    );
 
     res.status(200).json({
       success: true,
-      message: 'Session revoked successfully'
+      message: 'Session revoked successfully',
     });
   } catch (error) {
     next(error);
@@ -354,17 +374,24 @@ router.delete('/sessions', protect, async (req, res, next) => {
       .andWhere('id', '!=', currentSessionId)
       .update({
         expires_at: new Date(),
-        updated_at: new Date()
+        updated_at: new Date(),
       });
 
-    await logSecurityEvent(req.user.id, 'all_sessions_revoked', 'authentication', 'info', {
-      revoked_at: new Date(),
-      current_session_preserved: true
-    }, req);
+    await logSecurityEvent(
+      req.user.id,
+      'all_sessions_revoked',
+      'authentication',
+      'info',
+      {
+        revoked_at: new Date(),
+        current_session_preserved: true,
+      },
+      req,
+    );
 
     res.status(200).json({
       success: true,
-      message: 'All other sessions revoked successfully'
+      message: 'All other sessions revoked successfully',
     });
   } catch (error) {
     next(error);
@@ -380,42 +407,46 @@ router.put('/settings', protect, async (req, res, next) => {
       login_notifications,
       suspicious_activity_alerts,
       data_export_frequency,
-      account_deletion_delay
+      account_deletion_delay,
     } = req.body;
 
     // Get current preferences
-    const user = await db('users')
-      .select('preferences')
-      .where({ id: req.user.id })
-      .first();
+    const user = await db('users').select('preferences').where({ id: req.user.id }).first();
 
     const currentPreferences = user?.preferences ? JSON.parse(user.preferences) : {};
     const currentSecuritySettings = currentPreferences.security || getDefaultSecuritySettings();
 
     const updatedSecuritySettings = {
       ...currentSecuritySettings,
-      login_notifications: login_notifications !== undefined ? login_notifications : currentSecuritySettings.login_notifications,
-      suspicious_activity_alerts: suspicious_activity_alerts !== undefined ? suspicious_activity_alerts : currentSecuritySettings.suspicious_activity_alerts,
+      login_notifications:
+        login_notifications !== undefined
+          ? login_notifications
+          : currentSecuritySettings.login_notifications,
+      suspicious_activity_alerts:
+        suspicious_activity_alerts !== undefined
+          ? suspicious_activity_alerts
+          : currentSecuritySettings.suspicious_activity_alerts,
       data_export_frequency: data_export_frequency || currentSecuritySettings.data_export_frequency,
-      account_deletion_delay: account_deletion_delay || currentSecuritySettings.account_deletion_delay
+      account_deletion_delay:
+        account_deletion_delay || currentSecuritySettings.account_deletion_delay,
     };
 
     const updatedPreferences = {
       ...currentPreferences,
-      security: updatedSecuritySettings
+      security: updatedSecuritySettings,
     };
 
     await db('users')
       .where({ id: req.user.id })
       .update({
         preferences: JSON.stringify(updatedPreferences),
-        updated_at: new Date()
+        updated_at: new Date(),
       });
 
     res.status(200).json({
       success: true,
       message: 'Security settings updated successfully',
-      data: updatedSecuritySettings
+      data: updatedSecuritySettings,
     });
   } catch (error) {
     next(error);
@@ -432,25 +463,29 @@ router.post('/delete-account', protect, async (req, res, next) => {
     if (!password) {
       return res.status(400).json({
         success: false,
-        error: 'Password is required to delete account'
+        error: 'Password is required to delete account',
       });
     }
 
     // Verify password
-    const user = await db('users')
-      .select('password')
-      .where({ id: req.user.id })
-      .first();
+    const user = await db('users').select('password').where({ id: req.user.id }).first();
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      await logSecurityEvent(req.user.id, 'account_deletion_failed', 'authentication', 'warning', {
-        reason: 'invalid_password'
-      }, req);
+      await logSecurityEvent(
+        req.user.id,
+        'account_deletion_failed',
+        'authentication',
+        'warning',
+        {
+          reason: 'invalid_password',
+        },
+        req,
+      );
 
       return res.status(400).json({
         success: false,
-        error: 'Invalid password'
+        error: 'Invalid password',
       });
     }
 
@@ -458,25 +493,30 @@ router.post('/delete-account', protect, async (req, res, next) => {
     const deletionDate = new Date();
     deletionDate.setDate(deletionDate.getDate() + 30); // 30 days delay
 
-    await db('users')
-      .where({ id: req.user.id })
-      .update({
-        deletion_scheduled_at: deletionDate,
-        deletion_reason: reason,
-        updated_at: new Date()
-      });
-
-    await logSecurityEvent(req.user.id, 'account_deletion_scheduled', 'authentication', 'critical', {
+    await db('users').where({ id: req.user.id }).update({
       deletion_scheduled_at: deletionDate,
-      reason: reason
-    }, req);
+      deletion_reason: reason,
+      updated_at: new Date(),
+    });
+
+    await logSecurityEvent(
+      req.user.id,
+      'account_deletion_scheduled',
+      'authentication',
+      'critical',
+      {
+        deletion_scheduled_at: deletionDate,
+        reason: reason,
+      },
+      req,
+    );
 
     res.status(200).json({
       success: true,
       message: 'Account deletion scheduled. You have 30 days to cancel.',
       data: {
-        deletion_date: deletionDate
-      }
+        deletion_date: deletionDate,
+      },
     });
   } catch (error) {
     next(error);
@@ -488,21 +528,26 @@ router.post('/delete-account', protect, async (req, res, next) => {
 // @access  Private
 router.delete('/delete-account', protect, async (req, res, next) => {
   try {
-    await db('users')
-      .where({ id: req.user.id })
-      .update({
-        deletion_scheduled_at: null,
-        deletion_reason: null,
-        updated_at: new Date()
-      });
+    await db('users').where({ id: req.user.id }).update({
+      deletion_scheduled_at: null,
+      deletion_reason: null,
+      updated_at: new Date(),
+    });
 
-    await logSecurityEvent(req.user.id, 'account_deletion_cancelled', 'authentication', 'info', {
-      cancelled_at: new Date()
-    }, req);
+    await logSecurityEvent(
+      req.user.id,
+      'account_deletion_cancelled',
+      'authentication',
+      'info',
+      {
+        cancelled_at: new Date(),
+      },
+      req,
+    );
 
     res.status(200).json({
       success: true,
-      message: 'Account deletion cancelled successfully'
+      message: 'Account deletion cancelled successfully',
     });
   } catch (error) {
     next(error);
@@ -521,7 +566,7 @@ async function logSecurityEvent(userId, eventType, category, severity, metadata,
       user_agent: req.get('User-Agent'),
       metadata: JSON.stringify(metadata),
       description: getEventDescription(eventType),
-      created_at: new Date()
+      created_at: new Date(),
     });
   } catch (error) {
     console.error('Failed to log security event:', error);
@@ -530,16 +575,16 @@ async function logSecurityEvent(userId, eventType, category, severity, metadata,
 
 function getEventDescription(eventType) {
   const descriptions = {
-    'password_changed': 'Password was changed successfully',
-    'password_change_failed': 'Failed password change attempt',
-    'two_factor_enabled': 'Two-factor authentication was enabled',
-    'two_factor_disabled': 'Two-factor authentication was disabled',
-    'two_factor_verification_failed': 'Failed two-factor authentication verification',
-    'session_revoked': 'User session was revoked',
-    'all_sessions_revoked': 'All user sessions were revoked',
-    'account_deletion_scheduled': 'Account deletion was scheduled',
-    'account_deletion_cancelled': 'Account deletion was cancelled',
-    'account_deletion_failed': 'Failed account deletion attempt'
+    password_changed: 'Password was changed successfully',
+    password_change_failed: 'Failed password change attempt',
+    two_factor_enabled: 'Two-factor authentication was enabled',
+    two_factor_disabled: 'Two-factor authentication was disabled',
+    two_factor_verification_failed: 'Failed two-factor authentication verification',
+    session_revoked: 'User session was revoked',
+    all_sessions_revoked: 'All user sessions were revoked',
+    account_deletion_scheduled: 'Account deletion was scheduled',
+    account_deletion_cancelled: 'Account deletion was cancelled',
+    account_deletion_failed: 'Failed account deletion attempt',
   };
 
   return descriptions[eventType] || 'Security event occurred';
@@ -550,7 +595,7 @@ function getDefaultSecuritySettings() {
     login_notifications: true,
     suspicious_activity_alerts: true,
     data_export_frequency: 'monthly',
-    account_deletion_delay: 30
+    account_deletion_delay: 30,
   };
 }
 

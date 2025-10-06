@@ -3,16 +3,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Badge } from './ui/badge';
-import { 
-  Rocket, 
-  Globe, 
-  Users, 
-  Target, 
-  BookOpen, 
-  Heart, 
-  Star, 
-  Zap, 
-  Mail, 
+import {
+  Rocket,
+  Globe,
+  Users,
+  Target,
+  BookOpen,
+  Heart,
+  Star,
+  Zap,
+  Mail,
   Calendar,
   Clock,
   ArrowRight,
@@ -38,7 +38,7 @@ import {
   Linkedin,
   Instagram,
   Youtube,
-  Facebook
+  Facebook,
 } from 'lucide-react';
 import { useAuth } from './AuthContext';
 import { toast } from 'sonner';
@@ -51,7 +51,7 @@ export function ComingSoon() {
     days: 0,
     hours: 0,
     minutes: 0,
-    seconds: 0
+    seconds: 0,
   });
 
   // Countdown to launch date (example: 30 days from now)
@@ -68,7 +68,7 @@ export function ComingSoon() {
           days: Math.floor(distance / (1000 * 60 * 60 * 24)),
           hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
           minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
-          seconds: Math.floor((distance % (1000 * 60)) / 1000)
+          seconds: Math.floor((distance % (1000 * 60)) / 1000),
         });
       } else {
         setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
@@ -82,7 +82,7 @@ export function ComingSoon() {
     e.preventDefault();
     if (email) {
       setIsSubscribed(true);
-      toast.success('Thank you for subscribing! We\'ll notify you when we launch.');
+      toast.success("Thank you for subscribing! We'll notify you when we launch.");
       setEmail('');
     }
   };
@@ -92,31 +92,31 @@ export function ComingSoon() {
   const features = [
     {
       icon: <Users className="h-6 w-6" />,
-      title: "Global Community",
-      description: "Connect with diaspora communities worldwide"
+      title: 'Global Community',
+      description: 'Connect with diaspora communities worldwide',
     },
     {
       icon: <Target className="h-6 w-6" />,
-      title: "Impact Projects",
-      description: "Collaborate on meaningful initiatives"
+      title: 'Impact Projects',
+      description: 'Collaborate on meaningful initiatives',
     },
     {
       icon: <BookOpen className="h-6 w-6" />,
-      title: "Mentorship",
-      description: "Learn from experienced professionals"
+      title: 'Mentorship',
+      description: 'Learn from experienced professionals',
     },
     {
       icon: <Heart className="h-6 w-6" />,
-      title: "Social Impact",
-      description: "Make a difference in your community"
-    }
+      title: 'Social Impact',
+      description: 'Make a difference in your community',
+    },
   ];
 
   const stats = [
-    { number: "10K+", label: "Expected Users" },
-    { number: "50+", label: "Countries" },
-    { number: "100+", label: "Projects" },
-    { number: "24/7", label: "Support" }
+    { number: '10K+', label: 'Expected Users' },
+    { number: '50+', label: 'Countries' },
+    { number: '100+', label: 'Projects' },
+    { number: '24/7', label: 'Support' },
   ];
 
   return (
@@ -134,7 +134,7 @@ export function ComingSoon() {
                 <p className="text-sm text-gray-600">Coming Soon</p>
               </div>
             </div>
-            
+
             <div />
           </div>
         </div>
@@ -147,12 +147,15 @@ export function ComingSoon() {
           <div className="mb-8">
             <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
               Connecting the
-              <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"> Global Diaspora</span>
+              <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                {' '}
+                Global Diaspora
+              </span>
             </h1>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-              A revolutionary platform that brings together diaspora communities worldwide 
-              to collaborate, learn, and create meaningful impact through mentorship, 
-              projects, and shared opportunities.
+              A revolutionary platform that brings together diaspora communities worldwide to
+              collaborate, learn, and create meaningful impact through mentorship, projects, and
+              shared opportunities.
             </p>
           </div>
 
@@ -160,7 +163,9 @@ export function ComingSoon() {
           <Card className="max-w-2xl mx-auto mb-12 bg-white/90 backdrop-blur-sm border-0 shadow-xl">
             <CardHeader className="text-center">
               <CardTitle className="text-2xl font-bold text-gray-900">Launch Countdown</CardTitle>
-              <CardDescription>We're putting the finishing touches on something amazing</CardDescription>
+              <CardDescription>
+                We're putting the finishing touches on something amazing
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-4 gap-4">
@@ -224,7 +229,10 @@ export function ComingSoon() {
         {/* Features Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
           {features.map((feature, index) => (
-            <Card key={index} className="text-center bg-white/90 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-shadow">
+            <Card
+              key={index}
+              className="text-center bg-white/90 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-shadow"
+            >
               <CardContent className="p-6">
                 <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center mx-auto mb-4">
                   {feature.icon}
@@ -239,7 +247,10 @@ export function ComingSoon() {
         {/* Stats Section */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
           {stats.map((stat, index) => (
-            <Card key={index} className="text-center bg-white/90 backdrop-blur-sm border-0 shadow-lg">
+            <Card
+              key={index}
+              className="text-center bg-white/90 backdrop-blur-sm border-0 shadow-lg"
+            >
               <CardContent className="p-6">
                 <div className="text-3xl font-bold text-blue-600 mb-2">{stat.number}</div>
                 <div className="text-gray-600 text-sm">{stat.label}</div>
@@ -266,7 +277,7 @@ export function ComingSoon() {
                 Connecting diaspora communities worldwide through technology and collaboration.
               </p>
             </div>
-            
+
             <div>
               <h4 className="font-semibold mb-4">Platform</h4>
               <ul className="space-y-2 text-sm text-gray-400">
@@ -276,7 +287,7 @@ export function ComingSoon() {
                 <li>Community Building</li>
               </ul>
             </div>
-            
+
             <div>
               <h4 className="font-semibold mb-4">Support</h4>
               <ul className="space-y-2 text-sm text-gray-400">
@@ -286,7 +297,7 @@ export function ComingSoon() {
                 <li>Status Page</li>
               </ul>
             </div>
-            
+
             <div>
               <h4 className="font-semibold mb-4">Connect</h4>
               <div className="flex space-x-4">
@@ -305,9 +316,12 @@ export function ComingSoon() {
               </div>
             </div>
           </div>
-          
+
           <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-400">
-            <p>&copy; 2024 iSpora. All rights reserved. Built with ❤️ for the global diaspora community.</p>
+            <p>
+              &copy; 2024 iSpora. All rights reserved. Built with ❤️ for the global diaspora
+              community.
+            </p>
           </div>
         </div>
       </div>

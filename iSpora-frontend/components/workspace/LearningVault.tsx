@@ -1,13 +1,13 @@
-import React, { useState, useRef, useEffect } from "react";
-import { 
-  BookOpen, 
-  Play, 
-  Eye, 
-  Download, 
-  Filter, 
-  Search, 
-  Star, 
-  Clock, 
+import React, { useState, useRef, useEffect } from 'react';
+import {
+  BookOpen,
+  Play,
+  Eye,
+  Download,
+  Filter,
+  Search,
+  Star,
+  Clock,
   User,
   Video,
   VideoOff,
@@ -24,21 +24,28 @@ import {
   Camera,
   Save,
   Plus,
-  ArrowLeft
-} from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
-import { Button } from "../ui/button";
-import { Badge } from "../ui/badge";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { Textarea } from "../ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { ScrollArea } from "../ui/scroll-area";
-import { Progress } from "../ui/progress";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
-import { Separator } from "../ui/separator";
-import { Switch } from "../ui/switch";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
+  ArrowLeft,
+} from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
+import { Button } from '../ui/button';
+import { Badge } from '../ui/badge';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
+import { Textarea } from '../ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { ScrollArea } from '../ui/scroll-area';
+import { Progress } from '../ui/progress';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '../ui/dialog';
+import { Separator } from '../ui/separator';
+import { Switch } from '../ui/switch';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 
 interface LearningContent {
   id: string;
@@ -87,11 +94,11 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://ispora-backend.onr
 // No mock recordings
 
 const categoryConfig = {
-  orientation: { label: "Orientation", color: "bg-blue-100 text-blue-800" },
-  skills: { label: "Skills", color: "bg-green-100 text-green-800" },
-  reflections: { label: "Reflections", color: "bg-purple-100 text-purple-800" },
-  tools: { label: "Tools", color: "bg-orange-100 text-orange-800" },
-  recordings: { label: "Recordings", color: "bg-red-100 text-red-800" }
+  orientation: { label: 'Orientation', color: 'bg-blue-100 text-blue-800' },
+  skills: { label: 'Skills', color: 'bg-green-100 text-green-800' },
+  reflections: { label: 'Reflections', color: 'bg-purple-100 text-purple-800' },
+  tools: { label: 'Tools', color: 'bg-orange-100 text-orange-800' },
+  recordings: { label: 'Recordings', color: 'bg-red-100 text-red-800' },
 };
 
 const typeIcons = {
@@ -99,22 +106,25 @@ const typeIcons = {
   document: BookOpen,
   quiz: Star,
   assignment: User,
-  recording: Video
+  recording: Video,
 };
 
 const recordingTypeIcons = {
   screen: Monitor,
   webcam: Camera,
-  both: Video
+  both: Video,
 };
 
 const statusColors = {
-  processing: "bg-yellow-100 text-yellow-800",
-  ready: "bg-green-100 text-green-800",
-  failed: "bg-red-100 text-red-800"
+  processing: 'bg-yellow-100 text-yellow-800',
+  ready: 'bg-green-100 text-green-800',
+  failed: 'bg-red-100 text-red-800',
 };
 
-function ContentCard({ content, onView }: {
+function ContentCard({
+  content,
+  onView,
+}: {
   content: LearningContent;
   onView: (content: LearningContent) => void;
 }) {
@@ -127,13 +137,20 @@ function ContentCard({ content, onView }: {
   const categoryInfo = categoryConfig[content.category];
 
   return (
-    <Card className="card-gradient card-hover-lift cursor-pointer overflow-hidden" onClick={() => onView(content)}>
+    <Card
+      className="card-gradient card-hover-lift cursor-pointer overflow-hidden"
+      onClick={() => onView(content)}
+    >
       <CardContent className="p-3 card-content">
         <div className="space-y-2 min-h-0">
           <div className="relative">
             <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden">
               {content.thumbnail ? (
-                <img src={content.thumbnail} alt={content.title} className="w-full h-full object-cover" />
+                <img
+                  src={content.thumbnail}
+                  alt={content.title}
+                  className="w-full h-full object-cover"
+                />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
                   <TypeIcon className="h-8 w-8 text-gray-400" />
@@ -163,7 +180,12 @@ function ContentCard({ content, onView }: {
   );
 }
 
-function RecordingCard({ recording, onPlay, onDelete, onEdit }: {
+function RecordingCard({
+  recording,
+  onPlay,
+  onDelete,
+  onEdit,
+}: {
   recording: Recording;
   onPlay: (recording: Recording) => void;
   onDelete: (recordingId: string) => void;
@@ -173,7 +195,7 @@ function RecordingCard({ recording, onPlay, onDelete, onEdit }: {
     const hours = Math.floor(seconds / 3600);
     const mins = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
-    
+
     if (hours > 0) {
       return `${hours}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     }
@@ -193,7 +215,7 @@ function RecordingCard({ recording, onPlay, onDelete, onEdit }: {
       month: 'short',
       day: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     }).format(date);
   };
 
@@ -207,8 +229,8 @@ function RecordingCard({ recording, onPlay, onDelete, onEdit }: {
           <div className="relative">
             <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden">
               {recording.thumbnail ? (
-                <img 
-                  src={recording.thumbnail} 
+                <img
+                  src={recording.thumbnail}
                   alt={recording.title}
                   className="w-full h-full object-cover"
                 />
@@ -247,12 +269,12 @@ function RecordingCard({ recording, onPlay, onDelete, onEdit }: {
               <div className="flex-1 min-w-0">
                 <h4 className="font-medium text-sm line-clamp-1 break-words">{recording.title}</h4>
                 {recording.description && (
-                  <p className="text-xs text-gray-600 line-clamp-2 mt-1 break-words">{recording.description}</p>
+                  <p className="text-xs text-gray-600 line-clamp-2 mt-1 break-words">
+                    {recording.description}
+                  </p>
                 )}
               </div>
-              <Badge className="badge-accent flex-shrink-0">
-                {recording.status}
-              </Badge>
+              <Badge className="badge-accent flex-shrink-0">{recording.status}</Badge>
             </div>
 
             {/* Metadata */}
@@ -271,7 +293,10 @@ function RecordingCard({ recording, onPlay, onDelete, onEdit }: {
             {recording.tags && recording.tags.length > 0 && (
               <div className="flex flex-wrap gap-1 min-h-0">
                 {recording.tags.slice(0, 3).map((tag, index) => (
-                  <Badge key={index} className="badge-accent text-xs px-1.5 py-0.5 truncate max-w-[80px]">
+                  <Badge
+                    key={index}
+                    className="badge-accent text-xs px-1.5 py-0.5 truncate max-w-[80px]"
+                  >
                     {tag}
                   </Badge>
                 ))}
@@ -287,7 +312,11 @@ function RecordingCard({ recording, onPlay, onDelete, onEdit }: {
             <div className="flex items-center gap-1 pt-2 border-t border-blue-100 flex-wrap">
               {recording.status === 'ready' && (
                 <>
-                  <Button size="sm" onClick={() => onPlay(recording)} className="btn-primary-gradient flex-shrink-0">
+                  <Button
+                    size="sm"
+                    onClick={() => onPlay(recording)}
+                    className="btn-primary-gradient flex-shrink-0"
+                  >
                     <Play className="h-3 w-3 mr-1" />
                     Play
                   </Button>
@@ -299,11 +328,20 @@ function RecordingCard({ recording, onPlay, onDelete, onEdit }: {
                   </Button>
                 </>
               )}
-              <Button size="sm" onClick={() => onEdit(recording)} className="btn-secondary-blue flex-shrink-0">
+              <Button
+                size="sm"
+                onClick={() => onEdit(recording)}
+                className="btn-secondary-blue flex-shrink-0"
+              >
                 <Settings className="h-3 w-3 mr-1" />
                 Edit
               </Button>
-              <Button variant="ghost" size="sm" onClick={() => onDelete(recording.id)} className="flex-shrink-0 hover:bg-red-50 hover:text-red-600">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onDelete(recording.id)}
+                className="flex-shrink-0 hover:bg-red-50 hover:text-red-600"
+              >
                 <Trash2 className="h-3 w-3" />
               </Button>
             </div>
@@ -314,7 +352,10 @@ function RecordingCard({ recording, onPlay, onDelete, onEdit }: {
   );
 }
 
-function VideoRecorderPanel({ mentee, onBackToLibrary }: {
+function VideoRecorderPanel({
+  mentee,
+  onBackToLibrary,
+}: {
   mentee: Mentee;
   onBackToLibrary: () => void;
 }) {
@@ -331,7 +372,7 @@ function VideoRecorderPanel({ mentee, onBackToLibrary }: {
     includeAudio: true,
     includeMicrophone: true,
     quality: 'high',
-    fps: 30
+    fps: 30,
   });
 
   const formatDuration = (seconds: number) => {
@@ -368,9 +409,13 @@ function VideoRecorderPanel({ mentee, onBackToLibrary }: {
         description,
         duration: recordingTime,
         url: '#',
-        transcript: null
+        transcript: null,
       };
-      const res = await fetch(`${API_BASE_URL}/learning/recordings`, { method: 'POST', headers, body: JSON.stringify(body) });
+      const res = await fetch(`${API_BASE_URL}/learning/recordings`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(body),
+      });
       const json = await res.json();
       const r = json.data || json;
       const created: Recording = {
@@ -383,21 +428,21 @@ function VideoRecorderPanel({ mentee, onBackToLibrary }: {
         type: recordingType,
         tags,
         size: 0,
-        status: 'ready'
+        status: 'ready',
       };
-      setRecordings(prev => [created, ...prev]);
+      setRecordings((prev) => [created, ...prev]);
       setShowSaveDialog(false);
       setRecordingTime(0);
     } catch {}
   };
 
   const handlePlayRecording = (recording: Recording) => {
-    console.log("Playing recording:", recording.title);
+    console.log('Playing recording:', recording.title);
     // Play recording logic here
   };
 
   const handleDeleteRecording = (recordingId: string) => {
-    setRecordings(prev => prev.filter(r => r.id !== recordingId));
+    setRecordings((prev) => prev.filter((r) => r.id !== recordingId));
   };
 
   const handleEditRecording = (recording: Recording) => {
@@ -423,7 +468,12 @@ function VideoRecorderPanel({ mentee, onBackToLibrary }: {
       <div className="flex-shrink-0 px-8 py-6 border-b glass-effect">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" onClick={onBackToLibrary} className="btn-secondary-blue">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onBackToLibrary}
+              className="btn-secondary-blue"
+            >
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Library
             </Button>
@@ -443,9 +493,7 @@ function VideoRecorderPanel({ mentee, onBackToLibrary }: {
               <DialogContent>
                 <DialogHeader>
                   <DialogTitle>Recording Settings</DialogTitle>
-                  <DialogDescription>
-                    Configure your recording preferences
-                  </DialogDescription>
+                  <DialogDescription>Configure your recording preferences</DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
@@ -453,7 +501,9 @@ function VideoRecorderPanel({ mentee, onBackToLibrary }: {
                     <Switch
                       id="includeAudio"
                       checked={settings.includeAudio}
-                      onCheckedChange={(checked) => setSettings(prev => ({ ...prev, includeAudio: checked }))}
+                      onCheckedChange={(checked) =>
+                        setSettings((prev) => ({ ...prev, includeAudio: checked }))
+                      }
                     />
                   </div>
                   <div className="flex items-center justify-between">
@@ -461,12 +511,19 @@ function VideoRecorderPanel({ mentee, onBackToLibrary }: {
                     <Switch
                       id="includeMicrophone"
                       checked={settings.includeMicrophone}
-                      onCheckedChange={(checked) => setSettings(prev => ({ ...prev, includeMicrophone: checked }))}
+                      onCheckedChange={(checked) =>
+                        setSettings((prev) => ({ ...prev, includeMicrophone: checked }))
+                      }
                     />
                   </div>
                   <div>
                     <Label htmlFor="quality">Video Quality</Label>
-                    <Select value={settings.quality} onValueChange={(value) => setSettings(prev => ({ ...prev, quality: value }))}>
+                    <Select
+                      value={settings.quality}
+                      onValueChange={(value) =>
+                        setSettings((prev) => ({ ...prev, quality: value }))
+                      }
+                    >
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -480,7 +537,7 @@ function VideoRecorderPanel({ mentee, onBackToLibrary }: {
                 </div>
               </DialogContent>
             </Dialog>
-            
+
             {!isRecording ? (
               <Button onClick={handleStartRecording} className="bg-[#021ff6] hover:bg-[#021ff6]/90">
                 <Video className="h-4 w-4 mr-2" />
@@ -517,10 +574,7 @@ function VideoRecorderPanel({ mentee, onBackToLibrary }: {
                 </SelectContent>
               </Select>
             </div>
-            <Button 
-              onClick={handleStartRecording}
-              className="btn-primary-gradient pulse-blue"
-            >
+            <Button onClick={handleStartRecording} className="btn-primary-gradient pulse-blue">
               <Video className="h-4 w-4 mr-2" />
               Start Recording
             </Button>
@@ -551,7 +605,9 @@ function VideoRecorderPanel({ mentee, onBackToLibrary }: {
             <div className="text-sm text-gray-600">Recordings</div>
           </div>
           <div className="text-center card-gradient p-4 rounded-lg shadow-blue">
-            <div className="text-2xl font-semibold text-gradient">{formatDuration(totalDuration)}</div>
+            <div className="text-2xl font-semibold text-gradient">
+              {formatDuration(totalDuration)}
+            </div>
             <div className="text-sm text-gray-600">Total Duration</div>
           </div>
           <div className="text-center card-gradient p-4 rounded-lg shadow-blue">
@@ -565,31 +621,33 @@ function VideoRecorderPanel({ mentee, onBackToLibrary }: {
       <div className="flex-1 min-h-0 overflow-hidden">
         <ScrollArea className="h-full scrollbar-beautiful">
           <div className="px-8 py-6">
-          {recordings.length === 0 ? (
-            <div className="text-center py-12">
-              <div className="float-animation">
-                <Video className="h-12 w-12 text-blue-400 mx-auto mb-4" />
+            {recordings.length === 0 ? (
+              <div className="text-center py-12">
+                <div className="float-animation">
+                  <Video className="h-12 w-12 text-blue-400 mx-auto mb-4" />
+                </div>
+                <h3 className="text-lg font-medium text-gradient mb-2">No recordings yet</h3>
+                <p className="text-gray-500 mb-4">
+                  Create your first mini lesson for {mentee.name}
+                </p>
+                <Button onClick={handleStartRecording} className="btn-primary-gradient pulse-blue">
+                  <Video className="h-4 w-4 mr-2" />
+                  Start First Recording
+                </Button>
               </div>
-              <h3 className="text-lg font-medium text-gradient mb-2">No recordings yet</h3>
-              <p className="text-gray-500 mb-4">Create your first mini lesson for {mentee.name}</p>
-              <Button onClick={handleStartRecording} className="btn-primary-gradient pulse-blue">
-                <Video className="h-4 w-4 mr-2" />
-                Start First Recording
-              </Button>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {recordings.map((recording) => (
-                <RecordingCard
-                  key={recording.id}
-                  recording={recording}
-                  onPlay={handlePlayRecording}
-                  onDelete={handleDeleteRecording}
-                  onEdit={handleEditRecording}
-                />
-              ))}
-            </div>
-          )}
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {recordings.map((recording) => (
+                  <RecordingCard
+                    key={recording.id}
+                    recording={recording}
+                    onPlay={handlePlayRecording}
+                    onDelete={handleDeleteRecording}
+                    onEdit={handleEditRecording}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         </ScrollArea>
       </div>
@@ -598,37 +656,32 @@ function VideoRecorderPanel({ mentee, onBackToLibrary }: {
       <Dialog open={showSaveDialog} onOpenChange={setShowSaveDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>
-              {editingRecording ? 'Edit Recording' : 'Save Recording'}
-            </DialogTitle>
+            <DialogTitle>{editingRecording ? 'Edit Recording' : 'Save Recording'}</DialogTitle>
             <DialogDescription>
-              {editingRecording 
-                ? 'Update recording details'
-                : 'Add details for your new recording'
-              }
+              {editingRecording ? 'Update recording details' : 'Add details for your new recording'}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
               <Label htmlFor="title">Recording Title</Label>
-              <Input 
-                id="title" 
+              <Input
+                id="title"
                 placeholder="e.g., Introduction to Machine Learning"
                 defaultValue={editingRecording?.title}
               />
             </div>
             <div>
               <Label htmlFor="description">Description</Label>
-              <Textarea 
-                id="description" 
+              <Textarea
+                id="description"
                 placeholder="Brief description of what you covered..."
                 defaultValue={editingRecording?.description}
               />
             </div>
             <div>
               <Label htmlFor="tags">Tags (comma-separated)</Label>
-              <Input 
-                id="tags" 
+              <Input
+                id="tags"
                 placeholder="e.g., machine-learning, tutorial, beginner"
                 defaultValue={editingRecording?.tags?.join(', ')}
               />
@@ -637,9 +690,11 @@ function VideoRecorderPanel({ mentee, onBackToLibrary }: {
               <Button variant="outline" onClick={() => setShowSaveDialog(false)}>
                 Cancel
               </Button>
-              <Button 
+              <Button
                 className="bg-[#021ff6] hover:bg-[#021ff6]/90"
-                onClick={() => handleSaveRecording("Sample Title", "Sample Description", ["sample"])}
+                onClick={() =>
+                  handleSaveRecording('Sample Title', 'Sample Description', ['sample'])
+                }
               >
                 <Save className="h-4 w-4 mr-2" />
                 {editingRecording ? 'Update' : 'Save'} Recording
@@ -654,9 +709,9 @@ function VideoRecorderPanel({ mentee, onBackToLibrary }: {
 
 export function LearningVault({ mentee }: LearningVaultProps) {
   const [content, setContent] = useState<LearningContent[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("all");
-  const [activeView, setActiveView] = useState<"library" | "recorder">("library");
+  const [searchQuery, setSearchQuery] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('all');
+  const [activeView, setActiveView] = useState<'library' | 'recorder'>('library');
 
   useEffect(() => {
     const controller = new AbortController();
@@ -667,20 +722,23 @@ export function LearningVault({ mentee }: LearningVaultProps) {
         const token = localStorage.getItem('token');
         if (devKey) headers['X-Dev-Key'] = devKey;
         if (token) headers['Authorization'] = `Bearer ${token}`;
-        const res = await fetch(`${API_BASE_URL}/learning/content`, { headers, signal: controller.signal });
+        const res = await fetch(`${API_BASE_URL}/learning/content`, {
+          headers,
+          signal: controller.signal,
+        });
         const json = await res.json();
         const rows = Array.isArray(json.data) ? json.data : [];
         const mapped: LearningContent[] = rows.map((r: any) => ({
           id: r.id,
           title: r.title,
           description: r.description || '',
-          type: (r.type || 'document'),
+          type: r.type || 'document',
           category: 'tools',
           duration: undefined,
           url: r.url || '#',
           progress: 0,
           uploadDate: new Date(r.created_at || Date.now()),
-          tags: r.tags ? String(r.tags).split(',').filter(Boolean) : []
+          tags: r.tags ? String(r.tags).split(',').filter(Boolean) : [],
         }));
         setContent(mapped);
       } catch {
@@ -689,17 +747,20 @@ export function LearningVault({ mentee }: LearningVaultProps) {
     };
     load();
     const id = setInterval(load, 30000);
-    return () => { controller.abort(); clearInterval(id); };
+    return () => {
+      controller.abort();
+      clearInterval(id);
+    };
   }, []);
 
-  const filteredContent = content.filter(item => {
+  const filteredContent = content.filter((item) => {
     const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = categoryFilter === "all" || item.category === categoryFilter;
+    const matchesCategory = categoryFilter === 'all' || item.category === categoryFilter;
     return matchesSearch && matchesCategory;
   });
 
-  if (activeView === "recorder") {
-    return <VideoRecorderPanel mentee={mentee} onBackToLibrary={() => setActiveView("library")} />;
+  if (activeView === 'recorder') {
+    return <VideoRecorderPanel mentee={mentee} onBackToLibrary={() => setActiveView('library')} />;
   }
 
   return (
@@ -710,8 +771,8 @@ export function LearningVault({ mentee }: LearningVaultProps) {
             <h3 className="text-lg font-semibold text-gradient">Learning Vault</h3>
             <p className="text-gray-600">Curated content and recordings for {mentee.name}</p>
           </div>
-          <Button 
-            onClick={() => setActiveView("recorder")}
+          <Button
+            onClick={() => setActiveView('recorder')}
             className="btn-primary-gradient float-animation"
           >
             <Video className="h-4 w-4 mr-2" />
@@ -726,7 +787,7 @@ export function LearningVault({ mentee }: LearningVaultProps) {
             <TabsTrigger value="documents">Documents</TabsTrigger>
             <TabsTrigger value="recordings">My Recordings</TabsTrigger>
           </TabsList>
-          
+
           <div className="mt-4">
             <div className="flex gap-3">
               <div className="relative flex-1">
@@ -756,7 +817,11 @@ export function LearningVault({ mentee }: LearningVaultProps) {
           <TabsContent value="all" className="mt-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {filteredContent.map((item) => (
-                <ContentCard key={item.id} content={item} onView={() => console.log("View", item.title)} />
+                <ContentCard
+                  key={item.id}
+                  content={item}
+                  onView={() => console.log('View', item.title)}
+                />
               ))}
               {/* No mock recordings listed here */}
             </div>
@@ -764,22 +829,34 @@ export function LearningVault({ mentee }: LearningVaultProps) {
 
           <TabsContent value="videos" className="mt-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {filteredContent.filter(item => item.type === 'video').map((item) => (
-                <ContentCard key={item.id} content={item} onView={() => console.log("View", item.title)} />
-              ))}
+              {filteredContent
+                .filter((item) => item.type === 'video')
+                .map((item) => (
+                  <ContentCard
+                    key={item.id}
+                    content={item}
+                    onView={() => console.log('View', item.title)}
+                  />
+                ))}
             </div>
           </TabsContent>
 
           <TabsContent value="documents" className="mt-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {filteredContent.filter(item => item.type === 'document').map((item) => (
-                <ContentCard key={item.id} content={item} onView={() => console.log("View", item.title)} />
-              ))}
+              {filteredContent
+                .filter((item) => item.type === 'document')
+                .map((item) => (
+                  <ContentCard
+                    key={item.id}
+                    content={item}
+                    onView={() => console.log('View', item.title)}
+                  />
+                ))}
             </div>
           </TabsContent>
 
           <TabsContent value="recordings" className="mt-6">
-            <VideoRecorderPanel mentee={mentee} onBackToLibrary={() => setActiveView("library")} />
+            <VideoRecorderPanel mentee={mentee} onBackToLibrary={() => setActiveView('library')} />
           </TabsContent>
         </Tabs>
       </div>

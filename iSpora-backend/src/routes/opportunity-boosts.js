@@ -37,14 +37,12 @@ router.post('/boost', protect, async (req, res) => {
         opportunity_id: opportunityId,
         user_id: req.user.id,
         boost_amount: boostAmount,
-        boost_message: boostMessage
+        boost_message: boostMessage,
       })
       .returning('*');
 
     // Update opportunity boost count
-    await knex('opportunities')
-      .where('id', opportunityId)
-      .increment('boost', boostAmount);
+    await knex('opportunities').where('id', opportunityId).increment('boost', boostAmount);
 
     // Track analytics
     await knex('opportunity_analytics').insert({
@@ -53,7 +51,7 @@ router.post('/boost', protect, async (req, res) => {
       user_id: req.user.id,
       ip_address: req.ip,
       user_agent: req.get('User-Agent'),
-      metadata: JSON.stringify({ boost_amount: boostAmount })
+      metadata: JSON.stringify({ boost_amount: boostAmount }),
     });
 
     res.status(201).json(boost);
@@ -76,7 +74,7 @@ router.get('/opportunity/:opportunityId', async (req, res) => {
         'users.first_name',
         'users.last_name',
         'users.username',
-        'users.avatar_url'
+        'users.avatar_url',
       )
       .leftJoin('users', 'opportunity_boosts.user_id', 'users.id')
       .where('opportunity_boosts.opportunity_id', opportunityId);
@@ -92,7 +90,7 @@ router.get('/opportunity/:opportunityId', async (req, res) => {
       .offset(offset);
 
     // Transform the data
-    const transformedBoosts = boosts.map(boost => ({
+    const transformedBoosts = boosts.map((boost) => ({
       id: boost.id,
       opportunityId: boost.opportunity_id,
       userId: boost.user_id,
@@ -101,8 +99,8 @@ router.get('/opportunity/:opportunityId', async (req, res) => {
       boostedAt: boost.boosted_at,
       user: {
         name: `${boost.first_name || ''} ${boost.last_name || ''}`.trim() || boost.username,
-        avatar: boost.avatar_url
-      }
+        avatar: boost.avatar_url,
+      },
     }));
 
     res.json({
@@ -111,8 +109,8 @@ router.get('/opportunity/:opportunityId', async (req, res) => {
         page: parseInt(page),
         limit: parseInt(limit),
         total: parseInt(total),
-        pages: Math.ceil(total / limit)
-      }
+        pages: Math.ceil(total / limit),
+      },
     });
   } catch (error) {
     console.error('Error fetching boosts:', error);
@@ -132,7 +130,7 @@ router.get('/my-boosts', protect, async (req, res) => {
         'opportunities.title as opportunity_title',
         'opportunities.company as opportunity_company',
         'opportunities.type as opportunity_type',
-        'opportunities.location as opportunity_location'
+        'opportunities.location as opportunity_location',
       )
       .leftJoin('opportunities', 'opportunity_boosts.opportunity_id', 'opportunities.id')
       .where('opportunity_boosts.user_id', req.user.id)
@@ -149,7 +147,7 @@ router.get('/my-boosts', protect, async (req, res) => {
       .offset(offset);
 
     // Transform the data
-    const transformedBoosts = boosts.map(boost => ({
+    const transformedBoosts = boosts.map((boost) => ({
       id: boost.id,
       opportunityId: boost.opportunity_id,
       boostAmount: boost.boost_amount,
@@ -159,8 +157,8 @@ router.get('/my-boosts', protect, async (req, res) => {
         title: boost.opportunity_title,
         company: boost.opportunity_company,
         type: boost.opportunity_type,
-        location: boost.opportunity_location
-      }
+        location: boost.opportunity_location,
+      },
     }));
 
     res.json({
@@ -169,8 +167,8 @@ router.get('/my-boosts', protect, async (req, res) => {
         page: parseInt(page),
         limit: parseInt(limit),
         total: parseInt(total),
-        pages: Math.ceil(total / limit)
-      }
+        pages: Math.ceil(total / limit),
+      },
     });
   } catch (error) {
     console.error('Error fetching user boosts:', error);
@@ -218,7 +216,7 @@ router.get('/stats', protect, async (req, res) => {
       totalBoosts: parseInt(totalBoosts.total) || 0,
       totalBoostAmount: parseInt(totalBoostAmount.total) || 0,
       recentBoosts: parseInt(recentBoosts.total) || 0,
-      boostsByType
+      boostsByType,
     });
   } catch (error) {
     console.error('Error fetching boost statistics:', error);
@@ -245,7 +243,7 @@ router.get('/top-boosted', async (req, res) => {
         'users.first_name',
         'users.last_name',
         'users.username',
-        'users.avatar_url'
+        'users.avatar_url',
       )
       .leftJoin('users', 'opportunities.posted_by', 'users.id')
       .where('opportunities.is_active', true)
@@ -255,7 +253,7 @@ router.get('/top-boosted', async (req, res) => {
       .limit(parseInt(limit));
 
     // Transform the data
-    const transformedTopBoosted = topBoosted.map(opp => ({
+    const transformedTopBoosted = topBoosted.map((opp) => ({
       id: opp.id,
       title: opp.title,
       type: opp.type,
@@ -265,8 +263,8 @@ router.get('/top-boosted', async (req, res) => {
       postedDate: opp.posted_date,
       postedBy: {
         name: `${opp.first_name || ''} ${opp.last_name || ''}`.trim() || opp.username,
-        avatar: opp.avatar_url
-      }
+        avatar: opp.avatar_url,
+      },
     }));
 
     res.json(transformedTopBoosted);

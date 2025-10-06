@@ -18,7 +18,8 @@ router.get('/stats', async (req, res, next) => {
     const activeUsers = await db('users').where('status', 'active').count('id as count').first();
     const newUsersToday = await db('users')
       .whereRaw('DATE(created_at) = CURDATE()')
-      .count('id as count').first();
+      .count('id as count')
+      .first();
 
     // Get content statistics
     const totalProjects = await db('projects').count('id as count').first();
@@ -44,20 +45,19 @@ router.get('/stats', async (req, res, next) => {
       networkLatency: '12ms',
       errorRate: '0.1%',
       requestsPerMinute: 156,
-      activeConnections: 89
+      activeConnections: 89,
     };
 
     res.json({
       success: true,
-      data: systemStats
+      data: systemStats,
     });
-
   } catch (error) {
     console.error('Admin stats error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to fetch system statistics',
-      error: error.message
+      error: error.message,
     });
   }
 });
@@ -70,23 +70,22 @@ router.get('/users', async (req, res, next) => {
     const { page = 1, limit = 50, search, status, role } = req.query;
     const offset = (page - 1) * limit;
 
-    let query = db('users')
-      .select([
-        'id',
-        'first_name',
-        'last_name',
-        'email',
-        'username',
-        'user_type',
-        'status',
-        'avatar_url',
-        'created_at',
-        'updated_at',
-        'last_login'
-      ]);
+    let query = db('users').select([
+      'id',
+      'first_name',
+      'last_name',
+      'email',
+      'username',
+      'user_type',
+      'status',
+      'avatar_url',
+      'created_at',
+      'updated_at',
+      'last_login',
+    ]);
 
     if (search) {
-      query = query.where(function() {
+      query = query.where(function () {
         this.where('first_name', 'like', `%${search}%`)
           .orWhere('last_name', 'like', `%${search}%`)
           .orWhere('email', 'like', `%${search}%`)
@@ -108,37 +107,40 @@ router.get('/users', async (req, res, next) => {
       .offset(parseInt(offset));
 
     // Get additional stats for each user
-    const usersWithStats = await Promise.all(users.map(async (user) => {
-      const projectCount = await db('projects')
-        .where('creator_id', user.id)
-        .count('id as count').first();
+    const usersWithStats = await Promise.all(
+      users.map(async (user) => {
+        const projectCount = await db('projects')
+          .where('creator_id', user.id)
+          .count('id as count')
+          .first();
 
-      const contributionCount = await db('user_actions')
-        .where('user_id', user.id)
-        .count('id as count').first();
+        const contributionCount = await db('user_actions')
+          .where('user_id', user.id)
+          .count('id as count')
+          .first();
 
-      return {
-        ...user,
-        name: `${user.first_name} ${user.last_name}`,
-        role: user.user_type,
-        projects: parseInt(projectCount.count),
-        contributions: parseInt(contributionCount.count),
-        joinDate: user.created_at,
-        lastActive: user.last_login || user.updated_at
-      };
-    }));
+        return {
+          ...user,
+          name: `${user.first_name} ${user.last_name}`,
+          role: user.user_type,
+          projects: parseInt(projectCount.count),
+          contributions: parseInt(contributionCount.count),
+          joinDate: user.created_at,
+          lastActive: user.last_login || user.updated_at,
+        };
+      }),
+    );
 
     res.json({
       success: true,
-      data: usersWithStats
+      data: usersWithStats,
     });
-
   } catch (error) {
     console.error('Admin users error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to fetch users',
-      error: error.message
+      error: error.message,
     });
   }
 });
@@ -155,7 +157,7 @@ router.post('/users/:userId/:action', async (req, res, next) => {
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: 'User not found'
+        message: 'User not found',
       });
     }
 
@@ -163,14 +165,14 @@ router.post('/users/:userId/:action', async (req, res, next) => {
       case 'suspend':
         await db('users').where('id', userId).update({
           status: 'suspended',
-          updated_at: new Date()
+          updated_at: new Date(),
         });
         break;
 
       case 'activate':
         await db('users').where('id', userId).update({
           status: 'active',
-          updated_at: new Date()
+          updated_at: new Date(),
         });
         break;
 
@@ -181,21 +183,21 @@ router.post('/users/:userId/:action', async (req, res, next) => {
       case 'promote':
         await db('users').where('id', userId).update({
           user_type: 'moderator',
-          updated_at: new Date()
+          updated_at: new Date(),
         });
         break;
 
       case 'demote':
         await db('users').where('id', userId).update({
           user_type: 'user',
-          updated_at: new Date()
+          updated_at: new Date(),
         });
         break;
 
       default:
         return res.status(400).json({
           success: false,
-          message: 'Invalid action'
+          message: 'Invalid action',
         });
     }
 
@@ -205,20 +207,19 @@ router.post('/users/:userId/:action', async (req, res, next) => {
       target_user_id: userId,
       action: action,
       reason: reason || null,
-      created_at: new Date()
+      created_at: new Date(),
     });
 
     res.json({
       success: true,
-      message: `User ${action} successful`
+      message: `User ${action} successful`,
     });
-
   } catch (error) {
     console.error('Admin user action error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to perform user action',
-      error: error.message
+      error: error.message,
     });
   }
 });
@@ -234,12 +235,12 @@ router.post('/users/bulk/:action', async (req, res, next) => {
     if (!userIds || !Array.isArray(userIds) || userIds.length === 0) {
       return res.status(400).json({
         success: false,
-        message: 'User IDs are required'
+        message: 'User IDs are required',
       });
     }
 
     const updateData = {
-      updated_at: new Date()
+      updated_at: new Date(),
     };
 
     switch (action) {
@@ -261,7 +262,7 @@ router.post('/users/bulk/:action', async (req, res, next) => {
       default:
         return res.status(400).json({
           success: false,
-          message: 'Invalid action'
+          message: 'Invalid action',
         });
     }
 
@@ -275,20 +276,19 @@ router.post('/users/bulk/:action', async (req, res, next) => {
       target_user_ids: JSON.stringify(userIds),
       action: `bulk_${action}`,
       reason: reason || null,
-      created_at: new Date()
+      created_at: new Date(),
     });
 
     res.json({
       success: true,
-      message: `Bulk ${action} successful for ${userIds.length} users`
+      message: `Bulk ${action} successful for ${userIds.length} users`,
     });
-
   } catch (error) {
     console.error('Admin bulk action error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to perform bulk action',
-      error: error.message
+      error: error.message,
     });
   }
 });
@@ -313,7 +313,7 @@ router.get('/reports', async (req, res, next) => {
         'status',
         'created_at',
         'resolved_at',
-        'resolved_by'
+        'resolved_by',
       ])
       .orderBy('created_at', 'desc');
 
@@ -332,37 +332,42 @@ router.get('/reports', async (req, res, next) => {
     const reports = await query;
 
     // Get reporter and reported user details
-    const reportsWithDetails = await Promise.all(reports.map(async (report) => {
-      const reporter = await db('users')
-        .select('first_name', 'last_name', 'email')
-        .where('id', report.reporter_id)
-        .first();
+    const reportsWithDetails = await Promise.all(
+      reports.map(async (report) => {
+        const reporter = await db('users')
+          .select('first_name', 'last_name', 'email')
+          .where('id', report.reporter_id)
+          .first();
 
-      const reportedUser = report.reported_user_id ? await db('users')
-        .select('first_name', 'last_name', 'email')
-        .where('id', report.reported_user_id)
-        .first() : null;
+        const reportedUser = report.reported_user_id
+          ? await db('users')
+              .select('first_name', 'last_name', 'email')
+              .where('id', report.reported_user_id)
+              .first()
+          : null;
 
-      return {
-        ...report,
-        reporter: reporter ? `${reporter.first_name} ${reporter.last_name}` : 'Unknown',
-        reportedUser: reportedUser ? `${reportedUser.first_name} ${reportedUser.last_name}` : null,
-        content: report.description,
-        date: report.created_at
-      };
-    }));
+        return {
+          ...report,
+          reporter: reporter ? `${reporter.first_name} ${reporter.last_name}` : 'Unknown',
+          reportedUser: reportedUser
+            ? `${reportedUser.first_name} ${reportedUser.last_name}`
+            : null,
+          content: report.description,
+          date: report.created_at,
+        };
+      }),
+    );
 
     res.json({
       success: true,
-      data: reportsWithDetails
+      data: reportsWithDetails,
     });
-
   } catch (error) {
     console.error('Admin reports error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to fetch reports',
-      error: error.message
+      error: error.message,
     });
   }
 });
@@ -379,12 +384,12 @@ router.post('/reports/:reportId/:action', async (req, res, next) => {
     if (!report) {
       return res.status(404).json({
         success: false,
-        message: 'Report not found'
+        message: 'Report not found',
       });
     }
 
     const updateData = {
-      updated_at: new Date()
+      updated_at: new Date(),
     };
 
     switch (action) {
@@ -413,7 +418,7 @@ router.post('/reports/:reportId/:action', async (req, res, next) => {
       default:
         return res.status(400).json({
           success: false,
-          message: 'Invalid action'
+          message: 'Invalid action',
         });
     }
 
@@ -425,20 +430,19 @@ router.post('/reports/:reportId/:action', async (req, res, next) => {
       target_report_id: reportId,
       action: `report_${action}`,
       reason: notes || null,
-      created_at: new Date()
+      created_at: new Date(),
     });
 
     res.json({
       success: true,
-      message: `Report ${action} successful`
+      message: `Report ${action} successful`,
     });
-
   } catch (error) {
     console.error('Admin report action error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to perform report action',
-      error: error.message
+      error: error.message,
     });
   }
 });
@@ -451,15 +455,7 @@ router.get('/logs', async (req, res, next) => {
     const { level, category, limit = 100 } = req.query;
 
     let query = db('system_logs')
-      .select([
-        'id',
-        'level',
-        'message',
-        'category',
-        'user_id',
-        'ip_address',
-        'created_at'
-      ])
+      .select(['id', 'level', 'message', 'category', 'user_id', 'ip_address', 'created_at'])
       .orderBy('created_at', 'desc')
       .limit(parseInt(limit));
 
@@ -474,34 +470,35 @@ router.get('/logs', async (req, res, next) => {
     const logs = await query;
 
     // Get user details for logs that have user_id
-    const logsWithDetails = await Promise.all(logs.map(async (log) => {
-      let user = null;
-      if (log.user_id) {
-        user = await db('users')
-          .select('first_name', 'last_name', 'email')
-          .where('id', log.user_id)
-          .first();
-      }
+    const logsWithDetails = await Promise.all(
+      logs.map(async (log) => {
+        let user = null;
+        if (log.user_id) {
+          user = await db('users')
+            .select('first_name', 'last_name', 'email')
+            .where('id', log.user_id)
+            .first();
+        }
 
-      return {
-        ...log,
-        user: user ? `${user.first_name} ${user.last_name}` : 'system',
-        ip: log.ip_address,
-        timestamp: log.created_at
-      };
-    }));
+        return {
+          ...log,
+          user: user ? `${user.first_name} ${user.last_name}` : 'system',
+          ip: log.ip_address,
+          timestamp: log.created_at,
+        };
+      }),
+    );
 
     res.json({
       success: true,
-      data: logsWithDetails
+      data: logsWithDetails,
     });
-
   } catch (error) {
     console.error('Admin logs error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to fetch system logs',
-      error: error.message
+      error: error.message,
     });
   }
 });

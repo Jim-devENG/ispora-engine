@@ -1,9 +1,9 @@
-import React, { useState } from "react";
-import { Search, Bell } from "lucide-react";
-import { Input } from "./ui/input";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
-import { LiveSessionsWidget } from "./LiveSessionsWidget";
-import { ThemeToggle } from "./ui/theme-toggle";
+import React, { useState } from 'react';
+import { Search, Bell } from 'lucide-react';
+import { Input } from './ui/input';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
+import { LiveSessionsWidget } from './LiveSessionsWidget';
+import { ThemeToggle } from './ui/theme-toggle';
 
 interface DashboardHeaderProps {
   userName?: string;
@@ -29,13 +29,13 @@ const NotificationButton = React.forwardRef<
   );
 });
 
-NotificationButton.displayName = "NotificationButton";
+NotificationButton.displayName = 'NotificationButton';
 
-export function DashboardHeader({ 
-  userName = "Dr. Amina", 
-  userTitle = "Ready to make an impact today?" 
+export function DashboardHeader({
+  userName = 'Dr. Amina',
+  userTitle = 'Ready to make an impact today?',
 }: DashboardHeaderProps) {
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
 
   return (
     <TooltipProvider>
@@ -47,9 +47,7 @@ export function DashboardHeader({
               <h1 className="text-3xl font-bold text-foreground tracking-tight">
                 Welcome back, {userName}
               </h1>
-              <p className="text-base text-muted-foreground mt-2 font-medium">
-                {userTitle}
-              </p>
+              <p className="text-base text-muted-foreground mt-2 font-medium">{userTitle}</p>
             </div>
 
             {/* Right Section: Live Sessions Widget, Search Bar, Notifications */}
@@ -69,7 +67,7 @@ export function DashboardHeader({
                 />
                 {searchQuery && (
                   <button
-                    onClick={() => setSearchQuery("")}
+                    onClick={() => setSearchQuery('')}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-1 rounded-full hover:bg-muted"
                   >
                     ×
@@ -84,9 +82,7 @@ export function DashboardHeader({
                   <TooltipTrigger asChild>
                     <NotificationButton />
                   </TooltipTrigger>
-                  <TooltipContent>
-                    You have 3 new notifications
-                  </TooltipContent>
+                  <TooltipContent>You have 3 new notifications</TooltipContent>
                 </Tooltip>
               </div>
             </div>

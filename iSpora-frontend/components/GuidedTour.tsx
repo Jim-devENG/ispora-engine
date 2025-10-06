@@ -24,7 +24,13 @@ interface GuidedTourProps {
   title?: string;
 }
 
-export function GuidedTour({ steps, isActive, onComplete, onSkip, title = "Feature Tour" }: GuidedTourProps) {
+export function GuidedTour({
+  steps,
+  isActive,
+  onComplete,
+  onSkip,
+  title = 'Feature Tour',
+}: GuidedTourProps) {
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [highlightBox, setHighlightBox] = useState<{
     top: number;
@@ -32,7 +38,7 @@ export function GuidedTour({ steps, isActive, onComplete, onSkip, title = "Featu
     width: number;
     height: number;
   } | null>(null);
-  
+
   const overlayRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
 
@@ -52,14 +58,14 @@ export function GuidedTour({ steps, isActive, onComplete, onSkip, title = "Featu
         top: rect.top,
         left: rect.left,
         width: rect.width,
-        height: rect.height
+        height: rect.height,
       });
 
       // Scroll element into view
       targetElement.scrollIntoView({
         behavior: 'smooth',
         block: 'center',
-        inline: 'center'
+        inline: 'center',
       });
     };
 
@@ -92,7 +98,8 @@ export function GuidedTour({ steps, isActive, onComplete, onSkip, title = "Featu
   };
 
   const getTooltipPosition = () => {
-    if (!highlightBox || !cardRef.current) return { top: '50%', left: '50%', transform: 'translate(-50%, -50%)' };
+    if (!highlightBox || !cardRef.current)
+      return { top: '50%', left: '50%', transform: 'translate(-50%, -50%)' };
 
     const cardRect = cardRef.current.getBoundingClientRect();
     const viewportWidth = window.innerWidth;
@@ -138,7 +145,7 @@ export function GuidedTour({ steps, isActive, onComplete, onSkip, title = "Featu
   return (
     <>
       {/* Overlay */}
-      <div 
+      <div
         ref={overlayRef}
         className="fixed inset-0 bg-black bg-opacity-50 z-50 transition-opacity"
         style={{ pointerEvents: 'auto' }}
@@ -147,7 +154,7 @@ export function GuidedTour({ steps, isActive, onComplete, onSkip, title = "Featu
         {highlightBox && (
           <>
             {/* Cutout effect - four boxes around the highlighted element */}
-            <div 
+            <div
               className="absolute bg-transparent border-2 border-white rounded-lg shadow-lg animate-pulse"
               style={{
                 top: highlightBox.top - 4,
@@ -156,9 +163,9 @@ export function GuidedTour({ steps, isActive, onComplete, onSkip, title = "Featu
                 height: highlightBox.height + 8,
               }}
             />
-            
+
             {/* Spotlight effect */}
-            <div 
+            <div
               className="absolute bg-white bg-opacity-10 rounded-lg"
               style={{
                 top: highlightBox.top - 8,
@@ -171,7 +178,7 @@ export function GuidedTour({ steps, isActive, onComplete, onSkip, title = "Featu
         )}
 
         {/* Tour Card */}
-        <Card 
+        <Card
           ref={cardRef}
           className="absolute max-w-sm shadow-2xl border-0 z-10"
           style={tooltipStyle}
@@ -195,16 +202,14 @@ export function GuidedTour({ steps, isActive, onComplete, onSkip, title = "Featu
             {/* Content */}
             <div className="space-y-3">
               <h3 className="font-semibold text-lg">{currentStep.title}</h3>
-              <p className="text-gray-600 text-sm leading-relaxed">
-                {currentStep.description}
-              </p>
+              <p className="text-gray-600 text-sm leading-relaxed">{currentStep.description}</p>
 
               {/* Action button if available */}
               {currentStep.action && (
                 <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
                   <p className="text-xs text-blue-700 mb-2">Try it now:</p>
-                  <Button 
-                    size="sm" 
+                  <Button
+                    size="sm"
                     variant="outline"
                     className="text-xs border-blue-200 hover:bg-blue-100"
                     onClick={currentStep.action.onClick}
@@ -217,9 +222,9 @@ export function GuidedTour({ steps, isActive, onComplete, onSkip, title = "Featu
 
             {/* Navigation */}
             <div className="flex justify-between items-center mt-6">
-              <Button 
-                variant="ghost" 
-                size="sm" 
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={handlePrevious}
                 disabled={isFirstStep}
                 className="text-gray-500"
@@ -250,39 +255,43 @@ export const dashboardTour: TourStep[] = [
   {
     id: 'dashboard-header',
     title: 'Your Impact Dashboard',
-    description: 'This is your personalized dashboard showing your activity, connections, and impact metrics.',
+    description:
+      'This is your personalized dashboard showing your activity, connections, and impact metrics.',
     target: '[data-tour="dashboard-header"]',
-    position: 'bottom'
+    position: 'bottom',
   },
   {
     id: 'quick-actions',
     title: 'Quick Actions',
-    description: 'Use these buttons to quickly start mentoring sessions, create projects, or connect with others.',
+    description:
+      'Use these buttons to quickly start mentoring sessions, create projects, or connect with others.',
     target: '[data-tour="quick-actions"]',
-    position: 'top'
+    position: 'top',
   },
   {
     id: 'navigation',
     title: 'Main Navigation',
     description: 'Navigate between different sections of the platform using the sidebar menu.',
     target: '[data-tour="sidebar"]',
-    position: 'right'
-  }
+    position: 'right',
+  },
 ];
 
 export const projectTour: TourStep[] = [
   {
     id: 'project-workspace',
     title: 'Project Workspace',
-    description: 'This is your collaborative workspace where you can manage all aspects of your project.',
+    description:
+      'This is your collaborative workspace where you can manage all aspects of your project.',
     target: '[data-tour="project-workspace"]',
-    position: 'center'
+    position: 'center',
   },
   {
     id: 'workspace-tabs',
     title: 'Workspace Tools',
-    description: 'Switch between different tools like session board, task manager, and learning resources.',
+    description:
+      'Switch between different tools like session board, task manager, and learning resources.',
     target: '[data-tour="workspace-tabs"]',
-    position: 'right'
-  }
+    position: 'right',
+  },
 ];

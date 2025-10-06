@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Video,
   VideoOff,
@@ -18,16 +18,16 @@ import {
   ChevronRight,
   Share,
   Paperclip,
-  Smile
-} from "lucide-react";
-import { io, Socket } from "socket.io-client";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Button } from "../ui/button";
-import { Badge } from "../ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { Input } from "../ui/input";
-import { ScrollArea } from "../ui/scroll-area";
-import { Separator } from "../ui/separator";
+  Smile,
+} from 'lucide-react';
+import { io, Socket } from 'socket.io-client';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Button } from '../ui/button';
+import { Badge } from '../ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { Input } from '../ui/input';
+import { ScrollArea } from '../ui/scroll-area';
+import { Separator } from '../ui/separator';
 
 interface Mentee {
   id: string;
@@ -74,18 +74,15 @@ const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'https://ispora-backend.on
 
 // WebRTC configuration
 const rtcConfig = {
-  iceServers: [
-    { urls: 'stun:stun.l.google.com:19302' },
-    { urls: 'stun:stun1.l.google.com:19302' }
-  ]
+  iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }],
 };
 
 function SessionTimer() {
   const [duration, setDuration] = useState(0);
-  
+
   useEffect(() => {
     const interval = setInterval(() => {
-      setDuration(prev => prev + 1);
+      setDuration((prev) => prev + 1);
     }, 1000);
 
     return () => clearInterval(interval);
@@ -95,7 +92,7 @@ function SessionTimer() {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
-    
+
     if (hours > 0) {
       return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     }
@@ -110,20 +107,20 @@ function SessionTimer() {
   );
 }
 
-function VideoArea({ 
-  isInSession, 
-  onJoinSession, 
-  isScreenSharing, 
-  localStream, 
-  remoteStreams, 
-  isMuted, 
-  hasVideo, 
-  onToggleMute, 
-  onToggleVideo, 
-  onToggleScreenShare, 
-  onLeaveSession 
-}: { 
-  isInSession: boolean; 
+function VideoArea({
+  isInSession,
+  onJoinSession,
+  isScreenSharing,
+  localStream,
+  remoteStreams,
+  isMuted,
+  hasVideo,
+  onToggleMute,
+  onToggleVideo,
+  onToggleScreenShare,
+  onLeaveSession,
+}: {
+  isInSession: boolean;
   onJoinSession: () => void;
   isScreenSharing: boolean;
   localStream: MediaStream | null;
@@ -162,7 +159,7 @@ function VideoArea({
           <Video className="h-12 w-12 mx-auto mb-4 text-gray-400" />
           <h3 className="text-lg mb-2">Ready to start?</h3>
           <p className="text-gray-300 mb-6">Click "Join Session" to start the video call</p>
-          <Button 
+          <Button
             onClick={onJoinSession}
             className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2"
           >
@@ -198,7 +195,9 @@ function VideoArea({
                       className="w-full h-full object-cover"
                     />
                     <div className="absolute top-2 right-2">
-                      <Badge variant="secondary" className="text-xs">You</Badge>
+                      <Badge variant="secondary" className="text-xs">
+                        You
+                      </Badge>
                     </div>
                     {isMuted && (
                       <div className="absolute bottom-2 left-2 bg-red-500 rounded-full p-1">
@@ -212,22 +211,27 @@ function VideoArea({
                     )}
                   </div>
                 )}
-                
+
                 {/* Remote videos */}
                 {remoteStreams.map((stream, index) => (
-                  <div key={index} className="relative rounded-lg overflow-hidden bg-gradient-to-br from-green-500 to-blue-600">
+                  <div
+                    key={index}
+                    className="relative rounded-lg overflow-hidden bg-gradient-to-br from-green-500 to-blue-600"
+                  >
                     <video
-                      ref={el => remoteVideoRefs.current[index] = el}
+                      ref={(el) => (remoteVideoRefs.current[index] = el)}
                       autoPlay
                       playsInline
                       className="w-full h-full object-cover"
                     />
                     <div className="absolute top-2 right-2">
-                      <Badge variant="secondary" className="text-xs">Participant {index + 1}</Badge>
+                      <Badge variant="secondary" className="text-xs">
+                        Participant {index + 1}
+                      </Badge>
                     </div>
                   </div>
                 ))}
-                
+
                 {/* Empty state when no streams */}
                 {!localStream && remoteStreams.length === 0 && (
                   <div className="col-span-2 flex items-center justify-center">
@@ -244,38 +248,42 @@ function VideoArea({
           {/* Floating session controls */}
           <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
             <div className="flex items-center gap-2 bg-black/70 backdrop-blur-sm rounded-full px-4 py-2 session-controls">
-              <Button 
-                size="sm" 
-                variant={isMuted ? "destructive" : "ghost"} 
+              <Button
+                size="sm"
+                variant={isMuted ? 'destructive' : 'ghost'}
                 className="text-white hover:bg-white/20 rounded-full h-8 w-8 p-0"
                 onClick={onToggleMute}
               >
                 {isMuted ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
               </Button>
-              
-              <Button 
-                size="sm" 
-                variant={hasVideo ? "ghost" : "destructive"} 
+
+              <Button
+                size="sm"
+                variant={hasVideo ? 'ghost' : 'destructive'}
                 className="text-white hover:bg-white/20 rounded-full h-8 w-8 p-0"
                 onClick={onToggleVideo}
               >
                 {hasVideo ? <Video className="h-4 w-4" /> : <VideoOff className="h-4 w-4" />}
               </Button>
-              
-              <Button 
-                size="sm" 
-                variant={isScreenSharing ? "default" : "ghost"} 
+
+              <Button
+                size="sm"
+                variant={isScreenSharing ? 'default' : 'ghost'}
                 className="text-white hover:bg-white/20 rounded-full h-8 w-8 p-0"
                 onClick={onToggleScreenShare}
               >
-                {isScreenSharing ? <MonitorOff className="h-4 w-4" /> : <Monitor className="h-4 w-4" />}
+                {isScreenSharing ? (
+                  <MonitorOff className="h-4 w-4" />
+                ) : (
+                  <Monitor className="h-4 w-4" />
+                )}
               </Button>
-              
+
               <Separator orientation="vertical" className="h-6 bg-white/30" />
-              
-              <Button 
-                size="sm" 
-                variant="destructive" 
+
+              <Button
+                size="sm"
+                variant="destructive"
                 className="rounded-full h-8 w-8 p-0"
                 onClick={onLeaveSession}
               >
@@ -289,13 +297,21 @@ function VideoArea({
   );
 }
 
-function ChatSidebar({ isOpen, onToggle, eventId }: { isOpen: boolean; onToggle: () => void; eventId?: string }) {
+function ChatSidebar({
+  isOpen,
+  onToggle,
+  eventId,
+}: {
+  isOpen: boolean;
+  onToggle: () => void;
+  eventId?: string;
+}) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [newMessage, setNewMessage] = useState("");
+  const [newMessage, setNewMessage] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   useEffect(() => {
@@ -313,21 +329,30 @@ function ChatSidebar({ isOpen, onToggle, eventId }: { isOpen: boolean; onToggle:
         const token = localStorage.getItem('token');
         if (devKey) headers['X-Dev-Key'] = devKey;
         if (token) headers['Authorization'] = `Bearer ${token}`;
-        const res = await fetch(`${API_BASE_URL}/live/events/${eventId}/chat`, { headers, signal: controller.signal });
+        const res = await fetch(`${API_BASE_URL}/live/events/${eventId}/chat`, {
+          headers,
+          signal: controller.signal,
+        });
         const json = await res.json();
         const rows = Array.isArray(json.data) ? json.data : [];
         const mapped: ChatMessage[] = rows.map((r: any) => ({
           id: r.id,
           sender: r.sender_name || 'User',
           message: r.content || '',
-          timestamp: new Date(r.created_at || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+          timestamp: new Date(r.created_at || Date.now()).toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit',
+          }),
         }));
         setMessages(mapped);
       } catch {}
     };
     load();
     const id = setInterval(load, 10000);
-    return () => { controller.abort(); clearInterval(id); };
+    return () => {
+      controller.abort();
+      clearInterval(id);
+    };
   }, [eventId]);
 
   const sendMessage = async () => {
@@ -339,10 +364,23 @@ function ChatSidebar({ isOpen, onToggle, eventId }: { isOpen: boolean; onToggle:
     if (devKey) headers['X-Dev-Key'] = devKey;
     if (token) headers['Authorization'] = `Bearer ${token}`;
     try {
-      const res = await fetch(`${API_BASE_URL}/live/events/${eventId}/chat`, { method: 'POST', headers, body: JSON.stringify({ content: newMessage, type: 'text' }) });
+      const res = await fetch(`${API_BASE_URL}/live/events/${eventId}/chat`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ content: newMessage, type: 'text' }),
+      });
       if (res.ok) {
-        setMessages(prev => [...prev, { id: Date.now().toString(), sender: 'You', message: newMessage, timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), isCurrentUser: true }]);
-        setNewMessage("");
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: Date.now().toString(),
+            sender: 'You',
+            message: newMessage,
+            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            isCurrentUser: true,
+          },
+        ]);
+        setNewMessage('');
       }
     } catch {}
   };
@@ -355,9 +393,11 @@ function ChatSidebar({ isOpen, onToggle, eventId }: { isOpen: boolean; onToggle:
   };
 
   return (
-    <div className={`bg-white border-l border-gray-200 flex flex-col transition-all duration-300 ${
-      isOpen ? 'w-80' : 'w-0 overflow-hidden'
-    }`}>
+    <div
+      className={`bg-white border-l border-gray-200 flex flex-col transition-all duration-300 ${
+        isOpen ? 'w-80' : 'w-0 overflow-hidden'
+      }`}
+    >
       {isOpen && (
         <>
           {/* Chat Header */}
@@ -365,14 +405,11 @@ function ChatSidebar({ isOpen, onToggle, eventId }: { isOpen: boolean; onToggle:
             <div className="flex items-center gap-2">
               <MessageCircle className="h-5 w-5 text-[#021ff6]" />
               <h3 className="font-medium">Live Chat</h3>
-              <Badge variant="secondary" className="text-xs">{messages.filter(m => m.type !== 'system').length}</Badge>
+              <Badge variant="secondary" className="text-xs">
+                {messages.filter((m) => m.type !== 'system').length}
+              </Badge>
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onToggle}
-              className="h-8 w-8 p-0"
-            >
+            <Button variant="ghost" size="sm" onClick={onToggle} className="h-8 w-8 p-0">
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
@@ -381,9 +418,10 @@ function ChatSidebar({ isOpen, onToggle, eventId }: { isOpen: boolean; onToggle:
           <ScrollArea className="flex-1 p-3">
             <div className="space-y-3">
               {messages.map((message) => (
-                <div key={message.id} className={`message-enter ${
-                  message.type === 'system' ? 'text-center' : ''
-                }`}>
+                <div
+                  key={message.id}
+                  className={`message-enter ${message.type === 'system' ? 'text-center' : ''}`}
+                >
                   {message.type === 'system' ? (
                     <div className="text-xs text-gray-500 py-2">
                       <div className="bg-gray-100 rounded-full px-3 py-1 inline-block">
@@ -391,23 +429,32 @@ function ChatSidebar({ isOpen, onToggle, eventId }: { isOpen: boolean; onToggle:
                       </div>
                     </div>
                   ) : (
-                    <div className={`flex gap-2 ${message.isCurrentUser ? 'flex-row-reverse' : ''}`}>
+                    <div
+                      className={`flex gap-2 ${message.isCurrentUser ? 'flex-row-reverse' : ''}`}
+                    >
                       <Avatar className="h-8 w-8 flex-shrink-0">
                         <AvatarImage src={message.avatar} />
                         <AvatarFallback className="text-xs">
-                          {message.sender.split(' ').map(n => n[0]).join('')}
+                          {message.sender
+                            .split(' ')
+                            .map((n) => n[0])
+                            .join('')}
                         </AvatarFallback>
                       </Avatar>
-                      <div className={`flex-1 min-w-0 ${message.isCurrentUser ? 'text-right' : ''}`}>
+                      <div
+                        className={`flex-1 min-w-0 ${message.isCurrentUser ? 'text-right' : ''}`}
+                      >
                         <div className="flex items-center gap-2 mb-1">
                           <span className="text-xs font-medium">{message.sender}</span>
                           <span className="text-xs text-gray-500">{message.timestamp}</span>
                         </div>
-                        <div className={`inline-block p-2 rounded-lg max-w-[85%] text-sm break-words ${
-                          message.isCurrentUser 
-                            ? 'bg-[#021ff6] text-white' 
-                            : 'bg-gray-100 text-gray-900'
-                        }`}>
+                        <div
+                          className={`inline-block p-2 rounded-lg max-w-[85%] text-sm break-words ${
+                            message.isCurrentUser
+                              ? 'bg-[#021ff6] text-white'
+                              : 'bg-gray-100 text-gray-900'
+                          }`}
+                        >
                           {message.message}
                         </div>
                       </div>
@@ -429,9 +476,9 @@ function ChatSidebar({ isOpen, onToggle, eventId }: { isOpen: boolean; onToggle:
                 onKeyPress={handleKeyPress}
                 className="flex-1 text-sm"
               />
-              <Button 
-                onClick={sendMessage} 
-                size="sm" 
+              <Button
+                onClick={sendMessage}
+                size="sm"
                 disabled={!newMessage.trim()}
                 className="bg-[#021ff6] hover:bg-[#021ff6]/90 px-3"
               >
@@ -456,20 +503,18 @@ function ParticipantsPanel() {
       </CardHeader>
       <CardContent className="p-3 pt-0">
         <ScrollArea className="h-48">
-          <div className="space-y-2">
-            {/* No mock participants */}
-          </div>
+          <div className="space-y-2">{/* No mock participants */}</div>
         </ScrollArea>
       </CardContent>
     </Card>
   );
 }
 
-export function LiveSession({ 
-  mentee, 
-  sessionTitle = "Live Mentorship Session",
-  sessionDescription = "React Advanced Patterns",
-  isHost = true 
+export function LiveSession({
+  mentee,
+  sessionTitle = 'Live Mentorship Session',
+  sessionDescription = 'React Advanced Patterns',
+  isHost = true,
 }: LiveSessionProps) {
   const [isInSession, setIsInSession] = useState(false);
   const [eventId, setEventId] = useState<string | undefined>(undefined);
@@ -478,13 +523,13 @@ export function LiveSession({
   const [isScreenSharing, setIsScreenSharing] = useState(false);
   const [showChat, setShowChat] = useState(true);
   const [isRecording, setIsRecording] = useState(false);
-  
+
   // WebRTC state
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [remoteStreams, setRemoteStreams] = useState<MediaStream[]>([]);
   const [socket, setSocket] = useState<Socket | null>(null);
   const [peers, setPeers] = useState<Map<string, RTCPeerConnection>>(new Map());
-  
+
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const screenShareRef = useRef<MediaStream | null>(null);
 
@@ -493,7 +538,7 @@ export function LiveSession({
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { width: 1280, height: 720 },
-        audio: true
+        audio: true,
       });
       setLocalStream(stream);
       if (localVideoRef.current) {
@@ -510,16 +555,16 @@ export function LiveSession({
     const newSocket = io(SOCKET_URL, {
       auth: {
         token: localStorage.getItem('token'),
-        devKey: localStorage.getItem('devKey')
-      }
+        devKey: localStorage.getItem('devKey'),
+      },
     });
-    
+
     newSocket.on('connect', () => {
       console.log('Connected to signaling server');
       // Authenticate with the server
       newSocket.emit('authenticate', {
         token: localStorage.getItem('token'),
-        devKey: localStorage.getItem('devKey')
+        devKey: localStorage.getItem('devKey'),
       });
     });
 
@@ -571,10 +616,10 @@ export function LiveSession({
 
   const createPeerConnection = async (userId: string, isInitiator: boolean) => {
     const peerConnection = new RTCPeerConnection(rtcConfig);
-    
+
     // Add local stream tracks
     if (localStream) {
-      localStream.getTracks().forEach(track => {
+      localStream.getTracks().forEach((track) => {
         peerConnection.addTrack(track, localStream);
       });
     }
@@ -582,7 +627,7 @@ export function LiveSession({
     // Handle remote stream
     peerConnection.ontrack = (event) => {
       const [remoteStream] = event.streams;
-      setRemoteStreams(prev => [...prev, remoteStream]);
+      setRemoteStreams((prev) => [...prev, remoteStream]);
     };
 
     // Handle ICE candidates
@@ -590,22 +635,22 @@ export function LiveSession({
       if (event.candidate && socket) {
         socket.emit('ice-candidate', {
           to: userId,
-          candidate: event.candidate
+          candidate: event.candidate,
         });
       }
     };
 
-    setPeers(prev => new Map(prev).set(userId, peerConnection));
+    setPeers((prev) => new Map(prev).set(userId, peerConnection));
 
     if (isInitiator) {
       try {
         const offer = await peerConnection.createOffer();
         await peerConnection.setLocalDescription(offer);
-        
+
         if (socket) {
           socket.emit('offer', {
             to: userId,
-            offer: offer
+            offer: offer,
           });
         }
       } catch (error) {
@@ -619,15 +664,15 @@ export function LiveSession({
   const handleOffer = async (from: string, offer: RTCSessionDescriptionInit) => {
     const peerConnection = await createPeerConnection(from, false);
     await peerConnection.setRemoteDescription(offer);
-    
+
     try {
       const answer = await peerConnection.createAnswer();
       await peerConnection.setLocalDescription(answer);
-      
+
       if (socket) {
         socket.emit('answer', {
           to: from,
-          answer: answer
+          answer: answer,
         });
       }
     } catch (error) {
@@ -653,7 +698,7 @@ export function LiveSession({
     const peerConnection = peers.get(userId);
     if (peerConnection) {
       peerConnection.close();
-      setPeers(prev => {
+      setPeers((prev) => {
         const newPeers = new Map(prev);
         newPeers.delete(userId);
         return newPeers;
@@ -678,8 +723,17 @@ export function LiveSession({
         const token = localStorage.getItem('token');
         if (devKey) headers['X-Dev-Key'] = devKey;
         if (token) headers['Authorization'] = `Bearer ${token}`;
-        const body = { title: getSessionTitle(), description: sessionDescription, startAt: new Date().toISOString(), status: 'live' };
-        const res = await fetch(`${API_BASE_URL}/live/events`, { method: 'POST', headers, body: JSON.stringify(body) });
+        const body = {
+          title: getSessionTitle(),
+          description: sessionDescription,
+          startAt: new Date().toISOString(),
+          status: 'live',
+        };
+        const res = await fetch(`${API_BASE_URL}/live/events`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(body),
+        });
         const json = await res.json();
         currentEventId = json?.data?.id || json?.id;
         setEventId(currentEventId);
@@ -687,7 +741,7 @@ export function LiveSession({
 
       // Initialize socket connection
       const newSocket = initializeSocket();
-      
+
       // Wait for socket to be ready and join room
       newSocket.on('authenticated', (data) => {
         if (data.success && currentEventId) {
@@ -705,13 +759,13 @@ export function LiveSession({
   const handleLeaveSession = () => {
     // Stop local stream
     if (localStream) {
-      localStream.getTracks().forEach(track => track.stop());
+      localStream.getTracks().forEach((track) => track.stop());
       setLocalStream(null);
     }
 
     // Stop screen sharing
     if (screenShareRef.current) {
-      screenShareRef.current.getTracks().forEach(track => track.stop());
+      screenShareRef.current.getTracks().forEach((track) => track.stop());
       screenShareRef.current = null;
     }
 
@@ -721,7 +775,7 @@ export function LiveSession({
     }
 
     // Close all peer connections
-    peers.forEach(peer => peer.close());
+    peers.forEach((peer) => peer.close());
     setPeers(new Map());
     setRemoteStreams([]);
 
@@ -762,21 +816,21 @@ export function LiveSession({
         // Start screen sharing
         const screenStream = await navigator.mediaDevices.getDisplayMedia({
           video: true,
-          audio: true
+          audio: true,
         });
-        
+
         screenShareRef.current = screenStream;
-        
+
         // Replace video track in all peer connections
-        peers.forEach(peer => {
-          const sender = peer.getSenders().find(s => s.track && s.track.kind === 'video');
+        peers.forEach((peer) => {
+          const sender = peer.getSenders().find((s) => s.track && s.track.kind === 'video');
           if (sender && screenStream.getVideoTracks()[0]) {
             sender.replaceTrack(screenStream.getVideoTracks()[0]);
           }
         });
-        
+
         setIsScreenSharing(true);
-        
+
         // Handle screen share end
         screenStream.getVideoTracks()[0].onended = () => {
           handleToggleScreenShare();
@@ -784,20 +838,20 @@ export function LiveSession({
       } else {
         // Stop screen sharing
         if (screenShareRef.current) {
-          screenShareRef.current.getTracks().forEach(track => track.stop());
+          screenShareRef.current.getTracks().forEach((track) => track.stop());
           screenShareRef.current = null;
         }
-        
+
         // Restore camera track in all peer connections
         if (localStream) {
-          peers.forEach(peer => {
-            const sender = peer.getSenders().find(s => s.track && s.track.kind === 'video');
+          peers.forEach((peer) => {
+            const sender = peer.getSenders().find((s) => s.track && s.track.kind === 'video');
             if (sender && localStream.getVideoTracks()[0]) {
               sender.replaceTrack(localStream.getVideoTracks()[0]);
             }
           });
         }
-        
+
         setIsScreenSharing(false);
       }
     } catch (error) {
@@ -809,17 +863,19 @@ export function LiveSession({
   useEffect(() => {
     return () => {
       if (localStream) {
-        localStream.getTracks().forEach(track => track.stop());
+        localStream.getTracks().forEach((track) => track.stop());
       }
       if (socket) {
         socket.disconnect();
       }
-      peers.forEach(peer => peer.close());
+      peers.forEach((peer) => peer.close());
     };
   }, []);
 
   const getSessionTitle = () => {
-    return sessionTitle.includes(mentee.name) ? sessionTitle : `${sessionTitle} with ${mentee.name}`;
+    return sessionTitle.includes(mentee.name)
+      ? sessionTitle
+      : `${sessionTitle} with ${mentee.name}`;
   };
 
   return (
@@ -832,8 +888,8 @@ export function LiveSession({
             <p className="text-sm text-gray-600 truncate">{sessionDescription}</p>
           </div>
           <div className="flex items-center gap-3 ml-4">
-            <Badge variant={isInSession ? "default" : "secondary"} className="text-xs">
-              {isInSession ? "In Session" : "Ready to Join"}
+            <Badge variant={isInSession ? 'default' : 'secondary'} className="text-xs">
+              {isInSession ? 'In Session' : 'Ready to Join'}
             </Badge>
             {isInSession && <SessionTimer />}
           </div>
@@ -846,8 +902,8 @@ export function LiveSession({
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Video Area */}
           <div className="flex-1 p-4 pb-2">
-            <VideoArea 
-              isInSession={isInSession} 
+            <VideoArea
+              isInSession={isInSession}
               onJoinSession={handleJoinSession}
               isScreenSharing={isScreenSharing}
               localStream={localStream}
@@ -866,7 +922,7 @@ export function LiveSession({
             <div className="flex items-center justify-between bg-white rounded-lg border border-gray-200 px-4 py-3">
               {!isInSession ? (
                 <div className="flex items-center gap-3">
-                  <Button 
+                  <Button
                     onClick={handleJoinSession}
                     className="bg-orange-500 hover:bg-orange-600 text-white"
                   >
@@ -878,34 +934,38 @@ export function LiveSession({
               ) : (
                 <div className="flex items-center gap-2">
                   <Button
-                    variant={isMuted ? "destructive" : "outline"}
+                    variant={isMuted ? 'destructive' : 'outline'}
                     size="sm"
                     onClick={handleToggleMute}
                     title={isMuted ? 'Unmute' : 'Mute'}
                   >
                     {isMuted ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
                   </Button>
-                  
+
                   <Button
-                    variant={hasVideo ? "outline" : "destructive"}
+                    variant={hasVideo ? 'outline' : 'destructive'}
                     size="sm"
                     onClick={handleToggleVideo}
                     title={hasVideo ? 'Turn off camera' : 'Turn on camera'}
                   >
                     {hasVideo ? <Video className="h-4 w-4" /> : <VideoOff className="h-4 w-4" />}
                   </Button>
-                  
+
                   <Button
-                    variant={isScreenSharing ? "default" : "outline"}
+                    variant={isScreenSharing ? 'default' : 'outline'}
                     size="sm"
                     onClick={handleToggleScreenShare}
                     title={isScreenSharing ? 'Stop sharing' : 'Share screen'}
                   >
-                    {isScreenSharing ? <MonitorOff className="h-4 w-4" /> : <Monitor className="h-4 w-4" />}
+                    {isScreenSharing ? (
+                      <MonitorOff className="h-4 w-4" />
+                    ) : (
+                      <Monitor className="h-4 w-4" />
+                    )}
                   </Button>
-                  
+
                   <Separator orientation="vertical" className="h-6" />
-                  
+
                   <Button
                     variant="destructive"
                     size="sm"
@@ -918,24 +978,24 @@ export function LiveSession({
               )}
 
               <div className="flex items-center gap-2">
-                <Button 
-                  variant={isRecording ? "destructive" : "outline"} 
+                <Button
+                  variant={isRecording ? 'destructive' : 'outline'}
                   size="sm"
                   onClick={() => setIsRecording(!isRecording)}
                   title={isRecording ? 'Stop recording' : 'Start recording'}
                 >
                   <Circle className={`h-4 w-4 ${isRecording ? 'fill-current' : ''}`} />
                 </Button>
-                
-                <Button 
-                  variant="outline" 
+
+                <Button
+                  variant="outline"
                   size="sm"
                   onClick={() => setShowChat(!showChat)}
                   title={showChat ? 'Hide chat' : 'Show chat'}
                 >
                   <MessageCircle className="h-4 w-4" />
                 </Button>
-                
+
                 <Button variant="outline" size="sm" title="Settings">
                   <Settings className="h-4 w-4" />
                 </Button>

@@ -19,7 +19,7 @@ router.get('/discovery', protect, async (req, res) => {
       interests,
       university,
       sort_by = 'recommended',
-      sort_order = 'desc'
+      sort_order = 'desc',
     } = req.query;
 
     const offset = (page - 1) * limit;
@@ -53,7 +53,7 @@ router.get('/discovery', protect, async (req, res) => {
         'unp.response_rate',
         'uos.is_online',
         'uos.last_seen',
-        'uos.status_message'
+        'uos.status_message',
       )
       .leftJoin('user_network_profiles as unp', 'u.id', 'unp.user_id')
       .leftJoin('user_online_status as uos', 'u.id', 'uos.user_id')
@@ -62,22 +62,25 @@ router.get('/discovery', protect, async (req, res) => {
       .where('unp.allow_connection_requests', true);
 
     // Exclude users already connected or with pending requests
-    query = query.whereNotExists(function() {
+    query = query.whereNotExists(function () {
       this.select('*')
         .from('connections as c')
-        .whereRaw('(c.requester_id = ? AND c.receiver_id = u.id) OR (c.requester_id = u.id AND c.receiver_id = ?)', [userId, userId]);
+        .whereRaw(
+          '(c.requester_id = ? AND c.receiver_id = u.id) OR (c.requester_id = u.id AND c.receiver_id = ?)',
+          [userId, userId],
+        );
     });
 
     // Apply filters
     if (search) {
-      query = query.where(function() {
+      query = query.where(function () {
         this.where('u.first_name', 'ilike', `%${search}%`)
           .orWhere('u.last_name', 'ilike', `%${search}%`)
           .orWhere('u.title', 'ilike', `%${search}%`)
           .orWhere('u.company', 'ilike', `%${search}%`)
           .orWhere('u.bio', 'ilike', `%${search}%`)
-          .orWhereRaw("unp.skills::text ilike ?", [`%${search}%`])
-          .orWhereRaw("unp.expertise::text ilike ?", [`%${search}%`]);
+          .orWhereRaw('unp.skills::text ilike ?', [`%${search}%`])
+          .orWhereRaw('unp.expertise::text ilike ?', [`%${search}%`]);
       });
     }
 
@@ -122,7 +125,8 @@ router.get('/discovery', protect, async (req, res) => {
     // Apply sorting
     if (sort_by === 'recommended') {
       // Add recommendation score calculation
-      query = query.orderBy('unp.response_rate', 'desc')
+      query = query
+        .orderBy('unp.response_rate', 'desc')
         .orderBy('u.is_verified', 'desc')
         .orderBy('unp.experience_years', 'desc');
     } else if (sort_by === 'recent') {
@@ -140,9 +144,12 @@ router.get('/discovery', protect, async (req, res) => {
     const usersWithMutualConnections = await Promise.all(
       users.map(async (user) => {
         const mutualConnections = await knex('connections as c1')
-          .join('connections as c2', function() {
-            this.on('c1.receiver_id', '=', 'c2.requester_id')
-              .andOn('c1.requester_id', '=', 'c2.receiver_id');
+          .join('connections as c2', function () {
+            this.on('c1.receiver_id', '=', 'c2.requester_id').andOn(
+              'c1.requester_id',
+              '=',
+              'c2.receiver_id',
+            );
           })
           .where('c1.requester_id', userId)
           .where('c1.status', 'accepted')
@@ -176,9 +183,9 @@ router.get('/discovery', protect, async (req, res) => {
           socialLinks: user.social_links,
           achievements: user.achievements || [],
           availability: user.availability || {},
-          openTo: user.open_to || []
+          openTo: user.open_to || [],
         };
-      })
+      }),
     );
 
     res.json({
@@ -187,8 +194,8 @@ router.get('/discovery', protect, async (req, res) => {
         page: parseInt(page),
         limit: parseInt(limit),
         total: parseInt(total),
-        pages: Math.ceil(total / limit)
-      }
+        pages: Math.ceil(total / limit),
+      },
     });
   } catch (error) {
     console.error('Error fetching discovery users:', error);
@@ -222,7 +229,7 @@ router.get('/recommendations', protect, async (req, res) => {
         'unp.availability',
         'unp.open_to',
         'uos.is_online',
-        'uos.last_seen'
+        'uos.last_seen',
       )
       .leftJoin('users as u', 'nr.recommended_user_id', 'u.id')
       .leftJoin('user_network_profiles as unp', 'u.id', 'unp.user_id')
@@ -233,7 +240,7 @@ router.get('/recommendations', protect, async (req, res) => {
       .orderBy('nr.score', 'desc')
       .limit(parseInt(limit));
 
-    const transformedRecommendations = recommendations.map(rec => ({
+    const transformedRecommendations = recommendations.map((rec) => ({
       id: rec.recommended_user_id,
       name: `${rec.first_name} ${rec.last_name}`.trim() || rec.username,
       avatar: rec.avatar_url,
@@ -252,7 +259,7 @@ router.get('/recommendations', protect, async (req, res) => {
       lastActive: rec.last_seen ? new Date(rec.last_seen).toISOString() : null,
       recommendationType: rec.recommendation_type,
       score: parseFloat(rec.score),
-      reasons: rec.reasons || []
+      reasons: rec.reasons || [],
     }));
 
     res.json(transformedRecommendations);
@@ -271,9 +278,8 @@ router.get('/stats', protect, async (req, res) => {
     const connectionStats = await knex('connections')
       .select('status')
       .count('* as count')
-      .where(function() {
-        this.where('requester_id', userId)
-          .orWhere('receiver_id', userId);
+      .where(function () {
+        this.where('requester_id', userId).orWhere('receiver_id', userId);
       })
       .groupBy('status');
 
@@ -302,9 +308,8 @@ router.get('/stats', protect, async (req, res) => {
     // Get monthly growth (connections this month vs last month)
     const currentMonthConnections = await knex('connections')
       .count('* as count')
-      .where(function() {
-        this.where('requester_id', userId)
-          .orWhere('receiver_id', userId);
+      .where(function () {
+        this.where('requester_id', userId).orWhere('receiver_id', userId);
       })
       .where('status', 'accepted')
       .where('created_at', '>=', knex.raw("DATE_TRUNC('month', CURRENT_DATE)"))
@@ -312,9 +317,8 @@ router.get('/stats', protect, async (req, res) => {
 
     const lastMonthConnections = await knex('connections')
       .count('* as count')
-      .where(function() {
-        this.where('requester_id', userId)
-          .orWhere('receiver_id', userId);
+      .where(function () {
+        this.where('requester_id', userId).orWhere('receiver_id', userId);
       })
       .where('status', 'accepted')
       .where('created_at', '>=', knex.raw("DATE_TRUNC('month', CURRENT_DATE - INTERVAL '1 month')"))
@@ -323,14 +327,14 @@ router.get('/stats', protect, async (req, res) => {
 
     const currentCount = parseInt(currentMonthConnections.count) || 0;
     const lastCount = parseInt(lastMonthConnections.count) || 0;
-    const monthlyGrowth = lastCount > 0 ? Math.round(((currentCount - lastCount) / lastCount) * 100) : 0;
+    const monthlyGrowth =
+      lastCount > 0 ? Math.round(((currentCount - lastCount) / lastCount) * 100) : 0;
 
     // Get total connections
     const totalConnections = await knex('connections')
       .count('* as count')
-      .where(function() {
-        this.where('requester_id', userId)
-          .orWhere('receiver_id', userId);
+      .where(function () {
+        this.where('requester_id', userId).orWhere('receiver_id', userId);
       })
       .where('status', 'accepted')
       .first();
@@ -344,7 +348,7 @@ router.get('/stats', protect, async (req, res) => {
       connectionStats: connectionStats.reduce((acc, stat) => {
         acc[stat.status] = parseInt(stat.count);
         return acc;
-      }, {})
+      }, {}),
     });
   } catch (error) {
     console.error('Error fetching network stats:', error);
@@ -391,16 +395,16 @@ router.get('/filter-options', protect, async (req, res) => {
 
     // Flatten and count skills
     const skillCounts = {};
-    skills.forEach(profile => {
+    skills.forEach((profile) => {
       if (profile.skills && Array.isArray(profile.skills)) {
-        profile.skills.forEach(skill => {
+        profile.skills.forEach((skill) => {
           skillCounts[skill] = (skillCounts[skill] || 0) + 1;
         });
       }
     });
 
     const popularSkills = Object.entries(skillCounts)
-      .sort(([,a], [,b]) => b - a)
+      .sort(([, a], [, b]) => b - a)
       .slice(0, 50)
       .map(([skill, count]) => ({ skill, count }));
 
@@ -411,16 +415,16 @@ router.get('/filter-options', protect, async (req, res) => {
       .whereNotNull('interests');
 
     const interestCounts = {};
-    interests.forEach(profile => {
+    interests.forEach((profile) => {
       if (profile.interests && Array.isArray(profile.interests)) {
-        profile.interests.forEach(interest => {
+        profile.interests.forEach((interest) => {
           interestCounts[interest] = (interestCounts[interest] || 0) + 1;
         });
       }
     });
 
     const popularInterests = Object.entries(interestCounts)
-      .sort(([,a], [,b]) => b - a)
+      .sort(([, a], [, b]) => b - a)
       .slice(0, 50)
       .map(([interest, count]) => ({ interest, count }));
 
@@ -429,7 +433,7 @@ router.get('/filter-options', protect, async (req, res) => {
       locations,
       universities,
       skills: popularSkills,
-      interests: popularInterests
+      interests: popularInterests,
     });
   } catch (error) {
     console.error('Error fetching filter options:', error);

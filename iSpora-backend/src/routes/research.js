@@ -21,7 +21,7 @@ router.post('/sources', (req, res) => {
     title: String(title || ''),
     authors: String(authors || '')
       .split(',')
-      .map(s => s.trim())
+      .map((s) => s.trim())
       .filter(Boolean),
     year: Number(year) || new Date().getFullYear(),
     type: String(type || 'journal'),
@@ -29,7 +29,7 @@ router.post('/sources', (req, res) => {
     abstract: abstract || undefined,
     keywords: String(keywords || '')
       .split(',')
-      .map(s => s.trim())
+      .map((s) => s.trim())
       .filter(Boolean),
     relevance: 0,
     notes: notes || undefined,
@@ -51,7 +51,7 @@ router.post('/notes', (req, res) => {
     content: String(content || ''),
     tags: String(tags || '')
       .split(',')
-      .map(s => s.trim())
+      .map((s) => s.trim())
       .filter(Boolean),
     author: 'You',
     createdDate: new Date().toISOString().split('T')[0],
@@ -78,7 +78,7 @@ router.post('/datasets', (req, res) => {
     uploadedDate: new Date().toISOString().split('T')[0],
     tags: String(tags || '')
       .split(',')
-      .map(s => s.trim())
+      .map((s) => s.trim())
       .filter(Boolean),
     public: Boolean(isPublic) || false,
     url: url || undefined,
@@ -88,5 +88,3 @@ router.post('/datasets', (req, res) => {
 });
 
 module.exports = router;
-
-

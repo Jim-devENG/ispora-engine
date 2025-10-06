@@ -8,7 +8,7 @@ router.get('/', (req, res) => {
     message: 'CORS test successful',
     timestamp: new Date().toISOString(),
     origin: req.get('Origin'),
-    headers: req.headers
+    headers: req.headers,
   });
 });
 

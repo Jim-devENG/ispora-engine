@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
   ArrowLeft,
   Users,
@@ -15,20 +15,20 @@ import {
   Upload,
   Eye,
   Save,
-  Send
-} from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Textarea } from "./ui/textarea";
-import { Label } from "./ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { Switch } from "./ui/switch";
-import { Badge } from "./ui/badge";
-import { Separator } from "./ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { useNavigation } from "./NavigationContext";
-import { toast } from "sonner";
+  Send,
+} from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Textarea } from './ui/textarea';
+import { Label } from './ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { Switch } from './ui/switch';
+import { Badge } from './ui/badge';
+import { Separator } from './ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import { useNavigation } from './NavigationContext';
+import { toast } from 'sonner';
 
 interface CampaignFormData {
   title: string;
@@ -67,7 +67,7 @@ const initialFormData: CampaignFormData = {
   tags: [],
   requirements: '',
   benefits: '',
-  resources: ''
+  resources: '',
 };
 
 export function CreateCampaign() {
@@ -79,63 +79,68 @@ export function CreateCampaign() {
   const [isPreview, setIsPreview] = useState(false);
 
   const handleInputChange = (field: keyof CampaignFormData, value: any) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
   const addTag = () => {
     if (currentTag.trim() && !formData.tags.includes(currentTag.trim())) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        tags: [...prev.tags, currentTag.trim()]
+        tags: [...prev.tags, currentTag.trim()],
       }));
       setCurrentTag('');
     }
   };
 
   const removeTag = (tagToRemove: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      tags: prev.tags.filter(tag => tag !== tagToRemove)
+      tags: prev.tags.filter((tag) => tag !== tagToRemove),
     }));
   };
 
   const addSkill = () => {
     if (currentSkill.trim() && !formData.skillsRequired.includes(currentSkill.trim())) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        skillsRequired: [...prev.skillsRequired, currentSkill.trim()]
+        skillsRequired: [...prev.skillsRequired, currentSkill.trim()],
       }));
       setCurrentSkill('');
     }
   };
 
   const removeSkill = (skillToRemove: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      skillsRequired: prev.skillsRequired.filter(skill => skill !== skillToRemove)
+      skillsRequired: prev.skillsRequired.filter((skill) => skill !== skillToRemove),
     }));
   };
 
   const handleSaveDraft = () => {
-    toast.success("Campaign saved as draft");
+    toast.success('Campaign saved as draft');
     setCurrentPage('Mentorship Workspace');
   };
 
   const handlePublish = () => {
-    toast.success("Campaign published successfully!");
+    toast.success('Campaign published successfully!');
     setCurrentPage('Mentorship Workspace');
   };
 
   const getTypeIcon = (type: string) => {
     switch (type) {
-      case 'mentorship': return <Users className="h-5 w-5" />;
-      case 'project': return <Briefcase className="h-5 w-5" />;
-      case 'scholarship': return <GraduationCap className="h-5 w-5" />;
-      case 'research': return <BookOpen className="h-5 w-5" />;
-      default: return <Target className="h-5 w-5" />;
+      case 'mentorship':
+        return <Users className="h-5 w-5" />;
+      case 'project':
+        return <Briefcase className="h-5 w-5" />;
+      case 'scholarship':
+        return <GraduationCap className="h-5 w-5" />;
+      case 'research':
+        return <BookOpen className="h-5 w-5" />;
+      default:
+        return <Target className="h-5 w-5" />;
     }
   };
 
@@ -173,9 +178,7 @@ export function CreateCampaign() {
             <CardHeader>
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="p-3 bg-[#021ff6]/10 rounded-lg">
-                    {getTypeIcon(formData.type)}
-                  </div>
+                  <div className="p-3 bg-[#021ff6]/10 rounded-lg">{getTypeIcon(formData.type)}</div>
                   <div>
                     <CardTitle className="text-xl">{formData.title || 'Campaign Title'}</CardTitle>
                     <p className="text-gray-600">{formData.almaMater || 'Alma Mater'}</p>
@@ -188,8 +191,10 @@ export function CreateCampaign() {
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
-                <p className="text-gray-700">{formData.description || 'Campaign description will appear here...'}</p>
-                
+                <p className="text-gray-700">
+                  {formData.description || 'Campaign description will appear here...'}
+                </p>
+
                 {formData.mentorshipFocus && (
                   <div className="p-4 bg-blue-50 rounded-lg">
                     <h4 className="font-medium mb-2">Mentorship Focus</h4>
@@ -211,7 +216,9 @@ export function CreateCampaign() {
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600">Location:</span>
-                        <span>{formData.isRemote ? 'Remote' : formData.location || 'Not specified'}</span>
+                        <span>
+                          {formData.isRemote ? 'Remote' : formData.location || 'Not specified'}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -221,7 +228,9 @@ export function CreateCampaign() {
                       <h4 className="font-medium mb-3">Skills Required</h4>
                       <div className="flex flex-wrap gap-1">
                         {formData.skillsRequired.map((skill, index) => (
-                          <Badge key={index} variant="outline">{skill}</Badge>
+                          <Badge key={index} variant="outline">
+                            {skill}
+                          </Badge>
                         ))}
                       </div>
                     </div>
@@ -233,7 +242,9 @@ export function CreateCampaign() {
                     <h4 className="font-medium mb-3">Tags</h4>
                     <div className="flex flex-wrap gap-1">
                       {formData.tags.map((tag, index) => (
-                        <Badge key={index} variant="secondary">{tag}</Badge>
+                        <Badge key={index} variant="secondary">
+                          {tag}
+                        </Badge>
                       ))}
                     </div>
                   </div>
@@ -300,7 +311,10 @@ export function CreateCampaign() {
 
                     <div>
                       <Label htmlFor="type">Campaign Type *</Label>
-                      <Select value={formData.type} onValueChange={(value) => handleInputChange('type', value)}>
+                      <Select
+                        value={formData.type}
+                        onValueChange={(value) => handleInputChange('type', value)}
+                      >
                         <SelectTrigger>
                           <SelectValue placeholder="Select campaign type" />
                         </SelectTrigger>
@@ -341,7 +355,9 @@ export function CreateCampaign() {
                         id="participantGoal"
                         type="number"
                         value={formData.participantGoal}
-                        onChange={(e) => handleInputChange('participantGoal', parseInt(e.target.value))}
+                        onChange={(e) =>
+                          handleInputChange('participantGoal', parseInt(e.target.value))
+                        }
                       />
                     </div>
 
@@ -384,7 +400,10 @@ export function CreateCampaign() {
 
                     <div>
                       <Label htmlFor="timeCommitment">Time Commitment</Label>
-                      <Select value={formData.timeCommitment} onValueChange={(value) => handleInputChange('timeCommitment', value)}>
+                      <Select
+                        value={formData.timeCommitment}
+                        onValueChange={(value) => handleInputChange('timeCommitment', value)}
+                      >
                         <SelectTrigger>
                           <SelectValue placeholder="Select time commitment" />
                         </SelectTrigger>
@@ -436,7 +455,12 @@ export function CreateCampaign() {
                       </div>
                       <div className="flex flex-wrap gap-1">
                         {formData.skillsRequired.map((skill, index) => (
-                          <Badge key={index} variant="secondary" className="cursor-pointer" onClick={() => removeSkill(skill)}>
+                          <Badge
+                            key={index}
+                            variant="secondary"
+                            className="cursor-pointer"
+                            onClick={() => removeSkill(skill)}
+                          >
                             {skill}
                             <X className="h-3 w-3 ml-1" />
                           </Badge>
@@ -459,7 +483,12 @@ export function CreateCampaign() {
                       </div>
                       <div className="flex flex-wrap gap-1">
                         {formData.tags.map((tag, index) => (
-                          <Badge key={index} variant="outline" className="cursor-pointer" onClick={() => removeTag(tag)}>
+                          <Badge
+                            key={index}
+                            variant="outline"
+                            className="cursor-pointer"
+                            onClick={() => removeTag(tag)}
+                          >
                             {tag}
                             <X className="h-3 w-3 ml-1" />
                           </Badge>
@@ -509,7 +538,9 @@ export function CreateCampaign() {
                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
                   <Upload className="h-12 w-12 mx-auto text-gray-400 mb-4" />
                   <h3 className="font-medium mb-2">Upload Campaign Assets</h3>
-                  <p className="text-gray-600 mb-4">Add images, documents, or other files to support your campaign</p>
+                  <p className="text-gray-600 mb-4">
+                    Add images, documents, or other files to support your campaign
+                  </p>
                   <Button variant="outline">
                     <Upload className="h-4 w-4 mr-2" />
                     Choose Files
@@ -531,7 +562,10 @@ export function CreateCampaign() {
                   <Save className="h-4 w-4 mr-2" />
                   Save Draft
                 </Button>
-                <Button onClick={() => setIsPreview(true)} className="bg-[#021ff6] hover:bg-[#021ff6]/90">
+                <Button
+                  onClick={() => setIsPreview(true)}
+                  className="bg-[#021ff6] hover:bg-[#021ff6]/90"
+                >
                   <Eye className="h-4 w-4 mr-2" />
                   Preview & Publish
                 </Button>

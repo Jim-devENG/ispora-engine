@@ -19,7 +19,7 @@ router.get('/:projectId/overview', protect, async (req, res, next) => {
     if (!projectAccess) {
       return res.status(403).json({
         success: false,
-        error: 'Access denied to this project'
+        error: 'Access denied to this project',
       });
     }
 
@@ -29,7 +29,7 @@ router.get('/:projectId/overview', protect, async (req, res, next) => {
         'p.*',
         'creator.first_name as creator_first_name',
         'creator.last_name as creator_last_name',
-        'creator.avatar_url as creator_avatar'
+        'creator.avatar_url as creator_avatar',
       ])
       .leftJoin('users as creator', 'p.created_by', 'creator.id')
       .where('p.id', projectId)
@@ -46,18 +46,30 @@ router.get('/:projectId/overview', protect, async (req, res, next) => {
       totalDeliverables,
       submittedDeliverables,
       totalCertificates,
-      earnedCertificates
+      earnedCertificates,
     ] = await Promise.all([
       db('project_sessions').where({ project_id: projectId }).count('* as count').first(),
-      db('project_sessions').where({ project_id: projectId, status: 'upcoming' }).count('* as count').first(),
+      db('project_sessions')
+        .where({ project_id: projectId, status: 'upcoming' })
+        .count('* as count')
+        .first(),
       db('project_tasks').where({ project_id: projectId }).count('* as count').first(),
-      db('project_tasks').where({ project_id: projectId, status: 'done' }).count('* as count').first(),
+      db('project_tasks')
+        .where({ project_id: projectId, status: 'done' })
+        .count('* as count')
+        .first(),
       db('project_messages').where({ project_id: projectId }).count('* as count').first(),
       db('learning_content').where({ project_id: projectId }).count('* as count').first(),
       db('project_deliverables').where({ project_id: projectId }).count('* as count').first(),
-      db('project_deliverables').where({ project_id: projectId, status: 'submitted' }).count('* as count').first(),
+      db('project_deliverables')
+        .where({ project_id: projectId, status: 'submitted' })
+        .count('* as count')
+        .first(),
       db('project_certificates').where({ project_id: projectId }).count('* as count').first(),
-      db('project_certificates').where({ project_id: projectId, user_id: req.user.id }).count('* as count').first()
+      db('project_certificates')
+        .where({ project_id: projectId, user_id: req.user.id })
+        .count('* as count')
+        .first(),
     ]);
 
     // Get recent activity
@@ -66,8 +78,14 @@ router.get('/:projectId/overview', protect, async (req, res, next) => {
     // Get project members
     const members = await db('project_members as pm')
       .select([
-        'u.id', 'u.first_name', 'u.last_name', 'u.avatar_url', 'u.is_online',
-        'pm.role', 'pm.joined_at', 'pm.status'
+        'u.id',
+        'u.first_name',
+        'u.last_name',
+        'u.avatar_url',
+        'u.is_online',
+        'pm.role',
+        'pm.joined_at',
+        'pm.status',
       ])
       .join('users as u', 'pm.user_id', 'u.id')
       .where('pm.project_id', projectId)
@@ -81,32 +99,34 @@ router.get('/:projectId/overview', protect, async (req, res, next) => {
         statistics: {
           sessions: {
             total: parseInt(totalSessions.count),
-            upcoming: parseInt(upcomingSessions.count)
+            upcoming: parseInt(upcomingSessions.count),
           },
           tasks: {
             total: parseInt(totalTasks.count),
             completed: parseInt(completedTasks.count),
-            completion_rate: totalTasks.count > 0 ? 
-              (completedTasks.count / totalTasks.count * 100).toFixed(1) : 0
+            completion_rate:
+              totalTasks.count > 0
+                ? ((completedTasks.count / totalTasks.count) * 100).toFixed(1)
+                : 0,
           },
           messages: {
-            total: parseInt(totalMessages.count)
+            total: parseInt(totalMessages.count),
           },
           content: {
-            total: parseInt(totalContent.count)
+            total: parseInt(totalContent.count),
           },
           deliverables: {
             total: parseInt(totalDeliverables.count),
-            submitted: parseInt(submittedDeliverables.count)
+            submitted: parseInt(submittedDeliverables.count),
           },
           certificates: {
             total: parseInt(totalCertificates.count),
-            earned: parseInt(earnedCertificates.count)
-          }
+            earned: parseInt(earnedCertificates.count),
+          },
         },
         recent_activity: recentActivity,
-        members
-      }
+        members,
+      },
     });
   } catch (error) {
     next(error);
@@ -129,7 +149,7 @@ router.get('/:projectId/sessions', protect, async (req, res, next) => {
     if (!projectAccess) {
       return res.status(403).json({
         success: false,
-        error: 'Access denied to this project'
+        error: 'Access denied to this project',
       });
     }
 
@@ -138,7 +158,7 @@ router.get('/:projectId/sessions', protect, async (req, res, next) => {
         'ps.*',
         'creator.first_name as creator_first_name',
         'creator.last_name as creator_last_name',
-        'creator.avatar_url as creator_avatar'
+        'creator.avatar_url as creator_avatar',
       ])
       .leftJoin('users as creator', 'ps.created_by', 'creator.id')
       .where('ps.project_id', projectId);
@@ -164,8 +184,13 @@ router.get('/:projectId/sessions', protect, async (req, res, next) => {
     for (let session of sessions) {
       const attendees = await db('session_attendees as sa')
         .select([
-          'u.id', 'u.first_name', 'u.last_name', 'u.avatar_url',
-          'sa.role', 'sa.response_status', 'sa.attended'
+          'u.id',
+          'u.first_name',
+          'u.last_name',
+          'u.avatar_url',
+          'sa.role',
+          'sa.response_status',
+          'sa.attended',
         ])
         .join('users as u', 'sa.user_id', 'u.id')
         .where('sa.session_id', session.id);
@@ -185,9 +210,9 @@ router.get('/:projectId/sessions', protect, async (req, res, next) => {
       pagination: {
         page: parseInt(page),
         limit: parseInt(limit),
-        pages: Math.ceil(totalCount.count / limit)
+        pages: Math.ceil(totalCount.count / limit),
       },
-      data: sessions
+      data: sessions,
     });
   } catch (error) {
     next(error);
@@ -215,7 +240,7 @@ router.post('/:projectId/sessions', protect, async (req, res, next) => {
       allow_recordings,
       max_participants,
       tags,
-      attendee_ids
+      attendee_ids,
     } = req.body;
 
     // Verify project access and permissions
@@ -223,14 +248,14 @@ router.post('/:projectId/sessions', protect, async (req, res, next) => {
     if (!projectAccess || !['admin', 'mentor'].includes(projectAccess.role)) {
       return res.status(403).json({
         success: false,
-        error: 'Insufficient permissions to create sessions'
+        error: 'Insufficient permissions to create sessions',
       });
     }
 
     if (!title || !scheduled_date || !type) {
       return res.status(400).json({
         success: false,
-        error: 'Title, scheduled date, and type are required'
+        error: 'Title, scheduled date, and type are required',
       });
     }
 
@@ -253,16 +278,16 @@ router.post('/:projectId/sessions', protect, async (req, res, next) => {
         allow_recordings: allow_recordings !== false,
         max_participants,
         tags: JSON.stringify(tags),
-        share_url: generateShareUrl()
+        share_url: generateShareUrl(),
       })
       .returning('*');
 
     // Add attendees
     if (attendee_ids && attendee_ids.length > 0) {
-      const attendees = attendee_ids.map(userId => ({
+      const attendees = attendee_ids.map((userId) => ({
         session_id: session[0].id,
         user_id: userId,
-        role: userId === req.user.id ? 'host' : 'participant'
+        role: userId === req.user.id ? 'host' : 'participant',
       }));
 
       await db('session_attendees').insert(attendees);
@@ -277,14 +302,14 @@ router.post('/:projectId/sessions', protect, async (req, res, next) => {
       await db('session_attendees').insert({
         session_id: session[0].id,
         user_id: req.user.id,
-        role: 'host'
+        role: 'host',
       });
     }
 
     res.status(201).json({
       success: true,
       message: 'Session created successfully',
-      data: session[0]
+      data: session[0],
     });
   } catch (error) {
     next(error);
@@ -307,7 +332,7 @@ router.get('/:projectId/tasks', protect, async (req, res, next) => {
     if (!projectAccess) {
       return res.status(403).json({
         success: false,
-        error: 'Access denied to this project'
+        error: 'Access denied to this project',
       });
     }
 
@@ -319,7 +344,7 @@ router.get('/:projectId/tasks', protect, async (req, res, next) => {
         'creator.avatar_url as creator_avatar',
         'assignee.first_name as assignee_first_name',
         'assignee.last_name as assignee_last_name',
-        'assignee.avatar_url as assignee_avatar'
+        'assignee.avatar_url as assignee_avatar',
       ])
       .leftJoin('users as creator', 'pt.created_by', 'creator.id')
       .leftJoin('users as assignee', 'pt.assigned_to', 'assignee.id')
@@ -352,7 +377,7 @@ router.get('/:projectId/tasks', protect, async (req, res, next) => {
         .where({ task_id: task.id })
         .count('* as count')
         .first();
-      
+
       task.comments_count = parseInt(commentCount.count);
     }
 
@@ -368,9 +393,9 @@ router.get('/:projectId/tasks', protect, async (req, res, next) => {
       pagination: {
         page: parseInt(page),
         limit: parseInt(limit),
-        pages: Math.ceil(totalCount.count / limit)
+        pages: Math.ceil(totalCount.count / limit),
       },
-      data: tasks
+      data: tasks,
     });
   } catch (error) {
     next(error);
@@ -393,7 +418,7 @@ router.post('/:projectId/tasks', protect, async (req, res, next) => {
       estimated_hours,
       tags,
       parent_task_id,
-      is_milestone
+      is_milestone,
     } = req.body;
 
     // Verify project access
@@ -401,14 +426,14 @@ router.post('/:projectId/tasks', protect, async (req, res, next) => {
     if (!projectAccess) {
       return res.status(403).json({
         success: false,
-        error: 'Access denied to this project'
+        error: 'Access denied to this project',
       });
     }
 
     if (!title) {
       return res.status(400).json({
         success: false,
-        error: 'Task title is required'
+        error: 'Task title is required',
       });
     }
 
@@ -425,14 +450,14 @@ router.post('/:projectId/tasks', protect, async (req, res, next) => {
         estimated_hours,
         tags: JSON.stringify(tags),
         parent_task_id,
-        is_milestone: is_milestone || false
+        is_milestone: is_milestone || false,
       })
       .returning('*');
 
     res.status(201).json({
       success: true,
       message: 'Task created successfully',
-      data: task[0]
+      data: task[0],
     });
   } catch (error) {
     next(error);
@@ -455,7 +480,7 @@ router.get('/:projectId/learning-content', protect, async (req, res, next) => {
     if (!projectAccess) {
       return res.status(403).json({
         success: false,
-        error: 'Access denied to this project'
+        error: 'Access denied to this project',
       });
     }
 
@@ -464,7 +489,7 @@ router.get('/:projectId/learning-content', protect, async (req, res, next) => {
         'lc.*',
         'creator.first_name as creator_first_name',
         'creator.last_name as creator_last_name',
-        'creator.avatar_url as creator_avatar'
+        'creator.avatar_url as creator_avatar',
       ])
       .leftJoin('users as creator', 'lc.created_by', 'creator.id')
       .where('lc.project_id', projectId);
@@ -492,12 +517,12 @@ router.get('/:projectId/learning-content', protect, async (req, res, next) => {
       const progress = await db('content_progress')
         .where({ content_id: item.id, user_id: req.user.id })
         .first();
-      
+
       item.user_progress = progress || {
         progress_percentage: 0,
         is_completed: false,
         is_bookmarked: false,
-        last_accessed_at: null
+        last_accessed_at: null,
       };
     }
 
@@ -513,9 +538,9 @@ router.get('/:projectId/learning-content', protect, async (req, res, next) => {
       pagination: {
         page: parseInt(page),
         limit: parseInt(limit),
-        pages: Math.ceil(totalCount.count / limit)
+        pages: Math.ceil(totalCount.count / limit),
       },
-      data: content
+      data: content,
     });
   } catch (error) {
     next(error);
@@ -538,7 +563,7 @@ router.get('/:projectId/deliverables', protect, async (req, res, next) => {
     if (!projectAccess) {
       return res.status(403).json({
         success: false,
-        error: 'Access denied to this project'
+        error: 'Access denied to this project',
       });
     }
 
@@ -553,7 +578,7 @@ router.get('/:projectId/deliverables', protect, async (req, res, next) => {
         'assignee.avatar_url as assignee_avatar',
         'reviewer.first_name as reviewer_first_name',
         'reviewer.last_name as reviewer_last_name',
-        'reviewer.avatar_url as reviewer_avatar'
+        'reviewer.avatar_url as reviewer_avatar',
       ])
       .leftJoin('users as creator', 'pd.created_by', 'creator.id')
       .leftJoin('users as assignee', 'pd.assigned_to', 'assignee.id')
@@ -590,9 +615,9 @@ router.get('/:projectId/deliverables', protect, async (req, res, next) => {
       pagination: {
         page: parseInt(page),
         limit: parseInt(limit),
-        pages: Math.ceil(totalCount.count / limit)
+        pages: Math.ceil(totalCount.count / limit),
       },
-      data: deliverables
+      data: deliverables,
     });
   } catch (error) {
     next(error);
@@ -615,7 +640,7 @@ router.get('/:projectId/certificates', protect, async (req, res, next) => {
     if (!projectAccess) {
       return res.status(403).json({
         success: false,
-        error: 'Access denied to this project'
+        error: 'Access denied to this project',
       });
     }
 
@@ -627,7 +652,7 @@ router.get('/:projectId/certificates', protect, async (req, res, next) => {
         'user.avatar_url as user_avatar',
         'issuer.first_name as issuer_first_name',
         'issuer.last_name as issuer_last_name',
-        'issuer.avatar_url as issuer_avatar'
+        'issuer.avatar_url as issuer_avatar',
       ])
       .leftJoin('users as user', 'pc.user_id', 'user.id')
       .leftJoin('users as issuer', 'pc.issued_by', 'issuer.id')
@@ -662,9 +687,9 @@ router.get('/:projectId/certificates', protect, async (req, res, next) => {
       pagination: {
         page: parseInt(page),
         limit: parseInt(limit),
-        pages: Math.ceil(totalCount.count / limit)
+        pages: Math.ceil(totalCount.count / limit),
       },
-      data: certificates
+      data: certificates,
     });
   } catch (error) {
     next(error);
@@ -676,7 +701,7 @@ async function verifyProjectAccess(userId, projectId) {
   const membership = await db('project_members')
     .where({ project_id: projectId, user_id: userId, status: 'active' })
     .first();
-  
+
   return membership;
 }
 

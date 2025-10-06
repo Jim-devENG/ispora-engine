@@ -7,18 +7,18 @@ import { Separator } from './ui/separator';
 import { Badge } from './ui/badge';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { toast } from 'sonner';
-import { 
-  Send, 
-  MessageCircle, 
-  X, 
-  Phone, 
-  Video, 
+import {
+  Send,
+  MessageCircle,
+  X,
+  Phone,
+  Video,
   MoreHorizontal,
   Smile,
   Paperclip,
   Clock,
   Check,
-  CheckCheck
+  CheckCheck,
 } from 'lucide-react';
 
 // Types
@@ -52,29 +52,31 @@ const mockMessages: Message[] = [
     id: '1',
     senderId: 'other',
     senderName: 'Dr. Kwame Asante',
-    content: 'Hi! Thanks for reaching out. I\'d be happy to discuss your research interests.',
+    content: "Hi! Thanks for reaching out. I'd be happy to discuss your research interests.",
     timestamp: '2025-01-17T10:30:00Z',
     status: 'read',
-    isCurrentUser: false
+    isCurrentUser: false,
   },
   {
     id: '2',
     senderId: 'current',
     senderName: 'You',
-    content: 'Thank you so much! I\'m particularly interested in your work on AI ethics and would love to learn more about your research methodology.',
+    content:
+      "Thank you so much! I'm particularly interested in your work on AI ethics and would love to learn more about your research methodology.",
     timestamp: '2025-01-17T10:35:00Z',
     status: 'delivered',
-    isCurrentUser: true
+    isCurrentUser: true,
   },
   {
     id: '3',
     senderId: 'other',
     senderName: 'Dr. Kwame Asante',
-    content: 'Absolutely! I\'m currently working on a framework for ethical AI decision-making. Would you like to schedule a brief call to discuss this further?',
+    content:
+      "Absolutely! I'm currently working on a framework for ethical AI decision-making. Would you like to schedule a brief call to discuss this further?",
     timestamp: '2025-01-17T10:40:00Z',
     status: 'read',
-    isCurrentUser: false
-  }
+    isCurrentUser: false,
+  },
 ];
 
 function MessagingPopover({ user, trigger, onClose }: MessagingPopoverProps) {
@@ -111,12 +113,12 @@ function MessagingPopover({ user, trigger, onClose }: MessagingPopoverProps) {
       content: newMessage.trim(),
       timestamp: new Date().toISOString(),
       status: 'sent',
-      isCurrentUser: true
+      isCurrentUser: true,
     };
 
-    setMessages(prev => [...prev, message]);
+    setMessages((prev) => [...prev, message]);
     setNewMessage('');
-    
+
     // Simulate typing indicator
     setIsTyping(true);
     setTimeout(() => {
@@ -177,11 +179,9 @@ function MessagingPopover({ user, trigger, onClose }: MessagingPopoverProps) {
 
   return (
     <Popover open={isOpen} onOpenChange={handleOpenChange}>
-      <PopoverTrigger asChild>
-        {trigger}
-      </PopoverTrigger>
-      <PopoverContent 
-        className="w-96 h-[600px] p-0 popout-shadow" 
+      <PopoverTrigger asChild>{trigger}</PopoverTrigger>
+      <PopoverContent
+        className="w-96 h-[600px] p-0 popout-shadow"
         side="left"
         align="start"
         sideOffset={8}
@@ -194,7 +194,10 @@ function MessagingPopover({ user, trigger, onClose }: MessagingPopoverProps) {
                 <Avatar className="h-10 w-10">
                   <AvatarImage src={user.avatar} alt={user.name} />
                   <AvatarFallback>
-                    {user.name.split(' ').map(n => n[0]).join('')}
+                    {user.name
+                      .split(' ')
+                      .map((n) => n[0])
+                      .join('')}
                   </AvatarFallback>
                 </Avatar>
                 {user.isOnline && (
@@ -225,9 +228,10 @@ function MessagingPopover({ user, trigger, onClose }: MessagingPopoverProps) {
           <ScrollArea className="flex-1 px-4">
             <div className="space-y-4 py-4">
               {messages.map((message, index) => {
-                const showDate = index === 0 || 
+                const showDate =
+                  index === 0 ||
                   formatDate(messages[index - 1].timestamp) !== formatDate(message.timestamp);
-                
+
                 return (
                   <div key={message.id}>
                     {showDate && (
@@ -239,28 +243,39 @@ function MessagingPopover({ user, trigger, onClose }: MessagingPopoverProps) {
                         <Separator className="flex-1" />
                       </div>
                     )}
-                    
-                    <div className={`flex gap-3 ${message.isCurrentUser ? 'justify-end' : 'justify-start'}`}>
+
+                    <div
+                      className={`flex gap-3 ${message.isCurrentUser ? 'justify-end' : 'justify-start'}`}
+                    >
                       {!message.isCurrentUser && (
                         <Avatar className="h-6 w-6 mt-1">
                           <AvatarImage src={user.avatar} alt={user.name} />
                           <AvatarFallback className="text-xs">
-                            {user.name.split(' ').map(n => n[0]).join('')}
+                            {user.name
+                              .split(' ')
+                              .map((n) => n[0])
+                              .join('')}
                           </AvatarFallback>
                         </Avatar>
                       )}
-                      
-                      <div className={`max-w-[70%] ${message.isCurrentUser ? 'text-right' : 'text-left'}`}>
-                        <div className={`inline-block px-3 py-2 rounded-lg text-sm ${
-                          message.isCurrentUser 
-                            ? 'bg-[#021ff6] text-white' 
-                            : 'bg-muted text-foreground'
-                        }`}>
+
+                      <div
+                        className={`max-w-[70%] ${message.isCurrentUser ? 'text-right' : 'text-left'}`}
+                      >
+                        <div
+                          className={`inline-block px-3 py-2 rounded-lg text-sm ${
+                            message.isCurrentUser
+                              ? 'bg-[#021ff6] text-white'
+                              : 'bg-muted text-foreground'
+                          }`}
+                        >
                           {message.content}
                         </div>
-                        <div className={`flex items-center gap-1 mt-1 text-xs text-muted-foreground ${
-                          message.isCurrentUser ? 'justify-end' : 'justify-start'
-                        }`}>
+                        <div
+                          className={`flex items-center gap-1 mt-1 text-xs text-muted-foreground ${
+                            message.isCurrentUser ? 'justify-end' : 'justify-start'
+                          }`}
+                        >
                           <span>{formatTime(message.timestamp)}</span>
                           {message.isCurrentUser && getStatusIcon(message.status)}
                         </div>
@@ -269,26 +284,35 @@ function MessagingPopover({ user, trigger, onClose }: MessagingPopoverProps) {
                   </div>
                 );
               })}
-              
+
               {/* Typing indicator */}
               {isTyping && (
                 <div className="flex gap-3 justify-start">
                   <Avatar className="h-6 w-6 mt-1">
                     <AvatarImage src={user.avatar} alt={user.name} />
                     <AvatarFallback className="text-xs">
-                      {user.name.split(' ').map(n => n[0]).join('')}
+                      {user.name
+                        .split(' ')
+                        .map((n) => n[0])
+                        .join('')}
                     </AvatarFallback>
                   </Avatar>
                   <div className="bg-muted px-3 py-2 rounded-lg">
                     <div className="flex space-x-1">
                       <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                      <div
+                        className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                        style={{ animationDelay: '0.1s' }}
+                      ></div>
+                      <div
+                        className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                        style={{ animationDelay: '0.2s' }}
+                      ></div>
                     </div>
                   </div>
                 </div>
               )}
-              
+
               <div ref={messagesEndRef} />
             </div>
           </ScrollArea>

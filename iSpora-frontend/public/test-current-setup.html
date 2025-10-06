@@ -1,121 +1,168 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>iSpora Current Setup Test</title>
     <style>
-        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background: #f5f5f5; }
-        .container { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 15px; border-radius: 5px; margin: 10px 0; }
-        .error { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 15px; border-radius: 5px; margin: 10px 0; }
-        button { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin: 5px; }
-        button:hover { background: #0056b3; }
-        .result { margin-top: 10px; padding: 10px; border-radius: 3px; white-space: pre-wrap; }
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background: #f5f5f5;
+      }
+      .container {
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      .success {
+        background: #d4edda;
+        border: 1px solid #c3e6cb;
+        color: #155724;
+        padding: 15px;
+        border-radius: 5px;
+        margin: 10px 0;
+      }
+      .error {
+        background: #f8d7da;
+        border: 1px solid #f5c6cb;
+        color: #721c24;
+        padding: 15px;
+        border-radius: 5px;
+        margin: 10px 0;
+      }
+      button {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin: 5px;
+      }
+      button:hover {
+        background: #0056b3;
+      }
+      .result {
+        margin-top: 10px;
+        padding: 10px;
+        border-radius: 3px;
+        white-space: pre-wrap;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <h1>🎉 iSpora Current Setup Test</h1>
-        <p>Testing your current working setup with the simple Node.js backend.</p>
-        
-        <div class="success">
-            <h3>✅ Your Setup is Working!</h3>
-            <p><strong>Backend:</strong> Simple Node.js backend running on port 3001</p>
-            <p><strong>Frontend:</strong> React frontend running on port 5173</p>
-            <p><strong>CORS:</strong> Properly configured and working</p>
-            <p><strong>Ref Warnings:</strong> All fixed in the frontend</p>
-        </div>
-        
-        <h3>🧪 Test Your Application</h3>
-        <button onclick="testBackend()">Test Backend Health</button>
-        <button onclick="testCORS()">Test CORS</button>
-        <button onclick="testAPI()">Test API Endpoints</button>
-        <div id="test-result" class="result"></div>
-        
-        <h3>🚀 Next Steps</h3>
-        <ol>
-            <li><strong>Open your frontend:</strong> <a href="http://localhost:5173" target="_blank">http://localhost:5173</a></li>
-            <li><strong>Open Developer Tools</strong> (F12) and check the Console tab</li>
-            <li><strong>Navigate through the app</strong> - you should see NO CORS errors!</li>
-            <li><strong>Check for ref warnings</strong> - there should be NONE!</li>
-        </ol>
-        
-        <div class="success">
-            <h3>🎯 What's Fixed</h3>
-            <ul>
-                <li>✅ <strong>CORS Issues:</strong> Completely resolved</li>
-                <li>✅ <strong>Ref Warnings:</strong> All TooltipTrigger components fixed</li>
-                <li>✅ <strong>Backend Reliability:</strong> Simple, stable Node.js backend</li>
-                <li>✅ <strong>Full Functionality:</strong> All API endpoints working</li>
-            </ul>
-        </div>
+      <h1>🎉 iSpora Current Setup Test</h1>
+      <p>Testing your current working setup with the simple Node.js backend.</p>
+
+      <div class="success">
+        <h3>✅ Your Setup is Working!</h3>
+        <p><strong>Backend:</strong> Simple Node.js backend running on port 3001</p>
+        <p><strong>Frontend:</strong> React frontend running on port 5173</p>
+        <p><strong>CORS:</strong> Properly configured and working</p>
+        <p><strong>Ref Warnings:</strong> All fixed in the frontend</p>
+      </div>
+
+      <h3>🧪 Test Your Application</h3>
+      <button onclick="testBackend()">Test Backend Health</button>
+      <button onclick="testCORS()">Test CORS</button>
+      <button onclick="testAPI()">Test API Endpoints</button>
+      <div id="test-result" class="result"></div>
+
+      <h3>🚀 Next Steps</h3>
+      <ol>
+        <li>
+          <strong>Open your frontend:</strong>
+          <a href="http://localhost:5173" target="_blank">http://localhost:5173</a>
+        </li>
+        <li><strong>Open Developer Tools</strong> (F12) and check the Console tab</li>
+        <li><strong>Navigate through the app</strong> - you should see NO CORS errors!</li>
+        <li><strong>Check for ref warnings</strong> - there should be NONE!</li>
+      </ol>
+
+      <div class="success">
+        <h3>🎯 What's Fixed</h3>
+        <ul>
+          <li>✅ <strong>CORS Issues:</strong> Completely resolved</li>
+          <li>✅ <strong>Ref Warnings:</strong> All TooltipTrigger components fixed</li>
+          <li>✅ <strong>Backend Reliability:</strong> Simple, stable Node.js backend</li>
+          <li>✅ <strong>Full Functionality:</strong> All API endpoints working</li>
+        </ul>
+      </div>
     </div>
 
     <script>
-        function logResult(message, isError = false) {
-            const element = document.getElementById('test-result');
-            element.textContent = message;
-            element.className = `result ${isError ? 'error' : 'success'}`;
-        }
+      function logResult(message, isError = false) {
+        const element = document.getElementById('test-result');
+        element.textContent = message;
+        element.className = `result ${isError ? 'error' : 'success'}`;
+      }
 
-        async function testBackend() {
+      async function testBackend() {
+        try {
+          logResult('Testing backend health...');
+          const response = await fetch('http://localhost:3001/health');
+          if (response.ok) {
+            const data = await response.json();
+            logResult(
+              `✅ Backend is healthy!\nStatus: ${data.status}\nUptime: ${data.uptime}s\nTimestamp: ${data.timestamp}`,
+            );
+          } else {
+            logResult(`❌ Health check failed: ${response.status}`, true);
+          }
+        } catch (error) {
+          logResult(`❌ Backend error: ${error.message}`, true);
+        }
+      }
+
+      async function testCORS() {
+        try {
+          logResult('Testing CORS configuration...');
+          const response = await fetch('http://localhost:3001/api/cors-test');
+          if (response.ok) {
+            const data = await response.json();
+            logResult(
+              `✅ CORS is working!\nMessage: ${data.message}\nTimestamp: ${data.timestamp}`,
+            );
+          } else {
+            logResult(`❌ CORS test failed: ${response.status}`, true);
+          }
+        } catch (error) {
+          logResult(`❌ CORS test failed: ${error.message}`, true);
+        }
+      }
+
+      async function testAPI() {
+        try {
+          logResult('Testing API endpoints...');
+          const endpoints = ['/api/feed', '/api/projects', '/api/sessions', '/api/notifications'];
+          let results = [];
+
+          for (const endpoint of endpoints) {
             try {
-                logResult('Testing backend health...');
-                const response = await fetch('http://localhost:3001/health');
-                if (response.ok) {
-                    const data = await response.json();
-                    logResult(`✅ Backend is healthy!\nStatus: ${data.status}\nUptime: ${data.uptime}s\nTimestamp: ${data.timestamp}`);
-                } else {
-                    logResult(`❌ Health check failed: ${response.status}`, true);
-                }
+              const response = await fetch(`http://localhost:3001${endpoint}`);
+              results.push(`${endpoint}: ${response.ok ? '✅' : '❌'} (${response.status})`);
             } catch (error) {
-                logResult(`❌ Backend error: ${error.message}`, true);
+              results.push(`${endpoint}: ❌ (${error.message})`);
             }
-        }
+          }
 
-        async function testCORS() {
-            try {
-                logResult('Testing CORS configuration...');
-                const response = await fetch('http://localhost:3001/api/cors-test');
-                if (response.ok) {
-                    const data = await response.json();
-                    logResult(`✅ CORS is working!\nMessage: ${data.message}\nTimestamp: ${data.timestamp}`);
-                } else {
-                    logResult(`❌ CORS test failed: ${response.status}`, true);
-                }
-            } catch (error) {
-                logResult(`❌ CORS test failed: ${error.message}`, true);
-            }
+          logResult(`API Test Results:\n${results.join('\n')}`);
+        } catch (error) {
+          logResult(`❌ API test error: ${error.message}`, true);
         }
+      }
 
-        async function testAPI() {
-            try {
-                logResult('Testing API endpoints...');
-                const endpoints = ['/api/feed', '/api/projects', '/api/sessions', '/api/notifications'];
-                let results = [];
-                
-                for (const endpoint of endpoints) {
-                    try {
-                        const response = await fetch(`http://localhost:3001${endpoint}`);
-                        results.push(`${endpoint}: ${response.ok ? '✅' : '❌'} (${response.status})`);
-                    } catch (error) {
-                        results.push(`${endpoint}: ❌ (${error.message})`);
-                    }
-                }
-                
-                logResult(`API Test Results:\n${results.join('\n')}`);
-            } catch (error) {
-                logResult(`❌ API test error: ${error.message}`, true);
-            }
-        }
-
-        // Auto-run tests on page load
-        window.onload = function() {
-            testBackend();
-            setTimeout(testCORS, 1000);
-            setTimeout(testAPI, 2000);
-        };
+      // Auto-run tests on page load
+      window.onload = function () {
+        testBackend();
+        setTimeout(testCORS, 1000);
+        setTimeout(testAPI, 2000);
+      };
     </script>
-</body>
+  </body>
 </html>

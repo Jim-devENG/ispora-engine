@@ -1,10 +1,10 @@
-import React, { useState } from "react";
-import { Award, Download, Eye, Plus } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Button } from "../ui/button";
-import { Badge } from "../ui/badge";
-import { Progress } from "../ui/progress";
-import { ScrollArea } from "../ui/scroll-area";
+import React, { useState } from 'react';
+import { Award, Download, Eye, Plus } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Button } from '../ui/button';
+import { Badge } from '../ui/badge';
+import { Progress } from '../ui/progress';
+import { ScrollArea } from '../ui/scroll-area';
 
 interface Certificate {
   id: string;
@@ -31,33 +31,33 @@ interface CertificateManagerProps {
 
 const mockCertificates: Certificate[] = [
   {
-    id: "1",
-    title: "Machine Learning Fundamentals",
+    id: '1',
+    title: 'Machine Learning Fundamentals',
     type: 'completion',
     status: 'ready',
     progress: 100,
     requiredSessions: 10,
     completedSessions: 10,
     requiredTasks: 8,
-    completedTasks: 8
+    completedTasks: 8,
   },
   {
-    id: "2",
-    title: "Career Development Program",
+    id: '2',
+    title: 'Career Development Program',
     type: 'milestone',
     status: 'draft',
     progress: 75,
     requiredSessions: 12,
     completedSessions: 9,
     requiredTasks: 10,
-    completedTasks: 8
-  }
+    completedTasks: 8,
+  },
 ];
 
 const statusColors = {
-  draft: "bg-gray-100 text-gray-800",
-  ready: "bg-green-100 text-green-800",
-  issued: "bg-blue-100 text-blue-800"
+  draft: 'bg-gray-100 text-gray-800',
+  ready: 'bg-green-100 text-green-800',
+  issued: 'bg-blue-100 text-blue-800',
 };
 
 export function CertificateManager({ mentee }: CertificateManagerProps) {
@@ -89,12 +89,10 @@ export function CertificateManager({ mentee }: CertificateManagerProps) {
                       <CardTitle className="text-lg">{cert.title}</CardTitle>
                       <p className="text-gray-600 capitalize">{cert.type} certificate</p>
                     </div>
-                    <Badge className={statusColors[cert.status]}>
-                      {cert.status}
-                    </Badge>
+                    <Badge className={statusColors[cert.status]}>{cert.status}</Badge>
                   </div>
                 </CardHeader>
-                
+
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
@@ -107,11 +105,15 @@ export function CertificateManager({ mentee }: CertificateManagerProps) {
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
                       <span className="text-gray-600">Sessions:</span>
-                      <span className="ml-2">{cert.completedSessions}/{cert.requiredSessions}</span>
+                      <span className="ml-2">
+                        {cert.completedSessions}/{cert.requiredSessions}
+                      </span>
                     </div>
                     <div>
                       <span className="text-gray-600">Tasks:</span>
-                      <span className="ml-2">{cert.completedTasks}/{cert.requiredTasks}</span>
+                      <span className="ml-2">
+                        {cert.completedTasks}/{cert.requiredTasks}
+                      </span>
                     </div>
                   </div>
 

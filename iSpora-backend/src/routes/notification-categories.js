@@ -26,7 +26,7 @@ router.get('/', protect, async (req, res, next) => {
     res.status(200).json({
       success: true,
       count: categories.length,
-      data: categories
+      data: categories,
     });
   } catch (error) {
     next(error);
@@ -40,20 +40,18 @@ router.get('/:id', protect, async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    const category = await db('notification_categories')
-      .where({ id })
-      .first();
+    const category = await db('notification_categories').where({ id }).first();
 
     if (!category) {
       return res.status(404).json({
         success: false,
-        error: 'Notification category not found'
+        error: 'Notification category not found',
       });
     }
 
     res.status(200).json({
       success: true,
-      data: category
+      data: category,
     });
   } catch (error) {
     next(error);
@@ -72,26 +70,24 @@ router.post('/', protect, authorize('admin'), async (req, res, next) => {
       icon,
       color,
       is_active = true,
-      sort_order = 0
+      sort_order = 0,
     } = req.body;
 
     // Validate required fields
     if (!name || !display_name) {
       return res.status(400).json({
         success: false,
-        error: 'Name and display_name are required'
+        error: 'Name and display_name are required',
       });
     }
 
     // Check if category name already exists
-    const existingCategory = await db('notification_categories')
-      .where({ name })
-      .first();
+    const existingCategory = await db('notification_categories').where({ name }).first();
 
     if (existingCategory) {
       return res.status(400).json({
         success: false,
-        error: 'Category name already exists'
+        error: 'Category name already exists',
       });
     }
 
@@ -105,7 +101,7 @@ router.post('/', protect, authorize('admin'), async (req, res, next) => {
       is_active,
       sort_order,
       created_at: new Date(),
-      updated_at: new Date()
+      updated_at: new Date(),
     };
 
     await db('notification_categories').insert(category);
@@ -113,7 +109,7 @@ router.post('/', protect, authorize('admin'), async (req, res, next) => {
     res.status(201).json({
       success: true,
       message: 'Notification category created successfully',
-      data: category
+      data: category,
     });
   } catch (error) {
     next(error);
@@ -126,24 +122,14 @@ router.post('/', protect, authorize('admin'), async (req, res, next) => {
 router.put('/:id', protect, authorize('admin'), async (req, res, next) => {
   try {
     const { id } = req.params;
-    const {
-      name,
-      display_name,
-      description,
-      icon,
-      color,
-      is_active,
-      sort_order
-    } = req.body;
+    const { name, display_name, description, icon, color, is_active, sort_order } = req.body;
 
-    const category = await db('notification_categories')
-      .where({ id })
-      .first();
+    const category = await db('notification_categories').where({ id }).first();
 
     if (!category) {
       return res.status(404).json({
         success: false,
-        error: 'Notification category not found'
+        error: 'Notification category not found',
       });
     }
 
@@ -157,7 +143,7 @@ router.put('/:id', protect, authorize('admin'), async (req, res, next) => {
       if (existingCategory) {
         return res.status(400).json({
           success: false,
-          error: 'Category name already exists'
+          error: 'Category name already exists',
         });
       }
     }
@@ -170,21 +156,17 @@ router.put('/:id', protect, authorize('admin'), async (req, res, next) => {
       ...(color && { color }),
       ...(is_active !== undefined && { is_active }),
       ...(sort_order !== undefined && { sort_order }),
-      updated_at: new Date()
+      updated_at: new Date(),
     };
 
-    await db('notification_categories')
-      .where({ id })
-      .update(updateData);
+    await db('notification_categories').where({ id }).update(updateData);
 
-    const updatedCategory = await db('notification_categories')
-      .where({ id })
-      .first();
+    const updatedCategory = await db('notification_categories').where({ id }).first();
 
     res.status(200).json({
       success: true,
       message: 'Notification category updated successfully',
-      data: updatedCategory
+      data: updatedCategory,
     });
   } catch (error) {
     next(error);
@@ -198,14 +180,12 @@ router.delete('/:id', protect, authorize('admin'), async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    const category = await db('notification_categories')
-      .where({ id })
-      .first();
+    const category = await db('notification_categories').where({ id }).first();
 
     if (!category) {
       return res.status(404).json({
         success: false,
-        error: 'Notification category not found'
+        error: 'Notification category not found',
       });
     }
 
@@ -218,17 +198,15 @@ router.delete('/:id', protect, authorize('admin'), async (req, res, next) => {
     if (notificationCount.count > 0) {
       return res.status(400).json({
         success: false,
-        error: 'Cannot delete category that is being used by notifications'
+        error: 'Cannot delete category that is being used by notifications',
       });
     }
 
-    await db('notification_categories')
-      .where({ id })
-      .del();
+    await db('notification_categories').where({ id }).del();
 
     res.status(200).json({
       success: true,
-      message: 'Notification category deleted successfully'
+      message: 'Notification category deleted successfully',
     });
   } catch (error) {
     next(error);
@@ -246,7 +224,7 @@ router.get('/:id/stats', protect, async (req, res, next) => {
     // Calculate date range based on period
     const now = new Date();
     let startDate;
-    
+
     switch (period) {
       case '7d':
         startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -269,7 +247,7 @@ router.get('/:id/stats', protect, async (req, res, next) => {
         db.raw('COUNT(CASE WHEN read = true THEN 1 END) as read_count'),
         db.raw('COUNT(CASE WHEN read = false THEN 1 END) as unread_count'),
         db.raw('COUNT(CASE WHEN action_required = true THEN 1 END) as action_required_count'),
-        db.raw('COUNT(CASE WHEN clicked_at IS NOT NULL THEN 1 END) as clicked_count')
+        db.raw('COUNT(CASE WHEN clicked_at IS NOT NULL THEN 1 END) as clicked_count'),
       )
       .first();
 
@@ -279,8 +257,8 @@ router.get('/:id/stats', protect, async (req, res, next) => {
         period,
         start_date: startDate,
         end_date: now,
-        ...stats
-      }
+        ...stats,
+      },
     });
   } catch (error) {
     next(error);

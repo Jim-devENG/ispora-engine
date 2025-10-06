@@ -6,31 +6,38 @@ import { Label } from './ui/label';
 import { Badge } from './ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from './ui/dialog';
 import { Textarea } from './ui/textarea';
 import { ScrollArea } from './ui/scroll-area';
 import { Separator } from './ui/separator';
 import { Checkbox } from './ui/checkbox';
-import { 
-  Users, 
-  Shield, 
-  BarChart3, 
-  Settings, 
-  AlertTriangle, 
-  CheckCircle, 
-  XCircle, 
-  Eye, 
-  Edit, 
-  Trash2, 
-  Search, 
-  Filter, 
-  Download, 
-  Upload, 
-  Bell, 
-  Mail, 
-  Lock, 
-  Unlock, 
-  UserPlus, 
+import {
+  Users,
+  Shield,
+  BarChart3,
+  Settings,
+  AlertTriangle,
+  CheckCircle,
+  XCircle,
+  Eye,
+  Edit,
+  Trash2,
+  Search,
+  Filter,
+  Download,
+  Upload,
+  Bell,
+  Mail,
+  Lock,
+  Unlock,
+  UserPlus,
   UserMinus,
   Activity,
   TrendingUp,
@@ -74,7 +81,7 @@ import {
   Wifi,
   Cpu,
   MemoryStick,
-  Monitor
+  Monitor,
 } from 'lucide-react';
 import { useAuth } from './AuthContext';
 import { toast } from 'sonner';
@@ -87,7 +94,7 @@ const fetchUsers = async () => {
   try {
     const response = await fetch(`${API_BASE_URL}/users`, {
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
         'Content-Type': 'application/json',
       },
     });
@@ -106,7 +113,7 @@ const fetchSystemStats = async () => {
   try {
     const response = await fetch(`${API_BASE_URL}/admin/stats`, {
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
         'Content-Type': 'application/json',
       },
     });
@@ -125,7 +132,7 @@ const fetchReports = async () => {
   try {
     const response = await fetch(`${API_BASE_URL}/admin/reports`, {
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
         'Content-Type': 'application/json',
       },
     });
@@ -159,7 +166,7 @@ const mockSystemStats = {
   networkLatency: '12ms',
   errorRate: '0.1%',
   requestsPerMinute: 156,
-  activeConnections: 89
+  activeConnections: 89,
 };
 
 const mockSystemLogs = [
@@ -170,7 +177,7 @@ const mockSystemLogs = [
     message: 'User registration successful',
     user: 'sarah.chen@stanford.edu',
     ip: '192.168.1.100',
-    category: 'authentication'
+    category: 'authentication',
   },
   {
     id: '2',
@@ -179,7 +186,7 @@ const mockSystemLogs = [
     message: 'High memory usage detected',
     user: 'system',
     ip: 'server-01',
-    category: 'system'
+    category: 'system',
   },
   {
     id: '3',
@@ -188,7 +195,7 @@ const mockSystemLogs = [
     message: 'Database connection timeout',
     user: 'system',
     ip: 'server-01',
-    category: 'database'
+    category: 'database',
   },
   {
     id: '4',
@@ -197,7 +204,7 @@ const mockSystemLogs = [
     message: 'Project created successfully',
     user: 'alex.johnson@mit.edu',
     ip: '192.168.1.101',
-    category: 'content'
+    category: 'content',
   },
   {
     id: '5',
@@ -206,8 +213,8 @@ const mockSystemLogs = [
     message: 'Suspicious activity detected',
     user: 'system',
     ip: '192.168.1.200',
-    category: 'security'
-  }
+    category: 'security',
+  },
 ];
 
 export function AdminDashboard() {
@@ -253,9 +260,9 @@ export function AdminDashboard() {
         const [usersData, statsData, reportsData] = await Promise.all([
           fetchUsers(),
           fetchSystemStats(),
-          fetchReports()
+          fetchReports(),
         ]);
-        
+
         setUsers(usersData);
         if (statsData) setSystemStats(statsData);
         setReports(reportsData);
@@ -269,7 +276,7 @@ export function AdminDashboard() {
     };
 
     loadData();
-    
+
     // Auto-refresh every 30 seconds
     const interval = setInterval(loadData, 30000);
     return () => clearInterval(interval);
@@ -281,9 +288,9 @@ export function AdminDashboard() {
       const [usersData, statsData, reportsData] = await Promise.all([
         fetchUsers(),
         fetchSystemStats(),
-        fetchReports()
+        fetchReports(),
       ]);
-      
+
       setUsers(usersData);
       if (statsData) setSystemStats(statsData);
       setReports(reportsData);
@@ -302,7 +309,7 @@ export function AdminDashboard() {
       const response = await fetch(`${API_BASE_URL}/admin/users/${userId}/${action}`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
           'Content-Type': 'application/json',
         },
       });
@@ -331,7 +338,7 @@ export function AdminDashboard() {
       const response = await fetch(`${API_BASE_URL}/admin/users/bulk/${action}`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ userIds: selectedUsers }),
@@ -357,7 +364,7 @@ export function AdminDashboard() {
       const response = await fetch(`${API_BASE_URL}/admin/reports/${reportId}/${action}`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
           'Content-Type': 'application/json',
         },
       });
@@ -376,9 +383,10 @@ export function AdminDashboard() {
     }
   };
 
-  const filteredUsers = users.filter(user => {
-    const matchesSearch = user.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         user.email?.toLowerCase().includes(searchQuery.toLowerCase());
+  const filteredUsers = users.filter((user) => {
+    const matchesSearch =
+      user.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.email?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = filterStatus === 'all' || user.status === filterStatus;
     const matchesRole = filterRole === 'all' || user.role === filterRole;
     return matchesSearch && matchesStatus && matchesRole;
@@ -386,19 +394,27 @@ export function AdminDashboard() {
 
   const getLogLevelColor = (level: string) => {
     switch (level) {
-      case 'error': return 'bg-red-500';
-      case 'warning': return 'bg-yellow-500';
-      case 'info': return 'bg-green-500';
-      default: return 'bg-gray-500';
+      case 'error':
+        return 'bg-red-500';
+      case 'warning':
+        return 'bg-yellow-500';
+      case 'info':
+        return 'bg-green-500';
+      default:
+        return 'bg-gray-500';
     }
   };
 
   const getLogLevelIcon = (level: string) => {
     switch (level) {
-      case 'error': return <XCircle className="h-4 w-4 text-red-500" />;
-      case 'warning': return <AlertTriangle className="h-4 w-4 text-yellow-500" />;
-      case 'info': return <CheckCircle2 className="h-4 w-4 text-green-500" />;
-      default: return <Activity className="h-4 w-4 text-gray-500" />;
+      case 'error':
+        return <XCircle className="h-4 w-4 text-red-500" />;
+      case 'warning':
+        return <AlertTriangle className="h-4 w-4 text-yellow-500" />;
+      case 'info':
+        return <CheckCircle2 className="h-4 w-4 text-green-500" />;
+      default:
+        return <Activity className="h-4 w-4 text-gray-500" />;
     }
   };
 
@@ -418,12 +434,7 @@ export function AdminDashboard() {
               <Activity className="h-3 w-3 mr-1" />
               System Healthy
             </Badge>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={handleRefresh}
-              disabled={loading}
-            >
+            <Button variant="outline" size="sm" onClick={handleRefresh} disabled={loading}>
               <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
               Refresh
             </Button>
@@ -452,10 +463,11 @@ export function AdminDashboard() {
                   <Users className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{systemStats.totalUsers.toLocaleString()}</div>
+                  <div className="text-2xl font-bold">
+                    {systemStats.totalUsers.toLocaleString()}
+                  </div>
                   <p className="text-xs text-muted-foreground">
-                    <TrendingUp className="h-3 w-3 inline mr-1" />
-                    +{systemStats.newUsersToday} today
+                    <TrendingUp className="h-3 w-3 inline mr-1" />+{systemStats.newUsersToday} today
                   </p>
                 </CardContent>
               </Card>
@@ -466,7 +478,9 @@ export function AdminDashboard() {
                   <Activity className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{systemStats.activeUsers.toLocaleString()}</div>
+                  <div className="text-2xl font-bold">
+                    {systemStats.activeUsers.toLocaleString()}
+                  </div>
                   <p className="text-xs text-muted-foreground">
                     {Math.round((systemStats.activeUsers / systemStats.totalUsers) * 100)}% of total
                   </p>
@@ -569,11 +583,15 @@ export function AdminDashboard() {
                     <div className="space-y-4">
                       {mockSystemLogs.map((log) => (
                         <div key={log.id} className="flex items-start space-x-3">
-                          <div className={`w-2 h-2 rounded-full mt-2 ${getLogLevelColor(log.level)}`} />
+                          <div
+                            className={`w-2 h-2 rounded-full mt-2 ${getLogLevelColor(log.level)}`}
+                          />
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1">
                               {getLogLevelIcon(log.level)}
-                              <span className="text-sm font-medium text-gray-900">{log.message}</span>
+                              <span className="text-sm font-medium text-gray-900">
+                                {log.message}
+                              </span>
                             </div>
                             <p className="text-xs text-gray-500">{log.timestamp}</p>
                             <div className="flex items-center gap-2 text-xs text-gray-400">
@@ -606,24 +624,24 @@ export function AdminDashboard() {
                   <div className="flex items-center gap-2">
                     {selectedUsers.length > 0 && (
                       <div className="flex items-center gap-2">
-                        <Button 
-                          size="sm" 
+                        <Button
+                          size="sm"
                           variant="outline"
                           onClick={() => handleBulkAction('suspend')}
                         >
                           <Lock className="h-4 w-4 mr-1" />
                           Suspend ({selectedUsers.length})
                         </Button>
-                        <Button 
-                          size="sm" 
+                        <Button
+                          size="sm"
                           variant="outline"
                           onClick={() => handleBulkAction('activate')}
                         >
                           <Unlock className="h-4 w-4 mr-1" />
                           Activate ({selectedUsers.length})
                         </Button>
-                        <Button 
-                          size="sm" 
+                        <Button
+                          size="sm"
                           variant="outline"
                           onClick={() => handleBulkAction('delete')}
                         >
@@ -680,7 +698,10 @@ export function AdminDashboard() {
                 {/* Users Table */}
                 <div className="space-y-4">
                   {filteredUsers.map((user) => (
-                    <div key={user.id} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div
+                      key={user.id}
+                      className="flex items-center justify-between p-4 border rounded-lg"
+                    >
                       <div className="flex items-center space-x-4">
                         <Checkbox
                           checked={selectedUsers.includes(user.id)}
@@ -688,7 +709,7 @@ export function AdminDashboard() {
                             if (checked) {
                               setSelectedUsers([...selectedUsers, user.id]);
                             } else {
-                              setSelectedUsers(selectedUsers.filter(id => id !== user.id));
+                              setSelectedUsers(selectedUsers.filter((id) => id !== user.id));
                             }
                           }}
                         />
@@ -718,16 +739,16 @@ export function AdminDashboard() {
                           <Edit className="h-4 w-4" />
                         </Button>
                         {user.status === 'active' ? (
-                          <Button 
-                            variant="outline" 
+                          <Button
+                            variant="outline"
                             size="sm"
                             onClick={() => handleUserAction('suspend', user.id)}
                           >
                             <Lock className="h-4 w-4" />
                           </Button>
                         ) : (
-                          <Button 
-                            variant="outline" 
+                          <Button
+                            variant="outline"
                             size="sm"
                             onClick={() => handleUserAction('activate', user.id)}
                           >
@@ -813,7 +834,10 @@ export function AdminDashboard() {
               <CardContent>
                 <div className="space-y-4">
                   {reports.map((report) => (
-                    <div key={report.id} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div
+                      key={report.id}
+                      className="flex items-center justify-between p-4 border rounded-lg"
+                    >
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
                           <Badge variant={report.priority === 'high' ? 'destructive' : 'secondary'}>
@@ -830,15 +854,12 @@ export function AdminDashboard() {
                         <p className="text-xs text-gray-400">{report.date}</p>
                       </div>
                       <div className="flex space-x-2">
-                        <Button 
-                          size="sm" 
-                          onClick={() => handleReportAction('resolve', report.id)}
-                        >
+                        <Button size="sm" onClick={() => handleReportAction('resolve', report.id)}>
                           <CheckCircle className="h-4 w-4 mr-1" />
                           Resolve
                         </Button>
-                        <Button 
-                          size="sm" 
+                        <Button
+                          size="sm"
                           variant="outline"
                           onClick={() => handleReportAction('dismiss', report.id)}
                         >
@@ -865,11 +886,15 @@ export function AdminDashboard() {
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
                       <span className="text-sm font-medium">Total Users</span>
-                      <span className="text-2xl font-bold">{systemStats.totalUsers.toLocaleString()}</span>
+                      <span className="text-2xl font-bold">
+                        {systemStats.totalUsers.toLocaleString()}
+                      </span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-sm font-medium">Active Users</span>
-                      <span className="text-2xl font-bold">{systemStats.activeUsers.toLocaleString()}</span>
+                      <span className="text-2xl font-bold">
+                        {systemStats.activeUsers.toLocaleString()}
+                      </span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-sm font-medium">Total Projects</span>
@@ -892,7 +917,9 @@ export function AdminDashboard() {
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
                       <span className="text-sm font-medium">Uptime</span>
-                      <span className="text-2xl font-bold text-green-600">{systemStats.uptime}</span>
+                      <span className="text-2xl font-bold text-green-600">
+                        {systemStats.uptime}
+                      </span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-sm font-medium">Response Time</span>
@@ -927,7 +954,10 @@ export function AdminDashboard() {
                   </div>
                   <div>
                     <Label htmlFor="site-description">Site Description</Label>
-                    <Textarea id="site-description" defaultValue="Connect, Learn, and Grow Together" />
+                    <Textarea
+                      id="site-description"
+                      defaultValue="Connect, Learn, and Grow Together"
+                    />
                   </div>
                   <div>
                     <Label htmlFor="maintenance-mode">Maintenance Mode</Label>

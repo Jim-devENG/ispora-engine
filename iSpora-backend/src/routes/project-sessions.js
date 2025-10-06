@@ -17,9 +17,12 @@ router.put('/:sessionId', protect, async (req, res, next) => {
     // Verify user has permission to update session
     const session = await db('project_sessions as ps')
       .select(['ps.*', 'pm.role'])
-      .leftJoin('project_members as pm', function() {
-        this.on('ps.project_id', '=', 'pm.project_id')
-          .andOn('pm.user_id', '=', db.raw('?', [req.user.id]));
+      .leftJoin('project_members as pm', function () {
+        this.on('ps.project_id', '=', 'pm.project_id').andOn(
+          'pm.user_id',
+          '=',
+          db.raw('?', [req.user.id]),
+        );
       })
       .where('ps.id', sessionId)
       .first();
@@ -27,14 +30,14 @@ router.put('/:sessionId', protect, async (req, res, next) => {
     if (!session) {
       return res.status(404).json({
         success: false,
-        error: 'Session not found'
+        error: 'Session not found',
       });
     }
 
     if (session.created_by !== req.user.id && !['admin', 'mentor'].includes(session.role)) {
       return res.status(403).json({
         success: false,
-        error: 'Insufficient permissions to update this session'
+        error: 'Insufficient permissions to update this session',
       });
     }
 
@@ -59,18 +62,14 @@ router.put('/:sessionId', protect, async (req, res, next) => {
 
     updateData.updated_at = new Date();
 
-    await db('project_sessions')
-      .where({ id: sessionId })
-      .update(updateData);
+    await db('project_sessions').where({ id: sessionId }).update(updateData);
 
-    const updatedSession = await db('project_sessions')
-      .where({ id: sessionId })
-      .first();
+    const updatedSession = await db('project_sessions').where({ id: sessionId }).first();
 
     res.status(200).json({
       success: true,
       message: 'Session updated successfully',
-      data: updatedSession
+      data: updatedSession,
     });
   } catch (error) {
     next(error);
@@ -92,17 +91,15 @@ router.delete('/:sessionId', protect, async (req, res, next) => {
     if (!session) {
       return res.status(404).json({
         success: false,
-        error: 'Session not found or insufficient permissions'
+        error: 'Session not found or insufficient permissions',
       });
     }
 
-    await db('project_sessions')
-      .where({ id: sessionId })
-      .del();
+    await db('project_sessions').where({ id: sessionId }).del();
 
     res.status(200).json({
       success: true,
-      message: 'Session deleted successfully'
+      message: 'Session deleted successfully',
     });
   } catch (error) {
     next(error);
@@ -120,16 +117,19 @@ router.post('/:sessionId/reschedule', protect, async (req, res, next) => {
     if (!new_date) {
       return res.status(400).json({
         success: false,
-        error: 'New date is required'
+        error: 'New date is required',
       });
     }
 
     // Verify user has permission to reschedule
     const session = await db('project_sessions as ps')
       .select(['ps.*', 'pm.role'])
-      .leftJoin('project_members as pm', function() {
-        this.on('ps.project_id', '=', 'pm.project_id')
-          .andOn('pm.user_id', '=', db.raw('?', [req.user.id]));
+      .leftJoin('project_members as pm', function () {
+        this.on('ps.project_id', '=', 'pm.project_id').andOn(
+          'pm.user_id',
+          '=',
+          db.raw('?', [req.user.id]),
+        );
       })
       .where('ps.id', sessionId)
       .first();
@@ -137,14 +137,14 @@ router.post('/:sessionId/reschedule', protect, async (req, res, next) => {
     if (!session) {
       return res.status(404).json({
         success: false,
-        error: 'Session not found'
+        error: 'Session not found',
       });
     }
 
     if (session.created_by !== req.user.id && !['admin', 'mentor'].includes(session.role)) {
       return res.status(403).json({
         success: false,
-        error: 'Insufficient permissions to reschedule this session'
+        error: 'Insufficient permissions to reschedule this session',
       });
     }
 
@@ -155,12 +155,12 @@ router.post('/:sessionId/reschedule', protect, async (req, res, next) => {
         scheduled_date: new Date(new_date),
         reschedule_reason: reason,
         status: 'rescheduled',
-        updated_at: new Date()
+        updated_at: new Date(),
       });
 
     res.status(200).json({
       success: true,
-      message: 'Session rescheduled successfully'
+      message: 'Session rescheduled successfully',
     });
   } catch (error) {
     next(error);
@@ -179,9 +179,12 @@ router.get('/:sessionId/attendees', protect, async (req, res, next) => {
     // Verify user has access to session
     const session = await db('project_sessions as ps')
       .select(['ps.*', 'pm.role'])
-      .leftJoin('project_members as pm', function() {
-        this.on('ps.project_id', '=', 'pm.project_id')
-          .andOn('pm.user_id', '=', db.raw('?', [req.user.id]));
+      .leftJoin('project_members as pm', function () {
+        this.on('ps.project_id', '=', 'pm.project_id').andOn(
+          'pm.user_id',
+          '=',
+          db.raw('?', [req.user.id]),
+        );
       })
       .where('ps.id', sessionId)
       .first();
@@ -189,18 +192,12 @@ router.get('/:sessionId/attendees', protect, async (req, res, next) => {
     if (!session) {
       return res.status(404).json({
         success: false,
-        error: 'Session not found'
+        error: 'Session not found',
       });
     }
 
     const attendees = await db('session_attendees as sa')
-      .select([
-        'sa.*',
-        'u.first_name',
-        'u.last_name',
-        'u.avatar_url',
-        'u.email'
-      ])
+      .select(['sa.*', 'u.first_name', 'u.last_name', 'u.avatar_url', 'u.email'])
       .join('users as u', 'sa.user_id', 'u.id')
       .where('sa.session_id', sessionId)
       .orderBy('sa.role', 'desc')
@@ -208,7 +205,7 @@ router.get('/:sessionId/attendees', protect, async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      data: attendees
+      data: attendees,
     });
   } catch (error) {
     next(error);
@@ -226,16 +223,19 @@ router.post('/:sessionId/attendees', protect, async (req, res, next) => {
     if (!user_id) {
       return res.status(400).json({
         success: false,
-        error: 'User ID is required'
+        error: 'User ID is required',
       });
     }
 
     // Verify user has permission to add attendees
     const session = await db('project_sessions as ps')
       .select(['ps.*', 'pm.role'])
-      .leftJoin('project_members as pm', function() {
-        this.on('ps.project_id', '=', 'pm.project_id')
-          .andOn('pm.user_id', '=', db.raw('?', [req.user.id]));
+      .leftJoin('project_members as pm', function () {
+        this.on('ps.project_id', '=', 'pm.project_id').andOn(
+          'pm.user_id',
+          '=',
+          db.raw('?', [req.user.id]),
+        );
       })
       .where('ps.id', sessionId)
       .first();
@@ -243,14 +243,14 @@ router.post('/:sessionId/attendees', protect, async (req, res, next) => {
     if (!session) {
       return res.status(404).json({
         success: false,
-        error: 'Session not found'
+        error: 'Session not found',
       });
     }
 
     if (session.created_by !== req.user.id && !['admin', 'mentor'].includes(session.role)) {
       return res.status(403).json({
         success: false,
-        error: 'Insufficient permissions to add attendees'
+        error: 'Insufficient permissions to add attendees',
       });
     }
 
@@ -262,7 +262,7 @@ router.post('/:sessionId/attendees', protect, async (req, res, next) => {
     if (existingAttendee) {
       return res.status(400).json({
         success: false,
-        error: 'User is already an attendee'
+        error: 'User is already an attendee',
       });
     }
 
@@ -271,14 +271,14 @@ router.post('/:sessionId/attendees', protect, async (req, res, next) => {
         session_id: sessionId,
         user_id,
         role,
-        invited_at: new Date()
+        invited_at: new Date(),
       })
       .returning('*');
 
     res.status(201).json({
       success: true,
       message: 'Attendee added successfully',
-      data: attendee[0]
+      data: attendee[0],
     });
   } catch (error) {
     next(error);
@@ -296,9 +296,12 @@ router.put('/:sessionId/attendees/:userId', protect, async (req, res, next) => {
     // Verify user is the attendee or has permission
     const session = await db('project_sessions as ps')
       .select(['ps.*', 'pm.role'])
-      .leftJoin('project_members as pm', function() {
-        this.on('ps.project_id', '=', 'pm.project_id')
-          .andOn('pm.user_id', '=', db.raw('?', [req.user.id]));
+      .leftJoin('project_members as pm', function () {
+        this.on('ps.project_id', '=', 'pm.project_id').andOn(
+          'pm.user_id',
+          '=',
+          db.raw('?', [req.user.id]),
+        );
       })
       .where('ps.id', sessionId)
       .first();
@@ -306,7 +309,7 @@ router.put('/:sessionId/attendees/:userId', protect, async (req, res, next) => {
     if (!session) {
       return res.status(404).json({
         success: false,
-        error: 'Session not found'
+        error: 'Session not found',
       });
     }
 
@@ -314,13 +317,13 @@ router.put('/:sessionId/attendees/:userId', protect, async (req, res, next) => {
     if (userId !== req.user.id && !['admin', 'mentor'].includes(session.role)) {
       return res.status(403).json({
         success: false,
-        error: 'Insufficient permissions'
+        error: 'Insufficient permissions',
       });
     }
 
     const updateData = {
       responded_at: new Date(),
-      updated_at: new Date()
+      updated_at: new Date(),
     };
 
     if (response_status) {
@@ -337,7 +340,7 @@ router.put('/:sessionId/attendees/:userId', protect, async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      message: 'Attendee response updated successfully'
+      message: 'Attendee response updated successfully',
     });
   } catch (error) {
     next(error);
@@ -355,9 +358,12 @@ router.post('/:sessionId/attendance', protect, async (req, res, next) => {
     // Verify user has permission to record attendance
     const session = await db('project_sessions as ps')
       .select(['ps.*', 'pm.role'])
-      .leftJoin('project_members as pm', function() {
-        this.on('ps.project_id', '=', 'pm.project_id')
-          .andOn('pm.user_id', '=', db.raw('?', [req.user.id]));
+      .leftJoin('project_members as pm', function () {
+        this.on('ps.project_id', '=', 'pm.project_id').andOn(
+          'pm.user_id',
+          '=',
+          db.raw('?', [req.user.id]),
+        );
       })
       .where('ps.id', sessionId)
       .first();
@@ -365,20 +371,20 @@ router.post('/:sessionId/attendance', protect, async (req, res, next) => {
     if (!session) {
       return res.status(404).json({
         success: false,
-        error: 'Session not found'
+        error: 'Session not found',
       });
     }
 
     if (!['admin', 'mentor'].includes(session.role)) {
       return res.status(403).json({
         success: false,
-        error: 'Insufficient permissions to record attendance'
+        error: 'Insufficient permissions to record attendance',
       });
     }
 
     const updateData = {
       attended: attended || false,
-      updated_at: new Date()
+      updated_at: new Date(),
     };
 
     if (joined_at) {
@@ -401,13 +407,11 @@ router.post('/:sessionId/attendance', protect, async (req, res, next) => {
       updateData.rating = rating;
     }
 
-    await db('session_attendees')
-      .where({ session_id: sessionId, user_id })
-      .update(updateData);
+    await db('session_attendees').where({ session_id: sessionId, user_id }).update(updateData);
 
     res.status(200).json({
       success: true,
-      message: 'Attendance recorded successfully'
+      message: 'Attendance recorded successfully',
     });
   } catch (error) {
     next(error);
@@ -427,16 +431,19 @@ router.post('/:sessionId/recordings', protect, async (req, res, next) => {
     if (!url || !title) {
       return res.status(400).json({
         success: false,
-        error: 'Recording URL and title are required'
+        error: 'Recording URL and title are required',
       });
     }
 
     // Verify user has permission to add recordings
     const session = await db('project_sessions as ps')
       .select(['ps.*', 'pm.role'])
-      .leftJoin('project_members as pm', function() {
-        this.on('ps.project_id', '=', 'pm.project_id')
-          .andOn('pm.user_id', '=', db.raw('?', [req.user.id]));
+      .leftJoin('project_members as pm', function () {
+        this.on('ps.project_id', '=', 'pm.project_id').andOn(
+          'pm.user_id',
+          '=',
+          db.raw('?', [req.user.id]),
+        );
       })
       .where('ps.id', sessionId)
       .first();
@@ -444,20 +451,20 @@ router.post('/:sessionId/recordings', protect, async (req, res, next) => {
     if (!session) {
       return res.status(404).json({
         success: false,
-        error: 'Session not found'
+        error: 'Session not found',
       });
     }
 
     if (!['admin', 'mentor'].includes(session.role)) {
       return res.status(403).json({
         success: false,
-        error: 'Insufficient permissions to add recordings'
+        error: 'Insufficient permissions to add recordings',
       });
     }
 
     // Get existing recordings
     const existingRecordings = session.recordings ? JSON.parse(session.recordings) : [];
-    
+
     const newRecording = {
       id: Date.now().toString(),
       url,
@@ -465,7 +472,7 @@ router.post('/:sessionId/recordings', protect, async (req, res, next) => {
       duration: duration || 0,
       thumbnail_url,
       added_by: req.user.id,
-      added_at: new Date()
+      added_at: new Date(),
     };
 
     existingRecordings.push(newRecording);
@@ -474,13 +481,13 @@ router.post('/:sessionId/recordings', protect, async (req, res, next) => {
       .where({ id: sessionId })
       .update({
         recordings: JSON.stringify(existingRecordings),
-        updated_at: new Date()
+        updated_at: new Date(),
       });
 
     res.status(201).json({
       success: true,
       message: 'Recording added successfully',
-      data: newRecording
+      data: newRecording,
     });
   } catch (error) {
     next(error);
@@ -497,9 +504,12 @@ router.get('/:sessionId/stats', protect, async (req, res, next) => {
     // Verify user has access to session
     const session = await db('project_sessions as ps')
       .select(['ps.*', 'pm.role'])
-      .leftJoin('project_members as pm', function() {
-        this.on('ps.project_id', '=', 'pm.project_id')
-          .andOn('pm.user_id', '=', db.raw('?', [req.user.id]));
+      .leftJoin('project_members as pm', function () {
+        this.on('ps.project_id', '=', 'pm.project_id').andOn(
+          'pm.user_id',
+          '=',
+          db.raw('?', [req.user.id]),
+        );
       })
       .where('ps.id', sessionId)
       .first();
@@ -507,18 +517,16 @@ router.get('/:sessionId/stats', protect, async (req, res, next) => {
     if (!session) {
       return res.status(404).json({
         success: false,
-        error: 'Session not found'
+        error: 'Session not found',
       });
     }
 
-    const [
-      totalAttendees,
-      attendedCount,
-      responseStats,
-      averageRating
-    ] = await Promise.all([
+    const [totalAttendees, attendedCount, responseStats, averageRating] = await Promise.all([
       db('session_attendees').where({ session_id: sessionId }).count('* as count').first(),
-      db('session_attendees').where({ session_id: sessionId, attended: true }).count('* as count').first(),
+      db('session_attendees')
+        .where({ session_id: sessionId, attended: true })
+        .count('* as count')
+        .first(),
       db('session_attendees')
         .select('response_status')
         .count('* as count')
@@ -528,11 +536,13 @@ router.get('/:sessionId/stats', protect, async (req, res, next) => {
         .where({ session_id: sessionId })
         .whereNotNull('rating')
         .avg('rating as avg')
-        .first()
+        .first(),
     ]);
 
-    const attendanceRate = totalAttendees.count > 0 ? 
-      (attendedCount.count / totalAttendees.count * 100).toFixed(1) : 0;
+    const attendanceRate =
+      totalAttendees.count > 0
+        ? ((attendedCount.count / totalAttendees.count) * 100).toFixed(1)
+        : 0;
 
     res.status(200).json({
       success: true,
@@ -541,8 +551,8 @@ router.get('/:sessionId/stats', protect, async (req, res, next) => {
         attended_count: parseInt(attendedCount.count),
         attendance_rate: parseFloat(attendanceRate),
         response_stats: responseStats,
-        average_rating: parseFloat(averageRating.avg) || 0
-      }
+        average_rating: parseFloat(averageRating.avg) || 0,
+      },
     });
   } catch (error) {
     next(error);

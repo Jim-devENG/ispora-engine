@@ -1,4 +1,4 @@
-exports.seed = async function(knex) {
+exports.seed = async function (knex) {
   // Clear existing data
   await knex('opportunities').del();
 
@@ -11,22 +11,23 @@ exports.seed = async function(knex) {
       location: 'Remote',
       remote: true,
       description: 'Work on open source projects with mentorship from Google engineers.',
-      full_description: 'Google Summer of Code is a global program focused on bringing more developers into open source software development. Students work with an open source organization on a 12+ week programming project during their break between university semesters.',
+      full_description:
+        'Google Summer of Code is a global program focused on bringing more developers into open source software development. Students work with an open source organization on a 12+ week programming project during their break between university semesters.',
       requirements: JSON.stringify([
         'Currently enrolled university student',
         'Strong programming skills',
-        'Passion for open source'
+        'Passion for open source',
       ]),
       benefits: JSON.stringify([
         '$6,000 stipend',
         'Mentorship from Google engineers',
         'Certificate of completion',
-        'Networking opportunities'
+        'Networking opportunities',
       ]),
       amount: JSON.stringify({
         value: 6000,
         currency: 'USD',
-        type: 'stipend'
+        type: 'stipend',
       }),
       duration: '12 weeks',
       commitment: 'Full-time',
@@ -42,21 +43,21 @@ exports.seed = async function(knex) {
       eligibility: JSON.stringify([
         'University student',
         'Age 18 or older',
-        'Available for 12 weeks'
+        'Available for 12 weeks',
       ]),
       application_link: 'https://summerofcode.withgoogle.com',
       application_process: JSON.stringify([
         'Submit application online',
         'Choose organization and project',
         'Write project proposal',
-        'Wait for selection results'
+        'Wait for selection results',
       ]),
       contact_info: JSON.stringify({
         email: 'gsoc@google.com',
-        website: 'https://summerofcode.withgoogle.com'
+        website: 'https://summerofcode.withgoogle.com',
       }),
       created_at: new Date(),
-      updated_at: new Date()
+      updated_at: new Date(),
     },
     {
       id: '850e8400-e29b-41d4-a716-446655440002',
@@ -65,24 +66,26 @@ exports.seed = async function(knex) {
       company: 'Meta',
       location: 'Menlo Park, CA',
       remote: false,
-      description: 'Summer internship program for computer science students interested in full-stack development.',
-      full_description: 'Join Meta\'s world-class engineering team as a software engineering intern. Work on real products used by billions of people while learning from industry experts.',
+      description:
+        'Summer internship program for computer science students interested in full-stack development.',
+      full_description:
+        "Join Meta's world-class engineering team as a software engineering intern. Work on real products used by billions of people while learning from industry experts.",
       requirements: JSON.stringify([
         'CS/Engineering student',
         'Experience with React or similar frameworks',
         'Strong problem-solving skills',
-        'Available for 12-week program'
+        'Available for 12-week program',
       ]),
       benefits: JSON.stringify([
         'Competitive salary',
         'Housing stipend',
         'Mentorship program',
-        'Full-time conversion opportunity'
+        'Full-time conversion opportunity',
       ]),
       amount: JSON.stringify({
         value: 8500,
         currency: 'USD',
-        type: 'salary'
+        type: 'salary',
       }),
       duration: '12 weeks',
       commitment: 'Full-time',
@@ -98,11 +101,11 @@ exports.seed = async function(knex) {
       eligibility: JSON.stringify([
         'University student (Junior/Senior)',
         'CS or related field',
-        'Previous internship experience preferred'
+        'Previous internship experience preferred',
       ]),
       application_link: 'https://meta.com/careers/students',
       created_at: new Date(),
-      updated_at: new Date()
+      updated_at: new Date(),
     },
     {
       id: '850e8400-e29b-41d4-a716-446655440003',
@@ -111,24 +114,26 @@ exports.seed = async function(knex) {
       company: 'Microsoft',
       location: 'Global',
       remote: true,
-      description: 'Scholarship program for students working on AI projects that address social challenges.',
-      full_description: 'Microsoft AI for Good Scholarship supports students developing AI solutions for humanitarian challenges, environmental sustainability, accessibility, and social equity.',
+      description:
+        'Scholarship program for students working on AI projects that address social challenges.',
+      full_description:
+        'Microsoft AI for Good Scholarship supports students developing AI solutions for humanitarian challenges, environmental sustainability, accessibility, and social equity.',
       requirements: JSON.stringify([
         'Undergraduate or graduate student',
         'Working on AI for social impact',
         'Strong academic record',
-        'Project proposal required'
+        'Project proposal required',
       ]),
       benefits: JSON.stringify([
         '$15,000 scholarship',
         'Azure credits',
         'Mentorship from Microsoft AI researchers',
-        'Opportunity to present at Microsoft events'
+        'Opportunity to present at Microsoft events',
       ]),
       amount: JSON.stringify({
         value: 15000,
         currency: 'USD',
-        type: 'award'
+        type: 'award',
       }),
       duration: '1 year',
       posted_by: '550e8400-e29b-41d4-a716-446655440001', // John Smith
@@ -143,11 +148,11 @@ exports.seed = async function(knex) {
       eligibility: JSON.stringify([
         'Full-time student',
         'AI/ML focus area',
-        'Social impact project'
+        'Social impact project',
       ]),
       application_link: 'https://microsoft.com/ai-for-good-scholarship',
       created_at: new Date(),
-      updated_at: new Date()
+      updated_at: new Date(),
     },
     {
       id: '850e8400-e29b-41d4-a716-446655440004',
@@ -157,23 +162,24 @@ exports.seed = async function(knex) {
       location: 'Stanford, CA',
       remote: false,
       description: '6-month accelerator program for student entrepreneurs building tech startups.',
-      full_description: 'Intensive accelerator program providing mentorship, funding, and resources for student entrepreneurs. Participants get access to Stanford\'s network, funding opportunities, and expert guidance.',
+      full_description:
+        "Intensive accelerator program providing mentorship, funding, and resources for student entrepreneurs. Participants get access to Stanford's network, funding opportunities, and expert guidance.",
       requirements: JSON.stringify([
         'Student or recent graduate',
         'Tech startup idea or prototype',
         'Commitment to program duration',
-        'Team of 2-4 members'
+        'Team of 2-4 members',
       ]),
       benefits: JSON.stringify([
         'Up to $100K funding',
         'Office space at Stanford',
         'Mentorship from industry experts',
-        'Demo day presentation'
+        'Demo day presentation',
       ]),
       amount: JSON.stringify({
         value: 100000,
         currency: 'USD',
-        type: 'funding'
+        type: 'funding',
       }),
       duration: '6 months',
       commitment: 'Full-time',
@@ -189,11 +195,11 @@ exports.seed = async function(knex) {
       eligibility: JSON.stringify([
         'Student or recent graduate',
         'Tech startup focus',
-        'Available for 6 months'
+        'Available for 6 months',
       ]),
       application_link: 'https://stanford.edu/startup-accelerator',
       created_at: new Date(),
-      updated_at: new Date()
+      updated_at: new Date(),
     },
     {
       id: '850e8400-e29b-41d4-a716-446655440005',
@@ -202,24 +208,26 @@ exports.seed = async function(knex) {
       company: 'DataCamp',
       location: 'Online',
       remote: true,
-      description: 'Full scholarship for underrepresented minorities in tech to attend intensive data science bootcamp.',
-      full_description: 'Comprehensive 6-month data science bootcamp with job placement assistance. Designed for underrepresented groups to break into data science careers.',
+      description:
+        'Full scholarship for underrepresented minorities in tech to attend intensive data science bootcamp.',
+      full_description:
+        'Comprehensive 6-month data science bootcamp with job placement assistance. Designed for underrepresented groups to break into data science careers.',
       requirements: JSON.stringify([
         'Underrepresented minority in tech',
         'Basic programming experience',
         'Commitment to career change',
-        'Available for full-time program'
+        'Available for full-time program',
       ]),
       benefits: JSON.stringify([
         'Full tuition waiver ($12,000 value)',
         'Job placement assistance',
         'Career coaching',
-        'Alumni network access'
+        'Alumni network access',
       ]),
       amount: JSON.stringify({
         value: 12000,
         currency: 'USD',
-        type: 'award'
+        type: 'award',
       }),
       duration: '6 months',
       commitment: 'Full-time',
@@ -235,12 +243,12 @@ exports.seed = async function(knex) {
       eligibility: JSON.stringify([
         'Underrepresented minority',
         'Basic programming skills',
-        'Career change commitment'
+        'Career change commitment',
       ]),
       application_link: 'https://datacamp.com/diversity-scholarship',
       created_at: new Date(),
-      updated_at: new Date()
-    }
+      updated_at: new Date(),
+    },
   ];
 
   await knex('opportunities').insert(opportunities);

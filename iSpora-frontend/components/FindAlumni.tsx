@@ -1,10 +1,10 @@
-import React, { useState } from "react";
-import { 
-  Users, 
-  Search, 
-  MapPin, 
-  Briefcase, 
-  GraduationCap, 
+import React, { useState } from 'react';
+import {
+  Users,
+  Search,
+  MapPin,
+  Briefcase,
+  GraduationCap,
   Filter,
   MessageCircle,
   UserPlus,
@@ -16,19 +16,19 @@ import {
   Globe,
   Mail,
   Linkedin,
-  Twitter
-} from "lucide-react";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./ui/dialog";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
-import { Badge } from "./ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { Separator } from "./ui/separator";
-import { toast } from "sonner";
+  Twitter,
+} from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Label } from './ui/label';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import { Badge } from './ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { Separator } from './ui/separator';
+import { toast } from 'sonner';
 
 interface FindAlumniProps {
   isOpen: boolean;
@@ -66,147 +66,178 @@ interface AlumniProfile {
 
 const mockAlumniProfiles: AlumniProfile[] = [
   {
-    id: "1",
-    name: "Dr. Sarah Chen",
-    title: "Senior Software Engineer",
-    company: "Google",
-    location: "San Francisco, USA",
-    university: "University of Lagos",
+    id: '1',
+    name: 'Dr. Sarah Chen',
+    title: 'Senior Software Engineer',
+    company: 'Google',
+    location: 'San Francisco, USA',
+    university: 'University of Lagos',
     graduationYear: 2018,
-    degree: "B.Sc Computer Science",
-    field: "Technology",
-    expertise: ["Machine Learning", "Cloud Computing", "Mobile Development"],
-    bio: "Passionate about using technology to solve African challenges. Currently working on AI for healthcare at Google.",
-    connectionStatus: "not-connected",
+    degree: 'B.Sc Computer Science',
+    field: 'Technology',
+    expertise: ['Machine Learning', 'Cloud Computing', 'Mobile Development'],
+    bio: 'Passionate about using technology to solve African challenges. Currently working on AI for healthcare at Google.',
+    connectionStatus: 'not-connected',
     isOnline: true,
-    lastActive: "Online now",
+    lastActive: 'Online now',
     campaignsParticipated: 5,
     studentsHelped: 23,
     rating: 4.9,
     isVerified: true,
-    mentorshipStatus: "available",
+    mentorshipStatus: 'available',
     socialLinks: {
-      linkedin: "linkedin.com/in/sarahchen",
-      twitter: "@sarahchen_dev",
-      email: "sarah.chen@example.com"
+      linkedin: 'linkedin.com/in/sarahchen',
+      twitter: '@sarahchen_dev',
+      email: 'sarah.chen@example.com',
     },
-    achievements: ["Top Mentor 2023", "Innovation Award"]
+    achievements: ['Top Mentor 2023', 'Innovation Award'],
   },
   {
-    id: "2",
-    name: "Prof. James Okafor",
-    title: "Professor of Medicine",
-    company: "Johns Hopkins University",
-    location: "Baltimore, USA",
-    university: "University of Lagos",
+    id: '2',
+    name: 'Prof. James Okafor',
+    title: 'Professor of Medicine',
+    company: 'Johns Hopkins University',
+    location: 'Baltimore, USA',
+    university: 'University of Lagos',
     graduationYear: 2008,
-    degree: "MBChB Medicine",
-    field: "Healthcare",
-    expertise: ["Cardiology", "Medical Research", "Public Health"],
-    bio: "Leading research in cardiovascular diseases affecting African populations. Active in medical education and mentorship.",
-    connectionStatus: "connected",
+    degree: 'MBChB Medicine',
+    field: 'Healthcare',
+    expertise: ['Cardiology', 'Medical Research', 'Public Health'],
+    bio: 'Leading research in cardiovascular diseases affecting African populations. Active in medical education and mentorship.',
+    connectionStatus: 'connected',
     isOnline: false,
-    lastActive: "2 hours ago",
+    lastActive: '2 hours ago',
     campaignsParticipated: 8,
     studentsHelped: 45,
     rating: 4.8,
     isVerified: true,
-    mentorshipStatus: "available",
+    mentorshipStatus: 'available',
     socialLinks: {
-      linkedin: "linkedin.com/in/jamesokafor",
-      email: "j.okafor@jhu.edu"
+      linkedin: 'linkedin.com/in/jamesokafor',
+      email: 'j.okafor@jhu.edu',
     },
-    achievements: ["Medical Excellence Award", "Research Pioneer"]
+    achievements: ['Medical Excellence Award', 'Research Pioneer'],
   },
   {
-    id: "3",
-    name: "Amina Hassan",
-    title: "Investment Banking VP",
-    company: "Goldman Sachs",
-    location: "London, UK",
-    university: "Makerere University",
+    id: '3',
+    name: 'Amina Hassan',
+    title: 'Investment Banking VP',
+    company: 'Goldman Sachs',
+    location: 'London, UK',
+    university: 'Makerere University',
     graduationYear: 2015,
-    degree: "B.Com Finance",
-    field: "Finance",
-    expertise: ["Investment Banking", "Private Equity", "Financial Analysis"],
-    bio: "Specialized in emerging markets finance with focus on African infrastructure projects.",
-    connectionStatus: "pending",
+    degree: 'B.Com Finance',
+    field: 'Finance',
+    expertise: ['Investment Banking', 'Private Equity', 'Financial Analysis'],
+    bio: 'Specialized in emerging markets finance with focus on African infrastructure projects.',
+    connectionStatus: 'pending',
     isOnline: true,
-    lastActive: "30 minutes ago",
+    lastActive: '30 minutes ago',
     campaignsParticipated: 3,
     studentsHelped: 18,
     rating: 4.7,
     isVerified: true,
-    mentorshipStatus: "busy",
+    mentorshipStatus: 'busy',
     socialLinks: {
-      linkedin: "linkedin.com/in/aminahassan",
-      email: "amina.hassan@gs.com"
+      linkedin: 'linkedin.com/in/aminahassan',
+      email: 'amina.hassan@gs.com',
     },
-    achievements: ["Rising Star Award"]
+    achievements: ['Rising Star Award'],
   },
   {
-    id: "4",
-    name: "David Mwangi",
-    title: "Agricultural Engineer",
-    company: "FAO",
-    location: "Nairobi, Kenya",
-    university: "University of Nairobi",
+    id: '4',
+    name: 'David Mwangi',
+    title: 'Agricultural Engineer',
+    company: 'FAO',
+    location: 'Nairobi, Kenya',
+    university: 'University of Nairobi',
     graduationYear: 2012,
-    degree: "B.Sc Agricultural Engineering",
-    field: "Agriculture",
-    expertise: ["Sustainable Agriculture", "Irrigation Systems", "Food Security"],
-    bio: "Working on sustainable farming technologies across East Africa. Passionate about food security solutions.",
-    connectionStatus: "not-connected",
+    degree: 'B.Sc Agricultural Engineering',
+    field: 'Agriculture',
+    expertise: ['Sustainable Agriculture', 'Irrigation Systems', 'Food Security'],
+    bio: 'Working on sustainable farming technologies across East Africa. Passionate about food security solutions.',
+    connectionStatus: 'not-connected',
     isOnline: false,
-    lastActive: "1 day ago",
+    lastActive: '1 day ago',
     campaignsParticipated: 6,
     studentsHelped: 31,
     rating: 4.6,
     isVerified: false,
-    mentorshipStatus: "available",
+    mentorshipStatus: 'available',
     socialLinks: {
-      linkedin: "linkedin.com/in/davidmwangi",
-      email: "david.mwangi@fao.org"
+      linkedin: 'linkedin.com/in/davidmwangi',
+      email: 'david.mwangi@fao.org',
     },
-    achievements: ["Sustainability Champion"]
-  }
+    achievements: ['Sustainability Champion'],
+  },
 ];
 
-const universities = ["All Universities", "University of Lagos", "Makerere University", "University of Cape Town", "University of Nairobi"];
-const fields = ["All Fields", "Technology", "Healthcare", "Finance", "Engineering", "Agriculture", "Business", "Education"];
-const locations = ["All Locations", "USA", "UK", "Canada", "Germany", "Kenya", "Nigeria", "Uganda", "South Africa"];
+const universities = [
+  'All Universities',
+  'University of Lagos',
+  'Makerere University',
+  'University of Cape Town',
+  'University of Nairobi',
+];
+const fields = [
+  'All Fields',
+  'Technology',
+  'Healthcare',
+  'Finance',
+  'Engineering',
+  'Agriculture',
+  'Business',
+  'Education',
+];
+const locations = [
+  'All Locations',
+  'USA',
+  'UK',
+  'Canada',
+  'Germany',
+  'Kenya',
+  'Nigeria',
+  'Uganda',
+  'South Africa',
+];
 
 export function FindAlumni({ isOpen, onClose }: FindAlumniProps) {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedUniversity, setSelectedUniversity] = useState("All Universities");
-  const [selectedField, setSelectedField] = useState("All Fields");
-  const [selectedLocation, setSelectedLocation] = useState("All Locations");
-  const [mentorshipFilter, setMentorshipFilter] = useState("all");
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedUniversity, setSelectedUniversity] = useState('All Universities');
+  const [selectedField, setSelectedField] = useState('All Fields');
+  const [selectedLocation, setSelectedLocation] = useState('All Locations');
+  const [mentorshipFilter, setMentorshipFilter] = useState('all');
   const [selectedProfile, setSelectedProfile] = useState<AlumniProfile | null>(null);
 
-  const filteredAlumni = mockAlumniProfiles.filter(alumni => {
-    const matchesSearch = alumni.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         alumni.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         alumni.expertise.some(exp => exp.toLowerCase().includes(searchQuery.toLowerCase()));
-    const matchesUniversity = selectedUniversity === "All Universities" || alumni.university === selectedUniversity;
-    const matchesField = selectedField === "All Fields" || alumni.field === selectedField;
-    const matchesLocation = selectedLocation === "All Locations" || alumni.location.includes(selectedLocation);
-    const matchesMentorship = mentorshipFilter === "all" || 
-                             (mentorshipFilter === "available" && alumni.mentorshipStatus === "available") ||
-                             (mentorshipFilter === "online" && alumni.isOnline);
-    
-    return matchesSearch && matchesUniversity && matchesField && matchesLocation && matchesMentorship;
+  const filteredAlumni = mockAlumniProfiles.filter((alumni) => {
+    const matchesSearch =
+      alumni.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      alumni.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      alumni.expertise.some((exp) => exp.toLowerCase().includes(searchQuery.toLowerCase()));
+    const matchesUniversity =
+      selectedUniversity === 'All Universities' || alumni.university === selectedUniversity;
+    const matchesField = selectedField === 'All Fields' || alumni.field === selectedField;
+    const matchesLocation =
+      selectedLocation === 'All Locations' || alumni.location.includes(selectedLocation);
+    const matchesMentorship =
+      mentorshipFilter === 'all' ||
+      (mentorshipFilter === 'available' && alumni.mentorshipStatus === 'available') ||
+      (mentorshipFilter === 'online' && alumni.isOnline);
+
+    return (
+      matchesSearch && matchesUniversity && matchesField && matchesLocation && matchesMentorship
+    );
   });
 
   const handleConnect = (alumniId: string) => {
-    const alumni = mockAlumniProfiles.find(a => a.id === alumniId);
+    const alumni = mockAlumniProfiles.find((a) => a.id === alumniId);
     if (alumni) {
       toast.success(`Connection request sent to ${alumni.name}!`);
     }
   };
 
   const handleMessage = (alumniId: string) => {
-    const alumni = mockAlumniProfiles.find(a => a.id === alumniId);
+    const alumni = mockAlumniProfiles.find((a) => a.id === alumniId);
     if (alumni) {
       toast.success(`Opening chat with ${alumni.name}...`);
     }
@@ -215,11 +246,26 @@ export function FindAlumni({ isOpen, onClose }: FindAlumniProps) {
   const getConnectionButtonProps = (status: AlumniProfile['connectionStatus']) => {
     switch (status) {
       case 'connected':
-        return { text: 'Connected', variant: 'default' as const, disabled: true, icon: <Users className="h-4 w-4" /> };
+        return {
+          text: 'Connected',
+          variant: 'default' as const,
+          disabled: true,
+          icon: <Users className="h-4 w-4" />,
+        };
       case 'pending':
-        return { text: 'Pending', variant: 'outline' as const, disabled: true, icon: <Calendar className="h-4 w-4" /> };
+        return {
+          text: 'Pending',
+          variant: 'outline' as const,
+          disabled: true,
+          icon: <Calendar className="h-4 w-4" />,
+        };
       default:
-        return { text: 'Connect', variant: 'outline' as const, disabled: false, icon: <UserPlus className="h-4 w-4" /> };
+        return {
+          text: 'Connect',
+          variant: 'outline' as const,
+          disabled: false,
+          icon: <UserPlus className="h-4 w-4" />,
+        };
     }
   };
 
@@ -236,7 +282,7 @@ export function FindAlumni({ isOpen, onClose }: FindAlumniProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[80vh] flex flex-col w-[95vw] sm:w-full">
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2">
             <Users className="h-5 w-5 text-blue-600" />
@@ -279,7 +325,9 @@ export function FindAlumni({ isOpen, onClose }: FindAlumniProps) {
                   </SelectTrigger>
                   <SelectContent>
                     {universities.map((uni) => (
-                      <SelectItem key={uni} value={uni}>{uni}</SelectItem>
+                      <SelectItem key={uni} value={uni}>
+                        {uni}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -290,7 +338,9 @@ export function FindAlumni({ isOpen, onClose }: FindAlumniProps) {
                   </SelectTrigger>
                   <SelectContent>
                     {fields.map((field) => (
-                      <SelectItem key={field} value={field}>{field}</SelectItem>
+                      <SelectItem key={field} value={field}>
+                        {field}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -301,7 +351,9 @@ export function FindAlumni({ isOpen, onClose }: FindAlumniProps) {
                   </SelectTrigger>
                   <SelectContent>
                     {locations.map((location) => (
-                      <SelectItem key={location} value={location}>{location}</SelectItem>
+                      <SelectItem key={location} value={location}>
+                        {location}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -341,9 +393,12 @@ export function FindAlumni({ isOpen, onClose }: FindAlumniProps) {
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {filteredAlumni.map((alumni) => {
                   const connectionProps = getConnectionButtonProps(alumni.connectionStatus);
-                  
+
                   return (
-                    <Card key={alumni.id} className="hover:shadow-md transition-shadow overflow-hidden">
+                    <Card
+                      key={alumni.id}
+                      className="hover:shadow-md transition-shadow overflow-hidden"
+                    >
                       <CardContent className="p-5">
                         <div className="space-y-4">
                           {/* Header */}
@@ -352,7 +407,12 @@ export function FindAlumni({ isOpen, onClose }: FindAlumniProps) {
                               <div className="relative flex-shrink-0">
                                 <Avatar className="h-12 w-12">
                                   <AvatarImage src={alumni.profileImage} />
-                                  <AvatarFallback className="text-sm">{alumni.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                                  <AvatarFallback className="text-sm">
+                                    {alumni.name
+                                      .split(' ')
+                                      .map((n) => n[0])
+                                      .join('')}
+                                  </AvatarFallback>
                                 </Avatar>
                                 {alumni.isOnline && (
                                   <div className="absolute -bottom-1 -right-1 h-4 w-4 bg-green-500 border-2 border-white rounded-full"></div>
@@ -368,7 +428,9 @@ export function FindAlumni({ isOpen, onClose }: FindAlumniProps) {
                                     </Badge>
                                   )}
                                 </div>
-                                <p className="text-sm text-muted-foreground truncate">{alumni.title}</p>
+                                <p className="text-sm text-muted-foreground truncate">
+                                  {alumni.title}
+                                </p>
                                 <div className="flex items-center space-x-1 text-xs text-muted-foreground">
                                   <Building className="h-3 w-3 flex-shrink-0" />
                                   <span className="truncate">{alumni.company}</span>
@@ -391,11 +453,15 @@ export function FindAlumni({ isOpen, onClose }: FindAlumniProps) {
                               <GraduationCap className="h-4 w-4 text-gray-500 flex-shrink-0" />
                               <span className="truncate">{alumni.university}</span>
                             </div>
-                            <span className="text-xs text-muted-foreground">Class of {alumni.graduationYear}</span>
+                            <span className="text-xs text-muted-foreground">
+                              Class of {alumni.graduationYear}
+                            </span>
                           </div>
 
                           {/* Bio */}
-                          <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed">{alumni.bio}</p>
+                          <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed">
+                            {alumni.bio}
+                          </p>
 
                           {/* Expertise */}
                           <div className="flex flex-wrap gap-1">
@@ -419,8 +485,11 @@ export function FindAlumni({ isOpen, onClose }: FindAlumniProps) {
                                 <div>{alumni.studentsHelped} students helped</div>
                               </div>
                             </div>
-                            <Badge className={`${getMentorshipStatusColor(alumni.mentorshipStatus)} text-xs w-full justify-center`}>
-                              {alumni.mentorshipStatus === 'available' && 'Available for mentorship'}
+                            <Badge
+                              className={`${getMentorshipStatusColor(alumni.mentorshipStatus)} text-xs w-full justify-center`}
+                            >
+                              {alumni.mentorshipStatus === 'available' &&
+                                'Available for mentorship'}
                               {alumni.mentorshipStatus === 'busy' && 'Currently busy'}
                               {alumni.mentorshipStatus === 'not-available' && 'Not available'}
                             </Badge>

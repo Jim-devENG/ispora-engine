@@ -1,8 +1,16 @@
-exports.up = function(knex) {
-  return knex.schema.alterTable('notifications', table => {
+exports.up = function (knex) {
+  return knex.schema.alterTable('notifications', (table) => {
     // Add new columns for enhanced functionality
-    table.string('category_id').references('id').inTable('notification_categories').onDelete('SET NULL');
-    table.string('template_id').references('id').inTable('notification_templates').onDelete('SET NULL');
+    table
+      .string('category_id')
+      .references('id')
+      .inTable('notification_categories')
+      .onDelete('SET NULL');
+    table
+      .string('template_id')
+      .references('id')
+      .inTable('notification_templates')
+      .onDelete('SET NULL');
     table.uuid('batch_id').references('id').inTable('notification_batches').onDelete('SET NULL');
     table.json('metadata'); // Enhanced metadata for notifications
     table.boolean('action_required').defaultTo(false);
@@ -16,7 +24,7 @@ exports.up = function(knex) {
     table.integer('click_count').defaultTo(0); // Number of times clicked
     table.boolean('is_archived').defaultTo(false); // Archive status
     table.string('source'); // Source of notification (system, user, automated, etc.)
-    
+
     // Add indexes for new columns
     table.index(['category_id']);
     table.index(['template_id']);
@@ -29,8 +37,8 @@ exports.up = function(knex) {
   });
 };
 
-exports.down = function(knex) {
-  return knex.schema.alterTable('notifications', table => {
+exports.down = function (knex) {
+  return knex.schema.alterTable('notifications', (table) => {
     // Remove the added columns
     table.dropColumn('category_id');
     table.dropColumn('template_id');

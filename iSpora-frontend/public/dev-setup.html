@@ -1,175 +1,193 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Development Setup - iSpora</title>
     <style>
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center; 
-            min-height: 100vh; 
-            margin: 0; 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: #333;
-        }
-        .container { 
-            background-color: #fff; 
-            padding: 40px; 
-            border-radius: 12px; 
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1); 
-            text-align: center; 
-            max-width: 600px; 
-            width: 90%; 
-        }
-        h1 { 
-            color: #021ff6; 
-            margin-bottom: 20px; 
-            font-size: 2.5rem;
-        }
-        .step {
-            background: #f8f9fa;
-            padding: 20px;
-            margin: 15px 0;
-            border-radius: 8px;
-            border-left: 4px solid #021ff6;
-        }
-        .step h3 {
-            margin: 0 0 10px 0;
-            color: #021ff6;
-        }
-        button { 
-            background: linear-gradient(135deg, #021ff6, #667eea); 
-            color: white; 
-            padding: 12px 25px; 
-            border: none; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            font-size: 16px; 
-            font-weight: 600;
-            transition: all 0.3s ease; 
-            margin: 10px; 
-        }
-        button:hover { 
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(2, 31, 246, 0.3);
-        }
-        .status {
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 8px;
-            font-weight: 600;
-        }
-        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-        .warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
-        code {
-            background: #e9ecef;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-family: 'Monaco', 'Menlo', monospace;
-        }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        margin: 0;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: #333;
+      }
+      .container {
+        background-color: #fff;
+        padding: 40px;
+        border-radius: 12px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        max-width: 600px;
+        width: 90%;
+      }
+      h1 {
+        color: #021ff6;
+        margin-bottom: 20px;
+        font-size: 2.5rem;
+      }
+      .step {
+        background: #f8f9fa;
+        padding: 20px;
+        margin: 15px 0;
+        border-radius: 8px;
+        border-left: 4px solid #021ff6;
+      }
+      .step h3 {
+        margin: 0 0 10px 0;
+        color: #021ff6;
+      }
+      button {
+        background: linear-gradient(135deg, #021ff6, #667eea);
+        color: white;
+        padding: 12px 25px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        margin: 10px;
+      }
+      button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(2, 31, 246, 0.3);
+      }
+      .status {
+        margin-top: 20px;
+        padding: 15px;
+        border-radius: 8px;
+        font-weight: 600;
+      }
+      .success {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+      .error {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+      .warning {
+        background: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffeaa7;
+      }
+      code {
+        background: #e9ecef;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-family: 'Monaco', 'Menlo', monospace;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <h1>🚀 iSpora Development Setup</h1>
-        <p>Configure your development environment to bypass CORS issues and access the backend.</p>
-        
-        <div class="step">
-            <h3>Step 1: Set Development Key</h3>
-            <p>This allows you to bypass the "Coming Soon" page and access the backend API.</p>
-            <button onclick="setDevKey()">Set Development Key</button>
-        </div>
+      <h1>🚀 iSpora Development Setup</h1>
+      <p>Configure your development environment to bypass CORS issues and access the backend.</p>
 
-        <div class="step">
-            <h3>Step 2: Test Backend Connection</h3>
-            <p>Verify that the backend is accessible and responding correctly.</p>
-            <button onclick="testBackend()">Test Backend</button>
-        </div>
+      <div class="step">
+        <h3>Step 1: Set Development Key</h3>
+        <p>This allows you to bypass the "Coming Soon" page and access the backend API.</p>
+        <button onclick="setDevKey()">Set Development Key</button>
+      </div>
 
-        <div class="step">
-            <h3>Step 3: Open Main Application</h3>
-            <p>Once the dev key is set, you can access the main application.</p>
-            <button onclick="openApp()">Open iSpora App</button>
-        </div>
+      <div class="step">
+        <h3>Step 2: Test Backend Connection</h3>
+        <p>Verify that the backend is accessible and responding correctly.</p>
+        <button onclick="testBackend()">Test Backend</button>
+      </div>
 
-        <div id="status"></div>
+      <div class="step">
+        <h3>Step 3: Open Main Application</h3>
+        <p>Once the dev key is set, you can access the main application.</p>
+        <button onclick="openApp()">Open iSpora App</button>
+      </div>
 
-        <div class="step">
-            <h3>🔧 Manual Setup (if needed)</h3>
-            <p>If the buttons don't work, manually set these in your browser console:</p>
-            <code>localStorage.setItem('devKey', 'CHANGE_ME_STRONG_KEY')</code>
-            <br><br>
-            <p>Then refresh the main application.</p>
-        </div>
+      <div id="status"></div>
+
+      <div class="step">
+        <h3>🔧 Manual Setup (if needed)</h3>
+        <p>If the buttons don't work, manually set these in your browser console:</p>
+        <code>localStorage.setItem('devKey', 'CHANGE_ME_STRONG_KEY')</code>
+        <br /><br />
+        <p>Then refresh the main application.</p>
+      </div>
     </div>
 
     <script>
-        const API_BASE_URL = 'https://ispora-backend.onrender.com/api';
-        const DEV_KEY = 'CHANGE_ME_STRONG_KEY';
+      const API_BASE_URL = 'https://ispora-backend.onrender.com/api';
+      const DEV_KEY = 'CHANGE_ME_STRONG_KEY';
 
-        function setDevKey() {
-            try {
-                localStorage.setItem('devKey', DEV_KEY);
-                showStatus('✅ Development key set successfully!', 'success');
-            } catch (error) {
-                showStatus('❌ Failed to set dev key: ' + error.message, 'error');
-            }
+      function setDevKey() {
+        try {
+          localStorage.setItem('devKey', DEV_KEY);
+          showStatus('✅ Development key set successfully!', 'success');
+        } catch (error) {
+          showStatus('❌ Failed to set dev key: ' + error.message, 'error');
         }
+      }
 
-        async function testBackend() {
-            const statusDiv = document.getElementById('status');
-            statusDiv.innerHTML = '🔄 Testing backend connection...';
-            statusDiv.className = 'status warning';
+      async function testBackend() {
+        const statusDiv = document.getElementById('status');
+        statusDiv.innerHTML = '🔄 Testing backend connection...';
+        statusDiv.className = 'status warning';
 
-            try {
-                const response = await fetch(`${API_BASE_URL}/dev/verify`, {
-                    method: 'GET',
-                    headers: {
-                        'X-Dev-Key': DEV_KEY,
-                        'Content-Type': 'application/json'
-                    }
-                });
+        try {
+          const response = await fetch(`${API_BASE_URL}/dev/verify`, {
+            method: 'GET',
+            headers: {
+              'X-Dev-Key': DEV_KEY,
+              'Content-Type': 'application/json',
+            },
+          });
 
-                if (response.ok) {
-                    const data = await response.json();
-                    showStatus(`✅ Backend is working! ${data.message}`, 'success');
-                } else {
-                    const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
-                    showStatus(`❌ Backend error: ${response.status} - ${errorData.error || response.statusText}`, 'error');
-                }
-            } catch (error) {
-                showStatus(`❌ Network error: ${error.message}`, 'error');
-            }
+          if (response.ok) {
+            const data = await response.json();
+            showStatus(`✅ Backend is working! ${data.message}`, 'success');
+          } else {
+            const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+            showStatus(
+              `❌ Backend error: ${response.status} - ${errorData.error || response.statusText}`,
+              'error',
+            );
+          }
+        } catch (error) {
+          showStatus(`❌ Network error: ${error.message}`, 'error');
         }
+      }
 
-        function openApp() {
-            const devKey = localStorage.getItem('devKey');
-            if (devKey) {
-                window.open('/', '_blank');
-                showStatus('🚀 Opening main application...', 'success');
-            } else {
-                showStatus('⚠️ Please set the development key first!', 'warning');
-            }
+      function openApp() {
+        const devKey = localStorage.getItem('devKey');
+        if (devKey) {
+          window.open('/', '_blank');
+          showStatus('🚀 Opening main application...', 'success');
+        } else {
+          showStatus('⚠️ Please set the development key first!', 'warning');
         }
+      }
 
-        function showStatus(message, type) {
-            const statusDiv = document.getElementById('status');
-            statusDiv.innerHTML = message;
-            statusDiv.className = `status ${type}`;
+      function showStatus(message, type) {
+        const statusDiv = document.getElementById('status');
+        statusDiv.innerHTML = message;
+        statusDiv.className = `status ${type}`;
+      }
+
+      // Check if dev key is already set
+      window.addEventListener('load', () => {
+        const devKey = localStorage.getItem('devKey');
+        if (devKey) {
+          showStatus(
+            '✅ Development key is already set! You can proceed to the main app.',
+            'success',
+          );
         }
-
-        // Check if dev key is already set
-        window.addEventListener('load', () => {
-            const devKey = localStorage.getItem('devKey');
-            if (devKey) {
-                showStatus('✅ Development key is already set! You can proceed to the main app.', 'success');
-            }
-        });
+      });
     </script>
-</body>
+  </body>
 </html>

@@ -1,8 +1,27 @@
-exports.up = function(knex) {
-  return knex.schema.createTable('opportunities', table => {
-    table.uuid('id').primary().defaultTo(knex.raw('(lower(hex(randomblob(4))) || \'-\' || lower(hex(randomblob(2))) || \'-4\' || substr(lower(hex(randomblob(2))),2) || \'-\' || substr(\'89ab\',abs(random()) % 4 + 1, 1) || substr(lower(hex(randomblob(2))),2) || \'-\' || lower(hex(randomblob(6))))'));
+exports.up = function (knex) {
+  return knex.schema.createTable('opportunities', (table) => {
+    table
+      .uuid('id')
+      .primary()
+      .defaultTo(
+        knex.raw(
+          "(lower(hex(randomblob(4))) || '-' || lower(hex(randomblob(2))) || '-4' || substr(lower(hex(randomblob(2))),2) || '-' || substr('89ab',abs(random()) % 4 + 1, 1) || substr(lower(hex(randomblob(2))),2) || '-' || lower(hex(randomblob(6))))",
+        ),
+      );
     table.string('title').notNullable();
-    table.enu('type', ['scholarship', 'job', 'internship', 'fellowship', 'accelerator', 'grant', 'event', 'community', 'others']).notNullable();
+    table
+      .enu('type', [
+        'scholarship',
+        'job',
+        'internship',
+        'fellowship',
+        'accelerator',
+        'grant',
+        'event',
+        'community',
+        'others',
+      ])
+      .notNullable();
     table.string('company').notNullable();
     table.string('location');
     table.boolean('remote').defaultTo(false);
@@ -31,7 +50,7 @@ exports.up = function(knex) {
     table.json('contact_info'); // {email, phone, website}
     table.enu('status', ['active', 'inactive', 'expired']).defaultTo('active');
     table.timestamps(true, true);
-    
+
     // Indexes
     table.index(['posted_by']);
     table.index(['type']);
@@ -41,6 +60,6 @@ exports.up = function(knex) {
   });
 };
 
-exports.down = function(knex) {
+exports.down = function (knex) {
   return knex.schema.dropTable('opportunities');
 };

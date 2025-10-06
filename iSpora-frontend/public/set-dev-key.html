@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
+  <head>
     <title>Set Dev Key</title>
-</head>
-<body>
+  </head>
+  <body>
     <h1>Setting Dev Key for CORS Bypass</h1>
     <p>This will set the dev key in localStorage to bypass CORS restrictions.</p>
     <button onclick="setDevKey()">Set Dev Key</button>
@@ -11,20 +11,21 @@
     <div id="result"></div>
 
     <script>
-        function setDevKey() {
-            localStorage.setItem('devKey', 'CHANGE_ME_STRONG_KEY');
-            document.getElementById('result').innerHTML = 'Dev key set successfully!';
-        }
+      function setDevKey() {
+        localStorage.setItem('devKey', 'CHANGE_ME_STRONG_KEY');
+        document.getElementById('result').innerHTML = 'Dev key set successfully!';
+      }
 
-        async function testBackend() {
-            try {
-                const response = await fetch('https://ispora-backend.onrender.com/health');
-                const data = await response.json();
-                document.getElementById('result').innerHTML = 'Backend is accessible: ' + JSON.stringify(data);
-            } catch (error) {
-                document.getElementById('result').innerHTML = 'Backend error: ' + error.message;
-            }
+      async function testBackend() {
+        try {
+          const response = await fetch('https://ispora-backend.onrender.com/health');
+          const data = await response.json();
+          document.getElementById('result').innerHTML =
+            'Backend is accessible: ' + JSON.stringify(data);
+        } catch (error) {
+          document.getElementById('result').innerHTML = 'Backend error: ' + error.message;
         }
+      }
     </script>
-</body>
+  </body>
 </html>

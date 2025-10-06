@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef } from 'react';
 import {
   MessageCircle,
   Mic,
@@ -12,17 +12,29 @@ import {
   MoreHorizontal,
   Phone,
   Video,
-  Smile
-} from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { ScrollArea } from "../ui/scroll-area";
-import { Badge } from "../ui/badge";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
-import { Separator } from "../ui/separator";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
+  Smile,
+} from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
+import { Button } from '../ui/button';
+import { Input } from '../ui/input';
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { ScrollArea } from '../ui/scroll-area';
+import { Badge } from '../ui/badge';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '../ui/dialog';
+import { Separator } from '../ui/separator';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '../ui/dropdown-menu';
 
 interface Message {
   id: string;
@@ -77,7 +89,7 @@ function MessageBubble({ message, isOwnMessage }: { message: Message; isOwnMessa
     return new Intl.DateTimeFormat('en-US', {
       hour: '2-digit',
       minute: '2-digit',
-      hour12: true
+      hour12: true,
     }).format(timestamp);
   };
 
@@ -101,21 +113,22 @@ function MessageBubble({ message, isOwnMessage }: { message: Message; isOwnMessa
         <Avatar className="h-8 w-8 flex-shrink-0">
           <AvatarImage src={message.senderAvatar} alt={message.sender} />
           <AvatarFallback className="text-xs">
-            {message.sender.split(' ').map(n => n[0]).join('')}
+            {message.sender
+              .split(' ')
+              .map((n) => n[0])
+              .join('')}
           </AvatarFallback>
         </Avatar>
       )}
-      
+
       <div className={`max-w-sm lg:max-w-lg xl:max-w-xl ${isOwnMessage ? 'order-1' : ''}`}>
-        <div className={`rounded-lg px-4 py-2 ${
-          isOwnMessage 
-            ? 'bg-[#021ff6] text-white' 
-            : 'bg-gray-100 text-gray-900'
-        }`}>
-          {message.type === 'text' && (
-            <p className="text-sm">{message.content}</p>
-          )}
-          
+        <div
+          className={`rounded-lg px-4 py-2 ${
+            isOwnMessage ? 'bg-[#021ff6] text-white' : 'bg-gray-100 text-gray-900'
+          }`}
+        >
+          {message.type === 'text' && <p className="text-sm">{message.content}</p>}
+
           {message.type === 'voice' && (
             <div className="flex items-center gap-2">
               <Button
@@ -128,7 +141,7 @@ function MessageBubble({ message, isOwnMessage }: { message: Message; isOwnMessa
               </Button>
               <div className="flex-1">
                 <div className={`h-1 rounded-full ${isOwnMessage ? 'bg-white/30' : 'bg-gray-300'}`}>
-                  <div 
+                  <div
                     className={`h-1 rounded-full ${isOwnMessage ? 'bg-white' : 'bg-[#021ff6]'}`}
                     style={{ width: `${(currentTime / (message.duration || 1)) * 100}%` }}
                   />
@@ -139,7 +152,7 @@ function MessageBubble({ message, isOwnMessage }: { message: Message; isOwnMessa
               </span>
             </div>
           )}
-          
+
           {message.type === 'file' && (
             <div className="flex items-center gap-2">
               <Paperclip className="h-4 w-4" />
@@ -162,20 +175,25 @@ function MessageBubble({ message, isOwnMessage }: { message: Message; isOwnMessa
             </div>
           )}
         </div>
-        
-        <div className={`flex items-center gap-1 mt-1 ${isOwnMessage ? 'justify-end' : 'justify-start'}`}>
+
+        <div
+          className={`flex items-center gap-1 mt-1 ${isOwnMessage ? 'justify-end' : 'justify-start'}`}
+        >
           <span className="text-xs text-gray-500">{formatTime(message.timestamp)}</span>
           {isOwnMessage && message.isRead && (
             <div className="text-xs text-blue-600 font-medium">Read</div>
           )}
         </div>
       </div>
-      
+
       {isOwnMessage && (
         <Avatar className="h-8 w-8 flex-shrink-0">
           <AvatarImage src={message.senderAvatar} alt={message.sender} />
           <AvatarFallback className="text-xs">
-            {message.sender.split(' ').map(n => n[0]).join('')}
+            {message.sender
+              .split(' ')
+              .map((n) => n[0])
+              .join('')}
           </AvatarFallback>
         </Avatar>
       )}
@@ -183,19 +201,23 @@ function MessageBubble({ message, isOwnMessage }: { message: Message; isOwnMessa
   );
 }
 
-function VoiceNoteCard({ voiceNote, onPlay, onDelete }: {
+function VoiceNoteCard({
+  voiceNote,
+  onPlay,
+  onDelete,
+}: {
   voiceNote: VoiceNote;
   onPlay: (note: VoiceNote) => void;
   onDelete: (noteId: string) => void;
 }) {
   const [isPlaying, setIsPlaying] = useState(false);
-  
+
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat('en-US', {
       month: 'short',
       day: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     }).format(date);
   };
 
@@ -216,7 +238,10 @@ function VoiceNoteCard({ voiceNote, onPlay, onDelete }: {
                 <Avatar className="h-5 w-5">
                   <AvatarImage src={voiceNote.senderAvatar} alt={voiceNote.sender} />
                   <AvatarFallback className="text-xs">
-                    {voiceNote.sender.split(' ').map(n => n[0]).join('')}
+                    {voiceNote.sender
+                      .split(' ')
+                      .map((n) => n[0])
+                      .join('')}
                   </AvatarFallback>
                 </Avatar>
                 <span className="text-xs text-gray-600">{voiceNote.sender}</span>
@@ -291,7 +316,7 @@ function VoiceNoteCard({ voiceNote, onPlay, onDelete }: {
 export function VoiceChat({ mentee }: VoiceChatProps) {
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [voiceNotes, setVoiceNotes] = useState<VoiceNote[]>(initialVoiceNotes);
-  const [newMessage, setNewMessage] = useState("");
+  const [newMessage, setNewMessage] = useState('');
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const [activeTab, setActiveTab] = useState<'chat' | 'voice-notes'>('chat');
@@ -299,9 +324,15 @@ export function VoiceChat({ mentee }: VoiceChatProps) {
 
   // Use logged-in user if available in localStorage
   const storedUser = (() => {
-    try { return JSON.parse(localStorage.getItem('user') || '{}'); } catch { return {}; }
+    try {
+      return JSON.parse(localStorage.getItem('user') || '{}');
+    } catch {
+      return {};
+    }
   })();
-  const currentUser = storedUser?.firstName ? `${storedUser.firstName} ${storedUser.lastName || ''}`.trim() : (storedUser?.email?.split('@')[0] || 'User');
+  const currentUser = storedUser?.firstName
+    ? `${storedUser.firstName} ${storedUser.lastName || ''}`.trim()
+    : storedUser?.email?.split('@')[0] || 'User';
   const currentUserAvatar = storedUser?.avatar || undefined;
 
   const handleSendMessage = () => {
@@ -314,11 +345,11 @@ export function VoiceChat({ mentee }: VoiceChatProps) {
       senderAvatar: currentUserAvatar,
       timestamp: new Date(),
       type: 'text',
-      isRead: false
+      isRead: false,
     };
 
-    setMessages(prev => [...prev, message]);
-    setNewMessage("");
+    setMessages((prev) => [...prev, message]);
+    setNewMessage('');
   };
 
   const handleStartRecording = () => {
@@ -329,21 +360,21 @@ export function VoiceChat({ mentee }: VoiceChatProps) {
 
   const handleStopRecording = () => {
     setIsRecording(false);
-    
+
     // Create voice message
     const voiceMessage: Message = {
       id: Date.now().toString(),
-      content: "Voice message",
+      content: 'Voice message',
       sender: currentUser,
       senderAvatar: currentUserAvatar,
       timestamp: new Date(),
       type: 'voice',
       duration: recordingTime,
-      fileUrl: "#",
-      isRead: false
+      fileUrl: '#',
+      isRead: false,
     };
 
-    setMessages(prev => [...prev, voiceMessage]);
+    setMessages((prev) => [...prev, voiceMessage]);
     setRecordingTime(0);
   };
 
@@ -360,19 +391,19 @@ export function VoiceChat({ mentee }: VoiceChatProps) {
       type: 'file',
       fileName: file.name,
       fileSize: file.size,
-      fileUrl: "#",
-      isRead: false
+      fileUrl: '#',
+      isRead: false,
     };
 
-    setMessages(prev => [...prev, fileMessage]);
+    setMessages((prev) => [...prev, fileMessage]);
   };
 
   const handlePlayVoiceNote = (note: VoiceNote) => {
-    console.log("Playing voice note:", note.title);
+    console.log('Playing voice note:', note.title);
   };
 
   const handleDeleteVoiceNote = (noteId: string) => {
-    setVoiceNotes(prev => prev.filter(n => n.id !== noteId));
+    setVoiceNotes((prev) => prev.filter((n) => n.id !== noteId));
   };
 
   const formatDuration = (seconds: number) => {
@@ -454,7 +485,9 @@ export function VoiceChat({ mentee }: VoiceChatProps) {
                 <div className="mb-3 p-3 bg-red-50 border border-red-200 rounded-lg">
                   <div className="flex items-center gap-2">
                     <div className="h-2 w-2 bg-red-500 rounded-full animate-pulse" />
-                    <span className="text-sm text-red-700">Recording: {formatDuration(recordingTime)}</span>
+                    <span className="text-sm text-red-700">
+                      Recording: {formatDuration(recordingTime)}
+                    </span>
                     <Button
                       variant="outline"
                       size="sm"
@@ -466,7 +499,7 @@ export function VoiceChat({ mentee }: VoiceChatProps) {
                   </div>
                 </div>
               )}
-              
+
               <div className="flex items-center gap-2">
                 <input
                   type="file"
@@ -474,14 +507,10 @@ export function VoiceChat({ mentee }: VoiceChatProps) {
                   onChange={handleFileUpload}
                   className="hidden"
                 />
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => fileInputRef.current?.click()}
-                >
+                <Button variant="ghost" size="sm" onClick={() => fileInputRef.current?.click()}>
                   <Paperclip className="h-4 w-4" />
                 </Button>
-                
+
                 <Button
                   variant="ghost"
                   size="sm"
@@ -490,7 +519,7 @@ export function VoiceChat({ mentee }: VoiceChatProps) {
                 >
                   {isRecording ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
                 </Button>
-                
+
                 <Input
                   placeholder="Type a message..."
                   value={newMessage}
@@ -499,14 +528,11 @@ export function VoiceChat({ mentee }: VoiceChatProps) {
                   className="flex-1"
                   disabled={isRecording}
                 />
-                
-                <Button
-                  variant="ghost"
-                  size="sm"
-                >
+
+                <Button variant="ghost" size="sm">
                   <Smile className="h-4 w-4" />
                 </Button>
-                
+
                 <Button
                   onClick={handleSendMessage}
                   disabled={!newMessage.trim() || isRecording}

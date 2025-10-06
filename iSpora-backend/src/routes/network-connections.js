@@ -38,24 +38,22 @@ router.get('/my-connections', protect, async (req, res) => {
         'unp.response_rate',
         'uos.is_online',
         'uos.last_seen',
-        'uos.status_message'
+        'uos.status_message',
       )
-      .join('users as u', function() {
-        this.on('u.id', '=', 'c.requester_id')
-          .orOn('u.id', '=', 'c.receiver_id');
+      .join('users as u', function () {
+        this.on('u.id', '=', 'c.requester_id').orOn('u.id', '=', 'c.receiver_id');
       })
       .leftJoin('user_network_profiles as unp', 'u.id', 'unp.user_id')
       .leftJoin('user_online_status as uos', 'u.id', 'uos.user_id')
       .where('c.status', 'accepted')
-      .where(function() {
-        this.where('c.requester_id', userId)
-          .orWhere('c.receiver_id', userId);
+      .where(function () {
+        this.where('c.requester_id', userId).orWhere('c.receiver_id', userId);
       })
       .where('u.id', '!=', userId);
 
     // Apply filters
     if (search) {
-      query = query.where(function() {
+      query = query.where(function () {
         this.where('u.first_name', 'ilike', `%${search}%`)
           .orWhere('u.last_name', 'ilike', `%${search}%`)
           .orWhere('u.title', 'ilike', `%${search}%`)
@@ -88,7 +86,7 @@ router.get('/my-connections', protect, async (req, res) => {
     const connections = await query.limit(limit).offset(offset);
 
     // Transform the data
-    const transformedConnections = connections.map(conn => ({
+    const transformedConnections = connections.map((conn) => ({
       id: conn.user_id,
       name: `${conn.first_name} ${conn.last_name}`.trim() || conn.username,
       avatar: conn.avatar_url,
@@ -115,7 +113,7 @@ router.get('/my-connections', protect, async (req, res) => {
       openTo: conn.open_to || [],
       connectedAt: conn.created_at,
       connectionMessage: conn.message,
-      connectionPurpose: conn.purpose
+      connectionPurpose: conn.purpose,
     }));
 
     res.json({
@@ -124,8 +122,8 @@ router.get('/my-connections', protect, async (req, res) => {
         page: parseInt(page),
         limit: parseInt(limit),
         total: parseInt(total),
-        pages: Math.ceil(total / limit)
-      }
+        pages: Math.ceil(total / limit),
+      },
     });
   } catch (error) {
     console.error('Error fetching connections:', error);
@@ -167,7 +165,7 @@ router.get('/requests', protect, async (req, res) => {
         'unp.social_links',
         'unp.response_rate',
         'uos.is_online',
-        'uos.last_seen'
+        'uos.last_seen',
       )
       .join('users as u', 'c.requester_id', 'u.id')
       .leftJoin('user_network_profiles as unp', 'u.id', 'unp.user_id')
@@ -180,13 +178,10 @@ router.get('/requests', protect, async (req, res) => {
     const [{ total }] = await countQuery;
 
     // Apply pagination and ordering
-    const requests = await query
-      .orderBy('c.created_at', 'desc')
-      .limit(limit)
-      .offset(offset);
+    const requests = await query.orderBy('c.created_at', 'desc').limit(limit).offset(offset);
 
     // Transform the data
-    const transformedRequests = requests.map(req => ({
+    const transformedRequests = requests.map((req) => ({
       id: req.id,
       from: {
         id: req.user_id,
@@ -211,17 +206,17 @@ router.get('/requests', protect, async (req, res) => {
         socialLinks: req.social_links,
         achievements: req.achievements || [],
         availability: req.availability || {},
-        openTo: req.open_to || []
+        openTo: req.open_to || [],
       },
       to: {
         id: userId,
-        name: `${req.user.first_name} ${req.user.last_name}`.trim() || req.user.username
+        name: `${req.user.first_name} ${req.user.last_name}`.trim() || req.user.username,
       },
       message: req.message,
       timestamp: req.created_at,
       status: req.status,
       type: 'connection',
-      purpose: req.purpose
+      purpose: req.purpose,
     }));
 
     res.json({
@@ -230,8 +225,8 @@ router.get('/requests', protect, async (req, res) => {
         page: parseInt(page),
         limit: parseInt(limit),
         total: parseInt(total),
-        pages: Math.ceil(total / limit)
-      }
+        pages: Math.ceil(total / limit),
+      },
     });
   } catch (error) {
     console.error('Error fetching connection requests:', error);
@@ -261,7 +256,7 @@ router.get('/sent-requests', protect, async (req, res) => {
         'unp.role as network_role',
         'unp.experience_years',
         'uos.is_online',
-        'uos.last_seen'
+        'uos.last_seen',
       )
       .join('users as u', 'c.receiver_id', 'u.id')
       .leftJoin('user_network_profiles as unp', 'u.id', 'unp.user_id')
@@ -274,13 +269,10 @@ router.get('/sent-requests', protect, async (req, res) => {
     const [{ total }] = await countQuery;
 
     // Apply pagination and ordering
-    const requests = await query
-      .orderBy('c.created_at', 'desc')
-      .limit(limit)
-      .offset(offset);
+    const requests = await query.orderBy('c.created_at', 'desc').limit(limit).offset(offset);
 
     // Transform the data
-    const transformedRequests = requests.map(req => ({
+    const transformedRequests = requests.map((req) => ({
       id: req.id,
       to: {
         id: req.user_id,
@@ -293,13 +285,13 @@ router.get('/sent-requests', protect, async (req, res) => {
         experience: req.experience_years || 0,
         isVerified: req.is_verified,
         isOnline: req.is_online,
-        lastActive: req.last_seen ? new Date(req.last_seen).toISOString() : null
+        lastActive: req.last_seen ? new Date(req.last_seen).toISOString() : null,
       },
       message: req.message,
       timestamp: req.created_at,
       status: req.status,
       type: 'connection',
-      purpose: req.purpose
+      purpose: req.purpose,
     }));
 
     res.json({
@@ -308,8 +300,8 @@ router.get('/sent-requests', protect, async (req, res) => {
         page: parseInt(page),
         limit: parseInt(limit),
         total: parseInt(total),
-        pages: Math.ceil(total / limit)
-      }
+        pages: Math.ceil(total / limit),
+      },
     });
   } catch (error) {
     console.error('Error fetching sent requests:', error);
@@ -347,9 +339,11 @@ router.post('/connect', protect, async (req, res) => {
 
     // Check if connection already exists
     const existingConnection = await knex('connections')
-      .where(function() {
-        this.where({ requester_id: req.user.id, receiver_id: userId })
-          .orWhere({ requester_id: userId, receiver_id: req.user.id });
+      .where(function () {
+        this.where({ requester_id: req.user.id, receiver_id: userId }).orWhere({
+          requester_id: userId,
+          receiver_id: req.user.id,
+        });
       })
       .first();
 
@@ -364,7 +358,7 @@ router.post('/connect', protect, async (req, res) => {
         receiver_id: userId,
         message: message,
         purpose: purpose,
-        status: 'pending'
+        status: 'pending',
       })
       .returning('*');
 
@@ -373,7 +367,7 @@ router.post('/connect', protect, async (req, res) => {
       user_id: req.user.id,
       event_type: 'connection_request_sent',
       related_user_id: userId,
-      metadata: JSON.stringify({ purpose, has_message: !!message })
+      metadata: JSON.stringify({ purpose, has_message: !!message }),
     });
 
     // Create notification for receiver
@@ -383,7 +377,7 @@ router.post('/connect', protect, async (req, res) => {
       message: `${req.user.first_name} ${req.user.last_name} sent you a connection request`,
       type: 'connection',
       related_user_id: req.user.id,
-      action_data: JSON.stringify({ connection_id: connection.id })
+      action_data: JSON.stringify({ connection_id: connection.id }),
     });
 
     res.status(201).json(connection);
@@ -414,7 +408,7 @@ router.put('/accept/:id', protect, async (req, res) => {
       .where('id', id)
       .update({
         status: 'accepted',
-        responded_at: knex.fn.now()
+        responded_at: knex.fn.now(),
       })
       .returning('*');
 
@@ -422,7 +416,7 @@ router.put('/accept/:id', protect, async (req, res) => {
     await knex('network_analytics').insert({
       user_id: req.user.id,
       event_type: 'connection_request_accepted',
-      related_user_id: connection.requester_id
+      related_user_id: connection.requester_id,
     });
 
     // Create notification for requester
@@ -432,7 +426,7 @@ router.put('/accept/:id', protect, async (req, res) => {
       message: `${req.user.first_name} ${req.user.last_name} accepted your connection request`,
       type: 'connection',
       related_user_id: req.user.id,
-      action_data: JSON.stringify({ connection_id: connection.id })
+      action_data: JSON.stringify({ connection_id: connection.id }),
     });
 
     res.json(updatedConnection);
@@ -463,7 +457,7 @@ router.put('/decline/:id', protect, async (req, res) => {
       .where('id', id)
       .update({
         status: 'declined',
-        responded_at: knex.fn.now()
+        responded_at: knex.fn.now(),
       })
       .returning('*');
 
@@ -471,7 +465,7 @@ router.put('/decline/:id', protect, async (req, res) => {
     await knex('network_analytics').insert({
       user_id: req.user.id,
       event_type: 'connection_request_declined',
-      related_user_id: connection.requester_id
+      related_user_id: connection.requester_id,
     });
 
     res.json(updatedConnection);
@@ -488,9 +482,11 @@ router.delete('/remove/:userId', protect, async (req, res) => {
 
     // Find the connection
     const connection = await knex('connections')
-      .where(function() {
-        this.where({ requester_id: req.user.id, receiver_id: userId })
-          .orWhere({ requester_id: userId, receiver_id: req.user.id });
+      .where(function () {
+        this.where({ requester_id: req.user.id, receiver_id: userId }).orWhere({
+          requester_id: userId,
+          receiver_id: req.user.id,
+        });
       })
       .where('status', 'accepted')
       .first();
@@ -500,15 +496,13 @@ router.delete('/remove/:userId', protect, async (req, res) => {
     }
 
     // Delete the connection
-    await knex('connections')
-      .where('id', connection.id)
-      .del();
+    await knex('connections').where('id', connection.id).del();
 
     // Track analytics
     await knex('network_analytics').insert({
       user_id: req.user.id,
       event_type: 'connection_removed',
-      related_user_id: userId
+      related_user_id: userId,
     });
 
     res.json({ message: 'Connection removed successfully' });
@@ -537,15 +531,17 @@ router.get('/mutual/:userId', protect, async (req, res) => {
         'u.is_verified',
         'unp.role',
         'unp.experience_years',
-        'uos.is_online'
+        'uos.is_online',
       )
-      .join('connections as c2', function() {
-        this.on('c1.receiver_id', '=', 'c2.requester_id')
-          .andOn('c1.requester_id', '=', 'c2.receiver_id');
+      .join('connections as c2', function () {
+        this.on('c1.receiver_id', '=', 'c2.requester_id').andOn(
+          'c1.requester_id',
+          '=',
+          'c2.receiver_id',
+        );
       })
-      .join('users as u', function() {
-        this.on('u.id', '=', 'c1.receiver_id')
-          .orOn('u.id', '=', 'c1.requester_id');
+      .join('users as u', function () {
+        this.on('u.id', '=', 'c1.receiver_id').orOn('u.id', '=', 'c1.requester_id');
       })
       .leftJoin('user_network_profiles as unp', 'u.id', 'unp.user_id')
       .leftJoin('user_online_status as uos', 'u.id', 'uos.user_id')
@@ -557,7 +553,7 @@ router.get('/mutual/:userId', protect, async (req, res) => {
       .where('u.id', '!=', userId)
       .limit(parseInt(limit));
 
-    const transformedConnections = mutualConnections.map(conn => ({
+    const transformedConnections = mutualConnections.map((conn) => ({
       id: conn.id,
       name: `${conn.first_name} ${conn.last_name}`.trim() || conn.username,
       avatar: conn.avatar_url,
@@ -566,7 +562,7 @@ router.get('/mutual/:userId', protect, async (req, res) => {
       role: conn.role,
       experience: conn.experience_years || 0,
       isVerified: conn.is_verified,
-      isOnline: conn.is_online
+      isOnline: conn.is_online,
     }));
 
     res.json(transformedConnections);

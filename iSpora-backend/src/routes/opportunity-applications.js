@@ -11,9 +11,7 @@ router.get('/opportunity/:opportunityId', protect, async (req, res) => {
     const offset = (page - 1) * limit;
 
     // Check if user owns the opportunity or is admin
-    const opportunity = await knex('opportunities')
-      .where('id', opportunityId)
-      .first();
+    const opportunity = await knex('opportunities').where('id', opportunityId).first();
 
     if (!opportunity) {
       return res.status(404).json({ error: 'Opportunity not found' });
@@ -35,7 +33,7 @@ router.get('/opportunity/:opportunityId', protect, async (req, res) => {
         'users.company as user_company',
         'users.location as user_location',
         'users.linkedin_url',
-        'users.github_url'
+        'users.github_url',
       )
       .leftJoin('users', 'opportunity_applications.user_id', 'users.id')
       .where('opportunity_applications.opportunity_id', opportunityId);
@@ -55,7 +53,7 @@ router.get('/opportunity/:opportunityId', protect, async (req, res) => {
       .offset(offset);
 
     // Transform the data
-    const transformedApplications = applications.map(app => ({
+    const transformedApplications = applications.map((app) => ({
       id: app.id,
       opportunityId: app.opportunity_id,
       userId: app.user_id,
@@ -75,8 +73,8 @@ router.get('/opportunity/:opportunityId', protect, async (req, res) => {
         location: app.user_location,
         avatar: app.avatar_url,
         linkedinUrl: app.linkedin_url,
-        githubUrl: app.github_url
-      }
+        githubUrl: app.github_url,
+      },
     }));
 
     res.json({
@@ -85,8 +83,8 @@ router.get('/opportunity/:opportunityId', protect, async (req, res) => {
         page: parseInt(page),
         limit: parseInt(limit),
         total: parseInt(total),
-        pages: Math.ceil(total / limit)
-      }
+        pages: Math.ceil(total / limit),
+      },
     });
   } catch (error) {
     console.error('Error fetching applications:', error);
@@ -109,7 +107,7 @@ router.get('/my-applications', protect, async (req, res) => {
         'opportunities.location as opportunity_location',
         'opportunities.remote as opportunity_remote',
         'opportunities.deadline as opportunity_deadline',
-        'opportunities.application_link as opportunity_application_link'
+        'opportunities.application_link as opportunity_application_link',
       )
       .leftJoin('opportunities', 'opportunity_applications.opportunity_id', 'opportunities.id')
       .where('opportunity_applications.user_id', req.user.id)
@@ -130,7 +128,7 @@ router.get('/my-applications', protect, async (req, res) => {
       .offset(offset);
 
     // Transform the data
-    const transformedApplications = applications.map(app => ({
+    const transformedApplications = applications.map((app) => ({
       id: app.id,
       opportunityId: app.opportunity_id,
       status: app.status,
@@ -148,8 +146,8 @@ router.get('/my-applications', protect, async (req, res) => {
         location: app.opportunity_location,
         remote: app.opportunity_remote,
         deadline: app.opportunity_deadline,
-        applicationLink: app.opportunity_application_link
-      }
+        applicationLink: app.opportunity_application_link,
+      },
     }));
 
     res.json({
@@ -158,8 +156,8 @@ router.get('/my-applications', protect, async (req, res) => {
         page: parseInt(page),
         limit: parseInt(limit),
         total: parseInt(total),
-        pages: Math.ceil(total / limit)
-      }
+        pages: Math.ceil(total / limit),
+      },
     });
   } catch (error) {
     console.error('Error fetching user applications:', error);
@@ -170,12 +168,7 @@ router.get('/my-applications', protect, async (req, res) => {
 // Apply to an opportunity
 router.post('/apply', protect, async (req, res) => {
   try {
-    const {
-      opportunityId,
-      coverLetter,
-      documents = [],
-      notes
-    } = req.body;
+    const { opportunityId, coverLetter, documents = [], notes } = req.body;
 
     // Validate required fields
     if (!opportunityId) {
@@ -209,14 +202,12 @@ router.post('/apply', protect, async (req, res) => {
         user_id: req.user.id,
         cover_letter: coverLetter,
         documents: JSON.stringify(documents),
-        notes: notes
+        notes: notes,
       })
       .returning('*');
 
     // Update opportunity applicants count
-    await knex('opportunities')
-      .where('id', opportunityId)
-      .increment('applicants', 1);
+    await knex('opportunities').where('id', opportunityId).increment('applicants', 1);
 
     // Track analytics
     await knex('opportunity_analytics').insert({
@@ -224,7 +215,7 @@ router.post('/apply', protect, async (req, res) => {
       event_type: 'apply',
       user_id: req.user.id,
       ip_address: req.ip,
-      user_agent: req.get('User-Agent')
+      user_agent: req.get('User-Agent'),
     });
 
     res.status(201).json(application);
@@ -241,25 +232,29 @@ router.put('/:id/status', protect, async (req, res) => {
     const { status, feedback, interviewDetails } = req.body;
 
     // Get application
-    const application = await knex('opportunity_applications')
-      .where('id', id)
-      .first();
+    const application = await knex('opportunity_applications').where('id', id).first();
 
     if (!application) {
       return res.status(404).json({ error: 'Application not found' });
     }
 
     // Check if user owns the opportunity or is admin
-    const opportunity = await knex('opportunities')
-      .where('id', application.opportunity_id)
-      .first();
+    const opportunity = await knex('opportunities').where('id', application.opportunity_id).first();
 
     if (opportunity.posted_by !== req.user.id && req.user.role !== 'admin') {
       return res.status(403).json({ error: 'Not authorized to update application status' });
     }
 
     // Validate status
-    const validStatuses = ['applied', 'under_review', 'shortlisted', 'interviewed', 'accepted', 'rejected', 'withdrawn'];
+    const validStatuses = [
+      'applied',
+      'under_review',
+      'shortlisted',
+      'interviewed',
+      'accepted',
+      'rejected',
+      'withdrawn',
+    ];
     if (!validStatuses.includes(status)) {
       return res.status(400).json({ error: 'Invalid status' });
     }
@@ -268,7 +263,7 @@ router.put('/:id/status', protect, async (req, res) => {
     const updateData = {
       status,
       status_updated_at: knex.fn.now(),
-      status_updated_by: req.user.id
+      status_updated_by: req.user.id,
     };
 
     if (feedback) {
@@ -311,7 +306,7 @@ router.put('/:id/withdraw', protect, async (req, res) => {
       .where('id', id)
       .update({
         status: 'withdrawn',
-        status_updated_at: knex.fn.now()
+        status_updated_at: knex.fn.now(),
       })
       .returning('*');
 
@@ -348,7 +343,7 @@ router.get('/stats/overview', protect, async (req, res) => {
       .select(
         'opportunity_applications.*',
         'opportunities.title as opportunity_title',
-        'opportunities.company as opportunity_company'
+        'opportunities.company as opportunity_company',
       )
       .leftJoin('opportunities', 'opportunity_applications.opportunity_id', 'opportunities.id')
       .where('opportunity_applications.user_id', req.user.id)
@@ -359,7 +354,7 @@ router.get('/stats/overview', protect, async (req, res) => {
     res.json({
       userStats,
       totalApplications: parseInt(totalApplications.total) || 0,
-      recentApplications
+      recentApplications,
     });
   } catch (error) {
     console.error('Error fetching application stats:', error);

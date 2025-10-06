@@ -1,103 +1,106 @@
-import React, { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Textarea } from "./ui/textarea";
-import { Badge } from "./ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { 
-  HelpCircle, 
-  Search, 
-  MessageCircle, 
+import React, { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Textarea } from './ui/textarea';
+import { Badge } from './ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import {
+  HelpCircle,
+  Search,
+  MessageCircle,
   Mail,
   Phone,
   ChevronRight,
   Book,
   Video,
   Users,
-  Send
-} from "lucide-react";
-import { DashboardHeader } from "./DashboardHeader";
+  Send,
+} from 'lucide-react';
+import { DashboardHeader } from './DashboardHeader';
 
 export function HelpSupportPage() {
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
   const [supportForm, setSupportForm] = useState({
-    subject: "",
-    category: "",
-    message: "",
-    priority: "medium"
+    subject: '',
+    category: '',
+    message: '',
+    priority: 'medium',
   });
 
   const [faqs] = useState([
     {
-      id: "1",
-      question: "How do I create a new campaign?",
-      answer: "To create a new campaign, go to the Alma Mater section and click on 'Create Campaign'. Follow the step-by-step wizard to set up your campaign details, goals, and requirements.",
-      category: "Campaigns"
+      id: '1',
+      question: 'How do I create a new campaign?',
+      answer:
+        "To create a new campaign, go to the Alma Mater section and click on 'Create Campaign'. Follow the step-by-step wizard to set up your campaign details, goals, and requirements.",
+      category: 'Campaigns',
     },
     {
-      id: "2",
-      question: "How can I connect with alumni from my university?",
-      answer: "Use the 'Find Alumni' feature in the Quick Actions panel. You can search by university, graduation year, field of study, or location to find relevant alumni.",
-      category: "Alumni"
+      id: '2',
+      question: 'How can I connect with alumni from my university?',
+      answer:
+        "Use the 'Find Alumni' feature in the Quick Actions panel. You can search by university, graduation year, field of study, or location to find relevant alumni.",
+      category: 'Alumni',
     },
     {
-      id: "3",
-      question: "What payment methods are accepted?",
-      answer: "We accept all major credit cards (Visa, Mastercard, American Express) and PayPal. You can manage your payment methods in the Billing section.",
-      category: "Billing"
+      id: '3',
+      question: 'What payment methods are accepted?',
+      answer:
+        'We accept all major credit cards (Visa, Mastercard, American Express) and PayPal. You can manage your payment methods in the Billing section.',
+      category: 'Billing',
     },
     {
-      id: "4",
-      question: "How do I enable two-factor authentication?",
-      answer: "Go to Settings > Security and click 'Setup' next to Two-Factor Authentication. Follow the instructions to set up 2FA using your preferred authenticator app.",
-      category: "Security"
+      id: '4',
+      question: 'How do I enable two-factor authentication?',
+      answer:
+        "Go to Settings > Security and click 'Setup' next to Two-Factor Authentication. Follow the instructions to set up 2FA using your preferred authenticator app.",
+      category: 'Security',
     },
     {
-      id: "5",
-      question: "Can I cancel my subscription at any time?",
-      answer: "Yes, you can cancel your subscription at any time from the Billing section. Your access will continue until the end of your current billing period.",
-      category: "Billing"
-    }
+      id: '5',
+      question: 'Can I cancel my subscription at any time?',
+      answer:
+        'Yes, you can cancel your subscription at any time from the Billing section. Your access will continue until the end of your current billing period.',
+      category: 'Billing',
+    },
   ]);
 
   const [supportTickets] = useState([
     {
-      id: "TICK-001",
-      subject: "Unable to upload campaign documents",
-      status: "open",
-      priority: "high",
-      created: "2024-01-15",
-      lastUpdate: "2024-01-15"
+      id: 'TICK-001',
+      subject: 'Unable to upload campaign documents',
+      status: 'open',
+      priority: 'high',
+      created: '2024-01-15',
+      lastUpdate: '2024-01-15',
     },
     {
-      id: "TICK-002", 
-      subject: "Questions about Pro plan features",
-      status: "resolved",
-      priority: "medium",
-      created: "2024-01-10",
-      lastUpdate: "2024-01-12"
-    }
+      id: 'TICK-002',
+      subject: 'Questions about Pro plan features',
+      status: 'resolved',
+      priority: 'medium',
+      created: '2024-01-10',
+      lastUpdate: '2024-01-12',
+    },
   ]);
 
-  const filteredFaqs = faqs.filter(faq => 
-    faq.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    faq.answer.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredFaqs = faqs.filter(
+    (faq) =>
+      faq.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      faq.answer.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   const handleSupportSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Support ticket submitted:", supportForm);
+    console.log('Support ticket submitted:', supportForm);
     // Handle form submission
   };
 
   return (
     <div className="h-full">
-      <DashboardHeader 
-        userName="John" 
-        userTitle="Get help and support"
-      />
-      
+      <DashboardHeader userName="John" userTitle="Get help and support" />
+
       <div className="p-6 space-y-6">
         {/* Page Header */}
         <div className="flex items-center justify-between">
@@ -203,21 +206,29 @@ export function HelpSupportPage() {
                 <CardContent>
                   <form onSubmit={handleSupportSubmit} className="space-y-4">
                     <div className="space-y-2">
-                      <label htmlFor="subject" className="text-sm font-medium">Subject</label>
+                      <label htmlFor="subject" className="text-sm font-medium">
+                        Subject
+                      </label>
                       <Input
                         id="subject"
                         value={supportForm.subject}
-                        onChange={(e) => setSupportForm({...supportForm, subject: e.target.value})}
+                        onChange={(e) =>
+                          setSupportForm({ ...supportForm, subject: e.target.value })
+                        }
                         placeholder="Brief description of your issue"
                       />
                     </div>
-                    
+
                     <div className="space-y-2">
-                      <label htmlFor="category" className="text-sm font-medium">Category</label>
+                      <label htmlFor="category" className="text-sm font-medium">
+                        Category
+                      </label>
                       <select
                         id="category"
                         value={supportForm.category}
-                        onChange={(e) => setSupportForm({...supportForm, category: e.target.value})}
+                        onChange={(e) =>
+                          setSupportForm({ ...supportForm, category: e.target.value })
+                        }
                         className="w-full px-3 py-2 border rounded-md"
                       >
                         <option value="">Select a category</option>
@@ -228,13 +239,17 @@ export function HelpSupportPage() {
                         <option value="other">Other</option>
                       </select>
                     </div>
-                    
+
                     <div className="space-y-2">
-                      <label htmlFor="priority" className="text-sm font-medium">Priority</label>
+                      <label htmlFor="priority" className="text-sm font-medium">
+                        Priority
+                      </label>
                       <select
                         id="priority"
                         value={supportForm.priority}
-                        onChange={(e) => setSupportForm({...supportForm, priority: e.target.value})}
+                        onChange={(e) =>
+                          setSupportForm({ ...supportForm, priority: e.target.value })
+                        }
                         className="w-full px-3 py-2 border rounded-md"
                       >
                         <option value="low">Low</option>
@@ -243,18 +258,22 @@ export function HelpSupportPage() {
                         <option value="urgent">Urgent</option>
                       </select>
                     </div>
-                    
+
                     <div className="space-y-2">
-                      <label htmlFor="message" className="text-sm font-medium">Message</label>
+                      <label htmlFor="message" className="text-sm font-medium">
+                        Message
+                      </label>
                       <Textarea
                         id="message"
                         value={supportForm.message}
-                        onChange={(e) => setSupportForm({...supportForm, message: e.target.value})}
+                        onChange={(e) =>
+                          setSupportForm({ ...supportForm, message: e.target.value })
+                        }
                         placeholder="Please describe your issue in detail..."
                         rows={6}
                       />
                     </div>
-                    
+
                     <Button type="submit" className="w-full bg-[#021ff6] hover:bg-[#021ff6]/90">
                       <Send className="h-4 w-4 mr-2" />
                       Submit Request
@@ -268,9 +287,7 @@ export function HelpSupportPage() {
                 <Card>
                   <CardHeader>
                     <CardTitle>Other Ways to Reach Us</CardTitle>
-                    <CardDescription>
-                      Choose the best way to get in touch
-                    </CardDescription>
+                    <CardDescription>Choose the best way to get in touch</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
@@ -281,7 +298,7 @@ export function HelpSupportPage() {
                         <p className="text-xs text-gray-500">Response within 24 hours</p>
                       </div>
                     </div>
-                    
+
                     <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
                       <MessageCircle className="h-5 w-5 text-green-600" />
                       <div>
@@ -292,13 +309,15 @@ export function HelpSupportPage() {
                         </Button>
                       </div>
                     </div>
-                    
+
                     <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
                       <Phone className="h-5 w-5 text-purple-600" />
                       <div>
                         <p className="font-medium">Phone Support</p>
                         <p className="text-sm text-gray-600">+1 (555) 123-4567</p>
-                        <p className="text-xs text-gray-500">Available for Pro and Enterprise plans</p>
+                        <p className="text-xs text-gray-500">
+                          Available for Pro and Enterprise plans
+                        </p>
                       </div>
                     </div>
                   </CardContent>
@@ -382,23 +401,29 @@ export function HelpSupportPage() {
                 <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100">
                   <div>
                     <p className="font-medium">Setting Up Your First Campaign</p>
-                    <p className="text-sm text-gray-600">Learn how to create and launch your first campaign</p>
+                    <p className="text-sm text-gray-600">
+                      Learn how to create and launch your first campaign
+                    </p>
                   </div>
                   <ChevronRight className="h-5 w-5 text-gray-400" />
                 </div>
-                
+
                 <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100">
                   <div>
                     <p className="font-medium">Connecting with Alumni</p>
-                    <p className="text-sm text-gray-600">Find and connect with alumni from your university</p>
+                    <p className="text-sm text-gray-600">
+                      Find and connect with alumni from your university
+                    </p>
                   </div>
                   <ChevronRight className="h-5 w-5 text-gray-400" />
                 </div>
-                
+
                 <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100">
                   <div>
                     <p className="font-medium">Managing Your Profile</p>
-                    <p className="text-sm text-gray-600">Optimize your profile for better connections</p>
+                    <p className="text-sm text-gray-600">
+                      Optimize your profile for better connections
+                    </p>
                   </div>
                   <ChevronRight className="h-5 w-5 text-gray-400" />
                 </div>
@@ -413,9 +438,7 @@ export function HelpSupportPage() {
                 <h3 className="text-lg font-medium">Support Tickets</h3>
                 <p className="text-sm text-gray-600">Track your support requests</p>
               </div>
-              <Button className="bg-[#021ff6] hover:bg-[#021ff6]/90">
-                New Ticket
-              </Button>
+              <Button className="bg-[#021ff6] hover:bg-[#021ff6]/90">New Ticket</Button>
             </div>
 
             <div className="space-y-4">
@@ -425,21 +448,23 @@ export function HelpSupportPage() {
                     <div className="flex items-center justify-between">
                       <div className="space-y-1">
                         <div className="flex items-center space-x-2">
-                          <code className="text-sm bg-gray-100 px-2 py-1 rounded">
-                            {ticket.id}
-                          </code>
-                          <Badge 
+                          <code className="text-sm bg-gray-100 px-2 py-1 rounded">{ticket.id}</code>
+                          <Badge
                             variant={ticket.status === 'open' ? 'destructive' : 'default'}
-                            className={ticket.status === 'resolved' ? 'bg-green-100 text-green-800' : ''}
+                            className={
+                              ticket.status === 'resolved' ? 'bg-green-100 text-green-800' : ''
+                            }
                           >
                             {ticket.status}
                           </Badge>
-                          <Badge 
+                          <Badge
                             variant="outline"
                             className={
-                              ticket.priority === 'high' ? 'text-red-600 border-red-200' :
-                              ticket.priority === 'medium' ? 'text-yellow-600 border-yellow-200' :
-                              'text-gray-600 border-gray-200'
+                              ticket.priority === 'high'
+                                ? 'text-red-600 border-red-200'
+                                : ticket.priority === 'medium'
+                                  ? 'text-yellow-600 border-yellow-200'
+                                  : 'text-gray-600 border-gray-200'
                             }
                           >
                             {ticket.priority} priority

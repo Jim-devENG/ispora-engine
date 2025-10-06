@@ -34,7 +34,9 @@ router.get('/', optionalAuth, async (req, res, next) => {
     if (status && status !== 'all') q = q.where('status', status);
     const rows = await q;
     res.json({ success: true, data: rows });
-  } catch (e) { next(e); }
+  } catch (e) {
+    next(e);
+  }
 });
 
 router.post('/', protect, async (req, res, next) => {
@@ -53,15 +55,17 @@ router.post('/', protect, async (req, res, next) => {
       submitted_at: null,
       submitter_id: null,
       files: '[]',
-      tags: Array.isArray(tags) ? tags.join(',') : (tags || ''),
+      tags: Array.isArray(tags) ? tags.join(',') : tags || '',
       feedback: null,
       reviewer_id: null,
       created_at: now,
-      updated_at: now
+      updated_at: now,
     };
     await db('deliverables').insert(row);
     res.status(201).json({ success: true, data: row });
-  } catch (e) { next(e); }
+  } catch (e) {
+    next(e);
+  }
 });
 
 router.put('/:id', protect, async (req, res, next) => {
@@ -70,12 +74,18 @@ router.put('/:id', protect, async (req, res, next) => {
     const { id } = req.params;
     const payload = { ...req.body, updated_at: new Date() };
     if (payload.tags && Array.isArray(payload.tags)) payload.tags = payload.tags.join(',');
-    if (payload.dueAt) { payload.due_at = new Date(payload.dueAt); delete payload.dueAt; }
-    if (payload.files && typeof payload.files !== 'string') payload.files = JSON.stringify(payload.files);
+    if (payload.dueAt) {
+      payload.due_at = new Date(payload.dueAt);
+      delete payload.dueAt;
+    }
+    if (payload.files && typeof payload.files !== 'string')
+      payload.files = JSON.stringify(payload.files);
     await db('deliverables').where({ id }).update(payload);
     const updated = await db('deliverables').where({ id }).first();
     res.json({ success: true, data: updated });
-  } catch (e) { next(e); }
+  } catch (e) {
+    next(e);
+  }
 });
 
 router.delete('/:id', protect, async (req, res, next) => {
@@ -84,9 +94,9 @@ router.delete('/:id', protect, async (req, res, next) => {
     const { id } = req.params;
     await db('deliverables').where({ id }).del();
     res.json({ success: true, data: { id } });
-  } catch (e) { next(e); }
+  } catch (e) {
+    next(e);
+  }
 });
 
 module.exports = router;
-
-

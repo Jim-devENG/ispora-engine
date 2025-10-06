@@ -10,7 +10,7 @@ router.post('/share', protect, async (req, res) => {
       share_type, // level_up, badge_earned, milestone_reached, etc.
       share_data, // { level, badge_name, points, etc. }
       platforms, // ['linkedin', 'twitter', 'facebook']
-      custom_message
+      custom_message,
     } = req.body;
 
     if (!share_type || !share_data) {
@@ -33,9 +33,9 @@ router.post('/share', protect, async (req, res) => {
         share_type,
         share_data,
         platforms: platforms || [],
-        share_content: shareContent
+        share_content: shareContent,
       }),
-      source: 'system'
+      source: 'system',
     });
 
     // Update user credits
@@ -51,7 +51,7 @@ router.post('/share', protect, async (req, res) => {
     res.json({
       message: 'Share recorded successfully',
       pointsAwarded: 50,
-      shareContent
+      shareContent,
     });
   } catch (error) {
     console.error('Error recording share:', error);
@@ -77,36 +77,33 @@ router.get('/analytics', protect, async (req, res) => {
       .orderBy('created_at', 'desc');
 
     // Process share data
-    const shareData = shareStats.map(share => {
+    const shareData = shareStats.map((share) => {
       const metadata = JSON.parse(share.metadata);
       return {
         shareType: metadata.share_type,
         platforms: metadata.platforms || [],
         shareData: metadata.share_data,
-        createdAt: share.created_at
+        createdAt: share.created_at,
       };
     });
 
     // Get platform breakdown
     const platformStats = {};
-    shareData.forEach(share => {
-      share.platforms.forEach(platform => {
+    shareData.forEach((share) => {
+      share.platforms.forEach((platform) => {
         platformStats[platform] = (platformStats[platform] || 0) + 1;
       });
     });
 
     // Get share type breakdown
     const shareTypeStats = {};
-    shareData.forEach(share => {
+    shareData.forEach((share) => {
       shareTypeStats[share.shareType] = (shareTypeStats[share.shareType] || 0) + 1;
     });
 
     // Get daily shares for chart
     const dailyShares = await knex('credit_transactions')
-      .select(
-        knex.raw("DATE_TRUNC('day', created_at) as date"),
-        knex.raw('COUNT(*) as count')
-      )
+      .select(knex.raw("DATE_TRUNC('day', created_at) as date"), knex.raw('COUNT(*) as count'))
       .where('user_id', userId)
       .where('activity_type', 'social_share')
       .where('created_at', '>=', startDate)
@@ -118,12 +115,12 @@ router.get('/analytics', protect, async (req, res) => {
       totalPointsEarned: shareData.length * 50,
       platformStats,
       shareTypeStats,
-      dailyShares: dailyShares.map(share => ({
+      dailyShares: dailyShares.map((share) => ({
         date: share.date,
-        count: parseInt(share.count)
+        count: parseInt(share.count),
       })),
       recentShares: shareData.slice(0, 10),
-      period: parseInt(period)
+      period: parseInt(period),
     });
   } catch (error) {
     console.error('Error fetching share analytics:', error);
@@ -138,9 +135,7 @@ router.get('/templates', protect, async (req, res) => {
     const userId = req.user.id;
 
     // Get user's current stats
-    const userCredits = await knex('user_credits')
-      .where('user_id', userId)
-      .first();
+    const userCredits = await knex('user_credits').where('user_id', userId).first();
 
     const userBadges = await knex('user_badges as ub')
       .select('ub.*', 'b.name', 'b.description', 'b.rarity')
@@ -157,7 +152,7 @@ router.get('/templates', protect, async (req, res) => {
         title: `🎉 Just reached Level ${userCredits?.current_level || 1} on Ispora!`,
         description: `I'm building impactful projects and connecting with amazing diaspora professionals. Join me on this journey!`,
         text: `Just reached Level ${userCredits?.current_level || 1} on Ispora! 🚀 Building the future with fellow diaspora innovators.`,
-        hashtags: ['BuiltOnIspora', 'DiasporaInnovation', 'LevelUp']
+        hashtags: ['BuiltOnIspora', 'DiasporaInnovation', 'LevelUp'],
       };
     }
 
@@ -168,7 +163,7 @@ router.get('/templates', protect, async (req, res) => {
           title: `🏆 Earned the ${latestBadge.name} badge on Ispora!`,
           description: `${latestBadge.description}. Proud to be part of the diaspora innovation community!`,
           text: `🏆 Just earned the ${latestBadge.name} badge on Ispora! ${latestBadge.description}`,
-          hashtags: ['BuiltOnIspora', 'DiasporaInnovation', 'BadgeEarned']
+          hashtags: ['BuiltOnIspora', 'DiasporaInnovation', 'BadgeEarned'],
         };
       }
     }
@@ -178,7 +173,7 @@ router.get('/templates', protect, async (req, res) => {
         title: `🎯 Reached a new milestone on Ispora!`,
         description: `Every step forward in our diaspora community makes a difference. Grateful for this journey!`,
         text: `🎯 Just reached a new milestone on Ispora! Building the future with fellow diaspora innovators.`,
-        hashtags: ['BuiltOnIspora', 'DiasporaInnovation', 'Milestone']
+        hashtags: ['BuiltOnIspora', 'DiasporaInnovation', 'Milestone'],
       };
     }
 
@@ -187,7 +182,7 @@ router.get('/templates', protect, async (req, res) => {
         title: `🌟 Making an impact on Ispora!`,
         description: `Join me in building the future with fellow diaspora professionals and innovators.`,
         text: `🌟 Making an impact on Ispora! Join the diaspora innovation community.`,
-        hashtags: ['BuiltOnIspora', 'DiasporaInnovation', 'Community']
+        hashtags: ['BuiltOnIspora', 'DiasporaInnovation', 'Community'],
       };
     }
 
@@ -205,9 +200,7 @@ router.get('/export', protect, async (req, res) => {
     const userId = req.user.id;
 
     // Get user credits
-    const userCredits = await knex('user_credits')
-      .where('user_id', userId)
-      .first();
+    const userCredits = await knex('user_credits').where('user_id', userId).first();
 
     if (!userCredits) {
       return res.status(404).json({ error: 'User credits not found' });
@@ -251,7 +244,7 @@ router.get('/export', protect, async (req, res) => {
         currentLevel: userCredits.current_level,
         levelProgress: userCredits.level_progress,
         currentStreak: userCredits.current_streak,
-        longestStreak: userCredits.longest_streak
+        longestStreak: userCredits.longest_streak,
       },
       statistics: {
         totalContributions: userCredits.total_contributions,
@@ -260,22 +253,22 @@ router.get('/export', protect, async (req, res) => {
         opportunitiesShared: userCredits.opportunities_shared,
         socialShares: userCredits.social_shares,
         challengesWon: userCredits.challenges_won,
-        referralsSuccessful: userCredits.referrals_successful
+        referralsSuccessful: userCredits.referrals_successful,
       },
       leaderboard: {
         rank: leaderboardPosition?.rank || null,
-        points: leaderboardPosition?.points || 0
+        points: leaderboardPosition?.points || 0,
       },
       transactions: transactions.map(transformTransaction),
-      badges: badges.map(badge => ({
+      badges: badges.map((badge) => ({
         name: badge.name,
         description: badge.description,
         rarity: badge.rarity,
         category: badge.category,
-        earnedDate: badge.earned_date
+        earnedDate: badge.earned_date,
       })),
       period,
-      generatedAt: new Date().toISOString()
+      generatedAt: new Date().toISOString(),
     };
 
     if (format === 'csv') {
@@ -296,7 +289,7 @@ router.get('/export', protect, async (req, res) => {
 // Helper functions
 function generateShareContent(shareType, shareData, customMessage) {
   const baseUrl = process.env.FRONTEND_URL || 'https://ispora.com';
-  
+
   switch (shareType) {
     case 'level_up':
       return {
@@ -304,7 +297,7 @@ function generateShareContent(shareType, shareData, customMessage) {
         description: `I'm building impactful projects and connecting with amazing diaspora professionals. Join me on this journey!`,
         text: `Just reached Level ${shareData.level} on Ispora! 🚀 Building the future with fellow diaspora innovators.`,
         url: `${baseUrl}/profile/${shareData.userId}`,
-        hashtags: ['BuiltOnIspora', 'DiasporaInnovation', 'LevelUp']
+        hashtags: ['BuiltOnIspora', 'DiasporaInnovation', 'LevelUp'],
       };
 
     case 'badge_earned':
@@ -313,7 +306,7 @@ function generateShareContent(shareType, shareData, customMessage) {
         description: `${shareData.badgeDescription}. Proud to be part of the diaspora innovation community!`,
         text: `🏆 Just earned the ${shareData.badgeName} badge on Ispora! ${shareData.badgeDescription}`,
         url: `${baseUrl}/profile/${shareData.userId}`,
-        hashtags: ['BuiltOnIspora', 'DiasporaInnovation', 'BadgeEarned']
+        hashtags: ['BuiltOnIspora', 'DiasporaInnovation', 'BadgeEarned'],
       };
 
     case 'milestone_reached':
@@ -322,16 +315,17 @@ function generateShareContent(shareType, shareData, customMessage) {
         description: `Every step forward in our diaspora community makes a difference. Grateful for this journey!`,
         text: `🎯 Just reached a new milestone on Ispora! Building the future with fellow diaspora innovators.`,
         url: `${baseUrl}/profile/${shareData.userId}`,
-        hashtags: ['BuiltOnIspora', 'DiasporaInnovation', 'Milestone']
+        hashtags: ['BuiltOnIspora', 'DiasporaInnovation', 'Milestone'],
       };
 
     default:
       return {
         title: customMessage || `🌟 Making an impact on Ispora!`,
         description: `Join me in building the future with fellow diaspora professionals and innovators.`,
-        text: customMessage || `🌟 Making an impact on Ispora! Join the diaspora innovation community.`,
+        text:
+          customMessage || `🌟 Making an impact on Ispora! Join the diaspora innovation community.`,
         url: `${baseUrl}/profile/${shareData.userId}`,
-        hashtags: ['BuiltOnIspora', 'DiasporaInnovation', 'Community']
+        hashtags: ['BuiltOnIspora', 'DiasporaInnovation', 'Community'],
       };
   }
 }
@@ -347,30 +341,24 @@ function transformTransaction(transaction) {
     isPenalty: transaction.is_penalty,
     levelUp: transaction.level_up,
     createdAt: transaction.created_at,
-    metadata: transaction.metadata ? JSON.parse(transaction.metadata) : null
+    metadata: transaction.metadata ? JSON.parse(transaction.metadata) : null,
   };
 }
 
 function convertToCSV(data) {
-  const headers = [
-    'Date',
-    'Type',
-    'Activity',
-    'Points',
-    'Description'
-  ];
+  const headers = ['Date', 'Type', 'Activity', 'Points', 'Description'];
 
-  const rows = data.transactions.map(transaction => [
+  const rows = data.transactions.map((transaction) => [
     new Date(transaction.createdAt).toLocaleDateString(),
     transaction.type,
     transaction.activityType,
     transaction.points,
-    transaction.description
+    transaction.description,
   ]);
 
   const csvContent = [
     headers.join(','),
-    ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+    ...rows.map((row) => row.map((cell) => `"${cell}"`).join(',')),
   ].join('\n');
 
   return csvContent;

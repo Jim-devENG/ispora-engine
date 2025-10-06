@@ -1,12 +1,21 @@
-exports.up = function(knex) {
-  return knex.schema.createTable('sessions', table => {
-    table.uuid('id').primary().defaultTo(knex.raw('(lower(hex(randomblob(4))) || \'-\' || lower(hex(randomblob(2))) || \'-4\' || substr(lower(hex(randomblob(2))),2) || \'-\' || substr(\'89ab\',abs(random()) % 4 + 1, 1) || substr(lower(hex(randomblob(2))),2) || \'-\' || lower(hex(randomblob(6))))'));
+exports.up = function (knex) {
+  return knex.schema.createTable('sessions', (table) => {
+    table
+      .uuid('id')
+      .primary()
+      .defaultTo(
+        knex.raw(
+          "(lower(hex(randomblob(4))) || '-' || lower(hex(randomblob(2))) || '-4' || substr(lower(hex(randomblob(2))),2) || '-' || substr('89ab',abs(random()) % 4 + 1, 1) || substr(lower(hex(randomblob(2))),2) || '-' || lower(hex(randomblob(6))))",
+        ),
+      );
     table.string('title').notNullable();
     table.text('description');
     table.uuid('host_id').references('id').inTable('users').onDelete('CASCADE');
     table.uuid('mentorship_id').references('id').inTable('mentorships').onDelete('SET NULL');
     table.uuid('project_id').references('id').inTable('projects').onDelete('SET NULL');
-    table.enu('type', ['mentorship', 'project', 'workshop', 'interview', 'presentation']).defaultTo('mentorship');
+    table
+      .enu('type', ['mentorship', 'project', 'workshop', 'interview', 'presentation'])
+      .defaultTo('mentorship');
     table.datetime('scheduled_start');
     table.datetime('scheduled_end');
     table.datetime('actual_start');
@@ -24,7 +33,7 @@ exports.up = function(knex) {
     table.boolean('recording_enabled').defaultTo(false);
     table.boolean('waiting_room_enabled').defaultTo(true);
     table.timestamps(true, true);
-    
+
     // Indexes
     table.index(['host_id']);
     table.index(['mentorship_id']);
@@ -34,6 +43,6 @@ exports.up = function(knex) {
   });
 };
 
-exports.down = function(knex) {
+exports.down = function (knex) {
   return knex.schema.dropTable('sessions');
 };

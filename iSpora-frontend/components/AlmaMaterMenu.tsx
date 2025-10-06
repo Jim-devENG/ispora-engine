@@ -1,23 +1,23 @@
-import React, { useState } from "react";
-import { 
-  GraduationCap, 
-  ChevronDown, 
-  ChevronRight, 
-  School, 
-  Users, 
-  Target, 
+import React, { useState } from 'react';
+import {
+  GraduationCap,
+  ChevronDown,
+  ChevronRight,
+  School,
+  Users,
+  Target,
   Plus,
   MapPin,
   Calendar,
   Award,
   TrendingUp,
   Heart,
-  ExternalLink
-} from "lucide-react";
-import { AlmaMaterConnection } from "./AlmaMaterConnection";
-import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
-import { Badge } from "./ui/badge";
-import { Separator } from "./ui/separator";
+  ExternalLink,
+} from 'lucide-react';
+import { AlmaMaterConnection } from './AlmaMaterConnection';
+import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
+import { Badge } from './ui/badge';
+import { Separator } from './ui/separator';
 
 interface AlmaMaterMenuProps {
   isCollapsed: boolean;
@@ -28,53 +28,53 @@ interface AlmaMaterMenuProps {
 // Mock data for connected universities and activities
 const mockConnectedUniversities = [
   {
-    id: "1",
-    name: "University of Lagos",
-    shortName: "UNILAG",
-    country: "Nigeria",
-    status: "connected",
+    id: '1',
+    name: 'University of Lagos',
+    shortName: 'UNILAG',
+    country: 'Nigeria',
+    status: 'connected',
     activeCampaigns: 3,
     unreadUpdates: 2,
-    lastActivity: "2 hours ago"
+    lastActivity: '2 hours ago',
   },
   {
-    id: "2", 
-    name: "Makerere University",
-    shortName: "MAK",
-    country: "Uganda",
-    status: "campaign-creator",
+    id: '2',
+    name: 'Makerere University',
+    shortName: 'MAK',
+    country: 'Uganda',
+    status: 'campaign-creator',
     activeCampaigns: 1,
     unreadUpdates: 0,
-    lastActivity: "1 day ago"
-  }
+    lastActivity: '1 day ago',
+  },
 ];
 
 const mockRecentActivities = [
   {
-    id: "1",
-    type: "campaign",
-    title: "Engineering Mentorship Program",
-    university: "University of Lagos",
-    action: "New participant joined",
-    timestamp: "1 hour ago",
-    icon: <Users className="h-3 w-3" />
+    id: '1',
+    type: 'campaign',
+    title: 'Engineering Mentorship Program',
+    university: 'University of Lagos',
+    action: 'New participant joined',
+    timestamp: '1 hour ago',
+    icon: <Users className="h-3 w-3" />,
   },
   {
-    id: "2",
-    type: "funding",
-    title: "Startup Innovation Lab",
-    university: "Makerere University", 
-    action: "Goal 74% reached",
-    timestamp: "3 hours ago",
-    icon: <TrendingUp className="h-3 w-3" />
-  }
+    id: '2',
+    type: 'funding',
+    title: 'Startup Innovation Lab',
+    university: 'Makerere University',
+    action: 'Goal 74% reached',
+    timestamp: '3 hours ago',
+    icon: <TrendingUp className="h-3 w-3" />,
+  },
 ];
 
 const mockQuickStats = {
   totalUniversities: 2,
   activeCampaigns: 4,
   totalParticipants: 47,
-  impactScore: 8.2
+  impactScore: 8.2,
 };
 
 export function AlmaMaterMenu({ isCollapsed, isActive, onClick }: AlmaMaterMenuProps) {
@@ -92,12 +92,14 @@ export function AlmaMaterMenu({ isCollapsed, isActive, onClick }: AlmaMaterMenuP
     <button
       onClick={handleMainClick}
       className={`flex items-center w-full px-2 py-2 text-left rounded-lg transition-all duration-200 transform hover:scale-105 active:scale-95 ${
-        isActive 
-          ? 'bg-[#021ff6] text-white shadow-lg shadow-[#021ff6]/20' 
+        isActive
+          ? 'bg-[#021ff6] text-white shadow-lg shadow-[#021ff6]/20'
           : 'text-gray-700 hover:bg-[#007AFF]/20 hover:text-[#021ff6] hover:shadow-sm'
       } ${isCollapsed ? 'justify-center px-1' : ''}`}
     >
-      <div className={`h-4 w-4 flex-shrink-0 transition-transform duration-200 ${isActive ? 'scale-110' : ''}`}>
+      <div
+        className={`h-4 w-4 flex-shrink-0 transition-transform duration-200 ${isActive ? 'scale-110' : ''}`}
+      >
         <GraduationCap className="h-4 w-4" />
       </div>
       {!isCollapsed && (
@@ -111,7 +113,9 @@ export function AlmaMaterMenu({ isCollapsed, isActive, onClick }: AlmaMaterMenuP
                 {mockConnectedUniversities.length}
               </Badge>
             )}
-            <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} />
+            <ChevronDown
+              className={`h-3 w-3 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
+            />
           </div>
         </>
       )}
@@ -122,9 +126,7 @@ export function AlmaMaterMenu({ isCollapsed, isActive, onClick }: AlmaMaterMenuP
     return (
       <>
         <Tooltip>
-          <TooltipTrigger asChild>
-            {mainButton}
-          </TooltipTrigger>
+          <TooltipTrigger asChild>{mainButton}</TooltipTrigger>
           <TooltipContent side="right" className="font-medium">
             <div className="space-y-2">
               <div className="flex items-center space-x-2">
@@ -140,7 +142,7 @@ export function AlmaMaterMenu({ isCollapsed, isActive, onClick }: AlmaMaterMenuP
             </div>
           </TooltipContent>
         </Tooltip>
-        <AlmaMaterConnection 
+        <AlmaMaterConnection
           isOpen={showConnectionDialog}
           onClose={() => setShowConnectionDialog(false)}
         />
@@ -151,31 +153,38 @@ export function AlmaMaterMenu({ isCollapsed, isActive, onClick }: AlmaMaterMenuP
   return (
     <div>
       {mainButton}
-      
+
       {/* Expanded Menu Content */}
       {isExpanded && !isCollapsed && (
         <div className="mt-2 ml-2 space-y-2 border-l-2 border-gray-200 pl-3">
-          
           {/* Quick Stats */}
           <div className="bg-purple-50 rounded-lg p-3 space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-purple-800">Your Impact</span>
               <div className="flex items-center space-x-1">
                 <Award className="h-3 w-3 text-purple-600" />
-                <span className="text-xs font-semibold text-purple-700">{mockQuickStats.impactScore}</span>
+                <span className="text-xs font-semibold text-purple-700">
+                  {mockQuickStats.impactScore}
+                </span>
               </div>
             </div>
             <div className="grid grid-cols-3 gap-2 text-xs">
               <div className="text-center">
-                <div className="font-semibold text-purple-700">{mockQuickStats.totalUniversities}</div>
+                <div className="font-semibold text-purple-700">
+                  {mockQuickStats.totalUniversities}
+                </div>
                 <div className="text-purple-600">Universities</div>
               </div>
               <div className="text-center">
-                <div className="font-semibold text-purple-700">{mockQuickStats.activeCampaigns}</div>
+                <div className="font-semibold text-purple-700">
+                  {mockQuickStats.activeCampaigns}
+                </div>
                 <div className="text-purple-600">Campaigns</div>
               </div>
               <div className="text-center">
-                <div className="font-semibold text-purple-700">{mockQuickStats.totalParticipants}</div>
+                <div className="font-semibold text-purple-700">
+                  {mockQuickStats.totalParticipants}
+                </div>
                 <div className="text-purple-600">Reached</div>
               </div>
             </div>
@@ -194,7 +203,7 @@ export function AlmaMaterMenu({ isCollapsed, isActive, onClick }: AlmaMaterMenuP
                   <span>Add</span>
                 </button>
               </div>
-              
+
               {mockConnectedUniversities.map((university) => (
                 <div
                   key={university.id}
@@ -206,9 +215,7 @@ export function AlmaMaterMenu({ isCollapsed, isActive, onClick }: AlmaMaterMenuP
                       <div className="text-xs font-medium text-gray-800 truncate">
                         {university.shortName}
                       </div>
-                      <div className="text-xs text-gray-500 truncate">
-                        {university.country}
-                      </div>
+                      <div className="text-xs text-gray-500 truncate">{university.country}</div>
                     </div>
                   </div>
                   <div className="flex items-center space-x-1 flex-shrink-0">
@@ -217,8 +224,8 @@ export function AlmaMaterMenu({ isCollapsed, isActive, onClick }: AlmaMaterMenuP
                         {university.unreadUpdates}
                       </Badge>
                     )}
-                    <Badge 
-                      variant={university.status === "campaign-creator" ? "default" : "secondary"} 
+                    <Badge
+                      variant={university.status === 'campaign-creator' ? 'default' : 'secondary'}
                       className="text-xs px-1.5 py-0.5 h-4"
                     >
                       {university.activeCampaigns}
@@ -241,16 +248,12 @@ export function AlmaMaterMenu({ isCollapsed, isActive, onClick }: AlmaMaterMenuP
                   key={activity.id}
                   className="flex items-start space-x-2 p-2 bg-gray-50 rounded-md hover:bg-gray-100 transition-colors cursor-pointer"
                 >
-                  <div className="flex-shrink-0 mt-0.5">
-                    {activity.icon}
-                  </div>
+                  <div className="flex-shrink-0 mt-0.5">{activity.icon}</div>
                   <div className="flex-1 min-w-0">
                     <div className="text-xs font-medium text-gray-800 truncate">
                       {activity.title}
                     </div>
-                    <div className="text-xs text-gray-600 truncate">
-                      {activity.action}
-                    </div>
+                    <div className="text-xs text-gray-600 truncate">{activity.action}</div>
                     <div className="text-xs text-gray-500 truncate">
                       {activity.university} • {activity.timestamp}
                     </div>
@@ -271,17 +274,13 @@ export function AlmaMaterMenu({ isCollapsed, isActive, onClick }: AlmaMaterMenuP
               <Plus className="h-3 w-3 mr-2" />
               Connect New University
             </button>
-            
-            <button
-              className="flex items-center w-full px-2 py-1.5 text-left rounded-md text-xs hover:bg-green-50 hover:text-green-700 transition-colors"
-            >
+
+            <button className="flex items-center w-full px-2 py-1.5 text-left rounded-md text-xs hover:bg-green-50 hover:text-green-700 transition-colors">
               <Target className="h-3 w-3 mr-2" />
               Create Campaign
             </button>
-            
-            <button  
-              className="flex items-center w-full px-2 py-1.5 text-left rounded-md text-xs hover:bg-purple-50 hover:text-purple-700 transition-colors"
-            >
+
+            <button className="flex items-center w-full px-2 py-1.5 text-left rounded-md text-xs hover:bg-purple-50 hover:text-purple-700 transition-colors">
               <Users className="h-3 w-3 mr-2" />
               Find Alumni
             </button>
@@ -300,11 +299,10 @@ export function AlmaMaterMenu({ isCollapsed, isActive, onClick }: AlmaMaterMenuP
               </button>
             </div>
           )}
-
         </div>
       )}
 
-      <AlmaMaterConnection 
+      <AlmaMaterConnection
         isOpen={showConnectionDialog}
         onClose={() => setShowConnectionDialog(false)}
       />

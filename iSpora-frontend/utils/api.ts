@@ -14,7 +14,7 @@ class ApiService {
     const token = localStorage.getItem('token');
     return {
       'Content-Type': 'application/json',
-      ...(token && { 'Authorization': `Bearer ${token}` }),
+      ...(token && { Authorization: `Bearer ${token}` }),
     };
   }
 
@@ -26,7 +26,7 @@ class ApiService {
       });
 
       const data = await response.json();
-      
+
       if (!response.ok) {
         return { success: false, error: data.error || 'Request failed' };
       }
@@ -47,7 +47,7 @@ class ApiService {
       });
 
       const data = await response.json();
-      
+
       if (!response.ok) {
         return { success: false, error: data.error || 'Request failed' };
       }
@@ -68,7 +68,7 @@ class ApiService {
       });
 
       const data = await response.json();
-      
+
       if (!response.ok) {
         return { success: false, error: data.error || 'Request failed' };
       }
@@ -88,7 +88,7 @@ class ApiService {
       });
 
       const data = await response.json();
-      
+
       if (!response.ok) {
         return { success: false, error: data.error || 'Request failed' };
       }

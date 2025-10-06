@@ -1,10 +1,10 @@
-import React, { useState } from "react";
-import { 
-  MessageSquare, 
-  Users, 
-  TrendingUp, 
-  Clock, 
-  Pin, 
+import React, { useState } from 'react';
+import {
+  MessageSquare,
+  Users,
+  TrendingUp,
+  Clock,
+  Pin,
   Heart,
   Reply,
   Search,
@@ -17,18 +17,18 @@ import {
   School,
   Globe,
   Lock,
-  Star
-} from "lucide-react";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./ui/dialog";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
-import { Badge } from "./ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { Separator } from "./ui/separator";
-import { toast } from "sonner";
+  Star,
+} from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import { Badge } from './ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { Separator } from './ui/separator';
+import { toast } from 'sonner';
 
 interface JoinDiscussionProps {
   isOpen: boolean;
@@ -80,189 +80,203 @@ interface DiscussionForum {
 
 const mockDiscussionTopics: DiscussionTopic[] = [
   {
-    id: "1",
-    title: "Best Practices for Remote Mentorship in Tech",
-    description: "Sharing experiences and tips for effective remote mentorship programs, especially for students in Africa.",
-    category: "Mentorship",
-    university: "University of Lagos",
+    id: '1',
+    title: 'Best Practices for Remote Mentorship in Tech',
+    description:
+      'Sharing experiences and tips for effective remote mentorship programs, especially for students in Africa.',
+    category: 'Mentorship',
+    university: 'University of Lagos',
     author: {
-      name: "Dr. Sarah Chen",
-      title: "Senior Software Engineer at Google",
-      isVerified: true
+      name: 'Dr. Sarah Chen',
+      title: 'Senior Software Engineer at Google',
+      isVerified: true,
     },
     stats: {
       views: 342,
       replies: 23,
       likes: 45,
-      participants: 18
+      participants: 18,
     },
-    tags: ["Remote Work", "Mentorship", "Technology", "Best Practices"],
+    tags: ['Remote Work', 'Mentorship', 'Technology', 'Best Practices'],
     isSticky: true,
     isLocked: false,
-    privacy: "public",
-    lastActivity: "2 hours ago",
+    privacy: 'public',
+    lastActivity: '2 hours ago',
     trending: true,
     hasNewReplies: true,
-    createdAt: "2024-01-15"
+    createdAt: '2024-01-15',
   },
   {
-    id: "2",
-    title: "Funding Opportunities for African Startups in 2024",
-    description: "Comprehensive list of grants, accelerators, and investment opportunities specifically for African entrepreneurs.",
-    category: "Funding",
+    id: '2',
+    title: 'Funding Opportunities for African Startups in 2024',
+    description:
+      'Comprehensive list of grants, accelerators, and investment opportunities specifically for African entrepreneurs.',
+    category: 'Funding',
     author: {
-      name: "Amina Hassan",
-      title: "Investment Banking VP at Goldman Sachs",
-      isVerified: true
+      name: 'Amina Hassan',
+      title: 'Investment Banking VP at Goldman Sachs',
+      isVerified: true,
     },
     stats: {
       views: 567,
       replies: 34,
       likes: 78,
-      participants: 29
+      participants: 29,
     },
-    tags: ["Funding", "Startups", "Africa", "Investment", "Grants"],
+    tags: ['Funding', 'Startups', 'Africa', 'Investment', 'Grants'],
     isSticky: false,
     isLocked: false,
-    privacy: "public",
-    lastActivity: "4 hours ago",
+    privacy: 'public',
+    lastActivity: '4 hours ago',
     trending: true,
     hasNewReplies: false,
-    createdAt: "2024-01-12"
+    createdAt: '2024-01-12',
   },
   {
-    id: "3",
-    title: "Medical Research Collaboration Opportunities",
-    description: "Connecting medical professionals and researchers across universities for collaborative projects.",
-    category: "Research",
-    university: "Makerere University",
+    id: '3',
+    title: 'Medical Research Collaboration Opportunities',
+    description:
+      'Connecting medical professionals and researchers across universities for collaborative projects.',
+    category: 'Research',
+    university: 'Makerere University',
     author: {
-      name: "Prof. James Okafor",
-      title: "Professor of Medicine at Johns Hopkins",
-      isVerified: true
+      name: 'Prof. James Okafor',
+      title: 'Professor of Medicine at Johns Hopkins',
+      isVerified: true,
     },
     stats: {
       views: 189,
       replies: 12,
       likes: 28,
-      participants: 8
+      participants: 8,
     },
-    tags: ["Medical Research", "Collaboration", "Healthcare", "Academic"],
+    tags: ['Medical Research', 'Collaboration', 'Healthcare', 'Academic'],
     isSticky: false,
     isLocked: false,
-    privacy: "university",
-    lastActivity: "1 day ago",
+    privacy: 'university',
+    lastActivity: '1 day ago',
     trending: false,
     hasNewReplies: true,
-    createdAt: "2024-01-10"
+    createdAt: '2024-01-10',
   },
   {
-    id: "4",
-    title: "Career Transition: From Academia to Industry",
-    description: "Share your experiences and get advice on transitioning from academic roles to industry positions.",
-    category: "Career",
+    id: '4',
+    title: 'Career Transition: From Academia to Industry',
+    description:
+      'Share your experiences and get advice on transitioning from academic roles to industry positions.',
+    category: 'Career',
     author: {
-      name: "David Mwangi",
-      title: "Agricultural Engineer at FAO",
-      isVerified: false
+      name: 'David Mwangi',
+      title: 'Agricultural Engineer at FAO',
+      isVerified: false,
     },
     stats: {
       views: 234,
       replies: 18,
       likes: 32,
-      participants: 15
+      participants: 15,
     },
-    tags: ["Career Change", "Academia", "Industry", "Professional Development"],
+    tags: ['Career Change', 'Academia', 'Industry', 'Professional Development'],
     isSticky: false,
     isLocked: false,
-    privacy: "public",
-    lastActivity: "6 hours ago",
+    privacy: 'public',
+    lastActivity: '6 hours ago',
     trending: false,
     hasNewReplies: false,
-    createdAt: "2024-01-08"
-  }
+    createdAt: '2024-01-08',
+  },
 ];
 
 const mockForums: DiscussionForum[] = [
   {
-    id: "1",
-    name: "UNILAG Alumni Network",
-    description: "Connect with fellow University of Lagos graduates worldwide",
-    category: "University",
-    university: "University of Lagos",
+    id: '1',
+    name: 'UNILAG Alumni Network',
+    description: 'Connect with fellow University of Lagos graduates worldwide',
+    category: 'University',
+    university: 'University of Lagos',
     memberCount: 1247,
     topicsCount: 89,
     isJoined: true,
-    privacy: "university",
-    moderators: ["Dr. Sarah Chen", "Prof. Adams"],
-    recentActivity: "2 hours ago",
-    icon: <School className="h-5 w-5" />
+    privacy: 'university',
+    moderators: ['Dr. Sarah Chen', 'Prof. Adams'],
+    recentActivity: '2 hours ago',
+    icon: <School className="h-5 w-5" />,
   },
   {
-    id: "2", 
-    name: "Tech Professionals Hub",
-    description: "For technology professionals sharing knowledge and opportunities",
-    category: "Industry",
+    id: '2',
+    name: 'Tech Professionals Hub',
+    description: 'For technology professionals sharing knowledge and opportunities',
+    category: 'Industry',
     memberCount: 2156,
     topicsCount: 234,
     isJoined: false,
-    privacy: "public",
-    moderators: ["Tech Community Team"],
-    recentActivity: "30 minutes ago",
-    icon: <Globe className="h-5 w-5" />
+    privacy: 'public',
+    moderators: ['Tech Community Team'],
+    recentActivity: '30 minutes ago',
+    icon: <Globe className="h-5 w-5" />,
   },
   {
-    id: "3",
-    name: "Medical Research Network",
-    description: "Healthcare professionals and researchers collaboration space",
-    category: "Industry",
+    id: '3',
+    name: 'Medical Research Network',
+    description: 'Healthcare professionals and researchers collaboration space',
+    category: 'Industry',
     memberCount: 789,
     topicsCount: 145,
     isJoined: true,
-    privacy: "public",
-    moderators: ["Prof. James Okafor", "Dr. Medical Team"],
-    recentActivity: "1 hour ago",
-    icon: <Heart className="h-5 w-5" />
+    privacy: 'public',
+    moderators: ['Prof. James Okafor', 'Dr. Medical Team'],
+    recentActivity: '1 hour ago',
+    icon: <Heart className="h-5 w-5" />,
   },
   {
-    id: "4",
-    name: "Startup Founders Circle",
-    description: "Exclusive community for startup founders and entrepreneurs",
-    category: "Entrepreneurship",
+    id: '4',
+    name: 'Startup Founders Circle',
+    description: 'Exclusive community for startup founders and entrepreneurs',
+    category: 'Entrepreneurship',
     memberCount: 456,
     topicsCount: 67,
     isJoined: false,
-    privacy: "private",
-    moderators: ["Amina Hassan", "Startup Team"],
-    recentActivity: "3 hours ago",
-    icon: <TrendingUp className="h-5 w-5" />
-  }
+    privacy: 'private',
+    moderators: ['Amina Hassan', 'Startup Team'],
+    recentActivity: '3 hours ago',
+    icon: <TrendingUp className="h-5 w-5" />,
+  },
 ];
 
-const categories = ["All Categories", "Mentorship", "Funding", "Research", "Career", "Networking", "Projects"];
+const categories = [
+  'All Categories',
+  'Mentorship',
+  'Funding',
+  'Research',
+  'Career',
+  'Networking',
+  'Projects',
+];
 
 export function JoinDiscussion({ isOpen, onClose }: JoinDiscussionProps) {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("All Categories");
-  const [sortBy, setSortBy] = useState("recent");
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('All Categories');
+  const [sortBy, setSortBy] = useState('recent');
 
-  const filteredTopics = mockDiscussionTopics.filter(topic => {
-    const matchesSearch = topic.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         topic.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         topic.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
-    const matchesCategory = selectedCategory === "All Categories" || topic.category === selectedCategory;
+  const filteredTopics = mockDiscussionTopics.filter((topic) => {
+    const matchesSearch =
+      topic.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      topic.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      topic.tags.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+    const matchesCategory =
+      selectedCategory === 'All Categories' || topic.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
   const handleJoinForum = (forumId: string) => {
-    const forum = mockForums.find(f => f.id === forumId);
+    const forum = mockForums.find((f) => f.id === forumId);
     if (forum) {
       toast.success(`Joined ${forum.name}!`);
     }
   };
 
   const handleJoinTopic = (topicId: string) => {
-    const topic = mockDiscussionTopics.find(t => t.id === topicId);
+    const topic = mockDiscussionTopics.find((t) => t.id === topicId);
     if (topic) {
       toast.success(`Joined discussion: ${topic.title}`);
     }
@@ -296,7 +310,7 @@ export function JoinDiscussion({ isOpen, onClose }: JoinDiscussionProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[80vh] flex flex-col w-[95vw] sm:w-full">
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2">
             <MessageSquare className="h-5 w-5 text-green-600" />
@@ -341,7 +355,9 @@ export function JoinDiscussion({ isOpen, onClose }: JoinDiscussionProps) {
                   </SelectTrigger>
                   <SelectContent>
                     {categories.map((cat) => (
-                      <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                      <SelectItem key={cat} value={cat}>
+                        {cat}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -392,7 +408,9 @@ export function JoinDiscussion({ isOpen, onClose }: JoinDiscussionProps) {
                             {topic.description}
                           </p>
                         </div>
-                        <div className={`flex items-center space-x-1 text-xs ${getPrivacyColor(topic.privacy)}`}>
+                        <div
+                          className={`flex items-center space-x-1 text-xs ${getPrivacyColor(topic.privacy)}`}
+                        >
                           {getPrivacyIcon(topic.privacy)}
                           <span className="capitalize">{topic.privacy}</span>
                         </div>
@@ -402,7 +420,12 @@ export function JoinDiscussion({ isOpen, onClose }: JoinDiscussionProps) {
                       <div className="flex items-center space-x-3">
                         <Avatar className="h-8 w-8">
                           <AvatarImage src={topic.author.avatar} />
-                          <AvatarFallback>{topic.author.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                          <AvatarFallback>
+                            {topic.author.name
+                              .split(' ')
+                              .map((n) => n[0])
+                              .join('')}
+                          </AvatarFallback>
                         </Avatar>
                         <div className="space-y-1">
                           <div className="flex items-center space-x-2">
@@ -455,8 +478,8 @@ export function JoinDiscussion({ isOpen, onClose }: JoinDiscussionProps) {
                           <span className="text-xs text-muted-foreground">
                             Last activity {topic.lastActivity}
                           </span>
-                          <Button 
-                            size="sm" 
+                          <Button
+                            size="sm"
                             onClick={() => handleJoinTopic(topic.id)}
                             className="bg-green-600 hover:bg-green-700"
                           >
@@ -489,9 +512,7 @@ export function JoinDiscussion({ isOpen, onClose }: JoinDiscussionProps) {
                     <div className="space-y-4">
                       <div className="flex items-start justify-between">
                         <div className="flex items-start space-x-3">
-                          <div className="p-2 bg-gray-100 rounded-lg">
-                            {forum.icon}
-                          </div>
+                          <div className="p-2 bg-gray-100 rounded-lg">{forum.icon}</div>
                           <div className="space-y-1">
                             <h4 className="font-semibold">{forum.name}</h4>
                             <p className="text-sm text-muted-foreground">{forum.description}</p>
@@ -502,7 +523,9 @@ export function JoinDiscussion({ isOpen, onClose }: JoinDiscussionProps) {
                             )}
                           </div>
                         </div>
-                        <div className={`flex items-center space-x-1 text-xs ${getPrivacyColor(forum.privacy)}`}>
+                        <div
+                          className={`flex items-center space-x-1 text-xs ${getPrivacyColor(forum.privacy)}`}
+                        >
                           {getPrivacyIcon(forum.privacy)}
                         </div>
                       </div>
@@ -525,8 +548,8 @@ export function JoinDiscussion({ isOpen, onClose }: JoinDiscussionProps) {
                         {forum.isJoined ? (
                           <Badge className="bg-green-100 text-green-800">Joined</Badge>
                         ) : (
-                          <Button 
-                            size="sm" 
+                          <Button
+                            size="sm"
                             variant="outline"
                             onClick={() => handleJoinForum(forum.id)}
                           >

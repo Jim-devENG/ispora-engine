@@ -43,7 +43,9 @@ router.get('/content', optionalAuth, async (req, res, next) => {
     if (projectId) q = q.where('project_id', projectId);
     const rows = await q;
     res.json({ success: true, data: rows });
-  } catch (e) { next(e); }
+  } catch (e) {
+    next(e);
+  }
 });
 
 router.post('/content', protect, async (req, res, next) => {
@@ -59,14 +61,16 @@ router.post('/content', protect, async (req, res, next) => {
       description: description || null,
       type: type || 'link',
       url: url || null,
-      tags: Array.isArray(tags) ? tags.join(',') : (tags || ''),
+      tags: Array.isArray(tags) ? tags.join(',') : tags || '',
       uploader_id: req.user?.id || null,
       created_at: now,
-      updated_at: now
+      updated_at: now,
     };
     await db('learning_content').insert(row);
     res.status(201).json({ success: true, data: row });
-  } catch (e) { next(e); }
+  } catch (e) {
+    next(e);
+  }
 });
 
 router.get('/recordings', optionalAuth, async (req, res, next) => {
@@ -77,7 +81,9 @@ router.get('/recordings', optionalAuth, async (req, res, next) => {
     if (projectId) q = q.where('project_id', projectId);
     const rows = await q;
     res.json({ success: true, data: rows });
-  } catch (e) { next(e); }
+  } catch (e) {
+    next(e);
+  }
 });
 
 router.post('/recordings', protect, async (req, res, next) => {
@@ -95,13 +101,13 @@ router.post('/recordings', protect, async (req, res, next) => {
       transcript: transcript || null,
       uploader_id: req.user?.id || null,
       created_at: now,
-      updated_at: now
+      updated_at: now,
     };
     await db('learning_recordings').insert(row);
     res.status(201).json({ success: true, data: row });
-  } catch (e) { next(e); }
+  } catch (e) {
+    next(e);
+  }
 });
 
 module.exports = router;
-
-

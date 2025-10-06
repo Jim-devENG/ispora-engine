@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
   Calendar,
   CheckSquare,
@@ -24,37 +24,36 @@ import {
   Zap,
   GraduationCap,
   Briefcase,
-
   User,
   Info,
-  Clock
-} from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Button } from "./ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { Badge } from "./ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { ScrollArea } from "./ui/scroll-area";
-import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
-import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { Alert, AlertDescription } from "./ui/alert";
+  Clock,
+} from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Button } from './ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import { Badge } from './ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { ScrollArea } from './ui/scroll-area';
+import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { Alert, AlertDescription } from './ui/alert';
 
 // Import workspace components
-import { SessionBoard } from "./workspace/SessionBoard";
-import { TaskManager } from "./workspace/TaskManager";
-import { VoiceChat } from "./workspace/VoiceChat";
-import { LearningVault } from "./workspace/LearningVault";
-import { DeliverableSubmissions } from "./workspace/DeliverableSubmissions";
-import { WorkspaceCalendar } from "./workspace/WorkspaceCalendar";
-import { NotificationsPanel } from "./workspace/NotificationsPanel";
-import { CertificateManager } from "./workspace/CertificateManager";
-import { LiveSession } from "./workspace/LiveSession";
-import { ProjectMemberModal } from "./workspace/ProjectMemberModal";
-import { ResearchTools } from "./workspace/ResearchTools";
-import { InnovationHub } from "./workspace/InnovationHub";
-import { CommunityTools } from "./workspace/CommunityTools";
-import { useNavigation } from "./NavigationContext";
+import { SessionBoard } from './workspace/SessionBoard';
+import { TaskManager } from './workspace/TaskManager';
+import { VoiceChat } from './workspace/VoiceChat';
+import { LearningVault } from './workspace/LearningVault';
+import { DeliverableSubmissions } from './workspace/DeliverableSubmissions';
+import { WorkspaceCalendar } from './workspace/WorkspaceCalendar';
+import { NotificationsPanel } from './workspace/NotificationsPanel';
+import { CertificateManager } from './workspace/CertificateManager';
+import { LiveSession } from './workspace/LiveSession';
+import { ProjectMemberModal } from './workspace/ProjectMemberModal';
+import { ResearchTools } from './workspace/ResearchTools';
+import { InnovationHub } from './workspace/InnovationHub';
+import { CommunityTools } from './workspace/CommunityTools';
+import { useNavigation } from './NavigationContext';
 
 interface ProjectMember {
   id: string;
@@ -63,7 +62,17 @@ interface ProjectMember {
   university: string;
   program: string;
   year: string;
-  role: 'mentor' | 'mentee' | 'participant' | 'leader' | 'researcher' | 'owner' | 'admin' | 'student' | 'collaborator' | 'viewer';
+  role:
+    | 'mentor'
+    | 'mentee'
+    | 'participant'
+    | 'leader'
+    | 'researcher'
+    | 'owner'
+    | 'admin'
+    | 'student'
+    | 'collaborator'
+    | 'viewer';
   status: 'active' | 'paused' | 'completed' | 'pending' | 'inactive';
   progress: number;
   isOnline?: boolean;
@@ -92,167 +101,173 @@ interface Project {
 // Mock project data
 const mockProjects: Project[] = [
   {
-    id: "1",
-    title: "AI Ethics Research Initiative",
-    type: "research",
-    description: "Collaborative research on ethical AI implementation",
-    status: "active",
-    mentorMode: "group",
-    startDate: "2024-01-15",
+    id: '1',
+    title: 'AI Ethics Research Initiative',
+    type: 'research',
+    description: 'Collaborative research on ethical AI implementation',
+    status: 'active',
+    mentorMode: 'group',
+    startDate: '2024-01-15',
     progress: 65,
     members: [
       {
-        id: "1",
-        name: "Alex Chen",
-        email: "alex.chen@stanford.edu",
-        avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
-        university: "Stanford University",
-        program: "Computer Science",
-        year: "Junior",
-        role: "researcher",
-        status: "active",
+        id: '1',
+        name: 'Alex Chen',
+        email: 'alex.chen@stanford.edu',
+        avatar:
+          'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+        university: 'Stanford University',
+        program: 'Computer Science',
+        year: 'Junior',
+        role: 'researcher',
+        status: 'active',
         progress: 75,
         isOnline: true,
         tasksCompleted: 23,
         contributionScore: 87,
         projectsInvolved: 3,
-        joinedDate: "2024-01-20",
-        lastActive: "1 hour ago",
-        skills: ["Computer Science", "Python", "Data Analysis"]
+        joinedDate: '2024-01-20',
+        lastActive: '1 hour ago',
+        skills: ['Computer Science', 'Python', 'Data Analysis'],
       },
       {
-        id: "2",
-        name: "Sarah Williams",
-        email: "sarah.williams@mit.edu",
-        avatar: "https://images.unsplash.com/photo-1494790108755-2616b25f5e55?w=150&h=150&fit=crop&crop=face",
-        university: "MIT",
-        program: "Electrical Engineering",
-        year: "Sophomore",
-        role: "researcher",
-        status: "active",
+        id: '2',
+        name: 'Sarah Williams',
+        email: 'sarah.williams@mit.edu',
+        avatar:
+          'https://images.unsplash.com/photo-1494790108755-2616b25f5e55?w=150&h=150&fit=crop&crop=face',
+        university: 'MIT',
+        program: 'Electrical Engineering',
+        year: 'Sophomore',
+        role: 'researcher',
+        status: 'active',
         progress: 60,
         isOnline: false,
         tasksCompleted: 31,
         contributionScore: 79,
         projectsInvolved: 2,
-        joinedDate: "2024-01-25",
-        lastActive: "5 hours ago",
-        skills: ["Design", "UX Research", "Psychology"]
-      }
-    ]
+        joinedDate: '2024-01-25',
+        lastActive: '5 hours ago',
+        skills: ['Design', 'UX Research', 'Psychology'],
+      },
+    ],
   },
   {
-    id: "2",
-    title: "Youth Leadership Mentorship",
-    type: "mentorship",
-    description: "One-on-one mentorship for leadership development",
-    status: "active",
-    mentorMode: "individual",
-    startDate: "2024-02-01",
+    id: '2',
+    title: 'Youth Leadership Mentorship',
+    type: 'mentorship',
+    description: 'One-on-one mentorship for leadership development',
+    status: 'active',
+    mentorMode: 'individual',
+    startDate: '2024-02-01',
     progress: 80,
     members: [
       {
-        id: "3",
-        name: "Jordan Martinez",
-        email: "jordan.martinez@berkeley.edu",
-        avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
-        university: "UC Berkeley",
-        program: "Business Administration",
-        year: "Senior",
-        role: "mentee",
-        status: "active",
+        id: '3',
+        name: 'Jordan Martinez',
+        email: 'jordan.martinez@berkeley.edu',
+        avatar:
+          'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
+        university: 'UC Berkeley',
+        program: 'Business Administration',
+        year: 'Senior',
+        role: 'mentee',
+        status: 'active',
         progress: 80,
         isOnline: true,
         tasksCompleted: 45,
         contributionScore: 98,
         projectsInvolved: 8,
-        joinedDate: "2024-01-15",
-        lastActive: "2 minutes ago",
-        skills: ["AI Ethics", "Machine Learning", "Research"]
-      }
-    ]
+        joinedDate: '2024-01-15',
+        lastActive: '2 minutes ago',
+        skills: ['AI Ethics', 'Machine Learning', 'Research'],
+      },
+    ],
   },
   {
-    id: "3",
-    title: "Climate Innovation Challenge",
-    type: "innovation",
-    description: "Developing sustainable solutions for climate change",
-    status: "active",
-    mentorMode: "group",
-    startDate: "2024-01-20",
+    id: '3',
+    title: 'Climate Innovation Challenge',
+    type: 'innovation',
+    description: 'Developing sustainable solutions for climate change',
+    status: 'active',
+    mentorMode: 'group',
+    startDate: '2024-01-20',
     progress: 45,
     members: [
       {
-        id: "4",
-        name: "Emma Thompson",
-        email: "emma.thompson@oxford.edu",
-        avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
-        university: "Oxford University",
-        program: "Environmental Science",
-        year: "Graduate",
-        role: "participant",
-        status: "active",
+        id: '4',
+        name: 'Emma Thompson',
+        email: 'emma.thompson@oxford.edu',
+        avatar:
+          'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
+        university: 'Oxford University',
+        program: 'Environmental Science',
+        year: 'Graduate',
+        role: 'participant',
+        status: 'active',
         progress: 45,
         isOnline: true,
         tasksCompleted: 67,
         contributionScore: 95,
         projectsInvolved: 12,
-        joinedDate: "2024-02-01",
-        lastActive: "30 minutes ago",
-        skills: ["Product Management", "Strategy", "Mentoring"]
-      }
-    ]
+        joinedDate: '2024-02-01',
+        lastActive: '30 minutes ago',
+        skills: ['Product Management', 'Strategy', 'Mentoring'],
+      },
+    ],
   },
   {
-    id: "4",
-    title: "Rural Health Community Outreach",
-    type: "community",
-    description: "Building healthcare capacity in underserved rural communities",
-    status: "active",
-    mentorMode: "group",
-    startDate: "2024-01-10",
+    id: '4',
+    title: 'Rural Health Community Outreach',
+    type: 'community',
+    description: 'Building healthcare capacity in underserved rural communities',
+    status: 'active',
+    mentorMode: 'group',
+    startDate: '2024-01-10',
     progress: 72,
     members: [
       {
-        id: "5",
-        name: "Dr. Amina Hassan",
-        email: "amina.hassan@unilag.edu.ng",
-        avatar: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop&crop=face",
-        university: "University of Lagos",
-        program: "Public Health",
-        year: "Faculty",
-        role: "leader",
-        status: "active",
+        id: '5',
+        name: 'Dr. Amina Hassan',
+        email: 'amina.hassan@unilag.edu.ng',
+        avatar:
+          'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop&crop=face',
+        university: 'University of Lagos',
+        program: 'Public Health',
+        year: 'Faculty',
+        role: 'leader',
+        status: 'active',
         progress: 85,
         isOnline: true,
         tasksCompleted: 34,
         contributionScore: 92,
         projectsInvolved: 5,
-        joinedDate: "2024-01-10",
-        lastActive: "15 minutes ago",
-        skills: ["Public Health", "Community Medicine", "Project Management"]
+        joinedDate: '2024-01-10',
+        lastActive: '15 minutes ago',
+        skills: ['Public Health', 'Community Medicine', 'Project Management'],
       },
       {
-        id: "6",
-        name: "Michael Okafor",
-        email: "michael.okafor@nsu.edu.ng",
-        avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
-        university: "Niger State University",
-        program: "Community Development",
-        year: "Senior",
-        role: "participant",
-        status: "active",
+        id: '6',
+        name: 'Michael Okafor',
+        email: 'michael.okafor@nsu.edu.ng',
+        avatar:
+          'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
+        university: 'Niger State University',
+        program: 'Community Development',
+        year: 'Senior',
+        role: 'participant',
+        status: 'active',
         progress: 68,
         isOnline: false,
         tasksCompleted: 28,
         contributionScore: 78,
         projectsInvolved: 3,
-        joinedDate: "2024-01-15",
-        lastActive: "2 hours ago",
-        skills: ["Community Engagement", "Social Work", "Data Collection"]
-      }
-    ]
-  }
+        joinedDate: '2024-01-15',
+        lastActive: '2 hours ago',
+        skills: ['Community Engagement', 'Social Work', 'Data Collection'],
+      },
+    ],
+  },
 ];
 
 const projectTypeIcons = {
@@ -261,19 +276,17 @@ const projectTypeIcons = {
   innovation: Zap,
   training: GraduationCap,
   challenge: Target,
-  community: Globe
+  community: Globe,
 };
 
 const projectTypeColors = {
-  mentorship: "bg-blue-100 text-blue-800",
-  research: "bg-green-100 text-green-800",
-  innovation: "bg-purple-100 text-purple-800",
-  training: "bg-orange-100 text-orange-800",
-  challenge: "bg-red-100 text-red-800",
-  community: "bg-indigo-100 text-indigo-800"
+  mentorship: 'bg-blue-100 text-blue-800',
+  research: 'bg-green-100 text-green-800',
+  innovation: 'bg-purple-100 text-purple-800',
+  training: 'bg-orange-100 text-orange-800',
+  challenge: 'bg-red-100 text-red-800',
+  community: 'bg-indigo-100 text-indigo-800',
 };
-
-
 
 interface ProjectWorkspaceProps {
   onNavigateToCampaign?: (campaignId: string) => void;
@@ -289,7 +302,7 @@ function WorkspaceSettings({ onSettingsChange }: { onSettingsChange: (settings: 
     notifications: true,
     emailNotifications: true,
     syncCalendar: true,
-    compactView: true // Default to true for more compact interface
+    compactView: true, // Default to true for more compact interface
   });
 
   const handleSettingChange = (key: string, value: boolean) => {
@@ -304,7 +317,7 @@ function WorkspaceSettings({ onSettingsChange }: { onSettingsChange: (settings: 
       notifications: true,
       emailNotifications: true,
       syncCalendar: true,
-      compactView: true // Reset also defaults to compact view
+      compactView: true, // Reset also defaults to compact view
     };
     setSettings(defaultSettings);
     onSettingsChange(defaultSettings);
@@ -320,10 +333,12 @@ function WorkspaceSettings({ onSettingsChange }: { onSettingsChange: (settings: 
             { key: 'notifications', label: 'Desktop notifications' },
             { key: 'emailNotifications', label: 'Email notifications' },
             { key: 'syncCalendar', label: 'Sync with calendar' },
-            { key: 'compactView', label: 'Compact view' }
+            { key: 'compactView', label: 'Compact view' },
           ].map(({ key, label }) => (
             <div key={key} className="flex items-center justify-between">
-              <label htmlFor={key} className="text-sm">{label}</label>
+              <label htmlFor={key} className="text-sm">
+                {label}
+              </label>
               <input
                 type="checkbox"
                 id={key}
@@ -335,7 +350,7 @@ function WorkspaceSettings({ onSettingsChange }: { onSettingsChange: (settings: 
           ))}
         </div>
       </div>
-      
+
       <div className="pt-3 border-t">
         <Button variant="outline" size="sm" className="w-full" onClick={handleReset}>
           Reset to Defaults
@@ -345,22 +360,24 @@ function WorkspaceSettings({ onSettingsChange }: { onSettingsChange: (settings: 
   );
 }
 
-export function ProjectWorkspace({ 
-  onNavigateToCampaign, 
-  onCreateCampaign, 
+export function ProjectWorkspace({
+  onNavigateToCampaign,
+  onCreateCampaign,
   onBackToProjects,
-  initialProjectId
+  initialProjectId,
 }: ProjectWorkspaceProps) {
   const { navigationOptions, setNavigationOptions } = useNavigation();
-  const [activeTab, setActiveTab] = useState("session-board");
+  const [activeTab, setActiveTab] = useState('session-board');
   const [selectedProject, setSelectedProject] = useState<Project>(
-    mockProjects.find(p => p.id === initialProjectId) || mockProjects[0]
+    mockProjects.find((p) => p.id === initialProjectId) || mockProjects[0],
   );
   const [selectedMember, setSelectedMember] = useState<ProjectMember>(selectedProject.members[0]);
   const [isRightPanelOpen, setIsRightPanelOpen] = useState(false);
-  const [rightPanelContent, setRightPanelContent] = useState<"calendar" | "notifications">("calendar");
+  const [rightPanelContent, setRightPanelContent] = useState<'calendar' | 'notifications'>(
+    'calendar',
+  );
   const [memberModalOpen, setMemberModalOpen] = useState(false);
-  
+
   // Check if we should auto-open the workspace panel with specific tab
   React.useEffect(() => {
     if (navigationOptions?.openWorkspacePanel) {
@@ -370,19 +387,19 @@ export function ProjectWorkspace({
     }
   }, [navigationOptions, setNavigationOptions]);
   const [showProjectSelector, setShowProjectSelector] = useState(false);
-  
+
   // Workspace settings state - Default compact view enabled
   const [workspaceSettings, setWorkspaceSettings] = useState({
     autoSave: true,
     notifications: true,
     emailNotifications: true,
     syncCalendar: true,
-    compactView: true // Default to true for more compact interface
+    compactView: true, // Default to true for more compact interface
   });
-  
+
   // Workspace participants state - always group mode for MVP
   const [workspaceParticipants, setWorkspaceParticipants] = useState<ProjectMember[]>(
-    selectedProject.members.filter(m => m.status === "active")
+    selectedProject.members.filter((m) => m.status === 'active'),
   );
 
   // Handle member changes from ProjectMemberModal
@@ -401,32 +418,24 @@ export function ProjectWorkspace({
   // Dynamic tab configuration based on project type - Campaigns removed
   const getTabsForProjectType = (projectType: string) => {
     const baseTabs = [
-      { id: "session-board", label: "Session Board", icon: Calendar },
-      { id: "task-manager", label: "Task Manager", icon: CheckSquare },
-      { id: "voice-chat", label: "Voice & Chat", icon: MessageCircle },
-      { id: "learning-vault", label: "Learning Vault", icon: BookOpen },
-      { id: "deliverables", label: "Deliverables", icon: FileText },
-      { id: "live-session", label: "Live Session", icon: Play }
+      { id: 'session-board', label: 'Session Board', icon: Calendar },
+      { id: 'task-manager', label: 'Task Manager', icon: CheckSquare },
+      { id: 'voice-chat', label: 'Voice & Chat', icon: MessageCircle },
+      { id: 'learning-vault', label: 'Learning Vault', icon: BookOpen },
+      { id: 'deliverables', label: 'Deliverables', icon: FileText },
+      { id: 'live-session', label: 'Live Session', icon: Play },
     ];
 
     const projectSpecificTabs = [];
-    
+
     if (projectType === 'mentorship') {
-      projectSpecificTabs.push(
-        { id: "certificates", label: "Certificates", icon: Award }
-      );
+      projectSpecificTabs.push({ id: 'certificates', label: 'Certificates', icon: Award });
     } else if (projectType === 'research') {
-      projectSpecificTabs.push(
-        { id: "research-tools", label: "Research Tools", icon: Briefcase }
-      );
+      projectSpecificTabs.push({ id: 'research-tools', label: 'Research Tools', icon: Briefcase });
     } else if (projectType === 'innovation' || projectType === 'challenge') {
-      projectSpecificTabs.push(
-        { id: "innovation-hub", label: "Innovation Hub", icon: Zap }
-      );
+      projectSpecificTabs.push({ id: 'innovation-hub', label: 'Innovation Hub', icon: Zap });
     } else if (projectType === 'community') {
-      projectSpecificTabs.push(
-        { id: "community-tools", label: "Community Tools", icon: Globe }
-      );
+      projectSpecificTabs.push({ id: 'community-tools', label: 'Community Tools', icon: Globe });
     }
 
     return [...baseTabs, ...projectSpecificTabs];
@@ -434,7 +443,7 @@ export function ProjectWorkspace({
 
   const tabs = getTabsForProjectType(selectedProject.type);
 
-  const openRightPanel = (content: "calendar" | "notifications") => {
+  const openRightPanel = (content: 'calendar' | 'notifications') => {
     setRightPanelContent(content);
     setIsRightPanelOpen(true);
   };
@@ -445,11 +454,11 @@ export function ProjectWorkspace({
   };
 
   const handleProjectChange = (projectId: string) => {
-    const project = mockProjects.find(p => p.id === projectId);
+    const project = mockProjects.find((p) => p.id === projectId);
     if (project) {
       setSelectedProject(project);
       setSelectedMember(project.members[0]);
-      setWorkspaceParticipants(project.members.filter(m => m.status === "active"));
+      setWorkspaceParticipants(project.members.filter((m) => m.status === 'active'));
       setShowProjectSelector(false);
     }
   };
@@ -458,25 +467,25 @@ export function ProjectWorkspace({
 
   const renderTabContent = () => {
     switch (activeTab) {
-      case "session-board":
+      case 'session-board':
         return <SessionBoard mentee={selectedMember} />;
-      case "task-manager":
+      case 'task-manager':
         return <TaskManager mentee={selectedMember} projectMembers={workspaceParticipants} />;
-      case "voice-chat":
+      case 'voice-chat':
         return <VoiceChat mentee={selectedMember} />;
-      case "learning-vault":
+      case 'learning-vault':
         return <LearningVault mentee={selectedMember} />;
-      case "deliverables":
+      case 'deliverables':
         return <DeliverableSubmissions mentee={selectedMember} />;
-      case "certificates":
+      case 'certificates':
         return <CertificateManager mentee={selectedMember} />;
-      case "live-session":
+      case 'live-session':
         return <LiveSession mentee={selectedMember} />;
-      case "research-tools":
+      case 'research-tools':
         return <ResearchTools mentee={selectedMember} projectType={selectedProject.type} />;
-      case "innovation-hub":
+      case 'innovation-hub':
         return <InnovationHub mentee={selectedMember} projectType={selectedProject.type} />;
-      case "community-tools":
+      case 'community-tools':
         return <CommunityTools mentee={selectedMember} projectType={selectedProject.type} />;
       default:
         return <SessionBoard mentee={selectedMember} />;
@@ -491,7 +500,9 @@ export function ProjectWorkspace({
   return (
     <div className="flex flex-col bg-gray-50 relative">
       {/* Enhanced Header with Workspace Mode Display */}
-      <div className={`bg-white border-b border-gray-200 flex-shrink-0 ${getCompactClass("px-6 py-4", "px-4 py-3")}`}>
+      <div
+        className={`bg-white border-b border-gray-200 flex-shrink-0 ${getCompactClass('px-6 py-4', 'px-4 py-3')}`}
+      >
         <div className="flex items-center justify-between gap-4">
           {/* Left Section - Navigation & Project Info */}
           <div className="flex items-center gap-4 flex-1 min-w-0">
@@ -502,9 +513,9 @@ export function ProjectWorkspace({
                   variant="ghost"
                   size="sm"
                   onClick={onBackToProjects}
-                  className={`flex items-center gap-2 px-3 btn-hover-lift ${getCompactClass("py-2 h-9", "py-1 h-8")}`}
+                  className={`flex items-center gap-2 px-3 btn-hover-lift ${getCompactClass('py-2 h-9', 'py-1 h-8')}`}
                 >
-                  <ArrowLeft className={getCompactClass("h-4 w-4", "h-3 w-3")} />
+                  <ArrowLeft className={getCompactClass('h-4 w-4', 'h-3 w-3')} />
                   <span>Projects</span>
                 </Button>
               </TooltipTrigger>
@@ -514,19 +525,30 @@ export function ProjectWorkspace({
             </Tooltip>
 
             {/* Separator */}
-            <div className={getCompactClass("h-5 w-px bg-gray-300", "h-4 w-px bg-gray-300")} />
+            <div className={getCompactClass('h-5 w-px bg-gray-300', 'h-4 w-px bg-gray-300')} />
 
             {/* Project Type Badge & Info */}
             <div className="flex items-center gap-3 min-w-0">
               <div className="flex items-center gap-2">
-                <ProjectIcon className={getCompactClass("h-5 w-5 flex-shrink-0", "h-4 w-4 flex-shrink-0")} />
-                <Badge variant="outline" className={`${projectTypeColors[selectedProject.type]} ${getCompactClass("px-2 py-1", "px-1.5 py-0.5 text-xs")}`}>
+                <ProjectIcon
+                  className={getCompactClass('h-5 w-5 flex-shrink-0', 'h-4 w-4 flex-shrink-0')}
+                />
+                <Badge
+                  variant="outline"
+                  className={`${projectTypeColors[selectedProject.type]} ${getCompactClass('px-2 py-1', 'px-1.5 py-0.5 text-xs')}`}
+                >
                   {selectedProject.type}
                 </Badge>
               </div>
               <div className="min-w-0">
-                <h1 className={`font-semibold text-gray-900 truncate ${getCompactClass("text-lg", "text-base")}`}>{selectedProject.title}</h1>
-                <p className={`text-gray-600 truncate ${getCompactClass("text-sm", "text-xs")}`}>{selectedProject.description}</p>
+                <h1
+                  className={`font-semibold text-gray-900 truncate ${getCompactClass('text-lg', 'text-base')}`}
+                >
+                  {selectedProject.title}
+                </h1>
+                <p className={`text-gray-600 truncate ${getCompactClass('text-sm', 'text-xs')}`}>
+                  {selectedProject.description}
+                </p>
               </div>
             </div>
           </div>
@@ -537,7 +559,9 @@ export function ProjectWorkspace({
             <div className="flex items-center gap-2">
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <span className={`text-gray-600 font-medium ${getCompactClass("text-sm", "text-xs")} whitespace-nowrap cursor-help`}>
+                  <span
+                    className={`text-gray-600 font-medium ${getCompactClass('text-sm', 'text-xs')} whitespace-nowrap cursor-help`}
+                  >
                     Choose your project:
                   </span>
                 </TooltipTrigger>
@@ -549,7 +573,7 @@ export function ProjectWorkspace({
                 <TooltipTrigger asChild>
                   <div className="form-field-enhanced">
                     <Select value={selectedProject.id} onValueChange={handleProjectChange}>
-                      <SelectTrigger className={getCompactClass("w-56 h-9", "w-48 h-8 text-sm")}>
+                      <SelectTrigger className={getCompactClass('w-56 h-9', 'w-48 h-8 text-sm')}>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -569,7 +593,9 @@ export function ProjectWorkspace({
                   </div>
                 </TooltipTrigger>
                 <TooltipContent side="bottom" className="tooltip-enhanced">
-                  <span className="text-xs">Type: {selectedProject.type} • Progress: {selectedProject.progress}%</span>
+                  <span className="text-xs">
+                    Type: {selectedProject.type} • Progress: {selectedProject.progress}%
+                  </span>
                 </TooltipContent>
               </Tooltip>
             </div>
@@ -581,10 +607,10 @@ export function ProjectWorkspace({
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => openRightPanel("calendar")}
-                    className={`btn-hover-lift ${getCompactClass("h-9 px-3", "h-8 px-2")}`}
+                    onClick={() => openRightPanel('calendar')}
+                    className={`btn-hover-lift ${getCompactClass('h-9 px-3', 'h-8 px-2')}`}
                   >
-                    <Calendar className={getCompactClass("h-4 w-4", "h-3 w-3")} />
+                    <Calendar className={getCompactClass('h-4 w-4', 'h-3 w-3')} />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="bottom" className="tooltip-enhanced">
@@ -599,9 +625,9 @@ export function ProjectWorkspace({
                       <Button
                         variant="outline"
                         size="sm"
-                        className={`focus-ring-brand btn-hover-lift ${getCompactClass("h-9 w-9 p-0", "h-8 w-8 p-0")}`}
+                        className={`focus-ring-brand btn-hover-lift ${getCompactClass('h-9 w-9 p-0', 'h-8 w-8 p-0')}`}
                       >
-                        <Settings className={getCompactClass("h-4 w-4", "h-3 w-3")} />
+                        <Settings className={getCompactClass('h-4 w-4', 'h-3 w-3')} />
                       </Button>
                     </TooltipTrigger>
                   </PopoverTrigger>
@@ -619,11 +645,16 @@ export function ProjectWorkspace({
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => openRightPanel("notifications")}
-                    className={`relative btn-hover-lift ${getCompactClass("h-9 px-3", "h-8 px-2")}`}
+                    onClick={() => openRightPanel('notifications')}
+                    className={`relative btn-hover-lift ${getCompactClass('h-9 px-3', 'h-8 px-2')}`}
                   >
-                    <Bell className={getCompactClass("h-4 w-4", "h-3 w-3")} />
-                    <Badge variant="destructive" className={`absolute -top-1 -right-1 p-0 text-xs flex items-center justify-center notification-pulse ${getCompactClass("h-5 w-5", "h-4 w-4 text-xs")}`}>3</Badge>
+                    <Bell className={getCompactClass('h-4 w-4', 'h-3 w-3')} />
+                    <Badge
+                      variant="destructive"
+                      className={`absolute -top-1 -right-1 p-0 text-xs flex items-center justify-center notification-pulse ${getCompactClass('h-5 w-5', 'h-4 w-4 text-xs')}`}
+                    >
+                      3
+                    </Badge>
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="bottom" className="tooltip-enhanced">
@@ -636,16 +667,21 @@ export function ProjectWorkspace({
       </div>
 
       {/* Workspace Mode Status Bar */}
-      <div className={`bg-[#021ff6]/5 border-b border-[#021ff6]/10 flex-shrink-0 ${getCompactClass("px-6 py-3", "px-4 py-2")}`}>
+      <div
+        className={`bg-[#021ff6]/5 border-b border-[#021ff6]/10 flex-shrink-0 ${getCompactClass('px-6 py-3', 'px-4 py-2')}`}
+      >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             {/* Current Participants Display */}
             <div className="flex items-center gap-2">
-              <Users className={`text-[#021ff6] ${getCompactClass("h-4 w-4", "h-3 w-3")}`} />
-              <span className={`font-medium text-[#021ff6] ${getCompactClass("", "text-sm")}`}>
+              <Users className={`text-[#021ff6] ${getCompactClass('h-4 w-4', 'h-3 w-3')}`} />
+              <span className={`font-medium text-[#021ff6] ${getCompactClass('', 'text-sm')}`}>
                 Active Members
               </span>
-              <Badge variant="outline" className={`bg-[#021ff6] text-white border-[#021ff6] ${getCompactClass("", "text-xs px-1.5 py-0.5")}`}>
+              <Badge
+                variant="outline"
+                className={`bg-[#021ff6] text-white border-[#021ff6] ${getCompactClass('', 'text-xs px-1.5 py-0.5')}`}
+              >
                 {workspaceParticipants.length} member{workspaceParticipants.length !== 1 ? 's' : ''}
               </Badge>
             </div>
@@ -660,25 +696,38 @@ export function ProjectWorkspace({
                   <Tooltip key={participant.id}>
                     <TooltipTrigger asChild>
                       <div className="relative">
-                        <Avatar className={`border-2 border-white ${getCompactClass("h-8 w-8", "h-6 w-6")}`}>
+                        <Avatar
+                          className={`border-2 border-white ${getCompactClass('h-8 w-8', 'h-6 w-6')}`}
+                        >
                           <AvatarImage src={participant.avatar} alt={participant.name} />
-                          <AvatarFallback className={getCompactClass("text-xs", "text-xs")}>
-                            {participant.name.split(' ').map(n => n[0]).join('')}
+                          <AvatarFallback className={getCompactClass('text-xs', 'text-xs')}>
+                            {participant.name
+                              .split(' ')
+                              .map((n) => n[0])
+                              .join('')}
                           </AvatarFallback>
                         </Avatar>
                         {participant.isOnline && (
-                          <div className={`absolute bg-green-500 rounded-full border-2 border-white ${getCompactClass("w-3 h-3 -bottom-1 -right-1", "w-2 h-2 -bottom-0.5 -right-0.5")}`}></div>
+                          <div
+                            className={`absolute bg-green-500 rounded-full border-2 border-white ${getCompactClass('w-3 h-3 -bottom-1 -right-1', 'w-2 h-2 -bottom-0.5 -right-0.5')}`}
+                          ></div>
                         )}
                       </div>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <span className="text-xs">{participant.name} • {participant.role}</span>
+                      <span className="text-xs">
+                        {participant.name} • {participant.role}
+                      </span>
                     </TooltipContent>
                   </Tooltip>
                 ))}
                 {workspaceParticipants.length > 4 && (
-                  <div className={`rounded-full bg-muted border-2 border-white flex items-center justify-center ${getCompactClass("h-8 w-8", "h-6 w-6")}`}>
-                    <span className={getCompactClass("text-xs font-medium", "text-xs font-medium")}>+{workspaceParticipants.length - 4}</span>
+                  <div
+                    className={`rounded-full bg-muted border-2 border-white flex items-center justify-center ${getCompactClass('h-8 w-8', 'h-6 w-6')}`}
+                  >
+                    <span className={getCompactClass('text-xs font-medium', 'text-xs font-medium')}>
+                      +{workspaceParticipants.length - 4}
+                    </span>
                   </div>
                 )}
               </div>
@@ -694,12 +743,12 @@ export function ProjectWorkspace({
                   onMembersChange={handleMemberChange}
                   initialActiveTab={navigationOptions?.activeTab}
                   trigger={
-                    <Button 
+                    <Button
                       variant="outline"
                       size="sm"
-                      className={`border-[#021ff6] text-[#021ff6] hover:bg-[#021ff6] hover:text-white btn-hover-lift ${getCompactClass("h-9 px-3", "h-8 px-2 text-sm")}`}
+                      className={`border-[#021ff6] text-[#021ff6] hover:bg-[#021ff6] hover:text-white btn-hover-lift ${getCompactClass('h-9 px-3', 'h-8 px-2 text-sm')}`}
                     >
-                      <Users className={`mr-2 ${getCompactClass("h-4 w-4", "h-3 w-3")}`} />
+                      <Users className={`mr-2 ${getCompactClass('h-4 w-4', 'h-3 w-3')}`} />
                       Manage Members
                     </Button>
                   }
@@ -716,9 +765,11 @@ export function ProjectWorkspace({
       {/* Main Content Area */}
       <div className="flex-1 flex overflow-hidden relative">
         {/* Left Sidebar - Tab Navigation */}
-        <div className={`bg-white border-r border-gray-200 flex-shrink-0 ${getCompactClass("w-64", "w-56")}`}>
-          <ScrollArea className={`h-full ${getCompactClass("p-4", "p-3")}`}>
-            <div className={getCompactClass("space-y-2", "space-y-1")}>
+        <div
+          className={`bg-white border-r border-gray-200 flex-shrink-0 ${getCompactClass('w-64', 'w-56')}`}
+        >
+          <ScrollArea className={`h-full ${getCompactClass('p-4', 'p-3')}`}>
+            <div className={getCompactClass('space-y-2', 'space-y-1')}>
               {tabs.map((tab) => {
                 const Icon = tab.icon;
                 return (
@@ -727,17 +778,23 @@ export function ProjectWorkspace({
                       <Button
                         onClick={() => setActiveTab(tab.id)}
                         variant="ghost"
-                        className={`w-full flex items-center gap-3 rounded-lg text-left transition-all justify-start h-auto sidebar-item-hover ${getCompactClass("px-4 py-3", "px-3 py-2")} ${
+                        className={`w-full flex items-center gap-3 rounded-lg text-left transition-all justify-start h-auto sidebar-item-hover ${getCompactClass('px-4 py-3', 'px-3 py-2')} ${
                           activeTab === tab.id
                             ? 'bg-[#021ff6] text-white shadow-sm hover:bg-[#021ff6]'
                             : 'text-gray-700 hover:bg-gray-100'
                         }`}
                       >
-                        <Icon className={`flex-shrink-0 ${getCompactClass("h-4 w-4", "h-3 w-3")}`} />
-                        <span className={`font-medium truncate ${getCompactClass("", "text-sm")}`}>{tab.label}</span>
-                        <ChevronRight className={`ml-auto transition-transform flex-shrink-0 ${getCompactClass("h-4 w-4", "h-3 w-3")} ${
-                          activeTab === tab.id ? 'rotate-90' : ''
-                        }`} />
+                        <Icon
+                          className={`flex-shrink-0 ${getCompactClass('h-4 w-4', 'h-3 w-3')}`}
+                        />
+                        <span className={`font-medium truncate ${getCompactClass('', 'text-sm')}`}>
+                          {tab.label}
+                        </span>
+                        <ChevronRight
+                          className={`ml-auto transition-transform flex-shrink-0 ${getCompactClass('h-4 w-4', 'h-3 w-3')} ${
+                            activeTab === tab.id ? 'rotate-90' : ''
+                          }`}
+                        />
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent side="right" className="tooltip-enhanced">
@@ -760,22 +817,30 @@ export function ProjectWorkspace({
             </div>
 
             {/* Enhanced Project Status Panel */}
-            <div className={`bg-gray-50 rounded-lg ${getCompactClass("mt-6 p-4", "mt-4 p-3")}`}>
-              <h3 className={`font-medium mb-3 ${getCompactClass("", "text-sm")}`}>Project Status</h3>
-              <div className={getCompactClass("space-y-3", "space-y-2")}>
+            <div className={`bg-gray-50 rounded-lg ${getCompactClass('mt-6 p-4', 'mt-4 p-3')}`}>
+              <h3 className={`font-medium mb-3 ${getCompactClass('', 'text-sm')}`}>
+                Project Status
+              </h3>
+              <div className={getCompactClass('space-y-3', 'space-y-2')}>
                 <div className="flex justify-between">
-                  <span className={`text-gray-600 ${getCompactClass("text-sm", "text-xs")}`}>Progress</span>
-                  <span className={`font-medium ${getCompactClass("text-sm", "text-xs")}`}>{selectedProject.progress}%</span>
+                  <span className={`text-gray-600 ${getCompactClass('text-sm', 'text-xs')}`}>
+                    Progress
+                  </span>
+                  <span className={`font-medium ${getCompactClass('text-sm', 'text-xs')}`}>
+                    {selectedProject.progress}%
+                  </span>
                 </div>
-                <div className={`w-full bg-gray-200 rounded-full ${getCompactClass("h-2", "h-1.5")}`}>
-                  <div 
-                    className={`bg-[#021ff6] rounded-full transition-all duration-300 ${getCompactClass("h-2", "h-1.5")}`}
+                <div
+                  className={`w-full bg-gray-200 rounded-full ${getCompactClass('h-2', 'h-1.5')}`}
+                >
+                  <div
+                    className={`bg-[#021ff6] rounded-full transition-all duration-300 ${getCompactClass('h-2', 'h-1.5')}`}
                     style={{ width: `${selectedProject.progress}%` }}
                   ></div>
                 </div>
-                <Badge 
+                <Badge
                   variant={selectedProject.status === 'active' ? 'default' : 'secondary'}
-                  className={`w-full justify-center ${getCompactClass("py-1", "py-0.5 text-xs")}`}
+                  className={`w-full justify-center ${getCompactClass('py-1', 'py-0.5 text-xs')}`}
                 >
                   {selectedProject.status}
                 </Badge>
@@ -786,29 +851,27 @@ export function ProjectWorkspace({
 
         {/* Main Content */}
         <div className="flex-1 flex flex-col">
-          <div className="flex-1 min-h-0">
-            {renderTabContent()}
-          </div>
+          <div className="flex-1 min-h-0">{renderTabContent()}</div>
         </div>
 
         {/* Right Panel - Calendar/Notifications */}
         {isRightPanelOpen && (
-          <div className={`bg-white border-l border-gray-200 flex-shrink-0 ${getCompactClass("w-80", "w-72")} overflow-hidden`}>
+          <div
+            className={`bg-white border-l border-gray-200 flex-shrink-0 ${getCompactClass('w-80', 'w-72')} overflow-hidden`}
+          >
             <div className="h-full flex flex-col">
-              <div className={`border-b border-gray-200 flex items-center justify-between ${getCompactClass("p-4", "p-3")}`}>
-                <h3 className={`font-medium ${getCompactClass("", "text-sm")}`}>
-                  {rightPanelContent === "calendar" ? "Calendar" : "Notifications"}
+              <div
+                className={`border-b border-gray-200 flex items-center justify-between ${getCompactClass('p-4', 'p-3')}`}
+              >
+                <h3 className={`font-medium ${getCompactClass('', 'text-sm')}`}>
+                  {rightPanelContent === 'calendar' ? 'Calendar' : 'Notifications'}
                 </h3>
                 <Button variant="ghost" size="sm" onClick={() => setIsRightPanelOpen(false)}>
                   <X className="h-4 w-4" />
                 </Button>
               </div>
               <div className="flex-1 overflow-hidden">
-                {rightPanelContent === "calendar" ? (
-                  <WorkspaceCalendar />
-                ) : (
-                  <NotificationsPanel />
-                )}
+                {rightPanelContent === 'calendar' ? <WorkspaceCalendar /> : <NotificationsPanel />}
               </div>
             </div>
           </div>

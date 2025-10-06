@@ -1,5 +1,19 @@
 import React, { useMemo, useEffect, useState } from 'react';
-import { Admin, Resource, List, Datagrid, TextField, EmailField, DateField, TextInput, TopToolbar, CreateButton, ExportButton, WrapperField, NumberField } from 'react-admin';
+import {
+  Admin,
+  Resource,
+  List,
+  Datagrid,
+  TextField,
+  EmailField,
+  DateField,
+  TextInput,
+  TopToolbar,
+  CreateButton,
+  ExportButton,
+  WrapperField,
+  NumberField,
+} from 'react-admin';
 
 function useAuthHeaders() {
   const devKey = localStorage.getItem('devKey') || '';
@@ -46,7 +60,11 @@ function createDataProvider(baseUrl: string) {
     },
     update: async (resource: string, params: any) => {
       const headers = useAuthHeaders();
-      const res = await fetch(`${apiBase}/${resource}/${params.id}`, { method: 'PUT', headers, body: JSON.stringify(params.data) });
+      const res = await fetch(`${apiBase}/${resource}/${params.id}`, {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify(params.data),
+      });
       if (!res.ok) throw new Error('Failed to update');
       const json = await res.json();
       return { data: json.data || json };
@@ -54,7 +72,11 @@ function createDataProvider(baseUrl: string) {
     // Fallbacks for other methods if needed
     create: async (resource: string, params: any) => {
       const headers = useAuthHeaders();
-      const res = await fetch(`${apiBase}/${resource}`, { method: 'POST', headers, body: JSON.stringify(params.data) });
+      const res = await fetch(`${apiBase}/${resource}`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(params.data),
+      });
       if (!res.ok) throw new Error('Failed to create');
       const json = await res.json();
       return { data: json.data || json };
@@ -74,7 +96,9 @@ function Dashboard() {
   useEffect(() => {
     const load = async () => {
       const headers = useAuthHeaders();
-      const apiBase = (import.meta.env.VITE_API_URL || 'https://ispora-backend.onrender.com/api').replace(/\/$/, '');
+      const apiBase = (
+        import.meta.env.VITE_API_URL || 'https://ispora-backend.onrender.com/api'
+      ).replace(/\/$/, '');
       try {
         const res = await fetch(`${apiBase}/admin/stats`, { headers });
         if (res.ok) {
@@ -89,20 +113,55 @@ function Dashboard() {
   if (!stats) return <div style={{ padding: 16 }}>Loading metrics...</div>;
 
   return (
-    <div style={{ padding: 16, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16 }}>
-      <div style={{ background: '#fff', padding: 16, borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+    <div
+      style={{
+        padding: 16,
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+        gap: 16,
+      }}
+    >
+      <div
+        style={{
+          background: '#fff',
+          padding: 16,
+          borderRadius: 8,
+          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+        }}
+      >
         <div style={{ fontSize: 12, color: '#6b7280' }}>Total Users</div>
         <div style={{ fontSize: 24, fontWeight: 700 }}>{stats.totalUsers}</div>
       </div>
-      <div style={{ background: '#fff', padding: 16, borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+      <div
+        style={{
+          background: '#fff',
+          padding: 16,
+          borderRadius: 8,
+          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+        }}
+      >
         <div style={{ fontSize: 12, color: '#6b7280' }}>Active Users</div>
         <div style={{ fontSize: 24, fontWeight: 700 }}>{stats.activeUsers}</div>
       </div>
-      <div style={{ background: '#fff', padding: 16, borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+      <div
+        style={{
+          background: '#fff',
+          padding: 16,
+          borderRadius: 8,
+          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+        }}
+      >
         <div style={{ fontSize: 12, color: '#6b7280' }}>Projects</div>
         <div style={{ fontSize: 24, fontWeight: 700 }}>{stats.totalProjects}</div>
       </div>
-      <div style={{ background: '#fff', padding: 16, borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+      <div
+        style={{
+          background: '#fff',
+          padding: 16,
+          borderRadius: 8,
+          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+        }}
+      >
         <div style={{ fontSize: 12, color: '#6b7280' }}>Opportunities</div>
         <div style={{ fontSize: 24, fontWeight: 700 }}>{stats.totalOpportunities}</div>
       </div>
@@ -119,7 +178,16 @@ const userFilters = [
 
 function UsersList() {
   return (
-    <List filters={userFilters} perPage={25} actions={<TopToolbar><CreateButton /><ExportButton /></TopToolbar>}>
+    <List
+      filters={userFilters}
+      perPage={25}
+      actions={
+        <TopToolbar>
+          <CreateButton />
+          <ExportButton />
+        </TopToolbar>
+      }
+    >
       <Datagrid rowClick="show">
         <TextField source="id" />
         <TextField source="name" />
@@ -136,7 +204,9 @@ function UsersList() {
 }
 
 export default function AdminConsole() {
-  const apiBase = (import.meta.env.VITE_API_URL || 'https://ispora-backend.onrender.com/api').replace(/\/$/, '');
+  const apiBase = (
+    import.meta.env.VITE_API_URL || 'https://ispora-backend.onrender.com/api'
+  ).replace(/\/$/, '');
   const dataProvider = useMemo(() => createDataProvider(apiBase), [apiBase]);
 
   return (
@@ -146,5 +216,3 @@ export default function AdminConsole() {
     </Admin>
   );
 }
-
-

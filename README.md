@@ -39,12 +39,14 @@ npm run build
 This project is automatically deployed to Namecheap hosting via GitHub Actions when changes are pushed to the main branch.
 
 ### Deployment Process:
+
 1. Push changes to GitHub
 2. GitHub Actions builds the application
 3. Built files are automatically deployed to Namecheap hosting
 4. Website is live at [ispora.app](https://ispora.app)
 
 ### 🟢 Deployment Status
+
 - **Last updated**: Just now
 - **Status**: Auto-deployment active ✅
 - **Live URL**: https://ispora.app

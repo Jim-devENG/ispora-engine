@@ -1,10 +1,10 @@
-import React, { useState } from "react";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./ui/dialog";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { Mail, UserPlus } from "lucide-react";
+import React, { useState } from 'react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Label } from './ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { Mail, UserPlus } from 'lucide-react';
 
 interface AdminInviteDialogProps {
   open: boolean;
@@ -13,21 +13,21 @@ interface AdminInviteDialogProps {
 }
 
 export function AdminInviteDialog({ open, onOpenChange, onInvite }: AdminInviteDialogProps) {
-  const [inviteEmail, setInviteEmail] = useState("");
-  const [inviteRole, setInviteRole] = useState("participant");
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [inviteRole, setInviteRole] = useState('participant');
 
   const handleInvite = () => {
     if (inviteEmail.trim()) {
       onInvite(inviteEmail, inviteRole);
-      setInviteEmail("");
-      setInviteRole("participant");
+      setInviteEmail('');
+      setInviteRole('participant');
       onOpenChange(false);
     }
   };
 
   const handleCancel = () => {
-    setInviteEmail("");
-    setInviteRole("participant");
+    setInviteEmail('');
+    setInviteRole('participant');
     onOpenChange(false);
   };
 

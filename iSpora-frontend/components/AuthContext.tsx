@@ -49,7 +49,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const initializeAuth = async () => {
       try {
         const token = localStorage.getItem('token');
-        
+
         if (token) {
           // For mock authentication, create a basic user from stored data
           const storedUser = localStorage.getItem('user');
@@ -63,7 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               firstName: 'User',
               lastName: 'Name',
               userType: 'student' as const,
-              username: 'user'
+              username: 'user',
             };
             setUser(defaultUser);
           }
@@ -80,10 +80,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     initializeAuth();
   }, []);
 
-  const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
+  const login = async (
+    email: string,
+    password: string,
+  ): Promise<{ success: boolean; error?: string }> => {
     try {
       setIsLoading(true);
-      
+
       // Try backend API first
       const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
@@ -109,9 +112,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             firstName: email.split('@')[0] || 'User',
             lastName: 'User',
             userType: 'student' as const,
-            username: email.split('@')[0] || 'user'
+            username: email.split('@')[0] || 'user',
           };
-          
+
           localStorage.setItem('token', 'mock-token-' + Date.now());
           localStorage.setItem('user', JSON.stringify(mockUser));
           setUser(mockUser);
@@ -127,10 +130,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const register = async (userData: RegisterData): Promise<{ success: boolean; error?: string }> => {
+  const register = async (
+    userData: RegisterData,
+  ): Promise<{ success: boolean; error?: string }> => {
     try {
       setIsLoading(true);
-      
+
       // Mock registration - accept any valid data
       if (userData.email && userData.password && userData.firstName && userData.lastName) {
         const mockUser = {
@@ -139,15 +144,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           firstName: userData.firstName,
           lastName: userData.lastName,
           userType: userData.userType || 'student',
-          username: userData.username || userData.email.split('@')[0]
+          username: userData.username || userData.email.split('@')[0],
         };
-        
+
         localStorage.setItem('token', 'mock-token-' + Date.now());
         localStorage.setItem('user', JSON.stringify(mockUser));
         setUser(mockUser);
         return { success: true };
       }
-      
+
       return { success: false, error: 'Please fill in all required fields' };
     } catch (error) {
       console.error('Registration error:', error);
@@ -181,7 +186,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       const response = await fetch(`${API_BASE_URL}/auth/me`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       });
@@ -206,11 +211,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     refreshUser,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {

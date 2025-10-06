@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
   Search,
   Filter,
@@ -26,19 +26,24 @@ import {
   Send,
   Eye,
   FileText,
-  Activity
-} from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
-import { Badge } from "../ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { Progress } from "../ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-import { ScrollArea } from "../ui/scroll-area";
-import { Separator } from "../ui/separator";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
+  Activity,
+} from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Button } from '../ui/button';
+import { Input } from '../ui/input';
+import { Badge } from '../ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { Progress } from '../ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
+import { ScrollArea } from '../ui/scroll-area';
+import { Separator } from '../ui/separator';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '../ui/dropdown-menu';
 
 interface Mentee {
   id: string;
@@ -69,130 +74,135 @@ interface Mentee {
 // Extended mock mentees data
 const mockMentees: Mentee[] = [
   {
-    id: "1",
-    name: "Alex Chen",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
-    university: "Stanford University",
-    program: "Computer Science",
-    year: "Junior",
-    status: "active",
+    id: '1',
+    name: 'Alex Chen',
+    avatar:
+      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+    university: 'Stanford University',
+    program: 'Computer Science',
+    year: 'Junior',
+    status: 'active',
     progress: 75,
     isOnline: true,
-    joinDate: "2024-01-15",
-    lastActivity: "2 hours ago",
+    joinDate: '2024-01-15',
+    lastActivity: '2 hours ago',
     totalSessions: 18,
     completedTasks: 12,
     totalTasks: 16,
     gpa: 3.8,
-    goals: ["Land FAANG internship", "Master system design", "Build portfolio"],
-    skills: ["React", "Python", "Algorithms"],
-    recentAchievements: ["Completed React certification", "Won hackathon"],
-    upcomingDeadlines: ["Project submission - Oct 25", "Interview prep - Nov 1"],
-    mentorshipFocus: "Technical Career Development",
-    communicationPreference: "video",
-    timeZone: "PST",
-    rating: 4.8
+    goals: ['Land FAANG internship', 'Master system design', 'Build portfolio'],
+    skills: ['React', 'Python', 'Algorithms'],
+    recentAchievements: ['Completed React certification', 'Won hackathon'],
+    upcomingDeadlines: ['Project submission - Oct 25', 'Interview prep - Nov 1'],
+    mentorshipFocus: 'Technical Career Development',
+    communicationPreference: 'video',
+    timeZone: 'PST',
+    rating: 4.8,
   },
   {
-    id: "2",
-    name: "Sarah Williams",
-    avatar: "https://images.unsplash.com/photo-1494790108755-2616b25f5e55?w=150&h=150&fit=crop&crop=face",
-    university: "MIT",
-    program: "Electrical Engineering",
-    year: "Sophomore",
-    status: "active",
+    id: '2',
+    name: 'Sarah Williams',
+    avatar:
+      'https://images.unsplash.com/photo-1494790108755-2616b25f5e55?w=150&h=150&fit=crop&crop=face',
+    university: 'MIT',
+    program: 'Electrical Engineering',
+    year: 'Sophomore',
+    status: 'active',
     progress: 60,
     isOnline: false,
-    joinDate: "2024-02-01",
-    lastActivity: "1 day ago",
+    joinDate: '2024-02-01',
+    lastActivity: '1 day ago',
     totalSessions: 12,
     completedTasks: 8,
     totalTasks: 12,
     gpa: 3.9,
-    goals: ["Research opportunities", "Graduate school prep", "Publication"],
-    skills: ["MATLAB", "Circuit Design", "Research"],
-    recentAchievements: ["Published paper", "Dean's list"],
-    upcomingDeadlines: ["Lab report - Oct 22", "GRE prep - Nov 15"],
-    mentorshipFocus: "Academic & Research Excellence",
-    communicationPreference: "email",
-    timeZone: "EST",
-    rating: 4.9
+    goals: ['Research opportunities', 'Graduate school prep', 'Publication'],
+    skills: ['MATLAB', 'Circuit Design', 'Research'],
+    recentAchievements: ['Published paper', "Dean's list"],
+    upcomingDeadlines: ['Lab report - Oct 22', 'GRE prep - Nov 15'],
+    mentorshipFocus: 'Academic & Research Excellence',
+    communicationPreference: 'email',
+    timeZone: 'EST',
+    rating: 4.9,
   },
   {
-    id: "3",
-    name: "Jordan Martinez",
-    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
-    university: "UC Berkeley",
-    program: "Business Administration",
-    year: "Senior",
-    status: "completed",
+    id: '3',
+    name: 'Jordan Martinez',
+    avatar:
+      'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
+    university: 'UC Berkeley',
+    program: 'Business Administration',
+    year: 'Senior',
+    status: 'completed',
     progress: 100,
     isOnline: true,
-    joinDate: "2023-09-01",
-    lastActivity: "3 days ago",
+    joinDate: '2023-09-01',
+    lastActivity: '3 days ago',
     totalSessions: 24,
     completedTasks: 20,
     totalTasks: 20,
     gpa: 3.7,
-    goals: ["Start own company", "Secure funding", "Build network"],
-    skills: ["Business Strategy", "Leadership", "Finance"],
-    recentAchievements: ["Secured seed funding", "Launched startup"],
+    goals: ['Start own company', 'Secure funding', 'Build network'],
+    skills: ['Business Strategy', 'Leadership', 'Finance'],
+    recentAchievements: ['Secured seed funding', 'Launched startup'],
     upcomingDeadlines: [],
-    mentorshipFocus: "Entrepreneurship & Leadership",
-    communicationPreference: "phone",
-    timeZone: "PST",
-    rating: 4.7
+    mentorshipFocus: 'Entrepreneurship & Leadership',
+    communicationPreference: 'phone',
+    timeZone: 'PST',
+    rating: 4.7,
   },
   {
-    id: "4",
-    name: "Emily Rodriguez",
-    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
-    university: "Harvard University",
-    program: "Pre-Med",
-    year: "Sophomore",
-    status: "active",
+    id: '4',
+    name: 'Emily Rodriguez',
+    avatar:
+      'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
+    university: 'Harvard University',
+    program: 'Pre-Med',
+    year: 'Sophomore',
+    status: 'active',
     progress: 45,
     isOnline: false,
-    joinDate: "2024-03-01",
-    lastActivity: "5 hours ago",
+    joinDate: '2024-03-01',
+    lastActivity: '5 hours ago',
     totalSessions: 8,
     completedTasks: 5,
     totalTasks: 11,
     gpa: 3.95,
-    goals: ["Medical school admission", "Research experience", "MCAT prep"],
-    skills: ["Biology", "Chemistry", "Research"],
-    recentAchievements: ["Research assistant position", "Volunteer work"],
-    upcomingDeadlines: ["MCAT registration - Oct 30", "Research proposal - Nov 5"],
-    mentorshipFocus: "Medical School Preparation",
-    communicationPreference: "video",
-    timeZone: "EST",
-    rating: 4.6
+    goals: ['Medical school admission', 'Research experience', 'MCAT prep'],
+    skills: ['Biology', 'Chemistry', 'Research'],
+    recentAchievements: ['Research assistant position', 'Volunteer work'],
+    upcomingDeadlines: ['MCAT registration - Oct 30', 'Research proposal - Nov 5'],
+    mentorshipFocus: 'Medical School Preparation',
+    communicationPreference: 'video',
+    timeZone: 'EST',
+    rating: 4.6,
   },
   {
-    id: "5",
-    name: "Michael Park",
-    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face",
-    university: "Carnegie Mellon",
-    program: "Computer Science",
-    year: "Senior",
-    status: "paused",
+    id: '5',
+    name: 'Michael Park',
+    avatar:
+      'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face',
+    university: 'Carnegie Mellon',
+    program: 'Computer Science',
+    year: 'Senior',
+    status: 'paused',
     progress: 85,
     isOnline: false,
-    joinDate: "2023-08-15",
-    lastActivity: "2 weeks ago",
+    joinDate: '2023-08-15',
+    lastActivity: '2 weeks ago',
     totalSessions: 20,
     completedTasks: 15,
     totalTasks: 18,
     gpa: 3.6,
-    goals: ["Full-time job offer", "Technical interviews", "Salary negotiation"],
-    skills: ["Java", "Machine Learning", "Data Structures"],
-    recentAchievements: ["Internship completion", "Technical project"],
-    upcomingDeadlines: ["Job applications - Nov 1"],
-    mentorshipFocus: "Career Transition",
-    communicationPreference: "text",
-    timeZone: "EST",
-    rating: 4.5
-  }
+    goals: ['Full-time job offer', 'Technical interviews', 'Salary negotiation'],
+    skills: ['Java', 'Machine Learning', 'Data Structures'],
+    recentAchievements: ['Internship completion', 'Technical project'],
+    upcomingDeadlines: ['Job applications - Nov 1'],
+    mentorshipFocus: 'Career Transition',
+    communicationPreference: 'text',
+    timeZone: 'EST',
+    rating: 4.5,
+  },
 ];
 
 interface MenteeManagementProps {
@@ -201,40 +211,59 @@ interface MenteeManagementProps {
   selectedMenteeId?: string;
 }
 
-function MenteeCard({ mentee, onSelect, isSelected }: { 
-  mentee: Mentee; 
+function MenteeCard({
+  mentee,
+  onSelect,
+  isSelected,
+}: {
+  mentee: Mentee;
   onSelect: (mentee: Mentee) => void;
   isSelected?: boolean;
 }) {
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'active': return 'bg-green-100 text-green-800';
-      case 'paused': return 'bg-yellow-100 text-yellow-800';
-      case 'completed': return 'bg-blue-100 text-blue-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'active':
+        return 'bg-green-100 text-green-800';
+      case 'paused':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'completed':
+        return 'bg-blue-100 text-blue-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'active': return <CheckCircle className="h-4 w-4" />;
-      case 'paused': return <AlertCircle className="h-4 w-4" />;
-      case 'completed': return <Award className="h-4 w-4" />;
-      default: return <Clock className="h-4 w-4" />;
+      case 'active':
+        return <CheckCircle className="h-4 w-4" />;
+      case 'paused':
+        return <AlertCircle className="h-4 w-4" />;
+      case 'completed':
+        return <Award className="h-4 w-4" />;
+      default:
+        return <Clock className="h-4 w-4" />;
     }
   };
 
   return (
-    <Card className={`workspace-card-hover cursor-pointer transition-all ${
-      isSelected ? 'ring-2 ring-[#021ff6] shadow-lg' : ''
-    }`}>
+    <Card
+      className={`workspace-card-hover cursor-pointer transition-all ${
+        isSelected ? 'ring-2 ring-[#021ff6] shadow-lg' : ''
+      }`}
+    >
       <CardContent className="p-6">
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
             <div className="relative">
               <Avatar className="h-12 w-12">
                 <AvatarImage src={mentee.avatar} />
-                <AvatarFallback>{mentee.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                <AvatarFallback>
+                  {mentee.name
+                    .split(' ')
+                    .map((n) => n[0])
+                    .join('')}
+                </AvatarFallback>
               </Avatar>
               {mentee.isOnline && (
                 <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
@@ -243,7 +272,9 @@ function MenteeCard({ mentee, onSelect, isSelected }: {
             <div className="flex-1">
               <h3 className="font-medium mb-1">{mentee.name}</h3>
               <p className="text-sm text-gray-600 mb-1">{mentee.university}</p>
-              <p className="text-xs text-gray-500">{mentee.program} • {mentee.year}</p>
+              <p className="text-xs text-gray-500">
+                {mentee.program} • {mentee.year}
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -333,12 +364,7 @@ function MenteeCard({ mentee, onSelect, isSelected }: {
 
         {/* Action Buttons */}
         <div className="flex items-center gap-2 mt-4 pt-4 border-t">
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => onSelect(mentee)}
-            className="flex-1"
-          >
+          <Button size="sm" variant="outline" onClick={() => onSelect(mentee)} className="flex-1">
             <User className="h-4 w-4 mr-1" />
             Select
           </Button>
@@ -355,53 +381,58 @@ function MenteeCard({ mentee, onSelect, isSelected }: {
   );
 }
 
-export function MenteeManagement({ onSelectMentee, onClose, selectedMenteeId }: MenteeManagementProps) {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [filterStatus, setFilterStatus] = useState<string>("all");
-  const [filterUniversity, setFilterUniversity] = useState<string>("all");
-  const [sortBy, setSortBy] = useState<string>("name");
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+export function MenteeManagement({
+  onSelectMentee,
+  onClose,
+  selectedMenteeId,
+}: MenteeManagementProps) {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [filterUniversity, setFilterUniversity] = useState<string>('all');
+  const [sortBy, setSortBy] = useState<string>('name');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [selectedMentee, setSelectedMentee] = useState<Mentee | null>(null);
 
-  const universities = Array.from(new Set(mockMentees.map(m => m.university)));
+  const universities = Array.from(new Set(mockMentees.map((m) => m.university)));
 
   const filteredMentees = mockMentees
-    .filter(mentee => {
-      const matchesSearch = 
+    .filter((mentee) => {
+      const matchesSearch =
         mentee.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         mentee.university.toLowerCase().includes(searchQuery.toLowerCase()) ||
         mentee.program.toLowerCase().includes(searchQuery.toLowerCase());
-      
-      const matchesStatus = filterStatus === "all" || mentee.status === filterStatus;
-      const matchesUniversity = filterUniversity === "all" || mentee.university === filterUniversity;
-      
+
+      const matchesStatus = filterStatus === 'all' || mentee.status === filterStatus;
+      const matchesUniversity =
+        filterUniversity === 'all' || mentee.university === filterUniversity;
+
       return matchesSearch && matchesStatus && matchesUniversity;
     })
     .sort((a, b) => {
       let aValue: any, bValue: any;
-      
+
       switch (sortBy) {
-        case "name":
+        case 'name':
           aValue = a.name;
           bValue = b.name;
           break;
-        case "progress":
+        case 'progress':
           aValue = a.progress;
           bValue = b.progress;
           break;
-        case "joinDate":
+        case 'joinDate':
           aValue = new Date(a.joinDate);
           bValue = new Date(b.joinDate);
           break;
-        case "rating":
+        case 'rating':
           aValue = a.rating;
           bValue = b.rating;
           break;
         default:
           return 0;
       }
-      
-      if (sortOrder === "asc") {
+
+      if (sortOrder === 'asc') {
         return aValue > bValue ? 1 : -1;
       } else {
         return aValue < bValue ? 1 : -1;
@@ -414,9 +445,11 @@ export function MenteeManagement({ onSelectMentee, onClose, selectedMenteeId }: 
     onClose();
   };
 
-  const activeCount = mockMentees.filter(m => m.status === 'active').length;
-  const completedCount = mockMentees.filter(m => m.status === 'completed').length;
-  const avgProgress = Math.round(mockMentees.reduce((sum, m) => sum + m.progress, 0) / mockMentees.length);
+  const activeCount = mockMentees.filter((m) => m.status === 'active').length;
+  const completedCount = mockMentees.filter((m) => m.status === 'completed').length;
+  const avgProgress = Math.round(
+    mockMentees.reduce((sum, m) => sum + m.progress, 0) / mockMentees.length,
+  );
 
   return (
     <div className="h-full flex flex-col bg-white">
@@ -488,7 +521,7 @@ export function MenteeManagement({ onSelectMentee, onClose, selectedMenteeId }: 
               />
             </div>
           </div>
-          
+
           <Select value={filterStatus} onValueChange={setFilterStatus}>
             <SelectTrigger className="w-40">
               <SelectValue placeholder="Status" />
@@ -507,8 +540,10 @@ export function MenteeManagement({ onSelectMentee, onClose, selectedMenteeId }: 
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Universities</SelectItem>
-              {universities.map(uni => (
-                <SelectItem key={uni} value={uni}>{uni}</SelectItem>
+              {universities.map((uni) => (
+                <SelectItem key={uni} value={uni}>
+                  {uni}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -528,9 +563,13 @@ export function MenteeManagement({ onSelectMentee, onClose, selectedMenteeId }: 
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
+            onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
           >
-            {sortOrder === "asc" ? <SortAsc className="h-4 w-4" /> : <SortDesc className="h-4 w-4" />}
+            {sortOrder === 'asc' ? (
+              <SortAsc className="h-4 w-4" />
+            ) : (
+              <SortDesc className="h-4 w-4" />
+            )}
           </Button>
         </div>
       </div>
@@ -549,7 +588,7 @@ export function MenteeManagement({ onSelectMentee, onClose, selectedMenteeId }: 
                 />
               ))}
             </div>
-            
+
             {filteredMentees.length === 0 && (
               <div className="text-center py-12">
                 <Users className="h-12 w-12 mx-auto text-gray-400 mb-4" />

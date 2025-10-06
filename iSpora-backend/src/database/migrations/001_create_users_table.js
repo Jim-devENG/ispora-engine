@@ -1,6 +1,13 @@
-exports.up = function(knex) {
-  return knex.schema.createTable('users', table => {
-    table.uuid('id').primary().defaultTo(knex.raw('(lower(hex(randomblob(4))) || \'-\' || lower(hex(randomblob(2))) || \'-4\' || substr(lower(hex(randomblob(2))),2) || \'-\' || substr(\'89ab\',abs(random()) % 4 + 1, 1) || substr(lower(hex(randomblob(2))),2) || \'-\' || lower(hex(randomblob(6))))'));
+exports.up = function (knex) {
+  return knex.schema.createTable('users', (table) => {
+    table
+      .uuid('id')
+      .primary()
+      .defaultTo(
+        knex.raw(
+          "(lower(hex(randomblob(4))) || '-' || lower(hex(randomblob(2))) || '-4' || substr(lower(hex(randomblob(2))),2) || '-' || substr('89ab',abs(random()) % 4 + 1, 1) || substr(lower(hex(randomblob(2))),2) || '-' || lower(hex(randomblob(6))))",
+        ),
+      );
     table.string('email').unique().notNullable();
     table.string('password_hash').notNullable();
     table.string('first_name').notNullable();
@@ -26,7 +33,7 @@ exports.up = function(knex) {
     table.json('experience'); // Array of experience objects
     table.json('preferences'); // User preferences object
     table.timestamps(true, true);
-    
+
     // Indexes
     table.index(['email']);
     table.index(['username']);
@@ -35,6 +42,6 @@ exports.up = function(knex) {
   });
 };
 
-exports.down = function(knex) {
+exports.down = function (knex) {
   return knex.schema.dropTable('users');
 };

@@ -1,9 +1,9 @@
-import React, { useState } from "react";
-import { 
-  Briefcase, 
-  Search, 
-  MapPin, 
-  Clock, 
+import React, { useState } from 'react';
+import {
+  Briefcase,
+  Search,
+  MapPin,
+  Clock,
   DollarSign,
   Heart,
   BookOpen,
@@ -19,18 +19,18 @@ import {
   Zap,
   Target,
   Star,
-  Plus
-} from "lucide-react";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./ui/dialog";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
-import { Badge } from "./ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { Separator } from "./ui/separator";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { toast } from "sonner";
+  Plus,
+} from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import { Badge } from './ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { Separator } from './ui/separator';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { toast } from 'sonner';
 
 interface BrowseOpportunitiesProps {
   isOpen: boolean;
@@ -74,258 +74,299 @@ interface Opportunity {
 
 const mockOpportunities: Opportunity[] = [
   {
-    id: "1",
-    title: "Senior Software Engineer - AI/ML",
-    type: "job",
-    company: "Google",
-    location: "San Francisco, USA",
+    id: '1',
+    title: 'Senior Software Engineer - AI/ML',
+    type: 'job',
+    company: 'Google',
+    location: 'San Francisco, USA',
     remote: true,
-    description: "Join Google's AI team to develop cutting-edge machine learning solutions for healthcare applications in emerging markets.",
+    description:
+      "Join Google's AI team to develop cutting-edge machine learning solutions for healthcare applications in emerging markets.",
     requirements: [
-      "5+ years of software engineering experience",
-      "Strong background in Python, TensorFlow, or PyTorch",
-      "Experience with distributed systems",
-      "PhD in Computer Science or related field preferred"
+      '5+ years of software engineering experience',
+      'Strong background in Python, TensorFlow, or PyTorch',
+      'Experience with distributed systems',
+      'PhD in Computer Science or related field preferred',
     ],
     benefits: [
-      "Competitive salary + equity",
-      "Health insurance",
-      "Relocation assistance",
-      "Professional development budget"
+      'Competitive salary + equity',
+      'Health insurance',
+      'Relocation assistance',
+      'Professional development budget',
     ],
     salary: {
       min: 150000,
       max: 250000,
-      currency: "USD"
+      currency: 'USD',
     },
-    commitment: "Full-time",
+    commitment: 'Full-time',
     postedBy: {
-      name: "Dr. Sarah Chen",
-      title: "Senior Engineering Manager",
-      company: "Google",
-      isVerified: true
+      name: 'Dr. Sarah Chen',
+      title: 'Senior Engineering Manager',
+      company: 'Google',
+      isVerified: true,
     },
-    tags: ["Machine Learning", "Python", "Healthcare", "AI"],
+    tags: ['Machine Learning', 'Python', 'Healthcare', 'AI'],
     applicants: 127,
-    deadline: "2024-02-15",
-    postedDate: "2024-01-10",
+    deadline: '2024-02-15',
+    postedDate: '2024-01-10',
     featured: true,
     urgent: false,
-    experienceLevel: "senior",
-    category: "Technology"
+    experienceLevel: 'senior',
+    category: 'Technology',
   },
   {
-    id: "2",
-    title: "Medical Research Volunteer - Tropical Diseases",
-    type: "volunteer",
-    company: "Johns Hopkins University",
-    location: "Baltimore, USA",
+    id: '2',
+    title: 'Medical Research Volunteer - Tropical Diseases',
+    type: 'volunteer',
+    company: 'Johns Hopkins University',
+    location: 'Baltimore, USA',
     remote: false,
-    description: "Contribute to groundbreaking research on tropical diseases affecting African populations. Perfect for medical students and early-career professionals.",
+    description:
+      'Contribute to groundbreaking research on tropical diseases affecting African populations. Perfect for medical students and early-career professionals.',
     requirements: [
-      "Medical or public health background",
-      "Passion for global health",
-      "Available for 6-month commitment",
-      "Basic research experience preferred"
+      'Medical or public health background',
+      'Passion for global health',
+      'Available for 6-month commitment',
+      'Basic research experience preferred',
     ],
     benefits: [
-      "Research publication opportunities",
-      "Mentorship from leading experts",
-      "Professional networking",
-      "Certificate of participation"
+      'Research publication opportunities',
+      'Mentorship from leading experts',
+      'Professional networking',
+      'Certificate of participation',
     ],
-    duration: "6 months",
-    commitment: "Part-time (20 hours/week)",
+    duration: '6 months',
+    commitment: 'Part-time (20 hours/week)',
     postedBy: {
-      name: "Prof. James Okafor",
-      title: "Professor of Medicine",
-      company: "Johns Hopkins University",
-      isVerified: true
+      name: 'Prof. James Okafor',
+      title: 'Professor of Medicine',
+      company: 'Johns Hopkins University',
+      isVerified: true,
     },
-    university: "University of Lagos",
-    tags: ["Medical Research", "Global Health", "Tropical Diseases", "Volunteer"],
+    university: 'University of Lagos',
+    tags: ['Medical Research', 'Global Health', 'Tropical Diseases', 'Volunteer'],
     applicants: 34,
-    deadline: "2024-01-30",
-    postedDate: "2024-01-05",
+    deadline: '2024-01-30',
+    postedDate: '2024-01-05',
     featured: false,
     urgent: true,
-    experienceLevel: "entry",
-    category: "Healthcare"
+    experienceLevel: 'entry',
+    category: 'Healthcare',
   },
   {
-    id: "3",
-    title: "African Startup Investment Analyst",
-    type: "job",
-    company: "Goldman Sachs",
-    location: "London, UK",
+    id: '3',
+    title: 'African Startup Investment Analyst',
+    type: 'job',
+    company: 'Goldman Sachs',
+    location: 'London, UK',
     remote: false,
-    description: "Analyze and evaluate investment opportunities in African startups and emerging markets. Focus on fintech and agtech sectors.",
+    description:
+      'Analyze and evaluate investment opportunities in African startups and emerging markets. Focus on fintech and agtech sectors.',
     requirements: [
-      "MBA or equivalent finance qualification",
-      "3+ years in investment banking or private equity",
-      "Knowledge of African markets",
-      "Financial modeling expertise"
+      'MBA or equivalent finance qualification',
+      '3+ years in investment banking or private equity',
+      'Knowledge of African markets',
+      'Financial modeling expertise',
     ],
     benefits: [
-      "Competitive base + bonus",
-      "International exposure",
-      "Professional growth opportunities",
-      "Networking with industry leaders"
+      'Competitive base + bonus',
+      'International exposure',
+      'Professional growth opportunities',
+      'Networking with industry leaders',
     ],
     salary: {
       min: 80000,
       max: 120000,
-      currency: "GBP"
+      currency: 'GBP',
     },
-    commitment: "Full-time",
+    commitment: 'Full-time',
     postedBy: {
-      name: "Amina Hassan",
-      title: "Investment Banking VP",
-      company: "Goldman Sachs",
-      isVerified: true
+      name: 'Amina Hassan',
+      title: 'Investment Banking VP',
+      company: 'Goldman Sachs',
+      isVerified: true,
     },
-    tags: ["Investment", "Finance", "African Markets", "Startups"],
+    tags: ['Investment', 'Finance', 'African Markets', 'Startups'],
     applicants: 89,
-    deadline: "2024-02-28",
-    postedDate: "2024-01-08",
+    deadline: '2024-02-28',
+    postedDate: '2024-01-08',
     featured: true,
     urgent: false,
-    experienceLevel: "mid",
-    category: "Finance"
+    experienceLevel: 'mid',
+    category: 'Finance',
   },
   {
-    id: "4",
-    title: "Agricultural Innovation Collaboration",
-    type: "collaboration",
-    company: "FAO",
-    location: "Nairobi, Kenya",
+    id: '4',
+    title: 'Agricultural Innovation Collaboration',
+    type: 'collaboration',
+    company: 'FAO',
+    location: 'Nairobi, Kenya',
     remote: true,
-    description: "Collaborate on developing sustainable agricultural technologies for smallholder farmers across East Africa. Seeking partners from academia and industry.",
+    description:
+      'Collaborate on developing sustainable agricultural technologies for smallholder farmers across East Africa. Seeking partners from academia and industry.',
     requirements: [
-      "Background in agriculture or engineering",
-      "Experience with innovation projects",
-      "Understanding of African agricultural challenges",
-      "Available for 12-month project"
+      'Background in agriculture or engineering',
+      'Experience with innovation projects',
+      'Understanding of African agricultural challenges',
+      'Available for 12-month project',
     ],
     benefits: [
-      "Publication opportunities",
-      "International conference presentations",
-      "Networking with FAO experts",
-      "Impact measurement certification"
+      'Publication opportunities',
+      'International conference presentations',
+      'Networking with FAO experts',
+      'Impact measurement certification',
     ],
-    duration: "12 months",
-    commitment: "Flexible (10-15 hours/week)",
+    duration: '12 months',
+    commitment: 'Flexible (10-15 hours/week)',
     postedBy: {
-      name: "David Mwangi",
-      title: "Agricultural Engineer",
-      company: "FAO",
-      isVerified: false
+      name: 'David Mwangi',
+      title: 'Agricultural Engineer',
+      company: 'FAO',
+      isVerified: false,
     },
-    university: "University of Nairobi",
-    tags: ["Agriculture", "Innovation", "Sustainability", "Collaboration"],
+    university: 'University of Nairobi',
+    tags: ['Agriculture', 'Innovation', 'Sustainability', 'Collaboration'],
     applicants: 23,
-    deadline: "2024-02-10",
-    postedDate: "2024-01-12",
+    deadline: '2024-02-10',
+    postedDate: '2024-01-12',
     featured: false,
     urgent: false,
-    experienceLevel: "any",
-    category: "Agriculture"
+    experienceLevel: 'any',
+    category: 'Agriculture',
   },
   {
-    id: "5",
-    title: "Fintech Product Manager Internship",
-    type: "internship",
-    company: "Flutterwave",
-    location: "Lagos, Nigeria",
+    id: '5',
+    title: 'Fintech Product Manager Internship',
+    type: 'internship',
+    company: 'Flutterwave',
+    location: 'Lagos, Nigeria',
     remote: false,
-    description: "6-month internship program focused on product management in African fintech. Gain hands-on experience in payment solutions and financial inclusion.",
+    description:
+      '6-month internship program focused on product management in African fintech. Gain hands-on experience in payment solutions and financial inclusion.',
     requirements: [
-      "Final year student or recent graduate",
-      "Interest in fintech and payments",
-      "Strong analytical skills",
-      "Previous internship experience preferred"
+      'Final year student or recent graduate',
+      'Interest in fintech and payments',
+      'Strong analytical skills',
+      'Previous internship experience preferred',
     ],
     benefits: [
-      "Monthly stipend",
-      "Mentorship program",
-      "Full-time offer potential",
-      "Industry networking events"
+      'Monthly stipend',
+      'Mentorship program',
+      'Full-time offer potential',
+      'Industry networking events',
     ],
-    duration: "6 months",
-    commitment: "Full-time",
+    duration: '6 months',
+    commitment: 'Full-time',
     postedBy: {
-      name: "Kemi Adebayo",
-      title: "Head of Product",
-      company: "Flutterwave",
-      isVerified: true
+      name: 'Kemi Adebayo',
+      title: 'Head of Product',
+      company: 'Flutterwave',
+      isVerified: true,
     },
-    university: "University of Lagos",
-    tags: ["Fintech", "Product Management", "Internship", "Payments"],
+    university: 'University of Lagos',
+    tags: ['Fintech', 'Product Management', 'Internship', 'Payments'],
     applicants: 156,
-    deadline: "2024-01-25",
-    postedDate: "2024-01-01",
+    deadline: '2024-01-25',
+    postedDate: '2024-01-01',
     featured: false,
     urgent: true,
-    experienceLevel: "entry",
-    category: "Technology"
-  }
+    experienceLevel: 'entry',
+    category: 'Technology',
+  },
 ];
 
-const opportunityTypes = ["All Types", "Jobs", "Volunteer", "Collaboration", "Internship", "Mentorship"];
-const locations = ["All Locations", "Remote", "USA", "UK", "Nigeria", "Kenya", "South Africa", "Ghana"];
-const categories = ["All Categories", "Technology", "Healthcare", "Finance", "Agriculture", "Education", "Engineering"];
-const experienceLevels = ["All Levels", "Entry Level", "Mid Level", "Senior Level"];
+const opportunityTypes = [
+  'All Types',
+  'Jobs',
+  'Volunteer',
+  'Collaboration',
+  'Internship',
+  'Mentorship',
+];
+const locations = [
+  'All Locations',
+  'Remote',
+  'USA',
+  'UK',
+  'Nigeria',
+  'Kenya',
+  'South Africa',
+  'Ghana',
+];
+const categories = [
+  'All Categories',
+  'Technology',
+  'Healthcare',
+  'Finance',
+  'Agriculture',
+  'Education',
+  'Engineering',
+];
+const experienceLevels = ['All Levels', 'Entry Level', 'Mid Level', 'Senior Level'];
 
 export function BrowseOpportunities({ isOpen, onClose }: BrowseOpportunitiesProps) {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedType, setSelectedType] = useState("All Types");
-  const [selectedLocation, setSelectedLocation] = useState("All Locations");
-  const [selectedCategory, setSelectedCategory] = useState("All Categories");
-  const [selectedLevel, setSelectedLevel] = useState("All Levels");
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedType, setSelectedType] = useState('All Types');
+  const [selectedLocation, setSelectedLocation] = useState('All Locations');
+  const [selectedCategory, setSelectedCategory] = useState('All Categories');
+  const [selectedLevel, setSelectedLevel] = useState('All Levels');
   const [showRemoteOnly, setShowRemoteOnly] = useState(false);
   const [savedOpportunities, setSavedOpportunities] = useState<string[]>([]);
 
-  const filteredOpportunities = mockOpportunities.filter(opp => {
-    const matchesSearch = opp.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         opp.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         opp.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         opp.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
-    
-    const matchesType = selectedType === "All Types" || 
-                       (selectedType === "Jobs" && opp.type === "job") ||
-                       (selectedType === "Volunteer" && opp.type === "volunteer") ||
-                       (selectedType === "Collaboration" && opp.type === "collaboration") ||
-                       (selectedType === "Internship" && opp.type === "internship") ||
-                       (selectedType === "Mentorship" && opp.type === "mentorship");
-    
-    const matchesLocation = selectedLocation === "All Locations" ||
-                           (selectedLocation === "Remote" && opp.remote) ||
-                           opp.location.includes(selectedLocation);
-    
-    const matchesCategory = selectedCategory === "All Categories" || opp.category === selectedCategory;
-    
-    const matchesLevel = selectedLevel === "All Levels" ||
-                        (selectedLevel === "Entry Level" && opp.experienceLevel === "entry") ||
-                        (selectedLevel === "Mid Level" && opp.experienceLevel === "mid") ||
-                        (selectedLevel === "Senior Level" && opp.experienceLevel === "senior");
-    
+  const filteredOpportunities = mockOpportunities.filter((opp) => {
+    const matchesSearch =
+      opp.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      opp.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      opp.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      opp.tags.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+
+    const matchesType =
+      selectedType === 'All Types' ||
+      (selectedType === 'Jobs' && opp.type === 'job') ||
+      (selectedType === 'Volunteer' && opp.type === 'volunteer') ||
+      (selectedType === 'Collaboration' && opp.type === 'collaboration') ||
+      (selectedType === 'Internship' && opp.type === 'internship') ||
+      (selectedType === 'Mentorship' && opp.type === 'mentorship');
+
+    const matchesLocation =
+      selectedLocation === 'All Locations' ||
+      (selectedLocation === 'Remote' && opp.remote) ||
+      opp.location.includes(selectedLocation);
+
+    const matchesCategory =
+      selectedCategory === 'All Categories' || opp.category === selectedCategory;
+
+    const matchesLevel =
+      selectedLevel === 'All Levels' ||
+      (selectedLevel === 'Entry Level' && opp.experienceLevel === 'entry') ||
+      (selectedLevel === 'Mid Level' && opp.experienceLevel === 'mid') ||
+      (selectedLevel === 'Senior Level' && opp.experienceLevel === 'senior');
+
     const matchesRemote = !showRemoteOnly || opp.remote;
-    
-    return matchesSearch && matchesType && matchesLocation && matchesCategory && matchesLevel && matchesRemote;
+
+    return (
+      matchesSearch &&
+      matchesType &&
+      matchesLocation &&
+      matchesCategory &&
+      matchesLevel &&
+      matchesRemote
+    );
   });
 
   const handleSaveOpportunity = (oppId: string) => {
     if (savedOpportunities.includes(oppId)) {
-      setSavedOpportunities(prev => prev.filter(id => id !== oppId));
-      toast.success("Opportunity removed from saved list");
+      setSavedOpportunities((prev) => prev.filter((id) => id !== oppId));
+      toast.success('Opportunity removed from saved list');
     } else {
-      setSavedOpportunities(prev => [...prev, oppId]);
-      toast.success("Opportunity saved!");
+      setSavedOpportunities((prev) => [...prev, oppId]);
+      toast.success('Opportunity saved!');
     }
   };
 
   const handleApply = (oppId: string) => {
-    const opp = mockOpportunities.find(o => o.id === oppId);
+    const opp = mockOpportunities.find((o) => o.id === oppId);
     if (opp) {
       toast.success(`Application submitted for ${opp.title}!`);
     }
@@ -374,14 +415,15 @@ export function BrowseOpportunities({ isOpen, onClose }: BrowseOpportunitiesProp
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[80vh] flex flex-col w-[95vw] sm:w-full">
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2">
             <Briefcase className="h-5 w-5 text-orange-600" />
             <span>Browse Opportunities</span>
           </DialogTitle>
           <DialogDescription>
-            Discover jobs, volunteer opportunities, collaborations, and more from your alumni network
+            Discover jobs, volunteer opportunities, collaborations, and more from your alumni
+            network
           </DialogDescription>
         </DialogHeader>
 
@@ -419,7 +461,9 @@ export function BrowseOpportunities({ isOpen, onClose }: BrowseOpportunitiesProp
                   </SelectTrigger>
                   <SelectContent>
                     {opportunityTypes.map((type) => (
-                      <SelectItem key={type} value={type}>{type}</SelectItem>
+                      <SelectItem key={type} value={type}>
+                        {type}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -430,7 +474,9 @@ export function BrowseOpportunities({ isOpen, onClose }: BrowseOpportunitiesProp
                   </SelectTrigger>
                   <SelectContent>
                     {locations.map((location) => (
-                      <SelectItem key={location} value={location}>{location}</SelectItem>
+                      <SelectItem key={location} value={location}>
+                        {location}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -441,7 +487,9 @@ export function BrowseOpportunities({ isOpen, onClose }: BrowseOpportunitiesProp
                   </SelectTrigger>
                   <SelectContent>
                     {categories.map((category) => (
-                      <SelectItem key={category} value={category}>{category}</SelectItem>
+                      <SelectItem key={category} value={category}>
+                        {category}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -452,13 +500,15 @@ export function BrowseOpportunities({ isOpen, onClose }: BrowseOpportunitiesProp
                   </SelectTrigger>
                   <SelectContent>
                     {experienceLevels.map((level) => (
-                      <SelectItem key={level} value={level}>{level}</SelectItem>
+                      <SelectItem key={level} value={level}>
+                        {level}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
 
-                <Button 
-                  variant={showRemoteOnly ? "default" : "outline"}
+                <Button
+                  variant={showRemoteOnly ? 'default' : 'outline'}
                   onClick={() => setShowRemoteOnly(!showRemoteOnly)}
                 >
                   <Globe className="h-4 w-4 mr-2" />
@@ -547,7 +597,9 @@ export function BrowseOpportunities({ isOpen, onClose }: BrowseOpportunitiesProp
                             size="sm"
                             onClick={() => handleSaveOpportunity(opportunity.id)}
                           >
-                            <Bookmark className={`h-4 w-4 ${savedOpportunities.includes(opportunity.id) ? 'fill-current text-blue-600' : ''}`} />
+                            <Bookmark
+                              className={`h-4 w-4 ${savedOpportunities.includes(opportunity.id) ? 'fill-current text-blue-600' : ''}`}
+                            />
                           </Button>
                         </div>
                       </div>
@@ -561,7 +613,12 @@ export function BrowseOpportunities({ isOpen, onClose }: BrowseOpportunitiesProp
                       <div className="flex items-center space-x-3">
                         <Avatar className="h-8 w-8">
                           <AvatarImage src={opportunity.postedBy.avatar} />
-                          <AvatarFallback>{opportunity.postedBy.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                          <AvatarFallback>
+                            {opportunity.postedBy.name
+                              .split(' ')
+                              .map((n) => n[0])
+                              .join('')}
+                          </AvatarFallback>
                         </Avatar>
                         <div>
                           <div className="flex items-center space-x-2">
@@ -602,17 +659,21 @@ export function BrowseOpportunities({ isOpen, onClose }: BrowseOpportunitiesProp
                           {opportunity.deadline && (
                             <div className="flex items-center space-x-1">
                               <Calendar className="h-4 w-4" />
-                              <span>Deadline: {new Date(opportunity.deadline).toLocaleDateString()}</span>
+                              <span>
+                                Deadline: {new Date(opportunity.deadline).toLocaleDateString()}
+                              </span>
                             </div>
                           )}
-                          <span>Posted {new Date(opportunity.postedDate).toLocaleDateString()}</span>
+                          <span>
+                            Posted {new Date(opportunity.postedDate).toLocaleDateString()}
+                          </span>
                         </div>
                         <div className="flex items-center space-x-2">
                           <Button variant="outline" size="sm">
                             <ExternalLink className="h-4 w-4 mr-2" />
                             View Details
                           </Button>
-                          <Button 
+                          <Button
                             size="sm"
                             onClick={() => handleApply(opportunity.id)}
                             className="bg-[#021ff6] hover:bg-[#021ff6]/90"

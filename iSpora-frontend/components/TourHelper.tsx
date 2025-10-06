@@ -17,18 +17,18 @@ export function TourElement({ tourId, children, className }: TourElementProps) {
 // Hook to manage tour state
 export function useTour() {
   const [activeTour, setActiveTour] = React.useState<string | null>(null);
-  
+
   const startTour = (tourId: string) => {
     setActiveTour(tourId);
   };
-  
+
   const endTour = () => {
     setActiveTour(null);
   };
-  
+
   return {
     activeTour,
     startTour,
-    endTour
+    endTour,
   };
 }

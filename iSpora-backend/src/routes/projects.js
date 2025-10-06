@@ -10,25 +10,17 @@ const router = express.Router();
 // @access  Public
 router.get('/', optionalAuth, async (req, res, next) => {
   try {
-    const {
-      page = 1,
-      limit = 20,
-      search,
-      type,
-      status = 'active',
-      tags,
-      difficulty
-    } = req.query;
+    const { page = 1, limit = 20, search, type, status = 'active', tags, difficulty } = req.query;
 
     const offset = (page - 1) * limit;
-    
+
     let query = db('projects as p')
       .select([
         'p.*',
         'u.first_name as creator_first_name',
         'u.last_name as creator_last_name',
         'u.username as creator_username',
-        'u.avatar_url as creator_avatar'
+        'u.avatar_url as creator_avatar',
       ])
       .join('users as u', 'p.creator_id', 'u.id')
       .where('p.is_public', true);
@@ -38,9 +30,12 @@ router.get('/', optionalAuth, async (req, res, next) => {
     }
 
     if (search) {
-      query = query.where(function() {
-        this.where('p.title', 'like', `%${search}%`)
-          .orWhere('p.description', 'like', `%${search}%`);
+      query = query.where(function () {
+        this.where('p.title', 'like', `%${search}%`).orWhere(
+          'p.description',
+          'like',
+          `%${search}%`,
+        );
       });
     }
 
@@ -54,8 +49,8 @@ router.get('/', optionalAuth, async (req, res, next) => {
 
     if (tags) {
       const tagsArray = tags.split(',');
-      query = query.where(function() {
-        tagsArray.forEach(tag => {
+      query = query.where(function () {
+        tagsArray.forEach((tag) => {
           this.orWhere('p.tags', 'like', `%${tag.trim()}%`);
         });
       });
@@ -69,7 +64,7 @@ router.get('/', optionalAuth, async (req, res, next) => {
     res.status(200).json({
       success: true,
       count: projects.length,
-      data: projects
+      data: projects,
     });
   } catch (error) {
     next(error);
@@ -88,7 +83,7 @@ router.get('/:id', optionalAuth, async (req, res, next) => {
         'u.last_name as creator_last_name',
         'u.username as creator_username',
         'u.avatar_url as creator_avatar',
-        'u.title as creator_title'
+        'u.title as creator_title',
       ])
       .join('users as u', 'p.creator_id', 'u.id')
       .where('p.id', req.params.id)
@@ -97,13 +92,13 @@ router.get('/:id', optionalAuth, async (req, res, next) => {
     if (!project) {
       return res.status(404).json({
         success: false,
-        error: 'Project not found'
+        error: 'Project not found',
       });
     }
 
     res.status(200).json({
       success: true,
-      data: project
+      data: project,
     });
   } catch (error) {
     next(error);
@@ -120,7 +115,7 @@ router.post('/', protect, async (req, res, next) => {
       creator_id: req.user.id,
       ...req.body,
       created_at: new Date(),
-      updated_at: new Date()
+      updated_at: new Date(),
     };
 
     await db('projects').insert(projectData);
@@ -131,7 +126,7 @@ router.post('/', protect, async (req, res, next) => {
         'u.first_name as creator_first_name',
         'u.last_name as creator_last_name',
         'u.username as creator_username',
-        'u.avatar_url as creator_avatar'
+        'u.avatar_url as creator_avatar',
       ])
       .join('users as u', 'p.creator_id', 'u.id')
       .where('p.id', projectData.id)
@@ -139,7 +134,7 @@ router.post('/', protect, async (req, res, next) => {
 
     res.status(201).json({
       success: true,
-      data: project
+      data: project,
     });
   } catch (error) {
     next(error);
@@ -153,14 +148,12 @@ router.put('/:id', protect, async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    const project = await db('projects')
-      .where({ id })
-      .first();
+    const project = await db('projects').where({ id }).first();
 
     if (!project) {
       return res.status(404).json({
         success: false,
-        error: 'Project not found'
+        error: 'Project not found',
       });
     }
 
@@ -168,22 +161,20 @@ router.put('/:id', protect, async (req, res, next) => {
     if (project.creator_id !== req.user.id && req.user.user_type !== 'admin') {
       return res.status(403).json({
         success: false,
-        error: 'Not authorized to update this project'
+        error: 'Not authorized to update this project',
       });
     }
 
     const updateData = {
       ...req.body,
-      updated_at: new Date()
+      updated_at: new Date(),
     };
 
     delete updateData.id;
     delete updateData.creator_id;
     delete updateData.created_at;
 
-    await db('projects')
-      .where({ id })
-      .update(updateData);
+    await db('projects').where({ id }).update(updateData);
 
     const updatedProject = await db('projects as p')
       .select([
@@ -191,7 +182,7 @@ router.put('/:id', protect, async (req, res, next) => {
         'u.first_name as creator_first_name',
         'u.last_name as creator_last_name',
         'u.username as creator_username',
-        'u.avatar_url as creator_avatar'
+        'u.avatar_url as creator_avatar',
       ])
       .join('users as u', 'p.creator_id', 'u.id')
       .where('p.id', id)
@@ -199,7 +190,7 @@ router.put('/:id', protect, async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      data: updatedProject
+      data: updatedProject,
     });
   } catch (error) {
     next(error);

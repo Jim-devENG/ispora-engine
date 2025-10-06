@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import {
   Search,
   BookOpen,
@@ -36,21 +36,29 @@ import {
   MessageCircle,
   Brain,
   MapPin,
-  Zap
-} from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
-import { Textarea } from "../ui/textarea";
-import { Badge } from "../ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
-import { Label } from "../ui/label";
-import { Separator } from "../ui/separator";
-import { ScrollArea } from "../ui/scroll-area";
-import { Alert, AlertDescription } from "../ui/alert";
-import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+  Zap,
+} from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Button } from '../ui/button';
+import { Input } from '../ui/input';
+import { Textarea } from '../ui/textarea';
+import { Badge } from '../ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '../ui/dialog';
+import { Label } from '../ui/label';
+import { Separator } from '../ui/separator';
+import { ScrollArea } from '../ui/scroll-area';
+import { Alert, AlertDescription } from '../ui/alert';
+import { ModernAddSourceModal } from '../../src/components/ModernAddSourceModal';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 
 interface ProjectMember {
   id: string;
@@ -120,9 +128,9 @@ interface ResearchToolsProps {
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://ispora-backend.onrender.com/api';
 
 export function ResearchTools({ mentee, projectType = 'academic' }: ResearchToolsProps) {
-  const [activeTab, setActiveTab] = useState("literature");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [filterType, setFilterType] = useState("all");
+  const [activeTab, setActiveTab] = useState('literature');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterType, setFilterType] = useState('all');
   const [isAddingSource, setIsAddingSource] = useState(false);
   const [isAddingNote, setIsAddingNote] = useState(false);
   const [selectedSource, setSelectedSource] = useState<ResearchSource | null>(null);
@@ -130,21 +138,25 @@ export function ResearchTools({ mentee, projectType = 'academic' }: ResearchTool
 
   // Quick tools modal states
   const [activeTool, setActiveTool] = useState<string | null>(null);
-  const [generatedCitation, setGeneratedCitation] = useState("");
+  const [generatedCitation, setGeneratedCitation] = useState('');
   const [surveyData, setSurveyData] = useState({
-    title: "",
-    description: "",
-    questions: [""]
+    title: '',
+    description: '',
+    questions: [''],
   });
   const [analysisResults, setAnalysisResults] = useState<any>(null);
   const [aiSuggestions, setAiSuggestions] = useState<string[]>([]);
   const [methodologyPlan, setMethodologyPlan] = useState({
-    approach: "",
-    dataCollection: "",
-    analysis: "",
-    timeline: ""
+    approach: '',
+    dataCollection: '',
+    analysis: '',
+    timeline: '',
   });
-  const [referenceCategories, setReferenceCategories] = useState<string[]>(["Literature Review", "Methodology", "Theory"]);
+  const [referenceCategories, setReferenceCategories] = useState<string[]>([
+    'Literature Review',
+    'Methodology',
+    'Theory',
+  ]);
 
   // Real-time state (no demo)
   const [researchSources, setResearchSources] = useState<ResearchSource[]>([]);
@@ -164,7 +176,7 @@ export function ResearchTools({ mentee, projectType = 'academic' }: ResearchTool
         const [sRes, nRes, dRes] = await Promise.all([
           fetch(`${API_BASE_URL}/research/sources`, { headers, signal: controller.signal }),
           fetch(`${API_BASE_URL}/research/notes`, { headers, signal: controller.signal }),
-          fetch(`${API_BASE_URL}/research/datasets`, { headers, signal: controller.signal })
+          fetch(`${API_BASE_URL}/research/datasets`, { headers, signal: controller.signal }),
         ]);
         const [sJson, nJson, dJson] = await Promise.all([sRes.json(), nRes.json(), dRes.json()]);
         const sRows = Array.isArray(sJson.data) ? sJson.data : [];
@@ -181,27 +193,30 @@ export function ResearchTools({ mentee, projectType = 'academic' }: ResearchTool
     };
     load();
     const id = setInterval(load, 30000);
-    return () => { controller.abort(); clearInterval(id); };
+    return () => {
+      controller.abort();
+      clearInterval(id);
+    };
   }, []);
 
   // New source form state
   const [newSource, setNewSource] = useState({
-    title: "",
-    authors: "",
+    title: '',
+    authors: '',
     year: new Date().getFullYear(),
-    type: "journal" as ResearchSource['type'],
-    url: "",
-    abstract: "",
-    keywords: "",
-    notes: ""
+    type: 'journal' as ResearchSource['type'],
+    url: '',
+    abstract: '',
+    keywords: '',
+    notes: '',
   });
 
   // New note form state
   const [newNote, setNewNote] = useState({
-    title: "",
-    content: "",
-    tags: "",
-    category: "observation" as ResearchNote['category']
+    title: '',
+    content: '',
+    tags: '',
+    category: 'observation' as ResearchNote['category'],
   });
 
   const sourceTypeIcons = {
@@ -210,7 +225,7 @@ export function ResearchTools({ mentee, projectType = 'academic' }: ResearchTool
     book: BookOpen,
     report: FileText,
     website: Globe,
-    thesis: Microscope
+    thesis: Microscope,
   };
 
   const noteTypeIcons = {
@@ -219,50 +234,68 @@ export function ResearchTools({ mentee, projectType = 'academic' }: ResearchTool
     methodology: Calculator,
     insight: TrendingUp,
     todo: CheckCircle,
-    question: AlertCircle
+    question: AlertCircle,
   };
 
   const noteTypeColors = {
-    hypothesis: "bg-purple-100 text-purple-700",
-    observation: "bg-blue-100 text-blue-700",
-    methodology: "bg-green-100 text-green-700",
-    insight: "bg-orange-100 text-orange-700",
-    todo: "bg-red-100 text-red-700",
-    question: "bg-yellow-100 text-yellow-700"
+    hypothesis: 'bg-purple-100 text-purple-700',
+    observation: 'bg-blue-100 text-blue-700',
+    methodology: 'bg-green-100 text-green-700',
+    insight: 'bg-orange-100 text-orange-700',
+    todo: 'bg-red-100 text-red-700',
+    question: 'bg-yellow-100 text-yellow-700',
   };
 
-  const addSource = async () => {
-    if (newSource.title && newSource.authors) {
+  const addSource = async (sourceData?: any) => {
+    // Use data from modern modal if provided, otherwise use old form data
+    const data = sourceData || newSource;
+    
+    if (data.title && data.authors) {
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
       const devKey = localStorage.getItem('devKey');
       const token = localStorage.getItem('token');
       if (devKey) headers['X-Dev-Key'] = devKey;
       if (token) headers['Authorization'] = `Bearer ${token}`;
+      
       const body = {
-        title: newSource.title,
-        authors: newSource.authors,
-        year: newSource.year,
-        type: newSource.type,
-        url: newSource.url,
-        abstract: newSource.abstract,
-        keywords: newSource.keywords,
-        notes: newSource.notes
+        title: data.title,
+        authors: Array.isArray(data.authors) ? data.authors : data.authors.split(',').map(a => a.trim()),
+        year: data.year,
+        type: data.type,
+        url: data.url,
+        abstract: data.abstract,
+        keywords: data.keywords,
+        notes: data.notes,
+        doi: data.doi,
+        publisher: data.publisher,
+        volume: data.volume,
+        issue: data.issue,
+        pages: data.pages,
       };
+      
       try {
-        const res = await fetch(`${API_BASE_URL}/research/sources`, { method: 'POST', headers, body: JSON.stringify(body) });
+        const res = await fetch(`${API_BASE_URL}/research/sources`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(body),
+        });
         const json = await res.json();
-        if (res.ok) setResearchSources(prev => [json.data || json, ...prev]);
+        if (res.ok) setResearchSources((prev) => [json.data || json, ...prev]);
       } catch {}
-      setNewSource({
-        title: "",
-        authors: "",
-        year: new Date().getFullYear(),
-        type: "journal",
-        url: "",
-        abstract: "",
-        keywords: "",
-        notes: ""
-      });
+      
+      // Reset form only if using old form data
+      if (!sourceData) {
+        setNewSource({
+          title: '',
+          authors: '',
+          year: new Date().getFullYear(),
+          type: 'journal',
+          url: '',
+          abstract: '',
+          keywords: '',
+          notes: '',
+        });
+      }
       setIsAddingSource(false);
     }
   };
@@ -278,48 +311,52 @@ export function ResearchTools({ mentee, projectType = 'academic' }: ResearchTool
         title: newNote.title,
         content: newNote.content,
         tags: newNote.tags,
-        category: newNote.category
+        category: newNote.category,
       };
       try {
-        const res = await fetch(`${API_BASE_URL}/research/notes`, { method: 'POST', headers, body: JSON.stringify(body) });
+        const res = await fetch(`${API_BASE_URL}/research/notes`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(body),
+        });
         const json = await res.json();
-        if (res.ok) setResearchNotes(prev => [json.data || json, ...prev]);
+        if (res.ok) setResearchNotes((prev) => [json.data || json, ...prev]);
       } catch {}
       setNewNote({
-        title: "",
-        content: "",
-        tags: "",
-        category: "observation"
+        title: '',
+        content: '',
+        tags: '',
+        category: 'observation',
       });
       setIsAddingNote(false);
     }
   };
 
   const toggleFavorite = (sourceId: string) => {
-    setResearchSources(prev => 
-      prev.map(source => 
-        source.id === sourceId 
-          ? { ...source, favorite: !source.favorite }
-          : source
-      )
+    setResearchSources((prev) =>
+      prev.map((source) =>
+        source.id === sourceId ? { ...source, favorite: !source.favorite } : source,
+      ),
     );
   };
 
-  const filteredSources = researchSources.filter(source => {
-    const matchesSearch = source.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      source.authors.some(author => author.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      source.keywords.some(keyword => keyword.toLowerCase().includes(searchQuery.toLowerCase()));
-    
-    const matchesFilter = filterType === "all" || source.type === filterType;
-    
+  const filteredSources = researchSources.filter((source) => {
+    const matchesSearch =
+      source.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      source.authors.some((author) => author.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      source.keywords.some((keyword) => keyword.toLowerCase().includes(searchQuery.toLowerCase()));
+
+    const matchesFilter = filterType === 'all' || source.type === filterType;
+
     return matchesSearch && matchesFilter;
   });
 
-  const filteredNotes = researchNotes.filter(note => {
-    const matchesSearch = note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  const filteredNotes = researchNotes.filter((note) => {
+    const matchesSearch =
+      note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       note.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      note.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
-    
+      note.tags.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+
     return matchesSearch;
   });
 
@@ -332,13 +369,13 @@ export function ResearchTools({ mentee, projectType = 'academic' }: ResearchTool
           { id: 'reference-manager', name: 'Reference Manager', icon: Bookmark },
           { id: 'citation-generator', name: 'Citation Generator', icon: FileText },
           { id: 'statistical-analysis', name: 'Statistical Analysis', icon: BarChart3 },
-          { id: 'survey-builder', name: 'Survey Builder', icon: Calculator }
+          { id: 'survey-builder', name: 'Survey Builder', icon: Calculator },
         ];
       case 'mentorship':
         return [
           { id: 'ai-research-assistant', name: 'AI Research Assistant', icon: Brain },
           { id: 'methodology-planner', name: 'Methodology Planner', icon: MapPin },
-          { id: 'reference-manager', name: 'Reference Manager', icon: Bookmark }
+          { id: 'reference-manager', name: 'Reference Manager', icon: Bookmark },
         ];
       case 'innovation':
       case 'challenge':
@@ -346,27 +383,27 @@ export function ResearchTools({ mentee, projectType = 'academic' }: ResearchTool
           { id: 'ai-research-assistant', name: 'AI Research Assistant', icon: Brain },
           { id: 'patent-search', name: 'Patent Search', icon: Search },
           { id: 'market-analysis', name: 'Market Analysis', icon: BarChart3 },
-          { id: 'competitor-tracker', name: 'Competitor Tracker', icon: Target }
+          { id: 'competitor-tracker', name: 'Competitor Tracker', icon: Target },
         ];
       case 'community':
         return [
           { id: 'ai-research-assistant', name: 'AI Research Assistant', icon: Brain },
           { id: 'impact-tracker', name: 'Impact Tracker', icon: TrendingUp },
           { id: 'stakeholder-map', name: 'Stakeholder Mapping', icon: Users },
-          { id: 'community-insights', name: 'Community Insights', icon: Globe }
+          { id: 'community-insights', name: 'Community Insights', icon: Globe },
         ];
       default:
         return [
           { id: 'ai-research-assistant', name: 'AI Research Assistant', icon: Brain },
           { id: 'methodology-planner', name: 'Methodology Planner', icon: MapPin },
-          { id: 'reference-manager', name: 'Reference Manager', icon: Bookmark }
+          { id: 'reference-manager', name: 'Reference Manager', icon: Bookmark },
         ];
     }
   };
 
   const handleToolClick = (toolId: string) => {
     setActiveTool(toolId);
-    
+
     // Generate mock data based on tool type
     switch (toolId) {
       case 'citation-generator':
@@ -376,13 +413,13 @@ export function ResearchTools({ mentee, projectType = 'academic' }: ResearchTool
         generateAnalysis();
         break;
       case 'survey-builder':
-        setSurveyData({ title: "", description: "", questions: [""] });
+        setSurveyData({ title: '', description: '', questions: [''] });
         break;
       case 'ai-research-assistant':
         generateAISuggestions();
         break;
       case 'methodology-planner':
-        setMethodologyPlan({ approach: "", dataCollection: "", analysis: "", timeline: "" });
+        setMethodologyPlan({ approach: '', dataCollection: '', analysis: '', timeline: '' });
         break;
       case 'reference-manager':
         // Initialize reference manager
@@ -402,7 +439,9 @@ export function ResearchTools({ mentee, projectType = 'academic' }: ResearchTool
       const citation = `${randomSource.authors.join(', ')} (${randomSource.year}). ${randomSource.title}. Retrieved from ${randomSource.url || 'https://example.com'}`;
       setGeneratedCitation(citation);
     } else {
-      setGeneratedCitation('Smith, J., & Johnson, M. (2024). Research Methodology in Digital Age. Journal of Academic Research, 15(3), 45-62.');
+      setGeneratedCitation(
+        'Smith, J., & Johnson, M. (2024). Research Methodology in Digital Age. Journal of Academic Research, 15(3), 45-62.',
+      );
     }
   };
 
@@ -413,57 +452,58 @@ export function ResearchTools({ mentee, projectType = 'academic' }: ResearchTool
       standardDeviation: 1.23,
       confidence: 95,
       pValue: 0.032,
-      conclusion: "Statistically significant difference detected (p < 0.05)"
+      conclusion: 'Statistically significant difference detected (p < 0.05)',
     };
     setAnalysisResults(mockResults);
   };
 
   const addSurveyQuestion = () => {
-    setSurveyData(prev => ({
+    setSurveyData((prev) => ({
       ...prev,
-      questions: [...prev.questions, ""]
+      questions: [...prev.questions, ''],
     }));
   };
 
   const updateSurveyQuestion = (index: number, value: string) => {
-    setSurveyData(prev => ({
+    setSurveyData((prev) => ({
       ...prev,
-      questions: prev.questions.map((q, i) => i === index ? value : q)
+      questions: prev.questions.map((q, i) => (i === index ? value : q)),
     }));
   };
 
   const removeSurveyQuestion = (index: number) => {
-    setSurveyData(prev => ({
+    setSurveyData((prev) => ({
       ...prev,
-      questions: prev.questions.filter((_, i) => i !== index)
+      questions: prev.questions.filter((_, i) => i !== index),
     }));
   };
 
   const generateAISuggestions = () => {
     // Generate AI-powered research suggestions based on project context
     const suggestions = [
-      "Consider exploring the ethical implications of AI in education within developing countries",
-      "Investigate the correlation between digital literacy and economic outcomes in rural communities",
-      "Examine the role of cultural factors in technology adoption patterns",
-      "Analyze the effectiveness of mobile-first learning platforms in low-bandwidth environments",
-      "Study the impact of peer-to-peer learning networks on knowledge transfer"
+      'Consider exploring the ethical implications of AI in education within developing countries',
+      'Investigate the correlation between digital literacy and economic outcomes in rural communities',
+      'Examine the role of cultural factors in technology adoption patterns',
+      'Analyze the effectiveness of mobile-first learning platforms in low-bandwidth environments',
+      'Study the impact of peer-to-peer learning networks on knowledge transfer',
     ];
     setAiSuggestions(suggestions);
   };
 
   const generateMethodologyPlan = () => {
     const plan = {
-      approach: "Mixed-methods research combining quantitative surveys and qualitative interviews",
-      dataCollection: "Online surveys (n=500), Semi-structured interviews (n=25), Focus groups (n=5)",
-      analysis: "Statistical analysis using SPSS, Thematic analysis for qualitative data",
-      timeline: "Data collection: 3 months, Analysis: 2 months, Writing: 2 months"
+      approach: 'Mixed-methods research combining quantitative surveys and qualitative interviews',
+      dataCollection:
+        'Online surveys (n=500), Semi-structured interviews (n=25), Focus groups (n=5)',
+      analysis: 'Statistical analysis using SPSS, Thematic analysis for qualitative data',
+      timeline: 'Data collection: 3 months, Analysis: 2 months, Writing: 2 months',
     };
     setMethodologyPlan(plan);
   };
 
   const addReferenceCategory = () => {
     const newCategory = `Category ${referenceCategories.length + 1}`;
-    setReferenceCategories(prev => [...prev, newCategory]);
+    setReferenceCategories((prev) => [...prev, newCategory]);
   };
 
   return (
@@ -506,12 +546,13 @@ export function ResearchTools({ mentee, projectType = 'academic' }: ResearchTool
           </div>
         </div>
 
-
-
         {/* Quick Tools Modals */}
         {/* AI Research Assistant Modal */}
-        <Dialog open={activeTool === 'ai-research-assistant'} onOpenChange={() => setActiveTool(null)}>
-          <DialogContent className="max-w-xl max-h-[75vh] overflow-y-auto">
+        <Dialog
+          open={activeTool === 'ai-research-assistant'}
+          onOpenChange={() => setActiveTool(null)}
+        >
+          <DialogContent className="max-w-xl max-h-[75vh] flex flex-col w-[95vw] sm:w-full">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <Brain className="h-5 w-5" />
@@ -552,12 +593,17 @@ export function ResearchTools({ mentee, projectType = 'academic' }: ResearchTool
                 ) : (
                   <div className="p-6 text-center text-muted-foreground border-2 border-dashed border-gray-200 rounded-lg">
                     <Brain className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                    <p className="text-sm">Click "Generate Suggestions" to get AI-powered research insights</p>
+                    <p className="text-sm">
+                      Click "Generate Suggestions" to get AI-powered research insights
+                    </p>
                   </div>
                 )}
               </div>
               <div className="flex gap-2">
-                <Button onClick={generateAISuggestions} className="bg-[#021ff6] hover:bg-[#021ff6]/90">
+                <Button
+                  onClick={generateAISuggestions}
+                  className="bg-[#021ff6] hover:bg-[#021ff6]/90"
+                >
                   <Brain className="h-4 w-4 mr-2" />
                   Generate Suggestions
                 </Button>
@@ -571,8 +617,11 @@ export function ResearchTools({ mentee, projectType = 'academic' }: ResearchTool
         </Dialog>
 
         {/* Methodology Planner Modal */}
-        <Dialog open={activeTool === 'methodology-planner'} onOpenChange={() => setActiveTool(null)}>
-          <DialogContent className="max-w-xl max-h-[75vh] overflow-y-auto">
+        <Dialog
+          open={activeTool === 'methodology-planner'}
+          onOpenChange={() => setActiveTool(null)}
+        >
+          <DialogContent className="max-w-xl max-h-[75vh] flex flex-col w-[95vw] sm:w-full">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <MapPin className="h-5 w-5" />
@@ -587,7 +636,9 @@ export function ResearchTools({ mentee, projectType = 'academic' }: ResearchTool
                 <Label>Research Approach</Label>
                 <Textarea
                   value={methodologyPlan.approach}
-                  onChange={(e) => setMethodologyPlan(prev => ({ ...prev, approach: e.target.value }))}
+                  onChange={(e) =>
+                    setMethodologyPlan((prev) => ({ ...prev, approach: e.target.value }))
+                  }
                   placeholder="Describe your overall research approach (e.g., mixed-methods, qualitative, quantitative)..."
                   rows={2}
                 />
@@ -596,7 +647,9 @@ export function ResearchTools({ mentee, projectType = 'academic' }: ResearchTool
                 <Label>Data Collection Methods</Label>
                 <Textarea
                   value={methodologyPlan.dataCollection}
-                  onChange={(e) => setMethodologyPlan(prev => ({ ...prev, dataCollection: e.target.value }))}
+                  onChange={(e) =>
+                    setMethodologyPlan((prev) => ({ ...prev, dataCollection: e.target.value }))
+                  }
                   placeholder="Detail your data collection methods (surveys, interviews, observations, etc.)..."
                   rows={2}
                 />
@@ -605,7 +658,9 @@ export function ResearchTools({ mentee, projectType = 'academic' }: ResearchTool
                 <Label>Analysis Plan</Label>
                 <Textarea
                   value={methodologyPlan.analysis}
-                  onChange={(e) => setMethodologyPlan(prev => ({ ...prev, analysis: e.target.value }))}
+                  onChange={(e) =>
+                    setMethodologyPlan((prev) => ({ ...prev, analysis: e.target.value }))
+                  }
                   placeholder="Describe your data analysis approach and tools..."
                   rows={2}
                 />
@@ -614,13 +669,18 @@ export function ResearchTools({ mentee, projectType = 'academic' }: ResearchTool
                 <Label>Timeline</Label>
                 <Textarea
                   value={methodologyPlan.timeline}
-                  onChange={(e) => setMethodologyPlan(prev => ({ ...prev, timeline: e.target.value }))}
+                  onChange={(e) =>
+                    setMethodologyPlan((prev) => ({ ...prev, timeline: e.target.value }))
+                  }
                   placeholder="Outline your research timeline and milestones..."
                   rows={2}
                 />
               </div>
               <div className="flex gap-2">
-                <Button onClick={generateMethodologyPlan} className="bg-[#021ff6] hover:bg-[#021ff6]/90">
+                <Button
+                  onClick={generateMethodologyPlan}
+                  className="bg-[#021ff6] hover:bg-[#021ff6]/90"
+                >
                   <MapPin className="h-4 w-4 mr-2" />
                   Generate Template
                 </Button>
@@ -639,7 +699,7 @@ export function ResearchTools({ mentee, projectType = 'academic' }: ResearchTool
 
         {/* Reference Manager Modal */}
         <Dialog open={activeTool === 'reference-manager'} onOpenChange={() => setActiveTool(null)}>
-          <DialogContent className="max-w-xl max-h-[75vh] overflow-y-auto">
+          <DialogContent className="max-w-xl max-h-[75vh] flex flex-col w-[95vw] sm:w-full">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <Bookmark className="h-5 w-5" />
@@ -672,7 +732,10 @@ export function ResearchTools({ mentee, projectType = 'academic' }: ResearchTool
                 <Label>Recent References ({researchSources.length})</Label>
                 <div className="space-y-2 max-h-40 overflow-y-auto">
                   {researchSources.slice(0, 5).map((source) => (
-                    <div key={source.id} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+                    <div
+                      key={source.id}
+                      className="flex items-center justify-between p-2 bg-gray-50 rounded-lg"
+                    >
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate">{source.title}</p>
                         <p className="text-xs text-muted-foreground">{source.authors.join(', ')}</p>
@@ -737,7 +800,7 @@ export function ResearchTools({ mentee, projectType = 'academic' }: ResearchTool
                   <RefreshCw className="h-4 w-4 mr-2" />
                   Generate New
                 </Button>
-                <Button 
+                <Button
                   onClick={() => navigator.clipboard.writeText(generatedCitation)}
                   className="bg-[#021ff6] hover:bg-[#021ff6]/90"
                 >
@@ -749,7 +812,10 @@ export function ResearchTools({ mentee, projectType = 'academic' }: ResearchTool
           </DialogContent>
         </Dialog>
 
-        <Dialog open={activeTool === 'statistical-analysis'} onOpenChange={() => setActiveTool(null)}>
+        <Dialog
+          open={activeTool === 'statistical-analysis'}
+          onOpenChange={() => setActiveTool(null)}
+        >
           <DialogContent className="max-w-xl">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
@@ -774,7 +840,9 @@ export function ResearchTools({ mentee, projectType = 'academic' }: ResearchTool
                     </div>
                     <div className="p-3 bg-orange-50 rounded-lg">
                       <div className="text-sm text-muted-foreground">Std. Deviation</div>
-                      <div className="text-xl font-semibold">{analysisResults.standardDeviation}</div>
+                      <div className="text-xl font-semibold">
+                        {analysisResults.standardDeviation}
+                      </div>
                     </div>
                     <div className="p-3 bg-purple-50 rounded-lg">
                       <div className="text-sm text-muted-foreground">P-Value</div>
@@ -783,9 +851,7 @@ export function ResearchTools({ mentee, projectType = 'academic' }: ResearchTool
                   </div>
                   <Alert>
                     <CheckCircle className="h-4 w-4" />
-                    <AlertDescription>
-                      {analysisResults.conclusion}
-                    </AlertDescription>
+                    <AlertDescription>{analysisResults.conclusion}</AlertDescription>
                   </Alert>
                 </div>
               )}
@@ -804,7 +870,7 @@ export function ResearchTools({ mentee, projectType = 'academic' }: ResearchTool
         </Dialog>
 
         <Dialog open={activeTool === 'survey-builder'} onOpenChange={() => setActiveTool(null)}>
-          <DialogContent className="max-w-xl max-h-[75vh] overflow-y-auto">
+          <DialogContent className="max-w-xl max-h-[75vh] flex flex-col w-[95vw] sm:w-full">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <Calculator className="h-5 w-5" />
@@ -819,7 +885,7 @@ export function ResearchTools({ mentee, projectType = 'academic' }: ResearchTool
                 <Label>Survey Title</Label>
                 <Input
                   value={surveyData.title}
-                  onChange={(e) => setSurveyData(prev => ({ ...prev, title: e.target.value }))}
+                  onChange={(e) => setSurveyData((prev) => ({ ...prev, title: e.target.value }))}
                   placeholder="Enter survey title"
                 />
               </div>
@@ -827,7 +893,9 @@ export function ResearchTools({ mentee, projectType = 'academic' }: ResearchTool
                 <Label>Description</Label>
                 <Textarea
                   value={surveyData.description}
-                  onChange={(e) => setSurveyData(prev => ({ ...prev, description: e.target.value }))}
+                  onChange={(e) =>
+                    setSurveyData((prev) => ({ ...prev, description: e.target.value }))
+                  }
                   placeholder="Describe the purpose of your survey"
                   rows={2}
                 />
@@ -890,9 +958,7 @@ export function ResearchTools({ mentee, projectType = 'academic' }: ResearchTool
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label>Search Query</Label>
-                <Input
-                  placeholder="Enter keywords, authors, or topics"
-                />
+                <Input placeholder="Enter keywords, authors, or topics" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -1359,7 +1425,10 @@ export function ResearchTools({ mentee, projectType = 'academic' }: ResearchTool
           </DialogContent>
         </Dialog>
 
-        <Dialog open={activeTool === 'collaboration-tools'} onOpenChange={() => setActiveTool(null)}>
+        <Dialog
+          open={activeTool === 'collaboration-tools'}
+          onOpenChange={() => setActiveTool(null)}
+        >
           <DialogContent className="max-w-xl">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
@@ -1449,27 +1518,27 @@ export function ResearchTools({ mentee, projectType = 'academic' }: ResearchTool
               {/* Literature Tools */}
               <div className="flex items-center gap-3 p-3 bg-white rounded-lg border mb-4">
                 <span className="text-sm font-medium text-muted-foreground">Literature Tools:</span>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
+                <Button
+                  variant="outline"
+                  size="sm"
                   className="flex items-center gap-2 hover:bg-[#021ff6] hover:text-white transition-colors"
                   onClick={() => handleToolClick('literature-search')}
                 >
                   <Search className="h-4 w-4" />
                   Literature Search
                 </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
+                <Button
+                  variant="outline"
+                  size="sm"
                   className="flex items-center gap-2 hover:bg-[#021ff6] hover:text-white transition-colors"
                   onClick={() => handleToolClick('citation-generator')}
                 >
                   <FileText className="h-4 w-4" />
                   Citation Generator
                 </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
+                <Button
+                  variant="outline"
+                  size="sm"
                   className="flex items-center gap-2 hover:bg-[#021ff6] hover:text-white transition-colors"
                   onClick={() => handleToolClick('ai-research-assistant')}
                 >
@@ -1480,119 +1549,13 @@ export function ResearchTools({ mentee, projectType = 'academic' }: ResearchTool
 
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-medium">Literature Sources ({filteredSources.length})</h3>
-                <Dialog open={isAddingSource} onOpenChange={setIsAddingSource}>
-                  <DialogTrigger asChild>
-                    <Button className="bg-[#021ff6] hover:bg-[#021ff6]/90">
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add Source
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-xl max-h-[75vh] overflow-y-auto">
-                    <DialogHeader>
-                      <DialogTitle>Add Research Source</DialogTitle>
-                      <DialogDescription>
-                        Add a new research source to your literature collection. Include bibliographic details and notes.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label>Title *</Label>
-                          <Input
-                            value={newSource.title}
-                            onChange={(e) => setNewSource(prev => ({ ...prev, title: e.target.value }))}
-                            placeholder="Enter source title"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label>Type</Label>
-                          <Select value={newSource.type} onValueChange={(value: ResearchSource['type']) => 
-                            setNewSource(prev => ({ ...prev, type: value }))
-                          }>
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="journal">Journal Article</SelectItem>
-                              <SelectItem value="conference">Conference Paper</SelectItem>
-                              <SelectItem value="book">Book</SelectItem>
-                              <SelectItem value="report">Report</SelectItem>
-                              <SelectItem value="website">Website</SelectItem>
-                              <SelectItem value="thesis">Thesis</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-                      
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label>Authors *</Label>
-                          <Input
-                            value={newSource.authors}
-                            onChange={(e) => setNewSource(prev => ({ ...prev, authors: e.target.value }))}
-                            placeholder="Author 1, Author 2, Author 3"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label>Year</Label>
-                          <Input
-                            type="number"
-                            value={newSource.year}
-                            onChange={(e) => setNewSource(prev => ({ ...prev, year: parseInt(e.target.value) }))}
-                          />
-                        </div>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label>URL</Label>
-                        <Input
-                          value={newSource.url}
-                          onChange={(e) => setNewSource(prev => ({ ...prev, url: e.target.value }))}
-                          placeholder="https://..."
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label>Abstract</Label>
-                        <Textarea
-                          value={newSource.abstract}
-                          onChange={(e) => setNewSource(prev => ({ ...prev, abstract: e.target.value }))}
-                          placeholder="Brief summary of the source..."
-                          rows={3}
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label>Keywords</Label>
-                        <Input
-                          value={newSource.keywords}
-                          onChange={(e) => setNewSource(prev => ({ ...prev, keywords: e.target.value }))}
-                          placeholder="keyword1, keyword2, keyword3"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label>Notes</Label>
-                        <Textarea
-                          value={newSource.notes}
-                          onChange={(e) => setNewSource(prev => ({ ...prev, notes: e.target.value }))}
-                          placeholder="Personal notes about this source..."
-                          rows={2}
-                        />
-                      </div>
-
-                      <div className="flex gap-2 pt-4">
-                        <Button onClick={addSource} className="bg-[#021ff6] hover:bg-[#021ff6]/90">
-                          <Save className="h-4 w-4 mr-2" />
-                          Add Source
-                        </Button>
-                        <Button variant="outline" onClick={() => setIsAddingSource(false)}>
-                          Cancel
-                        </Button>
-                      </div>
-                    </div>
-                  </DialogContent>
-                </Dialog>
+                <Button 
+                  className="bg-[#021ff6] hover:bg-[#021ff6]/90"
+                  onClick={() => setIsAddingSource(true)}
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Source
+                </Button>
               </div>
 
               <ScrollArea className="h-[calc(100%-4rem)]">
@@ -1618,11 +1581,15 @@ export function ResearchTools({ mentee, projectType = 'academic' }: ResearchTool
                                         onClick={() => toggleFavorite(source.id)}
                                         className="h-8 w-8 p-0"
                                       >
-                                        <Star className={`h-4 w-4 ${source.favorite ? 'fill-yellow-400 text-yellow-400' : 'text-gray-400'}`} />
+                                        <Star
+                                          className={`h-4 w-4 ${source.favorite ? 'fill-yellow-400 text-yellow-400' : 'text-gray-400'}`}
+                                        />
                                       </Button>
                                     </TooltipTrigger>
                                     <TooltipContent>
-                                      {source.favorite ? 'Remove from favorites' : 'Add to favorites'}
+                                      {source.favorite
+                                        ? 'Remove from favorites'
+                                        : 'Add to favorites'}
                                     </TooltipContent>
                                   </Tooltip>
                                   {source.url && (
@@ -1642,15 +1609,15 @@ export function ResearchTools({ mentee, projectType = 'academic' }: ResearchTool
                                   )}
                                 </div>
                               </div>
-                              
+
                               <p className="text-sm text-muted-foreground mt-1">
                                 {source.authors.join(', ')} ({source.year})
                               </p>
-                              
+
                               {source.abstract && (
                                 <p className="text-sm mt-2 line-clamp-2">{source.abstract}</p>
                               )}
-                              
+
                               <div className="flex items-center gap-4 mt-3">
                                 <Badge variant="outline" className="text-xs">
                                   {source.type}
@@ -1664,7 +1631,7 @@ export function ResearchTools({ mentee, projectType = 'academic' }: ResearchTool
                                   Added by {source.addedBy}
                                 </span>
                               </div>
-                              
+
                               {source.keywords.length > 0 && (
                                 <div className="flex flex-wrap gap-1 mt-2">
                                   {source.keywords.slice(0, 4).map((keyword, idx) => (
@@ -1693,27 +1660,27 @@ export function ResearchTools({ mentee, projectType = 'academic' }: ResearchTool
               {/* Notes Tools */}
               <div className="flex items-center gap-3 p-3 bg-white rounded-lg border mb-4">
                 <span className="text-sm font-medium text-muted-foreground">Notes Tools:</span>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
+                <Button
+                  variant="outline"
+                  size="sm"
                   className="flex items-center gap-2 hover:bg-[#021ff6] hover:text-white transition-colors"
                   onClick={() => handleToolClick('methodology-planner')}
                 >
                   <MapPin className="h-4 w-4" />
                   Methodology Planner
                 </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
+                <Button
+                  variant="outline"
+                  size="sm"
                   className="flex items-center gap-2 hover:bg-[#021ff6] hover:text-white transition-colors"
                   onClick={() => handleToolClick('reference-manager')}
                 >
                   <Bookmark className="h-4 w-4" />
                   Reference Manager
                 </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
+                <Button
+                  variant="outline"
+                  size="sm"
                   className="flex items-center gap-2 hover:bg-[#021ff6] hover:text-white transition-colors"
                   onClick={() => handleToolClick('ai-research-assistant')}
                 >
@@ -1735,7 +1702,8 @@ export function ResearchTools({ mentee, projectType = 'academic' }: ResearchTool
                     <DialogHeader>
                       <DialogTitle>Add Research Note</DialogTitle>
                       <DialogDescription>
-                        Create a new research note with content, tags, and categorization for easy organization.
+                        Create a new research note with content, tags, and categorization for easy
+                        organization.
                       </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4">
@@ -1744,15 +1712,20 @@ export function ResearchTools({ mentee, projectType = 'academic' }: ResearchTool
                           <Label>Title *</Label>
                           <Input
                             value={newNote.title}
-                            onChange={(e) => setNewNote(prev => ({ ...prev, title: e.target.value }))}
+                            onChange={(e) =>
+                              setNewNote((prev) => ({ ...prev, title: e.target.value }))
+                            }
                             placeholder="Enter note title"
                           />
                         </div>
                         <div className="space-y-2">
                           <Label>Category</Label>
-                          <Select value={newNote.category} onValueChange={(value: ResearchNote['category']) => 
-                            setNewNote(prev => ({ ...prev, category: value }))
-                          }>
+                          <Select
+                            value={newNote.category}
+                            onValueChange={(value: ResearchNote['category']) =>
+                              setNewNote((prev) => ({ ...prev, category: value }))
+                            }
+                          >
                             <SelectTrigger>
                               <SelectValue />
                             </SelectTrigger>
@@ -1772,7 +1745,9 @@ export function ResearchTools({ mentee, projectType = 'academic' }: ResearchTool
                         <Label>Content *</Label>
                         <Textarea
                           value={newNote.content}
-                          onChange={(e) => setNewNote(prev => ({ ...prev, content: e.target.value }))}
+                          onChange={(e) =>
+                            setNewNote((prev) => ({ ...prev, content: e.target.value }))
+                          }
                           placeholder="Write your research note..."
                           rows={5}
                         />
@@ -1782,7 +1757,9 @@ export function ResearchTools({ mentee, projectType = 'academic' }: ResearchTool
                         <Label>Tags</Label>
                         <Input
                           value={newNote.tags}
-                          onChange={(e) => setNewNote(prev => ({ ...prev, tags: e.target.value }))}
+                          onChange={(e) =>
+                            setNewNote((prev) => ({ ...prev, tags: e.target.value }))
+                          }
                           placeholder="tag1, tag2, tag3"
                         />
                       </div>
@@ -1829,11 +1806,14 @@ export function ResearchTools({ mentee, projectType = 'academic' }: ResearchTool
                                   </Button>
                                 </div>
                               </div>
-                              
+
                               <p className="text-sm mt-2">{note.content}</p>
-                              
+
                               <div className="flex items-center gap-4 mt-3">
-                                <Badge variant="outline" className={`text-xs ${noteTypeColors[note.category]}`}>
+                                <Badge
+                                  variant="outline"
+                                  className={`text-xs ${noteTypeColors[note.category]}`}
+                                >
                                   {note.category}
                                 </Badge>
                                 <span className="text-xs text-muted-foreground">
@@ -1843,7 +1823,7 @@ export function ResearchTools({ mentee, projectType = 'academic' }: ResearchTool
                                   {note.createdDate}
                                 </span>
                               </div>
-                              
+
                               {note.tags.length > 0 && (
                                 <div className="flex flex-wrap gap-1 mt-2">
                                   {note.tags.map((tag, idx) => (
@@ -1868,27 +1848,27 @@ export function ResearchTools({ mentee, projectType = 'academic' }: ResearchTool
               {/* Data Tools */}
               <div className="flex items-center gap-3 p-3 bg-white rounded-lg border mb-4">
                 <span className="text-sm font-medium text-muted-foreground">Data Tools:</span>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
+                <Button
+                  variant="outline"
+                  size="sm"
                   className="flex items-center gap-2 hover:bg-[#021ff6] hover:text-white transition-colors"
                   onClick={() => handleToolClick('data-analysis')}
                 >
                   <Database className="h-4 w-4" />
                   Data Analysis
                 </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
+                <Button
+                  variant="outline"
+                  size="sm"
                   className="flex items-center gap-2 hover:bg-[#021ff6] hover:text-white transition-colors"
                   onClick={() => handleToolClick('statistical-analysis')}
                 >
                   <BarChart3 className="h-4 w-4" />
                   Statistical Analysis
                 </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
+                <Button
+                  variant="outline"
+                  size="sm"
                   className="flex items-center gap-2 hover:bg-[#021ff6] hover:text-white transition-colors"
                   onClick={() => handleToolClick('survey-builder')}
                 >
@@ -1926,9 +1906,11 @@ export function ResearchTools({ mentee, projectType = 'academic' }: ResearchTool
                                 </Button>
                               </div>
                             </div>
-                            
-                            <p className="text-sm text-muted-foreground mt-1">{dataset.description}</p>
-                            
+
+                            <p className="text-sm text-muted-foreground mt-1">
+                              {dataset.description}
+                            </p>
+
                             <div className="flex items-center gap-4 mt-3">
                               <Badge variant="outline" className="text-xs">
                                 {dataset.type}
@@ -1948,7 +1930,7 @@ export function ResearchTools({ mentee, projectType = 'academic' }: ResearchTool
                                 </Badge>
                               )}
                             </div>
-                            
+
                             {dataset.tags.length > 0 && (
                               <div className="flex flex-wrap gap-1 mt-2">
                                 {dataset.tags.map((tag, idx) => (
@@ -1971,23 +1953,33 @@ export function ResearchTools({ mentee, projectType = 'academic' }: ResearchTool
               {/* Analysis Tools */}
               <div className="flex items-center gap-3 p-3 bg-white rounded-lg border mb-4">
                 <span className="text-sm font-medium text-muted-foreground">Analysis Tools:</span>
-                {getProjectSpecificTools().filter(tool => 
-                  ['statistical-analysis', 'data-analysis', 'ai-research-assistant', 'impact-tracker', 'patent-search', 'market-analysis', 'competitor-tracker'].includes(tool.id)
-                ).map(tool => {
-                  const Icon = tool.icon;
-                  return (
-                    <Button 
-                      key={tool.id} 
-                      variant="outline" 
-                      size="sm" 
-                      className="flex items-center gap-2 hover:bg-[#021ff6] hover:text-white transition-colors"
-                      onClick={() => handleToolClick(tool.id)}
-                    >
-                      <Icon className="h-4 w-4" />
-                      {tool.name}
-                    </Button>
-                  );
-                })}
+                {getProjectSpecificTools()
+                  .filter((tool) =>
+                    [
+                      'statistical-analysis',
+                      'data-analysis',
+                      'ai-research-assistant',
+                      'impact-tracker',
+                      'patent-search',
+                      'market-analysis',
+                      'competitor-tracker',
+                    ].includes(tool.id),
+                  )
+                  .map((tool) => {
+                    const Icon = tool.icon;
+                    return (
+                      <Button
+                        key={tool.id}
+                        variant="outline"
+                        size="sm"
+                        className="flex items-center gap-2 hover:bg-[#021ff6] hover:text-white transition-colors"
+                        onClick={() => handleToolClick(tool.id)}
+                      >
+                        <Icon className="h-4 w-4" />
+                        {tool.name}
+                      </Button>
+                    );
+                  })}
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-full">
@@ -1999,11 +1991,15 @@ export function ResearchTools({ mentee, projectType = 'academic' }: ResearchTool
                   <div className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div className="text-center p-3 bg-blue-50 rounded-lg">
-                        <div className="text-2xl font-bold text-blue-600">{researchSources.length}</div>
+                        <div className="text-2xl font-bold text-blue-600">
+                          {researchSources.length}
+                        </div>
                         <div className="text-sm text-muted-foreground">Sources</div>
                       </div>
                       <div className="text-center p-3 bg-green-50 rounded-lg">
-                        <div className="text-2xl font-bold text-green-600">{researchNotes.length}</div>
+                        <div className="text-2xl font-bold text-green-600">
+                          {researchNotes.length}
+                        </div>
                         <div className="text-sm text-muted-foreground">Notes</div>
                       </div>
                     </div>
@@ -2014,7 +2010,7 @@ export function ResearchTools({ mentee, projectType = 'academic' }: ResearchTool
                       </div>
                       <div className="text-center p-3 bg-purple-50 rounded-lg">
                         <div className="text-2xl font-bold text-purple-600">
-                          {researchSources.filter(s => s.favorite).length}
+                          {researchSources.filter((s) => s.favorite).length}
                         </div>
                         <div className="text-sm text-muted-foreground">Favorites</div>
                       </div>
@@ -2031,7 +2027,7 @@ export function ResearchTools({ mentee, projectType = 'academic' }: ResearchTool
                     <Alert>
                       <AlertCircle className="h-4 w-4" />
                       <AlertDescription>
-                        Analysis tools will provide insights into your research patterns, 
+                        Analysis tools will provide insights into your research patterns,
                         collaboration trends, and knowledge gaps.
                       </AlertDescription>
                     </Alert>
@@ -2041,7 +2037,10 @@ export function ResearchTools({ mentee, projectType = 'academic' }: ResearchTool
                         <span>65%</span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div className="bg-blue-600 h-2 rounded-full" style={{ width: '65%' }}></div>
+                        <div
+                          className="bg-blue-600 h-2 rounded-full"
+                          style={{ width: '65%' }}
+                        ></div>
                       </div>
                     </div>
                     <div className="space-y-2">
@@ -2050,7 +2049,10 @@ export function ResearchTools({ mentee, projectType = 'academic' }: ResearchTool
                         <span>40%</span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div className="bg-green-600 h-2 rounded-full" style={{ width: '40%' }}></div>
+                        <div
+                          className="bg-green-600 h-2 rounded-full"
+                          style={{ width: '40%' }}
+                        ></div>
                       </div>
                     </div>
                     <div className="space-y-2">
@@ -2059,7 +2061,10 @@ export function ResearchTools({ mentee, projectType = 'academic' }: ResearchTool
                         <span>20%</span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div className="bg-orange-600 h-2 rounded-full" style={{ width: '20%' }}></div>
+                        <div
+                          className="bg-orange-600 h-2 rounded-full"
+                          style={{ width: '20%' }}
+                        ></div>
                       </div>
                     </div>
                   </div>
@@ -2069,6 +2074,13 @@ export function ResearchTools({ mentee, projectType = 'academic' }: ResearchTool
           </div>
         </Tabs>
       </div>
+
+      {/* Modern Add Source Modal */}
+      <ModernAddSourceModal
+        isOpen={isAddingSource}
+        onClose={() => setIsAddingSource(false)}
+        onSubmit={addSource}
+      />
     </div>
   );
 }

@@ -44,7 +44,9 @@ router.get('/events', optionalAuth, async (req, res, next) => {
     if (projectId) q = q.where('project_id', projectId);
     if (status && status !== 'all') q = q.where('status', status);
     res.json({ success: true, data: await q });
-  } catch (e) { next(e); }
+  } catch (e) {
+    next(e);
+  }
 });
 
 router.post('/events', protect, async (req, res, next) => {
@@ -63,11 +65,13 @@ router.post('/events', protect, async (req, res, next) => {
       status: 'scheduled',
       meeting_link: meetingLink || null,
       created_at: now,
-      updated_at: now
+      updated_at: now,
     };
     await db('live_events').insert(row);
     res.status(201).json({ success: true, data: row });
-  } catch (e) { next(e); }
+  } catch (e) {
+    next(e);
+  }
 });
 
 router.get('/events/:id/chat', optionalAuth, async (req, res, next) => {
@@ -76,7 +80,9 @@ router.get('/events/:id/chat', optionalAuth, async (req, res, next) => {
     const { id } = req.params;
     const rows = await db('live_chat_messages').where('event_id', id).orderBy('created_at', 'asc');
     res.json({ success: true, data: rows });
-  } catch (e) { next(e); }
+  } catch (e) {
+    next(e);
+  }
 });
 
 router.post('/events/:id/chat', protect, async (req, res, next) => {
@@ -87,19 +93,22 @@ router.post('/events/:id/chat', protect, async (req, res, next) => {
       id: `msg_${Date.now()}`,
       event_id: id,
       sender_id: req.user?.id || null,
-      sender_name: `${req.user?.first_name || ''} ${req.user?.last_name || ''}`.trim() || req.user?.username || 'User',
+      sender_name:
+        `${req.user?.first_name || ''} ${req.user?.last_name || ''}`.trim() ||
+        req.user?.username ||
+        'User',
       content: req.body.content || null,
       type: req.body.type || 'text',
       file_url: req.body.fileUrl || null,
       duration: req.body.duration || null,
       created_at: new Date(),
-      updated_at: new Date()
+      updated_at: new Date(),
     };
     await db('live_chat_messages').insert(msg);
     res.status(201).json({ success: true, data: msg });
-  } catch (e) { next(e); }
+  } catch (e) {
+    next(e);
+  }
 });
 
 module.exports = router;
-
-

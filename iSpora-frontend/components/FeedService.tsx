@@ -32,7 +32,14 @@ const fetchFeedItems = async (page = 1, limit = 20) => {
 // Feed item interfaces
 interface FeedItem {
   id: string;
-  type: 'project' | 'opportunity' | 'mentorship' | 'success_story' | 'milestone' | 'live_event' | 'announcement';
+  type:
+    | 'project'
+    | 'opportunity'
+    | 'mentorship'
+    | 'success_story'
+    | 'milestone'
+    | 'live_event'
+    | 'announcement';
   title: string;
   description: string;
   timestamp: string;
@@ -81,22 +88,22 @@ interface AdminHighlight {
 
 // Significance level mapping for auto-generation
 const SIGNIFICANCE_MAP: Record<string, 'low' | 'medium' | 'high' | 'critical'> = {
-  'project_created': 'high',
-  'project_joined': 'low',
-  'project_completed': 'high',
-  'campaign_launched': 'high',
-  'campaign_joined': 'low',
-  'milestone_achieved': 'medium',
-  'opportunity_posted': 'medium',
-  'opportunity_applied': 'low',
-  'funding_received': 'critical',
-  'session_started': 'medium',
-  'session_completed': 'low',
-  'certification_earned': 'medium',
-  'achievement_unlocked': 'medium',
-  'collaboration_started': 'medium',
-  'mentor_match': 'low',
-  'workspace_created': 'low',
+  project_created: 'high',
+  project_joined: 'low',
+  project_completed: 'high',
+  campaign_launched: 'high',
+  campaign_joined: 'low',
+  milestone_achieved: 'medium',
+  opportunity_posted: 'medium',
+  opportunity_applied: 'low',
+  funding_received: 'critical',
+  session_started: 'medium',
+  session_completed: 'low',
+  certification_earned: 'medium',
+  achievement_unlocked: 'medium',
+  collaboration_started: 'medium',
+  mentor_match: 'low',
+  workspace_created: 'low',
 };
 
 export class FeedService {
@@ -117,12 +124,12 @@ export class FeedService {
   public subscribe(callback: () => void): () => void {
     this.subscribers.push(callback);
     return () => {
-      this.subscribers = this.subscribers.filter(sub => sub !== callback);
+      this.subscribers = this.subscribers.filter((sub) => sub !== callback);
     };
   }
 
   private notifySubscribers(): void {
-    this.subscribers.forEach(callback => callback());
+    this.subscribers.forEach((callback) => callback());
   }
 
   // Track user actions and generate feed items
@@ -142,13 +149,13 @@ export class FeedService {
 
   // Remove a feed item
   public removeFeedItem(itemId: string): void {
-    this.feedItems = this.feedItems.filter(item => item.id !== itemId);
+    this.feedItems = this.feedItems.filter((item) => item.id !== itemId);
     this.notifySubscribers();
   }
 
   // Update a feed item
   public updateFeedItem(itemId: string, updates: Partial<FeedItem>): void {
-    const index = this.feedItems.findIndex(item => item.id === itemId);
+    const index = this.feedItems.findIndex((item) => item.id === itemId);
     if (index !== -1) {
       this.feedItems[index] = { ...this.feedItems[index], ...updates };
       this.notifySubscribers();
@@ -156,23 +163,25 @@ export class FeedService {
   }
 
   // Get all feed items with filtering options
-  public getFeedItems(options: {
-    includeAdminHighlights?: boolean;
-    userFilter?: string;
-    categoryFilter?: string;
-    significanceFilter?: 'all' | 'low' | 'medium' | 'high' | 'critical';
-    limit?: number;
-    visibility?: 'all' | 'public' | 'authenticated';
-    includeExpired?: boolean;
-  } = {}): FeedItem[] {
-    const { 
-      includeAdminHighlights = true, 
-      userFilter, 
+  public getFeedItems(
+    options: {
+      includeAdminHighlights?: boolean;
+      userFilter?: string;
+      categoryFilter?: string;
+      significanceFilter?: 'all' | 'low' | 'medium' | 'high' | 'critical';
+      limit?: number;
+      visibility?: 'all' | 'public' | 'authenticated';
+      includeExpired?: boolean;
+    } = {},
+  ): FeedItem[] {
+    const {
+      includeAdminHighlights = true,
+      userFilter,
       categoryFilter,
       significanceFilter = 'all',
-      limit, 
+      limit,
       visibility = 'all',
-      includeExpired = true 
+      includeExpired = true,
     } = options;
 
     // Use only real feed items from API (no mock data generation)
@@ -180,7 +189,7 @@ export class FeedService {
 
     // Filter by visibility
     if (visibility !== 'all') {
-      feedItems = feedItems.filter(item => {
+      feedItems = feedItems.filter((item) => {
         if (visibility === 'public') {
           return item.visibility === 'public';
         }
@@ -190,7 +199,7 @@ export class FeedService {
 
     // Filter expired highlights
     if (!includeExpired) {
-      feedItems = feedItems.filter(item => {
+      feedItems = feedItems.filter((item) => {
         if (item.isAdminCurated && item.metadata?.expiresAt) {
           return new Date(item.metadata.expiresAt) > new Date();
         }
@@ -200,14 +209,14 @@ export class FeedService {
 
     // Filter admin highlights
     if (!includeAdminHighlights) {
-      feedItems = feedItems.filter(item => !item.isAdminCurated);
+      feedItems = feedItems.filter((item) => !item.isAdminCurated);
     }
 
     // Filter by significance
     if (significanceFilter !== 'all') {
       const significanceLevels = ['low', 'medium', 'high', 'critical'];
       const minLevel = significanceLevels.indexOf(significanceFilter);
-      feedItems = feedItems.filter(item => {
+      feedItems = feedItems.filter((item) => {
         const itemLevel = significanceLevels.indexOf(item.significance);
         return itemLevel >= minLevel;
       });
@@ -215,22 +224,23 @@ export class FeedService {
 
     // Apply search filters
     if (userFilter) {
-      feedItems = feedItems.filter(item => 
-        item.authorName?.toLowerCase().includes(userFilter.toLowerCase()) ||
-        item.title.toLowerCase().includes(userFilter.toLowerCase()) ||
-        item.description?.toLowerCase().includes(userFilter.toLowerCase())
+      feedItems = feedItems.filter(
+        (item) =>
+          item.authorName?.toLowerCase().includes(userFilter.toLowerCase()) ||
+          item.title.toLowerCase().includes(userFilter.toLowerCase()) ||
+          item.description?.toLowerCase().includes(userFilter.toLowerCase()),
       );
     }
 
     if (categoryFilter) {
-      feedItems = feedItems.filter(item => 
-        item.category.toLowerCase().includes(categoryFilter.toLowerCase())
+      feedItems = feedItems.filter((item) =>
+        item.category.toLowerCase().includes(categoryFilter.toLowerCase()),
       );
     }
 
     // Remove duplicates based on ID
-    const uniqueItems = feedItems.filter((item, index, self) => 
-      index === self.findIndex(t => t.id === item.id)
+    const uniqueItems = feedItems.filter(
+      (item, index, self) => index === self.findIndex((t) => t.id === item.id),
     );
 
     // Sort by priority (pinned first, then by timestamp)
@@ -258,26 +268,26 @@ export class FeedService {
     recentActivity: number;
   } {
     const allItems = this.getFeedItems();
-    
+
     return {
       totalItems: allItems.length,
-      adminHighlights: allItems.filter(item => item.isAdminCurated).length,
-      userGenerated: allItems.filter(item => !item.isAutoGenerated).length,
-      publicItems: allItems.filter(item => item.visibility === 'public').length,
-      liveEvents: allItems.filter(item => item.isLive).length,
-      recentActivity: allItems.filter(item => {
+      adminHighlights: allItems.filter((item) => item.isAdminCurated).length,
+      userGenerated: allItems.filter((item) => !item.isAutoGenerated).length,
+      publicItems: allItems.filter((item) => item.visibility === 'public').length,
+      liveEvents: allItems.filter((item) => item.isLive).length,
+      recentActivity: allItems.filter((item) => {
         const itemDate = new Date(item.timestamp);
         const now = new Date();
         const diffHours = (now.getTime() - itemDate.getTime()) / (1000 * 60 * 60);
         return diffHours <= 24;
-      }).length
+      }).length,
     };
   }
 
   // Generate feed item from user action
   private generateFeedItemFromAction(action: UserAction): FeedItem | null {
     const significance = SIGNIFICANCE_MAP[action.actionType] || 'medium';
-    
+
     switch (action.actionType) {
       case 'project_created':
         return {
@@ -296,7 +306,7 @@ export class FeedService {
           significance,
           isAutoGenerated: true,
         };
-      
+
       case 'project_completed':
         return {
           id: `action_${action.id}`,
@@ -314,7 +324,7 @@ export class FeedService {
           significance,
           isAutoGenerated: true,
         };
-      
+
       case 'opportunity_posted':
         return {
           id: `action_${action.id}`,
@@ -332,7 +342,7 @@ export class FeedService {
           significance,
           isAutoGenerated: true,
         };
-      
+
       default:
         return null;
     }
@@ -372,11 +382,11 @@ export class FeedService {
     const deadlineDate = new Date(deadline);
     const now = new Date();
     const diffDays = Math.ceil((deadlineDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays <= 0) return 'Deadline passed';
     if (diffDays === 1) return 'Due tomorrow';
     if (diffDays <= 7) return `Due in ${diffDays} days`;
-    
+
     // Format as DD/MM/YYYY
     const day = deadlineDate.getDate().toString().padStart(2, '0');
     const month = (deadlineDate.getMonth() + 1).toString().padStart(2, '0');
@@ -387,13 +397,13 @@ export class FeedService {
   // Record a user action and automatically generate feed item
   public recordUserAction(action: UserAction): FeedItem | null {
     this.userActions.push(action);
-    
+
     const feedItem = this.generateFeedItemFromAction(action);
     if (feedItem) {
       this.addFeedItem(feedItem);
       this.notifySubscribers();
     }
-    
+
     return feedItem;
   }
 
@@ -404,10 +414,10 @@ export class FeedService {
       id: `highlight_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       createdAt: new Date().toISOString(),
     };
-    
+
     this.adminHighlights.push(newHighlight);
     this.notifySubscribers();
-    
+
     return newHighlight;
   }
 
@@ -437,11 +447,7 @@ export function FeedProvider({ children }: { children: React.ReactNode }) {
     return service;
   });
 
-  return (
-    <FeedContext.Provider value={feedService}>
-      {children}
-    </FeedContext.Provider>
-  );
+  return <FeedContext.Provider value={feedService}>{children}</FeedContext.Provider>;
 }
 
 // React Hook for using Feed Service
@@ -503,7 +509,7 @@ export function useFeedService() {
       id: `action_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       timestamp: new Date().toISOString(),
     };
-    
+
     return feedService.recordUserAction(fullAction);
   };
 

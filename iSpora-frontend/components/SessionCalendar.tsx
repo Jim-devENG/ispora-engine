@@ -1,9 +1,17 @@
-import React, { useState } from "react";
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Clock, Users, UserCheck, Bell } from "lucide-react";
-import { Button } from "./ui/button";
-import { Badge } from "./ui/badge";
-import { Card, CardContent } from "./ui/card";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
+import React, { useState } from 'react';
+import {
+  ChevronLeft,
+  ChevronRight,
+  Calendar as CalendarIcon,
+  Clock,
+  Users,
+  UserCheck,
+  Bell,
+} from 'lucide-react';
+import { Button } from './ui/button';
+import { Badge } from './ui/badge';
+import { Card, CardContent } from './ui/card';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 
 interface Session {
   id: string;
@@ -28,34 +36,52 @@ interface SessionCalendarProps {
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const MONTHS = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December'
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
 ];
 
 function getTypeColor(type: string) {
   switch (type) {
-    case 'mentorship': return 'bg-blue-500';
-    case 'workshop': return 'bg-green-500';
-    case 'campaign': return 'bg-purple-500';
-    default: return 'bg-gray-500';
+    case 'mentorship':
+      return 'bg-blue-500';
+    case 'workshop':
+      return 'bg-green-500';
+    case 'campaign':
+      return 'bg-purple-500';
+    default:
+      return 'bg-gray-500';
   }
 }
 
 function formatTime(date: Date): string {
-  return date.toLocaleTimeString('en-US', { 
-    hour: 'numeric', 
+  return date.toLocaleTimeString('en-US', {
+    hour: 'numeric',
     minute: '2-digit',
-    hour12: true 
+    hour12: true,
   });
 }
 
 function SessionDot({ session, onClick }: { session: Session; onClick: () => void }) {
   const getIcon = () => {
     switch (session.type) {
-      case 'mentorship': return <Users className="h-2 w-2" />;
-      case 'workshop': return <CalendarIcon className="h-2 w-2" />;
-      case 'campaign': return <Bell className="h-2 w-2" />;
-      default: return <CalendarIcon className="h-2 w-2" />;
+      case 'mentorship':
+        return <Users className="h-2 w-2" />;
+      case 'workshop':
+        return <CalendarIcon className="h-2 w-2" />;
+      case 'campaign':
+        return <Bell className="h-2 w-2" />;
+      default:
+        return <CalendarIcon className="h-2 w-2" />;
     }
   };
 
@@ -108,14 +134,14 @@ function SessionDot({ session, onClick }: { session: Session; onClick: () => voi
   );
 }
 
-function CalendarDay({ 
-  date, 
-  isCurrentMonth, 
-  isToday, 
-  isSelected, 
-  sessions, 
+function CalendarDay({
+  date,
+  isCurrentMonth,
+  isToday,
+  isSelected,
+  sessions,
   onClick,
-  onSessionSelect 
+  onSessionSelect,
 }: {
   date: Date;
   isCurrentMonth: boolean;
@@ -125,7 +151,7 @@ function CalendarDay({
   onClick: () => void;
   onSessionSelect: (session: Session) => void;
 }) {
-  const liveSessions = sessions.filter(s => s.isLive);
+  const liveSessions = sessions.filter((s) => s.isLive);
   const hasLive = liveSessions.length > 0;
 
   return (
@@ -144,11 +170,9 @@ function CalendarDay({
           <span className={`text-sm ${isToday ? 'font-semibold text-blue-600' : ''}`}>
             {date.getDate()}
           </span>
-          {hasLive && (
-            <div className="h-1.5 w-1.5 bg-red-500 rounded-full animate-pulse"></div>
-          )}
+          {hasLive && <div className="h-1.5 w-1.5 bg-red-500 rounded-full animate-pulse"></div>}
         </div>
-        
+
         {sessions.length > 0 && (
           <div className="flex-1 mt-1">
             <div className="space-y-0.5">
@@ -163,9 +187,7 @@ function CalendarDay({
                 />
               ))}
               {sessions.length > 3 && (
-                <div className="text-xs text-gray-500 mt-1">
-                  +{sessions.length - 3} more
-                </div>
+                <div className="text-xs text-gray-500 mt-1">+{sessions.length - 3} more</div>
               )}
             </div>
           </div>
@@ -175,7 +197,10 @@ function CalendarDay({
   );
 }
 
-function SessionsList({ sessions, onSessionSelect }: {
+function SessionsList({
+  sessions,
+  onSessionSelect,
+}: {
   sessions: Session[];
   onSessionSelect: (session: Session) => void;
 }) {
@@ -191,8 +216,8 @@ function SessionsList({ sessions, onSessionSelect }: {
   return (
     <div className="space-y-2 max-h-64 overflow-y-auto">
       {sessions.map((session) => (
-        <Card 
-          key={session.id} 
+        <Card
+          key={session.id}
           className="cursor-pointer hover:shadow-md transition-shadow"
           onClick={() => onSessionSelect(session)}
         >
@@ -218,9 +243,7 @@ function SessionsList({ sessions, onSessionSelect }: {
                 </div>
                 <p className="text-xs text-gray-600 mt-1">by {session.host}</p>
               </div>
-              {session.hasRSVP && (
-                <UserCheck className="h-4 w-4 text-blue-500 flex-shrink-0" />
-              )}
+              {session.hasRSVP && <UserCheck className="h-4 w-4 text-blue-500 flex-shrink-0" />}
             </div>
           </CardContent>
         </Card>
@@ -243,7 +266,7 @@ export function SessionCalendar({ sessions, onSessionSelect, onDateSelect }: Ses
 
   // Generate calendar grid
   const calendarDays = [];
-  
+
   // Previous month days
   const prevMonth = new Date(year, month - 1, 0);
   for (let i = firstDayOfWeek - 1; i >= 0; i--) {
@@ -251,9 +274,7 @@ export function SessionCalendar({ sessions, onSessionSelect, onDateSelect }: Ses
     calendarDays.push({
       date,
       isCurrentMonth: false,
-      sessions: sessions.filter(s => 
-        s.startTime.toDateString() === date.toDateString()
-      )
+      sessions: sessions.filter((s) => s.startTime.toDateString() === date.toDateString()),
     });
   }
 
@@ -263,9 +284,7 @@ export function SessionCalendar({ sessions, onSessionSelect, onDateSelect }: Ses
     calendarDays.push({
       date,
       isCurrentMonth: true,
-      sessions: sessions.filter(s => 
-        s.startTime.toDateString() === date.toDateString()
-      )
+      sessions: sessions.filter((s) => s.startTime.toDateString() === date.toDateString()),
     });
   }
 
@@ -276,9 +295,7 @@ export function SessionCalendar({ sessions, onSessionSelect, onDateSelect }: Ses
     calendarDays.push({
       date,
       isCurrentMonth: false,
-      sessions: sessions.filter(s => 
-        s.startTime.toDateString() === date.toDateString()
-      )
+      sessions: sessions.filter((s) => s.startTime.toDateString() === date.toDateString()),
     });
   }
 
@@ -300,8 +317,8 @@ export function SessionCalendar({ sessions, onSessionSelect, onDateSelect }: Ses
   };
 
   const today = new Date();
-  const selectedDateSessions = selectedDate 
-    ? sessions.filter(s => s.startTime.toDateString() === selectedDate.toDateString())
+  const selectedDateSessions = selectedDate
+    ? sessions.filter((s) => s.startTime.toDateString() === selectedDate.toDateString())
     : [];
 
   return (
@@ -314,12 +331,7 @@ export function SessionCalendar({ sessions, onSessionSelect, onDateSelect }: Ses
           </h3>
         </div>
         <div className="flex items-center space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handlePrevMonth}
-            className="h-8 w-8 p-0"
-          >
+          <Button variant="outline" size="sm" onClick={handlePrevMonth} className="h-8 w-8 p-0">
             <ChevronLeft className="h-4 w-4" />
           </Button>
           <Button
@@ -330,12 +342,7 @@ export function SessionCalendar({ sessions, onSessionSelect, onDateSelect }: Ses
           >
             Today
           </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleNextMonth}
-            className="h-8 w-8 p-0"
-          >
+          <Button variant="outline" size="sm" onClick={handleNextMonth} className="h-8 w-8 p-0">
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
@@ -345,8 +352,11 @@ export function SessionCalendar({ sessions, onSessionSelect, onDateSelect }: Ses
       <div className="border border-gray-200 rounded-lg overflow-hidden bg-white">
         {/* Weekday Headers */}
         <div className="grid grid-cols-7 bg-gray-50">
-          {WEEKDAYS.map(day => (
-            <div key={day} className="p-2 text-center text-sm font-medium text-gray-600 border-r border-gray-200 last:border-r-0">
+          {WEEKDAYS.map((day) => (
+            <div
+              key={day}
+              className="p-2 text-center text-sm font-medium text-gray-600 border-r border-gray-200 last:border-r-0"
+            >
               {day}
             </div>
           ))}
@@ -373,17 +383,15 @@ export function SessionCalendar({ sessions, onSessionSelect, onDateSelect }: Ses
       {selectedDate && (
         <div className="border-t pt-4">
           <h4 className="font-medium mb-3">
-            Sessions for {selectedDate.toLocaleDateString('en-US', { 
-              weekday: 'long', 
-              year: 'numeric', 
-              month: 'long', 
-              day: 'numeric' 
+            Sessions for{' '}
+            {selectedDate.toLocaleDateString('en-US', {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
             })}
           </h4>
-          <SessionsList 
-            sessions={selectedDateSessions} 
-            onSessionSelect={handleSessionSelect}
-          />
+          <SessionsList sessions={selectedDateSessions} onSessionSelect={handleSessionSelect} />
         </div>
       )}
 

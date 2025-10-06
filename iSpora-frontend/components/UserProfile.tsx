@@ -1,14 +1,21 @@
-import React, { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Button } from "./ui/button";
-import { Badge } from "./ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { ScrollArea } from "./ui/scroll-area";
-import { Separator } from "./ui/separator";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "./ui/dialog";
-import { Textarea } from "./ui/textarea";
-import { 
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Button } from './ui/button';
+import { Badge } from './ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { ScrollArea } from './ui/scroll-area';
+import { Separator } from './ui/separator';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogDescription,
+} from './ui/dialog';
+import { Textarea } from './ui/textarea';
+import {
   ArrowLeft,
   MapPin,
   Building,
@@ -41,8 +48,8 @@ import {
   Rocket,
   Target,
   BookOpen,
-  Zap
-} from "lucide-react";
+  Zap,
+} from 'lucide-react';
 
 interface UserProfileData {
   id: string;
@@ -114,7 +121,8 @@ interface UserProfileData {
 const mockUserProfile: UserProfileData = {
   id: '1',
   name: 'Dr. Kwame Asante',
-  avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
+  avatar:
+    'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
   title: 'Senior AI Research Scientist',
   company: 'Google DeepMind',
   location: 'London, UK',
@@ -122,8 +130,23 @@ const mockUserProfile: UserProfileData = {
   graduationYear: '2015',
   program: 'PhD Computer Science',
   bio: 'Leading AI research in natural language processing and machine learning ethics. Passionate about mentoring the next generation of African tech leaders and building ethical AI systems that benefit humanity.',
-  skills: ['Machine Learning', 'Natural Language Processing', 'Python', 'TensorFlow', 'Research', 'Ethics in AI', 'Deep Learning', 'Data Science'],
-  expertise: ['Artificial Intelligence', 'Deep Learning', 'Ethics in AI', 'Natural Language Processing', 'Research Methodology'],
+  skills: [
+    'Machine Learning',
+    'Natural Language Processing',
+    'Python',
+    'TensorFlow',
+    'Research',
+    'Ethics in AI',
+    'Deep Learning',
+    'Data Science',
+  ],
+  expertise: [
+    'Artificial Intelligence',
+    'Deep Learning',
+    'Ethics in AI',
+    'Natural Language Processing',
+    'Research Methodology',
+  ],
   role: 'mentor',
   experience: 8,
   connectionStatus: 'none',
@@ -137,32 +160,33 @@ const mockUserProfile: UserProfileData = {
     linkedin: 'https://linkedin.com/in/kwameasante',
     twitter: 'https://twitter.com/kwameasante',
     email: 'kwame@deepmind.com',
-    website: 'https://kwameasante.com'
+    website: 'https://kwameasante.com',
   },
   achievements: [
     {
       title: 'Best Paper Award - NeurIPS 2023',
-      description: 'For groundbreaking research in ethical AI frameworks and bias mitigation techniques',
+      description:
+        'For groundbreaking research in ethical AI frameworks and bias mitigation techniques',
       date: '2023-12-15',
-      type: 'award'
+      type: 'award',
     },
     {
       title: 'Google AI Impact Scholar',
       description: 'Recognized for contributions to responsible AI development',
       date: '2023-06-01',
-      type: 'award'
+      type: 'award',
     },
     {
       title: 'Certified AI Ethics Practitioner',
       description: 'Professional certification in AI ethics and responsible ML practices',
       date: '2022-09-15',
-      type: 'certification'
-    }
+      type: 'certification',
+    },
   ],
   availability: {
     mentoring: true,
     collaboration: true,
-    consultation: false
+    consultation: false,
   },
   testimonials: [
     {
@@ -170,32 +194,37 @@ const mockUserProfile: UserProfileData = {
       from: {
         name: 'Sarah Chen',
         title: 'ML Engineer at Meta',
-        avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face'
+        avatar:
+          'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face',
       },
-      content: 'Kwame is an exceptional mentor who guided me through my transition into AI research. His insights on ethical AI practices have shaped my approach to building responsible ML systems.',
+      content:
+        'Kwame is an exceptional mentor who guided me through my transition into AI research. His insights on ethical AI practices have shaped my approach to building responsible ML systems.',
       date: '2024-01-15',
-      type: 'mentorship'
+      type: 'mentorship',
     },
     {
       id: '2',
       from: {
         name: 'David Okonkwo',
         title: 'PhD Student at MIT',
-        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face'
+        avatar:
+          'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face',
       },
-      content: 'Working with Kwame on our joint research project was incredible. His expertise in NLP and commitment to ethical AI made our collaboration extremely productive.',
+      content:
+        'Working with Kwame on our joint research project was incredible. His expertise in NLP and commitment to ethical AI made our collaboration extremely productive.',
       date: '2023-11-20',
-      type: 'collaboration'
-    }
+      type: 'collaboration',
+    },
   ],
   projects: [
     {
       id: '1',
       name: 'Ethical AI Framework for Healthcare',
-      description: 'Developing bias-free AI models for medical diagnosis in underserved communities',
+      description:
+        'Developing bias-free AI models for medical diagnosis in underserved communities',
       role: 'Lead Researcher',
       status: 'active',
-      technologies: ['Python', 'TensorFlow', 'PyTorch', 'MLflow']
+      technologies: ['Python', 'TensorFlow', 'PyTorch', 'MLflow'],
     },
     {
       id: '2',
@@ -203,42 +232,42 @@ const mockUserProfile: UserProfileData = {
       description: 'Building natural language processing models for African languages',
       role: 'Principal Investigator',
       status: 'completed',
-      technologies: ['Transformers', 'Python', 'HuggingFace', 'NLTK']
-    }
+      technologies: ['Transformers', 'Python', 'HuggingFace', 'NLTK'],
+    },
   ],
   publications: [
     {
       title: 'Bias Mitigation in Large Language Models: A Comprehensive Survey',
       venue: 'Nature Machine Intelligence',
       year: '2023',
-      url: 'https://example.com/paper1'
+      url: 'https://example.com/paper1',
     },
     {
       title: 'Ethical Considerations in AI for Healthcare Applications',
       venue: 'NeurIPS 2023',
       year: '2023',
-      url: 'https://example.com/paper2'
+      url: 'https://example.com/paper2',
     },
     {
       title: 'Multilingual NLP for African Languages: Challenges and Opportunities',
       venue: 'ACL 2022',
       year: '2022',
-      url: 'https://example.com/paper3'
-    }
-  ]
+      url: 'https://example.com/paper3',
+    },
+  ],
 };
 
 // Skill icons mapping
 const skillIcons: Record<string, any> = {
   'Machine Learning': Zap,
   'Natural Language Processing': MessageCircle,
-  'Python': Code,
-  'TensorFlow': Target,
-  'Research': BookOpen,
+  Python: Code,
+  TensorFlow: Target,
+  Research: BookOpen,
   'Ethics in AI': Shield,
   'Deep Learning': BarChart3,
   'Data Science': TrendingUp,
-  'Leadership': Award
+  Leadership: Award,
 };
 
 // Role configurations
@@ -248,7 +277,7 @@ const roleConfig = {
   alumni: { color: 'bg-purple-100 text-purple-800', icon: GraduationCap },
   student: { color: 'bg-orange-100 text-orange-800', icon: BookOpen },
   researcher: { color: 'bg-indigo-100 text-indigo-800', icon: Target },
-  entrepreneur: { color: 'bg-red-100 text-red-800', icon: Rocket }
+  entrepreneur: { color: 'bg-red-100 text-red-800', icon: Rocket },
 };
 
 interface UserProfileProps {
@@ -265,7 +294,7 @@ export function UserProfile({ userId, onBack, onConnect, onMessage }: UserProfil
 
   // In a real app, you would fetch user data based on userId
   const user = mockUserProfile;
-  
+
   const roleInfo = roleConfig[user.role];
   const RoleIcon = roleInfo.icon;
 
@@ -283,7 +312,10 @@ export function UserProfile({ userId, onBack, onConnect, onMessage }: UserProfil
     switch (user.connectionStatus) {
       case 'connected':
         return (
-          <Button onClick={() => onMessage?.(user.id)} className="bg-[#021ff6] hover:bg-[#021ff6]/90">
+          <Button
+            onClick={() => onMessage?.(user.id)}
+            className="bg-[#021ff6] hover:bg-[#021ff6]/90"
+          >
             <MessageCircle className="h-4 w-4 mr-2" />
             Send Message
           </Button>
@@ -326,14 +358,14 @@ export function UserProfile({ userId, onBack, onConnect, onMessage }: UserProfil
                   className="min-h-[100px]"
                 />
                 <div className="flex gap-3">
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     onClick={() => setShowConnectDialog(false)}
                     className="flex-1"
                   >
                     Cancel
                   </Button>
-                  <Button 
+                  <Button
                     onClick={handleConnect}
                     className="flex-1 bg-[#021ff6] hover:bg-[#021ff6]/90"
                   >
@@ -367,7 +399,10 @@ export function UserProfile({ userId, onBack, onConnect, onMessage }: UserProfil
                 <Avatar className="h-24 w-24">
                   <AvatarImage src={user.avatar} alt={user.name} />
                   <AvatarFallback className="text-xl">
-                    {user.name.split(' ').map(n => n[0]).join('')}
+                    {user.name
+                      .split(' ')
+                      .map((n) => n[0])
+                      .join('')}
                   </AvatarFallback>
                 </Avatar>
                 {user.isOnline && (
@@ -391,9 +426,9 @@ export function UserProfile({ userId, onBack, onConnect, onMessage }: UserProfil
                       {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
                     </Badge>
                   </div>
-                  
+
                   <h2 className="text-xl text-gray-700 mb-1">{user.title}</h2>
-                  
+
                   <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
                     <div className="flex items-center gap-1">
                       <Building className="h-4 w-4" />
@@ -413,7 +448,10 @@ export function UserProfile({ userId, onBack, onConnect, onMessage }: UserProfil
                 {/* Availability Badges */}
                 <div className="flex flex-wrap gap-2">
                   {user.availability?.mentoring && (
-                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                    <Badge
+                      variant="outline"
+                      className="bg-green-50 text-green-700 border-green-200"
+                    >
                       <Users className="h-3 w-3 mr-1" />
                       Available for Mentoring
                     </Badge>
@@ -425,7 +463,10 @@ export function UserProfile({ userId, onBack, onConnect, onMessage }: UserProfil
                     </Badge>
                   )}
                   {user.availability?.consultation && (
-                    <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
+                    <Badge
+                      variant="outline"
+                      className="bg-purple-50 text-purple-700 border-purple-200"
+                    >
                       <Coffee className="h-3 w-3 mr-1" />
                       Offering Consultation
                     </Badge>
@@ -455,7 +496,7 @@ export function UserProfile({ userId, onBack, onConnect, onMessage }: UserProfil
               {/* Action Buttons */}
               <div className="flex flex-col gap-3">
                 {getConnectionButton()}
-                
+
                 <div className="flex gap-2">
                   <Button variant="outline" size="sm">
                     <Video className="h-4 w-4 mr-2" />
@@ -471,14 +512,22 @@ export function UserProfile({ userId, onBack, onConnect, onMessage }: UserProfil
                   <div className="flex gap-2">
                     {user.socialLinks.linkedin && (
                       <Button variant="outline" size="sm" asChild>
-                        <a href={user.socialLinks.linkedin} target="_blank" rel="noopener noreferrer">
+                        <a
+                          href={user.socialLinks.linkedin}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
                           <Linkedin className="h-4 w-4" />
                         </a>
                       </Button>
                     )}
                     {user.socialLinks.twitter && (
                       <Button variant="outline" size="sm" asChild>
-                        <a href={user.socialLinks.twitter} target="_blank" rel="noopener noreferrer">
+                        <a
+                          href={user.socialLinks.twitter}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
                           <Twitter className="h-4 w-4" />
                         </a>
                       </Button>
@@ -492,7 +541,11 @@ export function UserProfile({ userId, onBack, onConnect, onMessage }: UserProfil
                     )}
                     {user.socialLinks.website && (
                       <Button variant="outline" size="sm" asChild>
-                        <a href={user.socialLinks.website} target="_blank" rel="noopener noreferrer">
+                        <a
+                          href={user.socialLinks.website}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
                           <Globe className="h-4 w-4" />
                         </a>
                       </Button>
@@ -526,7 +579,7 @@ export function UserProfile({ userId, onBack, onConnect, onMessage }: UserProfil
                 </CardHeader>
                 <CardContent>
                   <div className="flex flex-wrap gap-2">
-                    {user.skills.map(skill => {
+                    {user.skills.map((skill) => {
                       const SkillIcon = skillIcons[skill] || Code;
                       return (
                         <Badge key={skill} variant="outline" className="flex items-center gap-1">
@@ -549,7 +602,7 @@ export function UserProfile({ userId, onBack, onConnect, onMessage }: UserProfil
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
-                    {user.expertise.map(area => (
+                    {user.expertise.map((area) => (
                       <div key={area} className="flex items-center gap-2">
                         <Star className="h-4 w-4 text-yellow-500" />
                         <span className="text-sm">{area}</span>
@@ -569,7 +622,7 @@ export function UserProfile({ userId, onBack, onConnect, onMessage }: UserProfil
                 </CardHeader>
                 <CardContent>
                   <div className="flex flex-wrap gap-2">
-                    {user.interests.map(interest => (
+                    {user.interests.map((interest) => (
                       <Badge key={interest} variant="outline">
                         {interest}
                       </Badge>
@@ -618,11 +671,12 @@ export function UserProfile({ userId, onBack, onConnect, onMessage }: UserProfil
                     <p className="text-gray-600 mb-2">{user.company}</p>
                     <p className="text-sm text-gray-500">2020 - Present</p>
                     <p className="text-sm text-gray-700 mt-2">
-                      Leading cutting-edge research in AI ethics and natural language processing. 
-                      Mentoring junior researchers and contributing to responsible AI development practices.
+                      Leading cutting-edge research in AI ethics and natural language processing.
+                      Mentoring junior researchers and contributing to responsible AI development
+                      practices.
                     </p>
                   </div>
-                  
+
                   <div className="border-l-2 border-gray-200 pl-6">
                     <div className="flex items-center gap-2 mb-2">
                       <Building className="h-4 w-4 text-gray-600" />
@@ -642,7 +696,7 @@ export function UserProfile({ userId, onBack, onConnect, onMessage }: UserProfil
 
           <TabsContent value="projects" className="mt-6">
             <div className="space-y-4">
-              {user.projects?.map(project => (
+              {user.projects?.map((project) => (
                 <Card key={project.id}>
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between mb-3">
@@ -657,7 +711,7 @@ export function UserProfile({ userId, onBack, onConnect, onMessage }: UserProfil
                     <p className="text-gray-700 mb-3">{project.description}</p>
                     {project.technologies && (
                       <div className="flex flex-wrap gap-1">
-                        {project.technologies.map(tech => (
+                        {project.technologies.map((tech) => (
                           <Badge key={tech} variant="outline" className="text-xs">
                             {tech}
                           </Badge>
@@ -672,14 +726,17 @@ export function UserProfile({ userId, onBack, onConnect, onMessage }: UserProfil
 
           <TabsContent value="testimonials" className="mt-6">
             <div className="space-y-4">
-              {user.testimonials?.map(testimonial => (
+              {user.testimonials?.map((testimonial) => (
                 <Card key={testimonial.id}>
                   <CardContent className="p-6">
                     <div className="flex items-start gap-4">
                       <Avatar className="h-12 w-12">
                         <AvatarImage src={testimonial.from.avatar} alt={testimonial.from.name} />
                         <AvatarFallback>
-                          {testimonial.from.name.split(' ').map(n => n[0]).join('')}
+                          {testimonial.from.name
+                            .split(' ')
+                            .map((n) => n[0])
+                            .join('')}
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1">

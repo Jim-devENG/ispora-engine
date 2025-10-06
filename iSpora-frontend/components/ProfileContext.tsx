@@ -17,7 +17,7 @@ export interface UserProfile {
   linkedIn: string;
   twitter?: string;
   avatar?: string;
-  
+
   // Professional details
   university: string;
   graduationYear: string;
@@ -26,7 +26,7 @@ export interface UserProfile {
   expertise: string[];
   role: 'mentor' | 'professional' | 'alumni' | 'student' | 'researcher' | 'entrepreneur';
   experience: number; // years of experience
-  
+
   // Network details
   isVerified: boolean;
   isOnline: boolean;
@@ -34,12 +34,12 @@ export interface UserProfile {
   interests: string[];
   mutualConnections: number;
   responseRate: number;
-  
+
   // Diaspora status
   isDiaspora: boolean; // Whether user is part of diaspora community
   diasporaLocation?: string; // Location where user is in diaspora
   homeCountry?: string; // Original home country
-  
+
   // Availability and preferences
   availability: {
     mentoring: boolean;
@@ -50,7 +50,7 @@ export interface UserProfile {
     advising?: boolean;
   };
   openTo: string[]; // What they're open to
-  
+
   // Social links
   socialLinks: {
     linkedin?: string;
@@ -58,28 +58,28 @@ export interface UserProfile {
     email?: string;
     website?: string;
   };
-  
+
   // Achievements
   achievements: {
     title: string;
     description: string;
     date: string;
   }[];
-  
+
   // University connections
   universities: {
     name: string;
     role: string;
     isVerified: boolean;
   }[];
-  
+
   // Privacy settings
   privacy: {
     profileVisibility: 'public' | 'alumni' | 'private';
     contactVisibility: 'public' | 'alumni' | 'private';
     professionalVisibility: 'public' | 'alumni' | 'private';
   };
-  
+
   // Preferences
   preferences: {
     language: string;
@@ -115,8 +115,9 @@ const defaultProfile: UserProfile = {
   website: 'https://johndoe.dev',
   linkedIn: 'https://linkedin.com/in/johndoe',
   twitter: 'https://twitter.com/johndoe',
-  avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
-  
+  avatar:
+    'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
+
   // Professional details
   university: 'University of Lagos',
   graduationYear: '2018',
@@ -125,7 +126,7 @@ const defaultProfile: UserProfile = {
   expertise: ['Full-Stack Development', 'Team Leadership', 'Product Strategy'],
   role: 'professional',
   experience: 6,
-  
+
   // Network details
   isVerified: true,
   isOnline: true,
@@ -133,12 +134,12 @@ const defaultProfile: UserProfile = {
   interests: ['Technology', 'Mentorship', 'Startup Culture', 'AI/ML'],
   mutualConnections: 0, // Self
   responseRate: 95,
-  
+
   // Diaspora status
   isDiaspora: true, // User is part of diaspora community
   diasporaLocation: 'San Francisco, CA',
   homeCountry: 'Nigeria',
-  
+
   // Availability and preferences
   availability: {
     mentoring: true,
@@ -146,59 +147,59 @@ const defaultProfile: UserProfile = {
     consultation: true,
     volunteering: false,
     speaking: true,
-    advising: true
+    advising: true,
   },
   openTo: ['Mentorship', 'Collaboration', 'Consulting', 'Speaking'],
-  
+
   // Social links
   socialLinks: {
     linkedin: 'https://linkedin.com/in/johndoe',
     twitter: 'https://twitter.com/johndoe',
     email: 'john.doe@aspora.co',
-    website: 'https://johndoe.dev'
+    website: 'https://johndoe.dev',
   },
-  
+
   // Achievements
   achievements: [
     {
       title: 'Tech Leadership Award',
       description: 'Recognized for outstanding leadership in technology innovation',
-      date: '2023-11-15'
+      date: '2023-11-15',
     },
     {
       title: 'Alumni Mentor of the Year',
       description: 'Awarded for exceptional mentorship contributions',
-      date: '2023-06-20'
-    }
+      date: '2023-06-20',
+    },
   ],
-  
+
   // University connections
   universities: [
     {
       name: 'University of Lagos',
       role: 'Alumni & Campaign Creator',
-      isVerified: true
+      isVerified: true,
     },
     {
       name: 'Makerere University',
       role: 'Campaign Creator',
-      isVerified: true
-    }
+      isVerified: true,
+    },
   ],
-  
+
   // Privacy settings
   privacy: {
     profileVisibility: 'public',
     contactVisibility: 'alumni',
-    professionalVisibility: 'public'
+    professionalVisibility: 'public',
   },
-  
+
   // Preferences
   preferences: {
     language: 'English',
     timezone: 'PST (GMT-8)',
-    theme: 'light'
-  }
+    theme: 'light',
+  },
 };
 
 export function ProfileProvider({ children }: { children: ReactNode }) {
@@ -208,7 +209,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
 
   // Update computed fields when profile changes
   useEffect(() => {
-    setProfile(prev => ({
+    setProfile((prev) => ({
       ...prev,
       name: `${prev.firstName} ${prev.lastName}`,
       title: prev.position,
@@ -216,40 +217,48 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
         ...prev.socialLinks,
         linkedin: prev.linkedIn,
         email: prev.email,
-        website: prev.website
-      }
+        website: prev.website,
+      },
     }));
-  }, [profile.firstName, profile.lastName, profile.position, profile.linkedIn, profile.email, profile.website]);
+  }, [
+    profile.firstName,
+    profile.lastName,
+    profile.position,
+    profile.linkedIn,
+    profile.email,
+    profile.website,
+  ]);
 
   const updateProfile = (updates: Partial<UserProfile>) => {
-    setProfile(prev => ({
+    setProfile((prev) => ({
       ...prev,
       ...updates,
       // Always update computed fields
-      name: updates.firstName || updates.lastName 
-        ? `${updates.firstName || prev.firstName} ${updates.lastName || prev.lastName}`
-        : prev.name,
+      name:
+        updates.firstName || updates.lastName
+          ? `${updates.firstName || prev.firstName} ${updates.lastName || prev.lastName}`
+          : prev.name,
       title: updates.position || prev.title,
       socialLinks: {
         ...prev.socialLinks,
         ...(updates.socialLinks || {}),
         linkedin: updates.linkedIn || prev.socialLinks.linkedin,
         email: updates.email || prev.socialLinks.email,
-        website: updates.website || prev.socialLinks.website
-      }
+        website: updates.website || prev.socialLinks.website,
+      },
     }));
   };
 
   const saveProfile = async () => {
     // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
     setOriginalProfile(profile);
     setIsEditing(false);
-    
+
     // In a real app, you'd make an API call here
     console.log('Profile saved:', profile);
-    
+
     // Update localStorage for persistence
     localStorage.setItem('userProfile', JSON.stringify(profile));
   };
@@ -274,14 +283,16 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <ProfileContext.Provider value={{
-      profile,
-      updateProfile,
-      isEditing,
-      setIsEditing,
-      saveProfile,
-      resetProfile
-    }}>
+    <ProfileContext.Provider
+      value={{
+        profile,
+        updateProfile,
+        isEditing,
+        setIsEditing,
+        saveProfile,
+        resetProfile,
+      }}
+    >
       {children}
     </ProfileContext.Provider>
   );
@@ -325,6 +336,6 @@ export function profileToNetworkUser(profile: UserProfile) {
     openTo: profile.openTo,
     isDiaspora: profile.isDiaspora,
     diasporaLocation: profile.diasporaLocation,
-    homeCountry: profile.homeCountry
+    homeCountry: profile.homeCountry,
   };
 }

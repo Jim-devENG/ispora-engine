@@ -2,49 +2,49 @@ name: Deploy iSpora Frontend to Namecheap
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [main, master]
     paths:
       - 'iSpora-frontend/**'
       - '.github/workflows/deploy.yml'
   pull_request:
-    branches: [ main, master ]
+    branches: [main, master]
     paths:
       - 'iSpora-frontend/**'
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        
-    - name: Install dependencies
-      run: npm ci
-      
-    - name: Build application
-      run: npm run build
-      
-    - name: Deploy to Namecheap via FTP
-      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
-      with:
-        server: ${{ secrets.FTP_SERVER }}
-        username: ${{ secrets.FTP_USERNAME }}
-        password: ${{ secrets.FTP_PASSWORD }}
-        port: 21
-        protocol: ftp
-        local-dir: ./dist/
-        server-dir: ./public_html/
-        exclude: |
-          **/.git*
-          **/.git*/**
-          **/node_modules/**
-          **/.env
-          **/.env.*
-          **/README.md
-          **/.gitignore
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: npm run build
+
+      - name: Deploy to Namecheap via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          port: 21
+          protocol: ftp
+          local-dir: ./dist/
+          server-dir: ./public_html/
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            **/.env
+            **/.env.*
+            **/README.md
+            **/.gitignore

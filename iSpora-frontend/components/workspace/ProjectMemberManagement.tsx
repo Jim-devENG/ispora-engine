@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
   ArrowLeft,
   Search,
@@ -30,20 +30,26 @@ import {
   Zap,
   BookOpen,
   Target,
-  Heart
-} from "lucide-react";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { Badge } from "../ui/badge";
-import { Progress } from "../ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { ScrollArea } from "../ui/scroll-area";
-import { Separator } from "../ui/separator";
-import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu";
+  Heart,
+} from 'lucide-react';
+import { Button } from '../ui/button';
+import { Input } from '../ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { Badge } from '../ui/badge';
+import { Progress } from '../ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { ScrollArea } from '../ui/scroll-area';
+import { Separator } from '../ui/separator';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '../ui/dropdown-menu';
 
 interface ProjectMember {
   id: string;
@@ -75,135 +81,140 @@ interface ProjectMember {
 // Extended mock data for comprehensive member management
 const mockMembers: ProjectMember[] = [
   {
-    id: "1",
-    name: "Alex Chen",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
-    email: "alex.chen@stanford.edu",
-    university: "Stanford University",
-    program: "Computer Science",
-    year: "Junior",
-    role: "researcher",
-    status: "active",
+    id: '1',
+    name: 'Alex Chen',
+    avatar:
+      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+    email: 'alex.chen@stanford.edu',
+    university: 'Stanford University',
+    program: 'Computer Science',
+    year: 'Junior',
+    role: 'researcher',
+    status: 'active',
     progress: 85,
     isOnline: true,
-    joinDate: "2024-01-15",
-    lastActive: "2 hours ago",
+    joinDate: '2024-01-15',
+    lastActive: '2 hours ago',
     contributions: 147,
     rating: 4.8,
-    location: "Palo Alto, CA",
-    skills: ["Python", "Machine Learning", "Research"],
-    bio: "Passionate about AI ethics and responsible technology development.",
+    location: 'Palo Alto, CA',
+    skills: ['Python', 'Machine Learning', 'Research'],
+    bio: 'Passionate about AI ethics and responsible technology development.',
     projectSpecificData: {
       tasksCompleted: 12,
       hoursContributed: 45,
       sessionsAttended: 8,
-      achievementsEarned: 3
-    }
+      achievementsEarned: 3,
+    },
   },
   {
-    id: "2",
-    name: "Sarah Williams",
-    avatar: "https://images.unsplash.com/photo-1494790108755-2616b25f5e55?w=150&h=150&fit=crop&crop=face",
-    email: "sarah.williams@mit.edu",
-    university: "MIT",
-    program: "Electrical Engineering",
-    year: "Sophomore",
-    role: "participant",
-    status: "active",
+    id: '2',
+    name: 'Sarah Williams',
+    avatar:
+      'https://images.unsplash.com/photo-1494790108755-2616b25f5e55?w=150&h=150&fit=crop&crop=face',
+    email: 'sarah.williams@mit.edu',
+    university: 'MIT',
+    program: 'Electrical Engineering',
+    year: 'Sophomore',
+    role: 'participant',
+    status: 'active',
     progress: 72,
     isOnline: false,
-    joinDate: "2024-01-20",
-    lastActive: "1 day ago",
+    joinDate: '2024-01-20',
+    lastActive: '1 day ago',
     contributions: 89,
     rating: 4.6,
-    location: "Cambridge, MA",
-    skills: ["Hardware Design", "Signal Processing"],
-    bio: "Interested in the intersection of hardware and AI ethics.",
+    location: 'Cambridge, MA',
+    skills: ['Hardware Design', 'Signal Processing'],
+    bio: 'Interested in the intersection of hardware and AI ethics.',
     projectSpecificData: {
       tasksCompleted: 8,
       hoursContributed: 32,
       sessionsAttended: 6,
-      achievementsEarned: 2
-    }
+      achievementsEarned: 2,
+    },
   },
   {
-    id: "3",
-    name: "Dr. Maria Rodriguez",
-    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
-    email: "maria.rodriguez@berkeley.edu",
-    university: "UC Berkeley",
-    program: "Faculty",
-    year: "Professor",
-    role: "mentor",
-    status: "active",
+    id: '3',
+    name: 'Dr. Maria Rodriguez',
+    avatar:
+      'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
+    email: 'maria.rodriguez@berkeley.edu',
+    university: 'UC Berkeley',
+    program: 'Faculty',
+    year: 'Professor',
+    role: 'mentor',
+    status: 'active',
     progress: 95,
     isOnline: true,
-    joinDate: "2024-01-10",
-    lastActive: "30 minutes ago",
+    joinDate: '2024-01-10',
+    lastActive: '30 minutes ago',
     contributions: 203,
     rating: 4.9,
-    location: "Berkeley, CA",
-    skills: ["AI Ethics", "Policy", "Mentoring"],
-    bio: "Professor of Computer Science specializing in AI ethics and policy.",
+    location: 'Berkeley, CA',
+    skills: ['AI Ethics', 'Policy', 'Mentoring'],
+    bio: 'Professor of Computer Science specializing in AI ethics and policy.',
     projectSpecificData: {
       tasksCompleted: 15,
       hoursContributed: 68,
       sessionsAttended: 12,
-      achievementsEarned: 5
-    }
+      achievementsEarned: 5,
+    },
   },
   {
-    id: "4",
-    name: "Jordan Martinez",
-    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
-    email: "jordan.martinez@ucla.edu",
-    university: "UCLA",
-    program: "Business Administration",
-    year: "Senior",
-    role: "participant",
-    status: "paused",
+    id: '4',
+    name: 'Jordan Martinez',
+    avatar:
+      'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
+    email: 'jordan.martinez@ucla.edu',
+    university: 'UCLA',
+    program: 'Business Administration',
+    year: 'Senior',
+    role: 'participant',
+    status: 'paused',
     progress: 45,
     isOnline: false,
-    joinDate: "2024-02-01",
-    lastActive: "1 week ago",
+    joinDate: '2024-02-01',
+    lastActive: '1 week ago',
     contributions: 34,
     rating: 4.2,
-    location: "Los Angeles, CA",
-    skills: ["Business Strategy", "Project Management"],
-    bio: "Exploring the business implications of ethical AI.",
+    location: 'Los Angeles, CA',
+    skills: ['Business Strategy', 'Project Management'],
+    bio: 'Exploring the business implications of ethical AI.',
     projectSpecificData: {
       tasksCompleted: 4,
       hoursContributed: 18,
       sessionsAttended: 3,
-      achievementsEarned: 1
-    }
+      achievementsEarned: 1,
+    },
   },
   {
-    id: "5",
-    name: "Emma Thompson",
-    avatar: "https://images.unsplash.com/photo-1494790108755-2616b25f5e55?w=150&h=150&fit=crop&crop=face",
-    email: "emma.thompson@harvard.edu",
-    university: "Harvard University",
-    program: "Philosophy",
-    year: "Graduate",
-    role: "expert",
-    status: "active",
+    id: '5',
+    name: 'Emma Thompson',
+    avatar:
+      'https://images.unsplash.com/photo-1494790108755-2616b25f5e55?w=150&h=150&fit=crop&crop=face',
+    email: 'emma.thompson@harvard.edu',
+    university: 'Harvard University',
+    program: 'Philosophy',
+    year: 'Graduate',
+    role: 'expert',
+    status: 'active',
     progress: 78,
     isOnline: true,
-    joinDate: "2024-01-25",
-    lastActive: "1 hour ago",
+    joinDate: '2024-01-25',
+    lastActive: '1 hour ago',
     contributions: 124,
     rating: 4.7,
-    location: "Cambridge, MA",
-    skills: ["Ethics", "Philosophy", "Critical Thinking"],
-    bio: "PhD candidate focusing on moral philosophy in technology.",
+    location: 'Cambridge, MA',
+    skills: ['Ethics', 'Philosophy', 'Critical Thinking'],
+    bio: 'PhD candidate focusing on moral philosophy in technology.',
     projectSpecificData: {
       tasksCompleted: 10,
       hoursContributed: 42,
       sessionsAttended: 9,
-      achievementsEarned: 4
-    }
-  }
+      achievementsEarned: 4,
+    },
+  },
 ];
 
 const roleIcons = {
@@ -213,24 +224,24 @@ const roleIcons = {
   leader: Star,
   researcher: Zap,
   volunteer: Heart,
-  expert: Award
+  expert: Award,
 };
 
 const roleColors = {
-  mentor: "bg-blue-100 text-blue-800",
-  mentee: "bg-green-100 text-green-800",
-  participant: "bg-purple-100 text-purple-800",
-  leader: "bg-yellow-100 text-yellow-800",
-  researcher: "bg-indigo-100 text-indigo-800",
-  volunteer: "bg-pink-100 text-pink-800",
-  expert: "bg-orange-100 text-orange-800"
+  mentor: 'bg-blue-100 text-blue-800',
+  mentee: 'bg-green-100 text-green-800',
+  participant: 'bg-purple-100 text-purple-800',
+  leader: 'bg-yellow-100 text-yellow-800',
+  researcher: 'bg-indigo-100 text-indigo-800',
+  volunteer: 'bg-pink-100 text-pink-800',
+  expert: 'bg-orange-100 text-orange-800',
 };
 
 const statusColors = {
-  active: "bg-green-100 text-green-800",
-  paused: "bg-yellow-100 text-yellow-800",
-  completed: "bg-blue-100 text-blue-800",
-  inactive: "bg-gray-100 text-gray-800"
+  active: 'bg-green-100 text-green-800',
+  paused: 'bg-yellow-100 text-yellow-800',
+  completed: 'bg-blue-100 text-blue-800',
+  inactive: 'bg-gray-100 text-gray-800',
 };
 
 interface ProjectMemberManagementProps {
@@ -240,39 +251,40 @@ interface ProjectMemberManagementProps {
   projectType?: string;
 }
 
-export function ProjectMemberManagement({ 
-  onSelectMember, 
-  onClose, 
+export function ProjectMemberManagement({
+  onSelectMember,
+  onClose,
   selectedMemberId,
-  projectType = "research"
+  projectType = 'research',
 }: ProjectMemberManagementProps) {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedRole, setSelectedRole] = useState("all");
-  const [selectedStatus, setSelectedStatus] = useState("all");
-  const [sortBy, setSortBy] = useState("name");
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedRole, setSelectedRole] = useState('all');
+  const [selectedStatus, setSelectedStatus] = useState('all');
+  const [sortBy, setSortBy] = useState('name');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [selectedMember, setSelectedMember] = useState<ProjectMember | null>(
-    mockMembers.find(m => m.id === selectedMemberId) || null
+    mockMembers.find((m) => m.id === selectedMemberId) || null,
   );
 
-  const filteredMembers = mockMembers.filter(member => {
-    const matchesSearch = member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         member.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         member.university.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesRole = selectedRole === "all" || member.role === selectedRole;
-    const matchesStatus = selectedStatus === "all" || member.status === selectedStatus;
+  const filteredMembers = mockMembers.filter((member) => {
+    const matchesSearch =
+      member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      member.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      member.university.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesRole = selectedRole === 'all' || member.role === selectedRole;
+    const matchesStatus = selectedStatus === 'all' || member.status === selectedStatus;
     return matchesSearch && matchesRole && matchesStatus;
   });
 
   const sortedMembers = [...filteredMembers].sort((a, b) => {
     switch (sortBy) {
-      case "name":
+      case 'name':
         return a.name.localeCompare(b.name);
-      case "progress":
+      case 'progress':
         return b.progress - a.progress;
-      case "contributions":
+      case 'contributions':
         return b.contributions - a.contributions;
-      case "joinDate":
+      case 'joinDate':
         return new Date(b.joinDate).getTime() - new Date(a.joinDate).getTime();
       default:
         return 0;
@@ -289,7 +301,7 @@ export function ProjectMemberManagement({
     const isSelected = selectedMemberId === member.id;
 
     return (
-      <Card 
+      <Card
         className={`cursor-pointer transition-all hover:shadow-md ${
           isSelected ? 'ring-2 ring-[#021ff6] bg-blue-50' : ''
         }`}
@@ -300,13 +312,18 @@ export function ProjectMemberManagement({
             <div className="relative">
               <Avatar className="h-12 w-12">
                 <AvatarImage src={member.avatar} />
-                <AvatarFallback>{member.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                <AvatarFallback>
+                  {member.name
+                    .split(' ')
+                    .map((n) => n[0])
+                    .join('')}
+                </AvatarFallback>
               </Avatar>
               {member.isOnline && (
                 <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
               )}
             </div>
-            
+
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between">
                 <h4 className="font-medium truncate">{member.name}</h4>
@@ -337,10 +354,12 @@ export function ProjectMemberManagement({
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
-              
+
               <p className="text-sm text-gray-600 truncate">{member.university}</p>
-              <p className="text-xs text-gray-500">{member.program} • {member.year}</p>
-              
+              <p className="text-xs text-gray-500">
+                {member.program} • {member.year}
+              </p>
+
               <div className="flex items-center gap-2 mt-2">
                 <Badge className={roleColors[member.role]} variant="secondary">
                   <RoleIcon className="h-3 w-3 mr-1" />
@@ -350,7 +369,7 @@ export function ProjectMemberManagement({
                   {member.status}
                 </Badge>
               </div>
-              
+
               <div className="mt-3">
                 <div className="flex justify-between text-sm mb-1">
                   <span>Progress</span>
@@ -358,7 +377,7 @@ export function ProjectMemberManagement({
                 </div>
                 <Progress value={member.progress} className="h-1" />
               </div>
-              
+
               <div className="grid grid-cols-2 gap-2 mt-3 text-xs text-gray-500">
                 <div>Contributions: {member.contributions}</div>
                 <div>Rating: {member.rating ? `${member.rating}/5` : 'N/A'}</div>
@@ -375,7 +394,7 @@ export function ProjectMemberManagement({
     const isSelected = selectedMemberId === member.id;
 
     return (
-      <div 
+      <div
         className={`p-4 border rounded-lg cursor-pointer transition-all hover:shadow-sm ${
           isSelected ? 'ring-2 ring-[#021ff6] bg-blue-50' : ''
         }`}
@@ -385,13 +404,18 @@ export function ProjectMemberManagement({
           <div className="relative">
             <Avatar className="h-10 w-10">
               <AvatarImage src={member.avatar} />
-              <AvatarFallback>{member.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+              <AvatarFallback>
+                {member.name
+                  .split(' ')
+                  .map((n) => n[0])
+                  .join('')}
+              </AvatarFallback>
             </Avatar>
             {member.isOnline && (
               <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
             )}
           </div>
-          
+
           <div className="flex-1 grid grid-cols-6 gap-4 items-center">
             <div>
               <p className="font-medium">{member.name}</p>
@@ -421,7 +445,7 @@ export function ProjectMemberManagement({
               <div className="text-xs text-gray-500">contributions</div>
             </div>
           </div>
-          
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
@@ -484,7 +508,7 @@ export function ProjectMemberManagement({
               className="pl-10"
             />
           </div>
-          
+
           <Select value={selectedRole} onValueChange={setSelectedRole}>
             <SelectTrigger className="w-32">
               <SelectValue placeholder="Role" />
@@ -498,7 +522,7 @@ export function ProjectMemberManagement({
               <SelectItem value="expert">Experts</SelectItem>
             </SelectContent>
           </Select>
-          
+
           <Select value={selectedStatus} onValueChange={setSelectedStatus}>
             <SelectTrigger className="w-32">
               <SelectValue placeholder="Status" />
@@ -510,7 +534,7 @@ export function ProjectMemberManagement({
               <SelectItem value="completed">Completed</SelectItem>
             </SelectContent>
           </Select>
-          
+
           <Select value={sortBy} onValueChange={setSortBy}>
             <SelectTrigger className="w-40">
               <SelectValue placeholder="Sort by" />
@@ -522,20 +546,20 @@ export function ProjectMemberManagement({
               <SelectItem value="joinDate">Join Date</SelectItem>
             </SelectContent>
           </Select>
-          
+
           <div className="flex border rounded-lg">
             <Button
-              variant={viewMode === "grid" ? "default" : "ghost"}
+              variant={viewMode === 'grid' ? 'default' : 'ghost'}
               size="sm"
-              onClick={() => setViewMode("grid")}
+              onClick={() => setViewMode('grid')}
               className="rounded-r-none"
             >
               Grid
             </Button>
             <Button
-              variant={viewMode === "list" ? "default" : "ghost"}
+              variant={viewMode === 'list' ? 'default' : 'ghost'}
               size="sm"
-              onClick={() => setViewMode("list")}
+              onClick={() => setViewMode('list')}
               className="rounded-l-none"
             >
               List
@@ -547,7 +571,7 @@ export function ProjectMemberManagement({
       {/* Members List */}
       <div className="flex-1 overflow-hidden">
         <ScrollArea className="h-full p-6">
-          {viewMode === "grid" ? (
+          {viewMode === 'grid' ? (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {sortedMembers.map((member) => (
                 <MemberCard key={member.id} member={member} />
@@ -560,7 +584,7 @@ export function ProjectMemberManagement({
               ))}
             </div>
           )}
-          
+
           {sortedMembers.length === 0 && (
             <div className="text-center py-12">
               <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />

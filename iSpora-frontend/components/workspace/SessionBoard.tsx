@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import {
   Calendar,
   Clock,
@@ -20,21 +20,29 @@ import {
   Linkedin,
   Facebook,
   Link2,
-  Phone
-} from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
-import { Button } from "../ui/button";
-import { Badge } from "../ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { Textarea } from "../ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { ScrollArea } from "../ui/scroll-area";
-import { Separator } from "../ui/separator";
-import { Switch } from "../ui/switch";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+  Phone,
+} from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
+import { Button } from '../ui/button';
+import { Badge } from '../ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '../ui/dialog';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
+import { Textarea } from '../ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { ScrollArea } from '../ui/scroll-area';
+import { Separator } from '../ui/separator';
+import { Switch } from '../ui/switch';
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
+import { ModernSessionModal } from '../../src/components/ModernSessionModal';
 
 interface Session {
   id: string;
@@ -86,11 +94,11 @@ interface SessionDetails {
 // All demo sessions removed – start empty and create sessions in real time
 
 const statusColors = {
-  upcoming: "bg-blue-100 text-blue-800",
-  'in-progress': "bg-green-100 text-green-800",
-  completed: "bg-gray-100 text-gray-800",
-  cancelled: "bg-red-100 text-red-800",
-  rescheduled: "bg-yellow-100 text-yellow-800"
+  upcoming: 'bg-blue-100 text-blue-800',
+  'in-progress': 'bg-green-100 text-green-800',
+  completed: 'bg-gray-100 text-gray-800',
+  cancelled: 'bg-red-100 text-red-800',
+  rescheduled: 'bg-yellow-100 text-yellow-800',
 };
 
 const statusIcons = {
@@ -98,10 +106,14 @@ const statusIcons = {
   'in-progress': Play,
   completed: CheckCircle,
   cancelled: AlertCircle,
-  rescheduled: Calendar
+  rescheduled: Calendar,
 };
 
-function ShareSessionDialog({ session, isOpen, onClose }: {
+function ShareSessionDialog({
+  session,
+  isOpen,
+  onClose,
+}: {
   session: Session;
   isOpen: boolean;
   onClose: () => void;
@@ -130,7 +142,10 @@ function ShareSessionDialog({ session, isOpen, onClose }: {
     const url = encodeURIComponent(shareUrl);
     const title = encodeURIComponent(session.title);
     const summary = encodeURIComponent(session.description || '');
-    window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}&title=${title}&summary=${summary}`, '_blank');
+    window.open(
+      `https://www.linkedin.com/sharing/share-offsite/?url=${url}&title=${title}&summary=${summary}`,
+      '_blank',
+    );
   };
 
   const shareOnFacebook = () => {
@@ -146,9 +161,7 @@ function ShareSessionDialog({ session, isOpen, onClose }: {
             <Share2 className="h-5 w-5" />
             Share Session
           </DialogTitle>
-          <DialogDescription>
-            Share "{session.title}" with others
-          </DialogDescription>
+          <DialogDescription>Share "{session.title}" with others</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
@@ -185,17 +198,8 @@ function ShareSessionDialog({ session, isOpen, onClose }: {
           <div className="space-y-2">
             <Label className="text-sm font-medium">Session Link</Label>
             <div className="flex gap-2">
-              <Input
-                value={shareUrl}
-                readOnly
-                className="flex-1 text-sm"
-              />
-              <Button
-                onClick={handleCopyLink}
-                variant="outline"
-                size="sm"
-                className="px-3"
-              >
+              <Input value={shareUrl} readOnly className="flex-1 text-sm" />
+              <Button onClick={handleCopyLink} variant="outline" size="sm" className="px-3">
                 {copied ? (
                   <CheckCircle className="h-4 w-4 text-green-600" />
                 ) : (
@@ -203,9 +207,7 @@ function ShareSessionDialog({ session, isOpen, onClose }: {
                 )}
               </Button>
             </div>
-            {copied && (
-              <p className="text-xs text-green-600">Link copied to clipboard!</p>
-            )}
+            {copied && <p className="text-xs text-green-600">Link copied to clipboard!</p>}
           </div>
 
           {/* Social Share Buttons */}
@@ -262,7 +264,13 @@ function ShareSessionDialog({ session, isOpen, onClose }: {
   );
 }
 
-function SessionCreateDialog({ isOpen, onClose, onCreateSession, editingSession, mentee }: {
+function SessionCreateDialog({
+  isOpen,
+  onClose,
+  onCreateSession,
+  editingSession,
+  mentee,
+}: {
   isOpen: boolean;
   onClose: () => void;
   onCreateSession: (session: SessionDetails) => void;
@@ -273,14 +281,18 @@ function SessionCreateDialog({ isOpen, onClose, onCreateSession, editingSession,
     title: editingSession?.title || '',
     description: editingSession?.description || '',
     isPublic: editingSession?.isPublic || false,
-    scheduledDate: editingSession?.scheduledDate ? editingSession.scheduledDate.toISOString().split('T')[0] : '',
-    scheduledTime: editingSession?.scheduledDate ? editingSession.scheduledDate.toTimeString().split(' ')[0].slice(0, 5) : '',
+    scheduledDate: editingSession?.scheduledDate
+      ? editingSession.scheduledDate.toISOString().split('T')[0]
+      : '',
+    scheduledTime: editingSession?.scheduledDate
+      ? editingSession.scheduledDate.toTimeString().split(' ')[0].slice(0, 5)
+      : '',
     duration: editingSession?.duration || 60,
     tags: editingSession?.tags || [],
     maxParticipants: editingSession?.maxParticipants || 50,
     type: editingSession?.type || 'video',
     location: editingSession?.location || '',
-    agenda: editingSession?.agenda || []
+    agenda: editingSession?.agenda || [],
   });
 
   const [tagsInput, setTagsInput] = useState(editingSession?.tags?.join(', ') || '');
@@ -300,7 +312,7 @@ function SessionCreateDialog({ isOpen, onClose, onCreateSession, editingSession,
         maxParticipants: 50,
         type: 'video',
         location: '',
-        agenda: []
+        agenda: [],
       });
       setTagsInput('');
       setAgendaInput('');
@@ -314,8 +326,18 @@ function SessionCreateDialog({ isOpen, onClose, onCreateSession, editingSession,
 
     const session: SessionDetails = {
       ...sessionData,
-      tags: tagsInput ? tagsInput.split(',').map(tag => tag.trim()).filter(tag => tag) : [],
-      agenda: agendaInput ? agendaInput.split('\n').map(item => item.trim()).filter(item => item) : []
+      tags: tagsInput
+        ? tagsInput
+            .split(',')
+            .map((tag) => tag.trim())
+            .filter((tag) => tag)
+        : [],
+      agenda: agendaInput
+        ? agendaInput
+            .split('\n')
+            .map((item) => item.trim())
+            .filter((item) => item)
+        : [],
     };
 
     onCreateSession(session);
@@ -324,16 +346,13 @@ function SessionCreateDialog({ isOpen, onClose, onCreateSession, editingSession,
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[75vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[75vh] flex flex-col w-[95vw] sm:w-full">
         <DialogHeader>
-          <DialogTitle>
-            {editingSession ? 'Edit Session' : 'Schedule New Session'}
-          </DialogTitle>
+          <DialogTitle>{editingSession ? 'Edit Session' : 'Schedule New Session'}</DialogTitle>
           <DialogDescription>
-            {editingSession 
+            {editingSession
               ? 'Update session details and settings'
-              : `Set up a new session with ${mentee.name} or make it public for the iSpora community`
-            }
+              : `Set up a new session with ${mentee.name} or make it public for the iSpora community`}
           </DialogDescription>
         </DialogHeader>
 
@@ -345,7 +364,7 @@ function SessionCreateDialog({ isOpen, onClose, onCreateSession, editingSession,
               id="title"
               placeholder="e.g., React Advanced Patterns Workshop"
               value={sessionData.title}
-              onChange={(e) => setSessionData(prev => ({ ...prev, title: e.target.value }))}
+              onChange={(e) => setSessionData((prev) => ({ ...prev, title: e.target.value }))}
               className="mt-1"
             />
           </div>
@@ -357,7 +376,7 @@ function SessionCreateDialog({ isOpen, onClose, onCreateSession, editingSession,
               id="description"
               placeholder="Describe what this session will cover..."
               value={sessionData.description}
-              onChange={(e) => setSessionData(prev => ({ ...prev, description: e.target.value }))}
+              onChange={(e) => setSessionData((prev) => ({ ...prev, description: e.target.value }))}
               rows={3}
               className="mt-1"
             />
@@ -381,7 +400,9 @@ function SessionCreateDialog({ isOpen, onClose, onCreateSession, editingSession,
                 </div>
                 <Switch
                   checked={!sessionData.isPublic}
-                  onCheckedChange={(checked) => setSessionData(prev => ({ ...prev, isPublic: !checked }))}
+                  onCheckedChange={(checked) =>
+                    setSessionData((prev) => ({ ...prev, isPublic: !checked }))
+                  }
                 />
               </div>
 
@@ -399,7 +420,9 @@ function SessionCreateDialog({ isOpen, onClose, onCreateSession, editingSession,
                 </div>
                 <Switch
                   checked={sessionData.isPublic}
-                  onCheckedChange={(checked) => setSessionData(prev => ({ ...prev, isPublic: checked }))}
+                  onCheckedChange={(checked) =>
+                    setSessionData((prev) => ({ ...prev, isPublic: checked }))
+                  }
                 />
               </div>
             </div>
@@ -413,7 +436,9 @@ function SessionCreateDialog({ isOpen, onClose, onCreateSession, editingSession,
                 id="date"
                 type="date"
                 value={sessionData.scheduledDate}
-                onChange={(e) => setSessionData(prev => ({ ...prev, scheduledDate: e.target.value }))}
+                onChange={(e) =>
+                  setSessionData((prev) => ({ ...prev, scheduledDate: e.target.value }))
+                }
                 className="mt-1"
               />
             </div>
@@ -423,7 +448,9 @@ function SessionCreateDialog({ isOpen, onClose, onCreateSession, editingSession,
                 id="time"
                 type="time"
                 value={sessionData.scheduledTime}
-                onChange={(e) => setSessionData(prev => ({ ...prev, scheduledTime: e.target.value }))}
+                onChange={(e) =>
+                  setSessionData((prev) => ({ ...prev, scheduledTime: e.target.value }))
+                }
                 className="mt-1"
               />
             </div>
@@ -433,9 +460,11 @@ function SessionCreateDialog({ isOpen, onClose, onCreateSession, editingSession,
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label htmlFor="duration">Duration (minutes)</Label>
-              <Select 
-                value={sessionData.duration.toString()} 
-                onValueChange={(value) => setSessionData(prev => ({ ...prev, duration: parseInt(value) }))}
+              <Select
+                value={sessionData.duration.toString()}
+                onValueChange={(value) =>
+                  setSessionData((prev) => ({ ...prev, duration: parseInt(value) }))
+                }
               >
                 <SelectTrigger className="mt-1">
                   <SelectValue placeholder="Select duration" />
@@ -452,9 +481,11 @@ function SessionCreateDialog({ isOpen, onClose, onCreateSession, editingSession,
             </div>
             <div>
               <Label htmlFor="type">Session Type</Label>
-              <Select 
-                value={sessionData.type} 
-                onValueChange={(value: 'video' | 'phone' | 'in-person') => setSessionData(prev => ({ ...prev, type: value }))}
+              <Select
+                value={sessionData.type}
+                onValueChange={(value: 'video' | 'phone' | 'in-person') =>
+                  setSessionData((prev) => ({ ...prev, type: value }))
+                }
               >
                 <SelectTrigger className="mt-1">
                   <SelectValue placeholder="Select type" />
@@ -491,7 +522,7 @@ function SessionCreateDialog({ isOpen, onClose, onCreateSession, editingSession,
                 id="location"
                 placeholder="Enter meeting location"
                 value={sessionData.location}
-                onChange={(e) => setSessionData(prev => ({ ...prev, location: e.target.value }))}
+                onChange={(e) => setSessionData((prev) => ({ ...prev, location: e.target.value }))}
                 className="mt-1"
               />
             </div>
@@ -501,9 +532,11 @@ function SessionCreateDialog({ isOpen, onClose, onCreateSession, editingSession,
           {sessionData.isPublic && (
             <div>
               <Label htmlFor="maxParticipants">Maximum Participants</Label>
-              <Select 
-                value={sessionData.maxParticipants?.toString() || "50"} 
-                onValueChange={(value) => setSessionData(prev => ({ ...prev, maxParticipants: parseInt(value) }))}
+              <Select
+                value={sessionData.maxParticipants?.toString() || '50'}
+                onValueChange={(value) =>
+                  setSessionData((prev) => ({ ...prev, maxParticipants: parseInt(value) }))
+                }
               >
                 <SelectTrigger className="mt-1">
                   <SelectValue placeholder="Select limit" />
@@ -560,14 +593,17 @@ function SessionCreateDialog({ isOpen, onClose, onCreateSession, editingSession,
                 </Badge>
               )}
               <Badge variant="secondary">{sessionData.duration}min</Badge>
-              <Badge variant="secondary" className="capitalize">{sessionData.type}</Badge>
+              <Badge variant="secondary" className="capitalize">
+                {sessionData.type}
+              </Badge>
               {sessionData.isPublic && sessionData.maxParticipants && (
                 <Badge variant="secondary">Max {sessionData.maxParticipants}</Badge>
               )}
             </div>
             {sessionData.scheduledDate && sessionData.scheduledTime && (
               <p className="text-xs text-gray-600">
-                Scheduled for {new Date(sessionData.scheduledDate).toLocaleDateString()} at {sessionData.scheduledTime}
+                Scheduled for {new Date(sessionData.scheduledDate).toLocaleDateString()} at{' '}
+                {sessionData.scheduledTime}
               </p>
             )}
           </div>
@@ -578,9 +614,11 @@ function SessionCreateDialog({ isOpen, onClose, onCreateSession, editingSession,
           <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button 
+          <Button
             onClick={handleSubmit}
-            disabled={!sessionData.title.trim() || !sessionData.scheduledDate || !sessionData.scheduledTime}
+            disabled={
+              !sessionData.title.trim() || !sessionData.scheduledDate || !sessionData.scheduledTime
+            }
             className="bg-[#021ff6] hover:bg-[#021ff6]/90"
           >
             {editingSession ? 'Update Session' : 'Schedule Session'}
@@ -591,7 +629,13 @@ function SessionCreateDialog({ isOpen, onClose, onCreateSession, editingSession,
   );
 }
 
-function SessionCard({ session, onEdit, onDelete, onJoin, onShare }: {
+function SessionCard({
+  session,
+  onEdit,
+  onDelete,
+  onJoin,
+  onShare,
+}: {
   session: Session;
   onEdit: (session: Session) => void;
   onDelete: (sessionId: string) => void;
@@ -599,19 +643,20 @@ function SessionCard({ session, onEdit, onDelete, onJoin, onShare }: {
   onShare: (session: Session) => void;
 }) {
   const StatusIcon = statusIcons[session.status];
-  
+
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat('en-US', {
       weekday: 'short',
       month: 'short',
       day: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     }).format(date);
   };
 
   const isUpcoming = session.status === 'upcoming';
-  const canJoin = session.status === 'upcoming' && 
+  const canJoin =
+    session.status === 'upcoming' &&
     Math.abs(session.scheduledDate.getTime() - Date.now()) <= 30 * 60 * 1000; // 30 minutes
 
   return (
@@ -622,7 +667,10 @@ function SessionCard({ session, onEdit, onDelete, onJoin, onShare }: {
             <div className="flex items-center gap-2 flex-wrap">
               <CardTitle className="text-sm truncate">{session.title}</CardTitle>
               {session.isPublic ? (
-                <Badge variant="default" className="bg-green-100 text-green-800 text-xs px-1.5 py-0.5">
+                <Badge
+                  variant="default"
+                  className="bg-green-100 text-green-800 text-xs px-1.5 py-0.5"
+                >
                   <Globe className="h-3 w-3 mr-1" />
                   Public
                 </Badge>
@@ -633,7 +681,9 @@ function SessionCard({ session, onEdit, onDelete, onJoin, onShare }: {
                 </Badge>
               )}
             </div>
-            <CardDescription className="text-xs line-clamp-1">{session.description}</CardDescription>
+            <CardDescription className="text-xs line-clamp-1">
+              {session.description}
+            </CardDescription>
           </div>
           <div className="flex items-center gap-1">
             <Badge className={`${statusColors[session.status]} text-xs px-1.5 py-0.5`}>
@@ -672,7 +722,7 @@ function SessionCard({ session, onEdit, onDelete, onJoin, onShare }: {
           </div>
         </div>
       </CardHeader>
-      
+
       <CardContent className="space-y-2">
         {/* Session Details */}
         <div className="grid grid-cols-2 gap-2 text-xs">
@@ -720,7 +770,10 @@ function SessionCard({ session, onEdit, onDelete, onJoin, onShare }: {
               <Avatar key={index} className="h-6 w-6 border-2 border-white">
                 <AvatarImage src={attendee.avatar} alt={attendee.name} />
                 <AvatarFallback className="text-xs">
-                  {attendee.name.split(' ').map(n => n[0]).join('')}
+                  {attendee.name
+                    .split(' ')
+                    .map((n) => n[0])
+                    .join('')}
                 </AvatarFallback>
               </Avatar>
             ))}
@@ -745,9 +798,7 @@ function SessionCard({ session, onEdit, onDelete, onJoin, onShare }: {
                 </li>
               ))}
               {session.agenda.length > 2 && (
-                <li className="text-gray-400 text-xs">
-                  +{session.agenda.length - 2} more items
-                </li>
+                <li className="text-gray-400 text-xs">+{session.agenda.length - 2} more items</li>
               )}
             </ul>
           </div>
@@ -757,9 +808,7 @@ function SessionCard({ session, onEdit, onDelete, onJoin, onShare }: {
         {session.notes && session.status === 'completed' && (
           <div className="space-y-2">
             <Label className="text-sm font-medium">Session Notes</Label>
-            <p className="text-sm text-gray-600 bg-gray-50 p-3 rounded-md">
-              {session.notes}
-            </p>
+            <p className="text-sm text-gray-600 bg-gray-50 p-3 rounded-md">{session.notes}</p>
           </div>
         )}
 
@@ -769,7 +818,10 @@ function SessionCard({ session, onEdit, onDelete, onJoin, onShare }: {
             <Label className="text-sm font-medium">Recordings</Label>
             <div className="space-y-1">
               {session.recordings.map((recording, index) => (
-                <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded-md">
+                <div
+                  key={index}
+                  className="flex items-center justify-between p-2 bg-gray-50 rounded-md"
+                >
                   <div className="flex items-center gap-2">
                     <Play className="h-4 w-4 text-gray-500" />
                     <span className="text-sm">{recording.title}</span>
@@ -789,7 +841,7 @@ function SessionCard({ session, onEdit, onDelete, onJoin, onShare }: {
         {/* Actions */}
         <div className="flex items-center gap-2 pt-2 border-t flex-wrap">
           {isUpcoming && session.meetingLink && (
-            <Button 
+            <Button
               className={`${canJoin ? 'bg-[#021ff6] hover:bg-[#021ff6]/90' : 'bg-gray-400'} flex-1 min-w-0`}
               onClick={() => onJoin(session)}
               disabled={!canJoin}
@@ -803,7 +855,12 @@ function SessionCard({ session, onEdit, onDelete, onJoin, onShare }: {
               Edit
             </Button>
           )}
-          <Button variant="ghost" size="sm" onClick={() => onDelete(session.id)} className="flex-shrink-0">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onDelete(session.id)}
+            className="flex-shrink-0"
+          >
             <Trash2 className="h-4 w-4" />
           </Button>
         </div>
@@ -839,8 +896,8 @@ export function SessionBoard({ mentee }: SessionBoardProps) {
           description: r.description || '',
           scheduledDate: r.scheduled_at ? new Date(r.scheduled_at) : new Date(),
           duration: r.duration || 60,
-          status: (r.status || 'upcoming'),
-          type: (r.type || 'video'),
+          status: r.status || 'upcoming',
+          type: r.type || 'video',
           meetingLink: r.meeting_link || undefined,
           location: r.location || undefined,
           agenda: r.agenda ? String(r.agenda).split('\n').filter(Boolean) : [],
@@ -859,10 +916,13 @@ export function SessionBoard({ mentee }: SessionBoardProps) {
     };
     load();
     const id = setInterval(load, 30000);
-    return () => { controller.abort(); clearInterval(id); };
+    return () => {
+      controller.abort();
+      clearInterval(id);
+    };
   }, []);
 
-  const filteredSessions = sessions.filter(session => {
+  const filteredSessions = sessions.filter((session) => {
     if (viewFilter === 'all') return true;
     if (viewFilter === 'upcoming') return session.status === 'upcoming';
     if (viewFilter === 'completed') return session.status === 'completed';
@@ -892,21 +952,33 @@ export function SessionBoard({ mentee }: SessionBoardProps) {
           tags: sessionDetails.tags,
           agenda: sessionDetails.agenda,
           scheduledDate: sessionDetails.scheduledDate,
-          scheduledTime: sessionDetails.scheduledTime
+          scheduledTime: sessionDetails.scheduledTime,
         };
-        await fetch(`${API_BASE_URL}/sessions/${editingSession.id}`, { method: 'PUT', headers, body: JSON.stringify(body) });
-        setSessions(prev => prev.map(s => s.id === editingSession.id ? {
-          ...s,
-          title: sessionDetails.title,
-          description: sessionDetails.description,
-          scheduledDate: new Date(`${sessionDetails.scheduledDate}T${sessionDetails.scheduledTime}`),
-          duration: sessionDetails.duration,
-          type: sessionDetails.type,
-          location: sessionDetails.location,
-          isPublic: sessionDetails.isPublic,
-          tags: sessionDetails.tags,
-          agenda: sessionDetails.agenda
-        } : s));
+        await fetch(`${API_BASE_URL}/sessions/${editingSession.id}`, {
+          method: 'PUT',
+          headers,
+          body: JSON.stringify(body),
+        });
+        setSessions((prev) =>
+          prev.map((s) =>
+            s.id === editingSession.id
+              ? {
+                  ...s,
+                  title: sessionDetails.title,
+                  description: sessionDetails.description,
+                  scheduledDate: new Date(
+                    `${sessionDetails.scheduledDate}T${sessionDetails.scheduledTime}`,
+                  ),
+                  duration: sessionDetails.duration,
+                  type: sessionDetails.type,
+                  location: sessionDetails.location,
+                  isPublic: sessionDetails.isPublic,
+                  tags: sessionDetails.tags,
+                  agenda: sessionDetails.agenda,
+                }
+              : s,
+          ),
+        );
       } else {
         const body: any = {
           title: sessionDetails.title,
@@ -920,9 +992,13 @@ export function SessionBoard({ mentee }: SessionBoardProps) {
           isPublic: sessionDetails.isPublic,
           maxParticipants: sessionDetails.maxParticipants,
           tags: sessionDetails.tags,
-          agenda: sessionDetails.agenda
+          agenda: sessionDetails.agenda,
         };
-        const res = await fetch(`${API_BASE_URL}/sessions`, { method: 'POST', headers, body: JSON.stringify(body) });
+        const res = await fetch(`${API_BASE_URL}/sessions`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(body),
+        });
         const json = await res.json();
         const r = json.data || json;
         const created: Session = {
@@ -940,9 +1016,9 @@ export function SessionBoard({ mentee }: SessionBoardProps) {
           tags: body.tags,
           maxParticipants: r.max_participants || body.maxParticipants,
           shareUrl: generateShareUrl(r.id),
-          attendees: []
+          attendees: [],
         };
-        setSessions(prev => [created, ...prev]);
+        setSessions((prev) => [created, ...prev]);
       }
     } catch {}
     setEditingSession(null);
@@ -951,9 +1027,9 @@ export function SessionBoard({ mentee }: SessionBoardProps) {
   const handleJoinSession = (session: Session) => {
     if (session.meetingLink) {
       // Update session status to in-progress
-      setSessions(prev => prev.map(s => 
-        s.id === session.id ? { ...s, status: 'in-progress' as const } : s
-      ));
+      setSessions((prev) =>
+        prev.map((s) => (s.id === session.id ? { ...s, status: 'in-progress' as const } : s)),
+      );
       // Open meeting link or navigate to LiveSession
       window.open(session.meetingLink, '_blank');
     }
@@ -972,7 +1048,7 @@ export function SessionBoard({ mentee }: SessionBoardProps) {
     if (token) headers['Authorization'] = `Bearer ${token}`;
     try {
       await fetch(`${API_BASE_URL}/sessions/${sessionId}`, { method: 'DELETE', headers });
-      setSessions(prev => prev.filter(s => s.id !== sessionId));
+      setSessions((prev) => prev.filter((s) => s.id !== sessionId));
     } catch {}
   };
 
@@ -980,9 +1056,9 @@ export function SessionBoard({ mentee }: SessionBoardProps) {
     setShareSession(session);
   };
 
-  const upcomingCount = sessions.filter(s => s.status === 'upcoming').length;
-  const completedCount = sessions.filter(s => s.status === 'completed').length;
-  const publicCount = sessions.filter(s => s.isPublic).length;
+  const upcomingCount = sessions.filter((s) => s.status === 'upcoming').length;
+  const completedCount = sessions.filter((s) => s.status === 'completed').length;
+  const publicCount = sessions.filter((s) => s.isPublic).length;
 
   return (
     <div className="flex flex-col bg-gray-50">
@@ -991,9 +1067,11 @@ export function SessionBoard({ mentee }: SessionBoardProps) {
         <div className="flex items-center justify-between mb-4">
           <div>
             <h3 className="text-lg font-semibold">Session Board</h3>
-            <p className="text-gray-600">Manage mentorship sessions with {mentee.name} and public workshops</p>
+            <p className="text-gray-600">
+              Manage mentorship sessions with {mentee.name} and public workshops
+            </p>
           </div>
-          <Button 
+          <Button
             onClick={() => setShowCreateDialog(true)}
             className="bg-[#021ff6] hover:bg-[#021ff6]/90"
           >
@@ -1018,7 +1096,7 @@ export function SessionBoard({ mentee }: SessionBoardProps) {
               <div className="text-sm text-gray-600">Public</div>
             </div>
           </div>
-          
+
           <Select value={viewFilter} onValueChange={(value: any) => setViewFilter(value)}>
             <SelectTrigger className="w-40">
               <SelectValue />
@@ -1041,13 +1119,15 @@ export function SessionBoard({ mentee }: SessionBoardProps) {
                 <Calendar className="h-12 w-12 text-gray-300 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">No sessions found</h3>
                 <p className="text-gray-500 mb-4">
-                  {viewFilter === 'all' 
+                  {viewFilter === 'all'
                     ? 'Schedule your first mentorship session'
-                    : `No ${viewFilter} sessions`
-                  }
+                    : `No ${viewFilter} sessions`}
                 </p>
                 {viewFilter === 'all' && (
-                  <Button onClick={() => setShowCreateDialog(true)} className="bg-[#021ff6] hover:bg-[#021ff6]/90">
+                  <Button
+                    onClick={() => setShowCreateDialog(true)}
+                    className="bg-[#021ff6] hover:bg-[#021ff6]/90"
+                  >
                     <Plus className="h-4 w-4 mr-2" />
                     Schedule First Session
                   </Button>
@@ -1069,14 +1149,14 @@ export function SessionBoard({ mentee }: SessionBoardProps) {
         </ScrollArea>
       </div>
 
-      {/* Session Create Dialog */}
-      <SessionCreateDialog
+      {/* Modern Session Modal */}
+      <ModernSessionModal
         isOpen={showCreateDialog}
         onClose={() => {
           setShowCreateDialog(false);
           setEditingSession(null);
         }}
-        onCreateSession={handleCreateSession}
+        onSubmit={handleCreateSession}
         editingSession={editingSession}
         mentee={mentee}
       />

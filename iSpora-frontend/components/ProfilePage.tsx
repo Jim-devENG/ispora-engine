@@ -1,25 +1,25 @@
-import React, { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import { Textarea } from "./ui/textarea";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { Badge } from "./ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { Separator } from "./ui/separator";
-import { Switch } from "./ui/switch";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { ScrollArea } from "./ui/scroll-area";
-import { toast } from "sonner";
-import { useProfile } from "./ProfileContext";
-import { DashboardHeader } from "./DashboardHeader";
-import { 
-  User, 
-  Camera, 
-  MapPin, 
-  Briefcase, 
-  Calendar, 
+import React, { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Label } from './ui/label';
+import { Textarea } from './ui/textarea';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { Badge } from './ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import { Separator } from './ui/separator';
+import { Switch } from './ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { ScrollArea } from './ui/scroll-area';
+import { toast } from 'sonner';
+import { useProfile } from './ProfileContext';
+import { DashboardHeader } from './DashboardHeader';
+import {
+  User,
+  Camera,
+  MapPin,
+  Briefcase,
+  Calendar,
   Mail,
   Phone,
   Globe,
@@ -54,41 +54,40 @@ import {
   AlertCircle,
   BookOpen,
   Code,
-  Palette
-} from "lucide-react";
+  Palette,
+} from 'lucide-react';
 
 // Helper components
-function SkillBadge({ skill, onRemove, isEditing }: { 
-  skill: string; 
-  onRemove?: () => void; 
-  isEditing?: boolean; 
+function SkillBadge({
+  skill,
+  onRemove,
+  isEditing,
+}: {
+  skill: string;
+  onRemove?: () => void;
+  isEditing?: boolean;
 }) {
   const skillIcons: Record<string, any> = {
-    'JavaScript': Code,
-    'React': Code,
+    JavaScript: Code,
+    React: Code,
     'Node.js': Code,
-    'Python': Code,
-    'AWS': Code,
-    'Leadership': Users,
-    'Design': Palette,
-    'Strategy': Target,
-    'Mentorship': Users,
-    'Communication': Users
+    Python: Code,
+    AWS: Code,
+    Leadership: Users,
+    Design: Palette,
+    Strategy: Target,
+    Mentorship: Users,
+    Communication: Users,
   };
-  
+
   const Icon = skillIcons[skill] || Code;
-  
+
   return (
     <Badge variant="secondary" className="flex items-center gap-1">
       <Icon className="h-3 w-3" />
       {skill}
       {isEditing && onRemove && (
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-auto p-0 ml-1"
-          onClick={onRemove}
-        >
+        <Button variant="ghost" size="sm" className="h-auto p-0 ml-1" onClick={onRemove}>
           <X className="h-3 w-3" />
         </Button>
       )}
@@ -96,34 +95,36 @@ function SkillBadge({ skill, onRemove, isEditing }: {
   );
 }
 
-function OpenToTag({ tag, onRemove, isEditing }: { 
-  tag: string; 
-  onRemove?: () => void; 
-  isEditing?: boolean; 
+function OpenToTag({
+  tag,
+  onRemove,
+  isEditing,
+}: {
+  tag: string;
+  onRemove?: () => void;
+  isEditing?: boolean;
 }) {
   const tagConfig: Record<string, { color: string; icon: any }> = {
-    'Mentorship': { color: 'bg-blue-50 text-blue-700 border-blue-200', icon: Users },
-    'Collaboration': { color: 'bg-green-50 text-green-700 border-green-200', icon: Users2 },
-    'Consulting': { color: 'bg-orange-50 text-orange-700 border-orange-200', icon: Briefcase },
-    'Speaking': { color: 'bg-pink-50 text-pink-700 border-pink-200', icon: Video },
-    'Volunteering': { color: 'bg-purple-50 text-purple-700 border-purple-200', icon: Heart },
-    'Advising': { color: 'bg-yellow-50 text-yellow-700 border-yellow-200', icon: Lightbulb }
+    Mentorship: { color: 'bg-blue-50 text-blue-700 border-blue-200', icon: Users },
+    Collaboration: { color: 'bg-green-50 text-green-700 border-green-200', icon: Users2 },
+    Consulting: { color: 'bg-orange-50 text-orange-700 border-orange-200', icon: Briefcase },
+    Speaking: { color: 'bg-pink-50 text-pink-700 border-pink-200', icon: Video },
+    Volunteering: { color: 'bg-purple-50 text-purple-700 border-purple-200', icon: Heart },
+    Advising: { color: 'bg-yellow-50 text-yellow-700 border-yellow-200', icon: Lightbulb },
   };
-  
-  const config = tagConfig[tag] || { color: 'bg-gray-50 text-gray-700 border-gray-200', icon: Target };
+
+  const config = tagConfig[tag] || {
+    color: 'bg-gray-50 text-gray-700 border-gray-200',
+    icon: Target,
+  };
   const Icon = config.icon;
-  
+
   return (
     <Badge variant="outline" className={`${config.color} flex items-center gap-1`}>
       <Icon className="h-3 w-3" />
       {tag}
       {isEditing && onRemove && (
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-auto p-0 ml-1"
-          onClick={onRemove}
-        >
+        <Button variant="ghost" size="sm" className="h-auto p-0 ml-1" onClick={onRemove}>
           <X className="h-3 w-3" />
         </Button>
       )}
@@ -132,7 +133,8 @@ function OpenToTag({ tag, onRemove, isEditing }: {
 }
 
 export function ProfilePage() {
-  const { profile, updateProfile, isEditing, setIsEditing, saveProfile, resetProfile } = useProfile();
+  const { profile, updateProfile, isEditing, setIsEditing, saveProfile, resetProfile } =
+    useProfile();
   const [newSkill, setNewSkill] = useState('');
   const [newExpertise, setNewExpertise] = useState('');
   const [newInterest, setNewInterest] = useState('');
@@ -156,7 +158,7 @@ export function ProfilePage() {
   const addSkill = () => {
     if (newSkill.trim() && !profile.skills.includes(newSkill.trim())) {
       updateProfile({
-        skills: [...profile.skills, newSkill.trim()]
+        skills: [...profile.skills, newSkill.trim()],
       });
       setNewSkill('');
     }
@@ -164,14 +166,14 @@ export function ProfilePage() {
 
   const removeSkill = (skillToRemove: string) => {
     updateProfile({
-      skills: profile.skills.filter(skill => skill !== skillToRemove)
+      skills: profile.skills.filter((skill) => skill !== skillToRemove),
     });
   };
 
   const addExpertise = () => {
     if (newExpertise.trim() && !profile.expertise.includes(newExpertise.trim())) {
       updateProfile({
-        expertise: [...profile.expertise, newExpertise.trim()]
+        expertise: [...profile.expertise, newExpertise.trim()],
       });
       setNewExpertise('');
     }
@@ -179,14 +181,14 @@ export function ProfilePage() {
 
   const removeExpertise = (expertiseToRemove: string) => {
     updateProfile({
-      expertise: profile.expertise.filter(exp => exp !== expertiseToRemove)
+      expertise: profile.expertise.filter((exp) => exp !== expertiseToRemove),
     });
   };
 
   const addInterest = () => {
     if (newInterest.trim() && !profile.interests.includes(newInterest.trim())) {
       updateProfile({
-        interests: [...profile.interests, newInterest.trim()]
+        interests: [...profile.interests, newInterest.trim()],
       });
       setNewInterest('');
     }
@@ -194,14 +196,14 @@ export function ProfilePage() {
 
   const removeInterest = (interestToRemove: string) => {
     updateProfile({
-      interests: profile.interests.filter(interest => interest !== interestToRemove)
+      interests: profile.interests.filter((interest) => interest !== interestToRemove),
     });
   };
 
   const addOpenTo = () => {
     if (newOpenTo.trim() && !profile.openTo.includes(newOpenTo.trim())) {
       updateProfile({
-        openTo: [...profile.openTo, newOpenTo.trim()]
+        openTo: [...profile.openTo, newOpenTo.trim()],
       });
       setNewOpenTo('');
     }
@@ -209,7 +211,7 @@ export function ProfilePage() {
 
   const removeOpenTo = (openToRemove: string) => {
     updateProfile({
-      openTo: profile.openTo.filter(item => item !== openToRemove)
+      openTo: profile.openTo.filter((item) => item !== openToRemove),
     });
   };
 
@@ -217,8 +219,8 @@ export function ProfilePage() {
     updateProfile({
       availability: {
         ...profile.availability,
-        [key]: value
-      }
+        [key]: value,
+      },
     });
   };
 
@@ -226,8 +228,8 @@ export function ProfilePage() {
     updateProfile({
       privacy: {
         ...profile.privacy,
-        [key]: value
-      }
+        [key]: value,
+      },
     });
   };
 
@@ -235,18 +237,15 @@ export function ProfilePage() {
     updateProfile({
       preferences: {
         ...profile.preferences,
-        [key]: value
-      }
+        [key]: value,
+      },
     });
   };
 
   return (
     <div className="h-full flex flex-col">
-      <DashboardHeader 
-        userName={profile.firstName} 
-        userTitle="Manage your profile information"
-      />
-      
+      <DashboardHeader userName={profile.firstName} userTitle="Manage your profile information" />
+
       <div className="flex-1 overflow-hidden">
         <ScrollArea className="h-full">
           <div className="p-6 space-y-6">
@@ -259,7 +258,10 @@ export function ProfilePage() {
                 </p>
               </div>
               {!isEditing ? (
-                <Button onClick={() => setIsEditing(true)} className="bg-[#021ff6] hover:bg-[#021ff6]/90">
+                <Button
+                  onClick={() => setIsEditing(true)}
+                  className="bg-[#021ff6] hover:bg-[#021ff6]/90"
+                >
                   <Edit className="h-4 w-4 mr-2" />
                   Edit Profile
                 </Button>
@@ -302,7 +304,8 @@ export function ProfilePage() {
                           <Avatar className="h-24 w-24">
                             <AvatarImage src={profile.avatar} alt={profile.name} />
                             <AvatarFallback className="bg-[#021ff6] text-white text-xl">
-                              {profile.firstName[0]}{profile.lastName[0]}
+                              {profile.firstName[0]}
+                              {profile.lastName[0]}
                             </AvatarFallback>
                           </Avatar>
                           {isEditing && (
@@ -317,7 +320,11 @@ export function ProfilePage() {
                         </div>
                         {isEditing && (
                           <div className="text-center space-y-2">
-                            <Button variant="outline" size="sm" onClick={() => toast.info('Photo upload feature coming soon!')}>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => toast.info('Photo upload feature coming soon!')}
+                            >
                               Upload New Photo
                             </Button>
                             <p className="text-xs text-muted-foreground">
@@ -333,9 +340,7 @@ export function ProfilePage() {
                   <Card className="lg:col-span-2">
                     <CardHeader>
                       <CardTitle>Basic Information</CardTitle>
-                      <CardDescription>
-                        Your name and contact details
-                      </CardDescription>
+                      <CardDescription>Your name and contact details</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="grid grid-cols-2 gap-4">
@@ -358,7 +363,7 @@ export function ProfilePage() {
                           />
                         </div>
                       </div>
-                      
+
                       <div className="space-y-2">
                         <Label htmlFor="email">Email Address</Label>
                         <div className="relative">
@@ -373,7 +378,7 @@ export function ProfilePage() {
                           />
                         </div>
                       </div>
-                      
+
                       <div className="space-y-2">
                         <Label htmlFor="phone">Phone Number</Label>
                         <div className="relative">
@@ -387,7 +392,7 @@ export function ProfilePage() {
                           />
                         </div>
                       </div>
-                      
+
                       <div className="space-y-2">
                         <Label htmlFor="location">Location</Label>
                         <div className="relative">
@@ -401,7 +406,7 @@ export function ProfilePage() {
                           />
                         </div>
                       </div>
-                      
+
                       <div className="space-y-2">
                         <Label htmlFor="bio">Bio</Label>
                         <Textarea
@@ -422,16 +427,14 @@ export function ProfilePage() {
                   <Card>
                     <CardHeader>
                       <CardTitle>Skills</CardTitle>
-                      <CardDescription>
-                        Your technical and professional skills
-                      </CardDescription>
+                      <CardDescription>Your technical and professional skills</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="flex flex-wrap gap-2">
                         {profile.skills.map((skill, index) => (
-                          <SkillBadge 
-                            key={index} 
-                            skill={skill} 
+                          <SkillBadge
+                            key={index}
+                            skill={skill}
                             onRemove={() => removeSkill(skill)}
                             isEditing={isEditing}
                           />
@@ -456,9 +459,7 @@ export function ProfilePage() {
                   <Card>
                     <CardHeader>
                       <CardTitle>Interests</CardTitle>
-                      <CardDescription>
-                        Your personal and professional interests
-                      </CardDescription>
+                      <CardDescription>Your personal and professional interests</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="flex flex-wrap gap-2">
@@ -503,9 +504,7 @@ export function ProfilePage() {
                   <Card>
                     <CardHeader>
                       <CardTitle>Professional Information</CardTitle>
-                      <CardDescription>
-                        Your work experience and professional links
-                      </CardDescription>
+                      <CardDescription>Your work experience and professional links</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="grid grid-cols-2 gap-4">
@@ -536,7 +535,7 @@ export function ProfilePage() {
                           </div>
                         </div>
                       </div>
-                      
+
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label htmlFor="experience">Years of Experience</Label>
@@ -544,7 +543,9 @@ export function ProfilePage() {
                             id="experience"
                             type="number"
                             value={profile.experience}
-                            onChange={(e) => updateProfile({ experience: parseInt(e.target.value) || 0 })}
+                            onChange={(e) =>
+                              updateProfile({ experience: parseInt(e.target.value) || 0 })
+                            }
                             disabled={!isEditing}
                             min="0"
                             max="50"
@@ -552,8 +553,8 @@ export function ProfilePage() {
                         </div>
                         <div className="space-y-2">
                           <Label htmlFor="role">Role Type</Label>
-                          <Select 
-                            value={profile.role} 
+                          <Select
+                            value={profile.role}
                             onValueChange={(value) => updateProfile({ role: value as any })}
                             disabled={!isEditing}
                           >
@@ -571,7 +572,7 @@ export function ProfilePage() {
                           </Select>
                         </div>
                       </div>
-                      
+
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label htmlFor="website">Personal Website</Label>
@@ -621,9 +622,7 @@ export function ProfilePage() {
                   <Card>
                     <CardHeader>
                       <CardTitle>Education</CardTitle>
-                      <CardDescription>
-                        Your educational background
-                      </CardDescription>
+                      <CardDescription>Your educational background</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="space-y-2">
@@ -639,7 +638,7 @@ export function ProfilePage() {
                           />
                         </div>
                       </div>
-                      
+
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label htmlFor="program">Program</Label>
@@ -677,7 +676,11 @@ export function ProfilePage() {
                   <CardContent className="space-y-4">
                     <div className="flex flex-wrap gap-2">
                       {profile.expertise.map((exp, index) => (
-                        <Badge key={index} variant="outline" className="bg-green-50 text-green-700 border-green-200 flex items-center gap-1">
+                        <Badge
+                          key={index}
+                          variant="outline"
+                          className="bg-green-50 text-green-700 border-green-200 flex items-center gap-1"
+                        >
                           <Award className="h-3 w-3" />
                           {exp}
                           {isEditing && (
@@ -720,7 +723,10 @@ export function ProfilePage() {
                   <CardContent>
                     <div className="space-y-3">
                       {profile.universities.map((uni, index) => (
-                        <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                        <div
+                          key={index}
+                          className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg"
+                        >
                           <div className="flex items-center space-x-3">
                             <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center">
                               <GraduationCap className="h-5 w-5 text-purple-600" />
@@ -730,7 +736,7 @@ export function ProfilePage() {
                               <p className="text-sm text-muted-foreground">{uni.role}</p>
                             </div>
                           </div>
-                          <Badge variant={uni.isVerified ? "default" : "secondary"}>
+                          <Badge variant={uni.isVerified ? 'default' : 'secondary'}>
                             {uni.isVerified ? (
                               <>
                                 <CheckCircle className="h-3 w-3 mr-1" />
@@ -764,7 +770,9 @@ export function ProfilePage() {
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="font-medium">Available for Mentoring</p>
-                          <p className="text-sm text-muted-foreground">Help guide others in their career journey</p>
+                          <p className="text-sm text-muted-foreground">
+                            Help guide others in their career journey
+                          </p>
                         </div>
                         <Switch
                           checked={profile.availability.mentoring}
@@ -776,11 +784,15 @@ export function ProfilePage() {
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="font-medium">Open to Collaboration</p>
-                          <p className="text-sm text-muted-foreground">Work together on projects and initiatives</p>
+                          <p className="text-sm text-muted-foreground">
+                            Work together on projects and initiatives
+                          </p>
                         </div>
                         <Switch
                           checked={profile.availability.collaboration}
-                          onCheckedChange={(checked) => updateAvailability('collaboration', checked)}
+                          onCheckedChange={(checked) =>
+                            updateAvailability('collaboration', checked)
+                          }
                           disabled={!isEditing}
                         />
                       </div>
@@ -788,7 +800,9 @@ export function ProfilePage() {
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="font-medium">Available for Consultation</p>
-                          <p className="text-sm text-muted-foreground">Provide professional advice and guidance</p>
+                          <p className="text-sm text-muted-foreground">
+                            Provide professional advice and guidance
+                          </p>
                         </div>
                         <Switch
                           checked={profile.availability.consultation}
@@ -800,7 +814,9 @@ export function ProfilePage() {
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="font-medium">Open to Volunteering</p>
-                          <p className="text-sm text-muted-foreground">Contribute to community initiatives</p>
+                          <p className="text-sm text-muted-foreground">
+                            Contribute to community initiatives
+                          </p>
                         </div>
                         <Switch
                           checked={profile.availability.volunteering || false}
@@ -812,7 +828,9 @@ export function ProfilePage() {
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="font-medium">Available for Speaking</p>
-                          <p className="text-sm text-muted-foreground">Speak at events and conferences</p>
+                          <p className="text-sm text-muted-foreground">
+                            Speak at events and conferences
+                          </p>
                         </div>
                         <Switch
                           checked={profile.availability.speaking || false}
@@ -824,7 +842,9 @@ export function ProfilePage() {
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="font-medium">Open to Advising</p>
-                          <p className="text-sm text-muted-foreground">Provide strategic advice to organizations</p>
+                          <p className="text-sm text-muted-foreground">
+                            Provide strategic advice to organizations
+                          </p>
                         </div>
                         <Switch
                           checked={profile.availability.advising || false}
@@ -846,9 +866,9 @@ export function ProfilePage() {
                   <CardContent className="space-y-4">
                     <div className="flex flex-wrap gap-2">
                       {profile.openTo.map((tag, index) => (
-                        <OpenToTag 
-                          key={index} 
-                          tag={tag} 
+                        <OpenToTag
+                          key={index}
+                          tag={tag}
                           onRemove={() => removeOpenTo(tag)}
                           isEditing={isEditing}
                         />
@@ -861,8 +881,19 @@ export function ProfilePage() {
                             <SelectValue placeholder="Select what you're open to..." />
                           </SelectTrigger>
                           <SelectContent>
-                            {['Mentorship', 'Collaboration', 'Consulting', 'Speaking', 'Volunteering', 'Advising'].map(option => (
-                              <SelectItem key={option} value={option} disabled={profile.openTo.includes(option)}>
+                            {[
+                              'Mentorship',
+                              'Collaboration',
+                              'Consulting',
+                              'Speaking',
+                              'Volunteering',
+                              'Advising',
+                            ].map((option) => (
+                              <SelectItem
+                                key={option}
+                                value={option}
+                                disabled={profile.openTo.includes(option)}
+                              >
                                 {option}
                               </SelectItem>
                             ))}
@@ -880,13 +911,14 @@ export function ProfilePage() {
                 <Card>
                   <CardHeader>
                     <CardTitle>Achievements & Awards</CardTitle>
-                    <CardDescription>
-                      Showcase your accomplishments and recognition
-                    </CardDescription>
+                    <CardDescription>Showcase your accomplishments and recognition</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     {profile.achievements.map((achievement, index) => (
-                      <div key={index} className="flex items-start space-x-3 p-3 bg-orange-50 dark:bg-orange-950 rounded-lg">
+                      <div
+                        key={index}
+                        className="flex items-start space-x-3 p-3 bg-orange-50 dark:bg-orange-950 rounded-lg"
+                      >
                         <div className="w-10 h-10 bg-orange-100 dark:bg-orange-900 rounded-full flex items-center justify-center">
                           <Award className="h-5 w-5 text-orange-600" />
                         </div>
@@ -917,10 +949,12 @@ export function ProfilePage() {
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="font-medium">Profile Visibility</p>
-                          <p className="text-sm text-muted-foreground">Who can see your public profile</p>
+                          <p className="text-sm text-muted-foreground">
+                            Who can see your public profile
+                          </p>
                         </div>
-                        <Select 
-                          value={profile.privacy.profileVisibility} 
+                        <Select
+                          value={profile.privacy.profileVisibility}
                           onValueChange={(value) => updatePrivacy('profileVisibility', value)}
                           disabled={!isEditing}
                         >
@@ -938,10 +972,12 @@ export function ProfilePage() {
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="font-medium">Contact Information</p>
-                          <p className="text-sm text-muted-foreground">Who can see your email and phone</p>
+                          <p className="text-sm text-muted-foreground">
+                            Who can see your email and phone
+                          </p>
                         </div>
-                        <Select 
-                          value={profile.privacy.contactVisibility} 
+                        <Select
+                          value={profile.privacy.contactVisibility}
                           onValueChange={(value) => updatePrivacy('contactVisibility', value)}
                           disabled={!isEditing}
                         >
@@ -961,8 +997,8 @@ export function ProfilePage() {
                           <p className="font-medium">Professional Info</p>
                           <p className="text-sm text-muted-foreground">Show your work experience</p>
                         </div>
-                        <Select 
-                          value={profile.privacy.professionalVisibility} 
+                        <Select
+                          value={profile.privacy.professionalVisibility}
                           onValueChange={(value) => updatePrivacy('professionalVisibility', value)}
                           disabled={!isEditing}
                         >
@@ -983,19 +1019,19 @@ export function ProfilePage() {
                 <Card>
                   <CardHeader>
                     <CardTitle>Account Preferences</CardTitle>
-                    <CardDescription>
-                      Customize your account experience
-                    </CardDescription>
+                    <CardDescription>Customize your account experience</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="font-medium">Language</p>
-                          <p className="text-sm text-muted-foreground">Select your preferred language</p>
+                          <p className="text-sm text-muted-foreground">
+                            Select your preferred language
+                          </p>
                         </div>
-                        <Select 
-                          value={profile.preferences.language} 
+                        <Select
+                          value={profile.preferences.language}
                           onValueChange={(value) => updatePreferences('language', value)}
                           disabled={!isEditing}
                         >
@@ -1015,8 +1051,8 @@ export function ProfilePage() {
                           <p className="font-medium">Time Zone</p>
                           <p className="text-sm text-muted-foreground">Your local time zone</p>
                         </div>
-                        <Select 
-                          value={profile.preferences.timezone} 
+                        <Select
+                          value={profile.preferences.timezone}
                           onValueChange={(value) => updatePreferences('timezone', value)}
                           disabled={!isEditing}
                         >
@@ -1035,10 +1071,12 @@ export function ProfilePage() {
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="font-medium">Theme</p>
-                          <p className="text-sm text-muted-foreground">Choose your interface theme</p>
+                          <p className="text-sm text-muted-foreground">
+                            Choose your interface theme
+                          </p>
                         </div>
-                        <Select 
-                          value={profile.preferences.theme} 
+                        <Select
+                          value={profile.preferences.theme}
                           onValueChange={(value) => updatePreferences('theme', value)}
                           disabled={!isEditing}
                         >

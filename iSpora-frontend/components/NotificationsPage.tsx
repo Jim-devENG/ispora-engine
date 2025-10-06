@@ -1,18 +1,18 @@
-import React, { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
-import { Button } from "./ui/button";
-import { Badge } from "./ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "./ui/dialog";
-import { ScrollArea } from "./ui/scroll-area";
-import { Separator } from "./ui/separator";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { 
-  Bell, 
-  Check, 
-  X, 
-  Users, 
-  BookOpen, 
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import { Button } from './ui/button';
+import { Badge } from './ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
+import { ScrollArea } from './ui/scroll-area';
+import { Separator } from './ui/separator';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import {
+  Bell,
+  Check,
+  X,
+  Users,
+  BookOpen,
   MessageCircle,
   Settings,
   Filter,
@@ -35,11 +35,11 @@ import {
   CheckSquare,
   BarChart3,
   Loader,
-  RefreshCw
-} from "lucide-react";
-import { DashboardHeader } from "./DashboardHeader";
-import { useNavigation } from "./NavigationContext";
-import { toast } from "sonner";
+  RefreshCw,
+} from 'lucide-react';
+import { DashboardHeader } from './DashboardHeader';
+import { useNavigation } from './NavigationContext';
+import { toast } from 'sonner';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
@@ -82,12 +82,12 @@ interface Notification {
 }
 
 // Enhanced Notification Detail Modal
-function NotificationDetailModal({ 
-  notification, 
-  isOpen, 
+function NotificationDetailModal({
+  notification,
+  isOpen,
   onClose,
-  onAction
-}: { 
+  onAction,
+}: {
   notification: Notification | null;
   isOpen: boolean;
   onClose: () => void;
@@ -114,16 +114,20 @@ function NotificationDetailModal({
 
   const getPriorityColor = (priority?: string) => {
     switch (priority) {
-      case 'high': return 'text-red-600 bg-red-50 border-red-200';
-      case 'medium': return 'text-orange-600 bg-orange-50 border-orange-200';
-      case 'low': return 'text-green-600 bg-green-50 border-green-200';
-      default: return 'text-gray-600 bg-gray-50 border-gray-200';
+      case 'high':
+        return 'text-red-600 bg-red-50 border-red-200';
+      case 'medium':
+        return 'text-orange-600 bg-orange-50 border-orange-200';
+      case 'low':
+        return 'text-green-600 bg-green-50 border-green-200';
+      default:
+        return 'text-gray-600 bg-gray-50 border-gray-200';
     }
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-xl max-h-[80vh] overflow-hidden">
+      <DialogContent className="max-w-xl max-h-[80vh] flex flex-col w-[95vw] sm:w-full">
         <DialogHeader className="flex-shrink-0">
           <DialogTitle className="flex items-center gap-3">
             {getDetailIcon()}
@@ -139,13 +143,17 @@ function NotificationDetailModal({
           </DialogDescription>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 max-h-[60vh] pr-4">
+        <ScrollArea className="flex-1 min-h-0 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
           <div className="space-y-6">
             {/* Priority and Status */}
             <div className="flex items-center gap-3">
               {notification.metadata?.priority && (
-                <div className={`px-3 py-1 rounded-full border text-sm font-medium ${getPriorityColor(notification.metadata.priority)}`}>
-                  {notification.metadata.priority.charAt(0).toUpperCase() + notification.metadata.priority.slice(1)} Priority
+                <div
+                  className={`px-3 py-1 rounded-full border text-sm font-medium ${getPriorityColor(notification.metadata.priority)}`}
+                >
+                  {notification.metadata.priority.charAt(0).toUpperCase() +
+                    notification.metadata.priority.slice(1)}{' '}
+                  Priority
                 </div>
               )}
               {notification.actionRequired && (
@@ -188,17 +196,18 @@ function NotificationDetailModal({
                   </div>
                 )}
 
-                {notification.metadata.tasksCompleted !== undefined && notification.metadata.totalTasks && (
-                  <div className="flex items-center gap-3 p-3 bg-indigo-50 border border-indigo-200 rounded-lg">
-                    <CheckSquare className="h-5 w-5 text-indigo-600" />
-                    <div>
-                      <div className="font-semibold text-indigo-900">
-                        {notification.metadata.tasksCompleted}/{notification.metadata.totalTasks}
+                {notification.metadata.tasksCompleted !== undefined &&
+                  notification.metadata.totalTasks && (
+                    <div className="flex items-center gap-3 p-3 bg-indigo-50 border border-indigo-200 rounded-lg">
+                      <CheckSquare className="h-5 w-5 text-indigo-600" />
+                      <div>
+                        <div className="font-semibold text-indigo-900">
+                          {notification.metadata.tasksCompleted}/{notification.metadata.totalTasks}
+                        </div>
+                        <div className="text-sm text-indigo-700">Tasks Complete</div>
                       </div>
-                      <div className="text-sm text-indigo-700">Tasks Complete</div>
                     </div>
-                  </div>
-                )}
+                  )}
 
                 {notification.metadata.deadline && (
                   <div className="flex items-center gap-3 p-3 bg-orange-50 border border-orange-200 rounded-lg">
@@ -244,8 +253,9 @@ function NotificationDetailModal({
                 <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
                   <h4 className="font-semibold text-blue-900 mb-2">Project Details</h4>
                   <p className="text-sm text-blue-800">
-                    View project progress, collaborate with team members, and manage project activities. 
-                    You can review tasks, communicate with participants, and track project milestones.
+                    View project progress, collaborate with team members, and manage project
+                    activities. You can review tasks, communicate with participants, and track
+                    project milestones.
                   </p>
                 </div>
               )}
@@ -254,8 +264,8 @@ function NotificationDetailModal({
                 <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
                   <h4 className="font-semibold text-green-900 mb-2">Mentorship Request</h4>
                   <p className="text-sm text-green-800">
-                    Review the mentee's profile, experience, and goals. You can accept, schedule an initial 
-                    meeting, or request more information before making your decision.
+                    Review the mentee's profile, experience, and goals. You can accept, schedule an
+                    initial meeting, or request more information before making your decision.
                   </p>
                 </div>
               )}
@@ -264,8 +274,9 @@ function NotificationDetailModal({
                 <div className="p-4 bg-orange-50 border border-orange-200 rounded-lg">
                   <h4 className="font-semibold text-orange-900 mb-2">Opportunity Details</h4>
                   <p className="text-sm text-orange-800">
-                    View full opportunity details including requirements, benefits, application process, 
-                    and deadlines. You can save for later or start your application immediately.
+                    View full opportunity details including requirements, benefits, application
+                    process, and deadlines. You can save for later or start your application
+                    immediately.
                   </p>
                 </div>
               )}
@@ -276,7 +287,10 @@ function NotificationDetailModal({
               {notification.actions?.primary && (
                 <Button
                   onClick={() => {
-                    onAction(notification.actions!.primary!.action, notification.actions!.primary!.params);
+                    onAction(
+                      notification.actions!.primary!.action,
+                      notification.actions!.primary!.params,
+                    );
                     onClose();
                   }}
                   className="bg-[#021ff6] hover:bg-[#021ff6]/90"
@@ -285,12 +299,15 @@ function NotificationDetailModal({
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </Button>
               )}
-              
+
               {notification.actions?.secondary && (
                 <Button
                   variant="outline"
                   onClick={() => {
-                    onAction(notification.actions!.secondary!.action, notification.actions!.secondary!.params);
+                    onAction(
+                      notification.actions!.secondary!.action,
+                      notification.actions!.secondary!.params,
+                    );
                     onClose();
                   }}
                 >
@@ -307,12 +324,8 @@ function NotificationDetailModal({
 }
 
 export function NotificationsPage() {
-  const { 
-    navigate, 
-    navigateToWorkroom, 
-    navigateToSpecificProject,
-    navigateToSpecificOpportunity 
-  } = useNavigation();
+  const { navigate, navigateToWorkroom, navigateToSpecificProject, navigateToSpecificOpportunity } =
+    useNavigation();
 
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [filter, setFilter] = useState<'all' | 'unread' | 'action-required'>('all');
@@ -323,7 +336,7 @@ export function NotificationsPage() {
   const [stats, setStats] = useState({
     total: 0,
     unread: 0,
-    actionRequired: 0
+    actionRequired: 0,
   });
 
   // Fetch notifications from API
@@ -331,7 +344,7 @@ export function NotificationsPage() {
     try {
       setLoading(true);
       setError(null);
-      
+
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
       const devKey = localStorage.getItem('devKey');
       const token = localStorage.getItem('token');
@@ -368,7 +381,7 @@ export function NotificationsPage() {
     fetchNotifications();
   }, [filter]);
 
-  const filteredNotifications = (notifications || []).filter(notification => {
+  const filteredNotifications = (notifications || []).filter((notification) => {
     if (filter === 'unread') return !notification.read;
     if (filter === 'action-required') return notification.actionRequired;
     return true;
@@ -388,12 +401,10 @@ export function NotificationsPage() {
       });
 
       if (response.ok) {
-        setNotifications(prev => 
-          prev.map(notif => 
-            notif.id === id ? { ...notif, read: true } : notif
-          )
+        setNotifications((prev) =>
+          prev.map((notif) => (notif.id === id ? { ...notif, read: true } : notif)),
         );
-        setStats(prev => ({ ...prev, unread: Math.max(0, prev.unread - 1) }));
+        setStats((prev) => ({ ...prev, unread: Math.max(0, prev.unread - 1) }));
       }
     } catch (error) {
       console.error('Error marking notification as read:', error);
@@ -414,11 +425,9 @@ export function NotificationsPage() {
       });
 
       if (response.ok) {
-        setNotifications(prev => 
-          prev.map(notif => ({ ...notif, read: true }))
-        );
-        setStats(prev => ({ ...prev, unread: 0 }));
-        toast.success("All notifications marked as read");
+        setNotifications((prev) => prev.map((notif) => ({ ...notif, read: true })));
+        setStats((prev) => ({ ...prev, unread: 0 }));
+        toast.success('All notifications marked as read');
       }
     } catch (error) {
       console.error('Error marking all notifications as read:', error);
@@ -440,13 +449,13 @@ export function NotificationsPage() {
       });
 
       if (response.ok) {
-        setNotifications(prev => prev.filter(notif => notif.id !== id));
-        setStats(prev => ({ 
-          ...prev, 
+        setNotifications((prev) => prev.filter((notif) => notif.id !== id));
+        setStats((prev) => ({
+          ...prev,
           total: prev.total - 1,
-          unread: prev.unread - (notifications.find(n => n.id === id && !n.read) ? 1 : 0)
+          unread: prev.unread - (notifications.find((n) => n.id === id && !n.read) ? 1 : 0),
         }));
-        toast.success("Notification deleted");
+        toast.success('Notification deleted');
       }
     } catch (error) {
       console.error('Error deleting notification:', error);
@@ -473,63 +482,63 @@ export function NotificationsPage() {
         if (params?.projectId) {
           navigateToSpecificProject(params.projectId, {
             source: 'notification',
-            activeTab: params.tab
+            activeTab: params.tab,
           });
         }
         break;
-      
+
       case 'navigate_mentorship':
         navigate('Mentorship', params);
         break;
-      
+
       case 'navigate_opportunity':
         if (params?.opportunityId) {
           navigateToSpecificOpportunity(params.opportunityId, {
             source: 'notification',
-            showDetails: true
+            showDetails: true,
           });
         }
         break;
-      
+
       case 'navigate_workroom':
         if (params?.projectId) {
           navigateToWorkroom(params.projectId);
         }
         break;
-      
+
       case 'navigate_messages':
         navigate('Messages', params);
         break;
-      
+
       case 'navigate_profile':
         navigate('Profile', params);
         break;
-      
+
       case 'apply_opportunity':
         if (params?.opportunityId) {
           navigateToSpecificOpportunity(params.opportunityId, {
             source: 'notification',
-            focusApplication: true
+            focusApplication: true,
           });
         }
         break;
-      
+
       case 'accept_project_invitation':
-        toast.success("Project invitation accepted! Redirecting to project...");
+        toast.success('Project invitation accepted! Redirecting to project...');
         if (params?.projectId) {
           setTimeout(() => {
             navigateToSpecificProject(params.projectId, {
               source: 'notification',
-              newMember: true
+              newMember: true,
             });
           }, 1000);
         }
         break;
-      
+
       case 'compose_reply':
-        toast.success("Message composer opened");
+        toast.success('Message composer opened');
         break;
-      
+
       default:
         toast.info(`Action: ${action}`);
     }
@@ -557,11 +566,8 @@ export function NotificationsPage() {
 
   return (
     <div className="h-full">
-      <DashboardHeader 
-        userName="John" 
-        userTitle="Stay updated with your notifications"
-      />
-      
+      <DashboardHeader userName="John" userTitle="Stay updated with your notifications" />
+
       <div className="p-6 space-y-6">
         {/* Page Header */}
         <div className="flex items-center justify-between">
@@ -591,12 +597,16 @@ export function NotificationsPage() {
         </div>
 
         {/* Filter Tabs */}
-        <Tabs value={filter} onValueChange={(value) => setFilter(value as any)} className="space-y-6">
+        <Tabs
+          value={filter}
+          onValueChange={(value) => setFilter(value as any)}
+          className="space-y-6"
+        >
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="all" className="flex items-center space-x-2">
               <span>All</span>
               <Badge variant="secondary" className="text-xs">
-                {notifications.length}
+                {(notifications || []).length}
               </Badge>
             </TabsTrigger>
             <TabsTrigger value="unread" className="flex items-center space-x-2">
@@ -622,7 +632,9 @@ export function NotificationsPage() {
               <Card>
                 <CardContent className="text-center py-12">
                   <Loader className="h-8 w-8 text-gray-400 mx-auto mb-4 animate-spin" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">Loading notifications...</h3>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                    Loading notifications...
+                  </h3>
                   <p className="text-gray-500">Please wait while we fetch your notifications</p>
                 </CardContent>
               </Card>
@@ -630,7 +642,9 @@ export function NotificationsPage() {
               <Card>
                 <CardContent className="text-center py-12">
                   <AlertCircle className="h-8 w-8 text-red-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">Failed to load notifications</h3>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                    Failed to load notifications
+                  </h3>
                   <p className="text-gray-500 mb-4">{error}</p>
                   <Button onClick={fetchNotifications} variant="outline">
                     <RefreshCw className="h-4 w-4 mr-2" />
@@ -645,7 +659,7 @@ export function NotificationsPage() {
                   <h3 className="text-lg font-medium text-gray-900 mb-2">No notifications</h3>
                   <p className="text-gray-500">
                     {filter === 'unread' && "You're all caught up! No unread notifications."}
-                    {filter === 'action-required' && "No actions required at this time."}
+                    {filter === 'action-required' && 'No actions required at this time.'}
                     {filter === 'all' && "You don't have any notifications yet."}
                   </p>
                 </CardContent>
@@ -653,8 +667,8 @@ export function NotificationsPage() {
             ) : (
               <div className="space-y-3">
                 {filteredNotifications.map((notification) => (
-                  <Card 
-                    key={notification.id} 
+                  <Card
+                    key={notification.id}
                     className={`cursor-pointer transition-all duration-200 hover:shadow-md ${
                       !notification.read ? 'bg-blue-50 border-blue-200' : 'hover:bg-gray-50'
                     }`}
@@ -666,13 +680,15 @@ export function NotificationsPage() {
                         <div className="flex-shrink-0 mt-1">
                           {getNotificationIcon(notification.type)}
                         </div>
-                        
+
                         {/* Content */}
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between">
                             <div className="space-y-1">
                               <div className="flex items-center space-x-2">
-                                <h4 className={`text-sm font-medium ${!notification.read ? 'text-gray-900' : 'text-gray-700'}`}>
+                                <h4
+                                  className={`text-sm font-medium ${!notification.read ? 'text-gray-900' : 'text-gray-700'}`}
+                                >
                                   {notification.title}
                                 </h4>
                                 {!notification.read && (
@@ -704,7 +720,7 @@ export function NotificationsPage() {
                                 )}
                               </div>
                             </div>
-                            
+
                             {/* Quick Actions */}
                             <div className="flex items-center space-x-2">
                               {!notification.read && (
@@ -733,12 +749,12 @@ export function NotificationsPage() {
                               </Button>
                             </div>
                           </div>
-                          
+
                           {/* Action Buttons for notifications */}
                           <div className="mt-3 flex space-x-2">
                             {notification.actionRequired && notification.actions?.primary && (
-                              <Button 
-                                size="sm" 
+                              <Button
+                                size="sm"
                                 className="bg-[#021ff6] hover:bg-[#021ff6]/90"
                                 onClick={(e) => {
                                   e.stopPropagation();
@@ -748,8 +764,8 @@ export function NotificationsPage() {
                                 {notification.actions.primary.label}
                               </Button>
                             )}
-                            <Button 
-                              size="sm" 
+                            <Button
+                              size="sm"
                               variant="outline"
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -760,12 +776,15 @@ export function NotificationsPage() {
                               View Details
                             </Button>
                             {notification.actions?.secondary && (
-                              <Button 
-                                size="sm" 
+                              <Button
+                                size="sm"
                                 variant="ghost"
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  handleAction(notification.actions!.secondary!.action, notification.actions!.secondary!.params);
+                                  handleAction(
+                                    notification.actions!.secondary!.action,
+                                    notification.actions!.secondary!.params,
+                                  );
                                 }}
                               >
                                 <ExternalLink className="h-3 w-3 mr-1" />
@@ -787,9 +806,7 @@ export function NotificationsPage() {
         <Card>
           <CardHeader>
             <CardTitle>Notification Categories</CardTitle>
-            <CardDescription>
-              Manage your notification preferences by category
-            </CardDescription>
+            <CardDescription>Manage your notification preferences by category</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -803,7 +820,7 @@ export function NotificationsPage() {
                 </div>
                 <Badge variant="secondary">Enabled</Badge>
               </div>
-              
+
               <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                 <div className="flex items-center space-x-3">
                   <Users className="h-5 w-5 text-green-600" />
@@ -814,7 +831,7 @@ export function NotificationsPage() {
                 </div>
                 <Badge variant="secondary">Enabled</Badge>
               </div>
-              
+
               <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                 <div className="flex items-center space-x-3">
                   <Target className="h-5 w-5 text-orange-600" />
@@ -825,7 +842,7 @@ export function NotificationsPage() {
                 </div>
                 <Badge variant="secondary">Enabled</Badge>
               </div>
-              
+
               <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                 <div className="flex items-center space-x-3">
                   <MessageCircle className="h-5 w-5 text-purple-600" />
@@ -836,7 +853,7 @@ export function NotificationsPage() {
                 </div>
                 <Badge variant="secondary">Enabled</Badge>
               </div>
-              
+
               <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                 <div className="flex items-center space-x-3">
                   <UserPlus className="h-5 w-5 text-indigo-600" />
@@ -847,7 +864,7 @@ export function NotificationsPage() {
                 </div>
                 <Badge variant="secondary">Enabled</Badge>
               </div>
-              
+
               <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                 <div className="flex items-center space-x-3">
                   <Bell className="h-5 w-5 text-gray-600" />

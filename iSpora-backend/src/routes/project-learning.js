@@ -32,13 +32,13 @@ router.post('/:projectId/content', protect, async (req, res, next) => {
       external_platform,
       external_id,
       parent_content_id,
-      folder_path
+      folder_path,
     } = req.body;
 
     if (!title || !type || !category) {
       return res.status(400).json({
         success: false,
-        error: 'Title, type, and category are required'
+        error: 'Title, type, and category are required',
       });
     }
 
@@ -51,7 +51,7 @@ router.post('/:projectId/content', protect, async (req, res, next) => {
     if (!projectAccess || !['admin', 'mentor'].includes(projectAccess.role)) {
       return res.status(403).json({
         success: false,
-        error: 'Insufficient permissions to create learning content'
+        error: 'Insufficient permissions to create learning content',
       });
     }
 
@@ -78,14 +78,14 @@ router.post('/:projectId/content', protect, async (req, res, next) => {
         external_platform,
         external_id,
         parent_content_id,
-        folder_path
+        folder_path,
       })
       .returning('*');
 
     res.status(201).json({
       success: true,
       message: 'Learning content created successfully',
-      data: content[0]
+      data: content[0],
     });
   } catch (error) {
     next(error);
@@ -103,9 +103,12 @@ router.put('/content/:contentId', protect, async (req, res, next) => {
     // Verify user has permission to update content
     const content = await db('learning_content as lc')
       .select(['lc.*', 'pm.role'])
-      .leftJoin('project_members as pm', function() {
-        this.on('lc.project_id', '=', 'pm.project_id')
-          .andOn('pm.user_id', '=', db.raw('?', [req.user.id]));
+      .leftJoin('project_members as pm', function () {
+        this.on('lc.project_id', '=', 'pm.project_id').andOn(
+          'pm.user_id',
+          '=',
+          db.raw('?', [req.user.id]),
+        );
       })
       .where('lc.id', contentId)
       .first();
@@ -113,14 +116,14 @@ router.put('/content/:contentId', protect, async (req, res, next) => {
     if (!content) {
       return res.status(404).json({
         success: false,
-        error: 'Content not found'
+        error: 'Content not found',
       });
     }
 
     if (content.created_by !== req.user.id && !['admin', 'mentor'].includes(content.role)) {
       return res.status(403).json({
         success: false,
-        error: 'Insufficient permissions to update this content'
+        error: 'Insufficient permissions to update this content',
       });
     }
 
@@ -131,18 +134,14 @@ router.put('/content/:contentId', protect, async (req, res, next) => {
 
     updateData.updated_at = new Date();
 
-    await db('learning_content')
-      .where({ id: contentId })
-      .update(updateData);
+    await db('learning_content').where({ id: contentId }).update(updateData);
 
-    const updatedContent = await db('learning_content')
-      .where({ id: contentId })
-      .first();
+    const updatedContent = await db('learning_content').where({ id: contentId }).first();
 
     res.status(200).json({
       success: true,
       message: 'Content updated successfully',
-      data: updatedContent
+      data: updatedContent,
     });
   } catch (error) {
     next(error);
@@ -159,9 +158,12 @@ router.delete('/content/:contentId', protect, async (req, res, next) => {
     // Verify user has permission to delete content
     const content = await db('learning_content as lc')
       .select(['lc.*', 'pm.role'])
-      .leftJoin('project_members as pm', function() {
-        this.on('lc.project_id', '=', 'pm.project_id')
-          .andOn('pm.user_id', '=', db.raw('?', [req.user.id]));
+      .leftJoin('project_members as pm', function () {
+        this.on('lc.project_id', '=', 'pm.project_id').andOn(
+          'pm.user_id',
+          '=',
+          db.raw('?', [req.user.id]),
+        );
       })
       .where('lc.id', contentId)
       .first();
@@ -169,24 +171,22 @@ router.delete('/content/:contentId', protect, async (req, res, next) => {
     if (!content) {
       return res.status(404).json({
         success: false,
-        error: 'Content not found'
+        error: 'Content not found',
       });
     }
 
     if (content.created_by !== req.user.id && !['admin', 'mentor'].includes(content.role)) {
       return res.status(403).json({
         success: false,
-        error: 'Insufficient permissions to delete this content'
+        error: 'Insufficient permissions to delete this content',
       });
     }
 
-    await db('learning_content')
-      .where({ id: contentId })
-      .del();
+    await db('learning_content').where({ id: contentId }).del();
 
     res.status(200).json({
       success: true,
-      message: 'Content deleted successfully'
+      message: 'Content deleted successfully',
     });
   } catch (error) {
     next(error);
@@ -213,15 +213,18 @@ router.post('/content/:contentId/progress', protect, async (req, res, next) => {
       play_count,
       notes,
       bookmarks,
-      highlights
+      highlights,
     } = req.body;
 
     // Verify user has access to content
     const content = await db('learning_content as lc')
       .select(['lc.*', 'pm.role'])
-      .leftJoin('project_members as pm', function() {
-        this.on('lc.project_id', '=', 'pm.project_id')
-          .andOn('pm.user_id', '=', db.raw('?', [req.user.id]));
+      .leftJoin('project_members as pm', function () {
+        this.on('lc.project_id', '=', 'pm.project_id').andOn(
+          'pm.user_id',
+          '=',
+          db.raw('?', [req.user.id]),
+        );
       })
       .where('lc.id', contentId)
       .first();
@@ -229,7 +232,7 @@ router.post('/content/:contentId/progress', protect, async (req, res, next) => {
     if (!content) {
       return res.status(404).json({
         success: false,
-        error: 'Content not found'
+        error: 'Content not found',
       });
     }
 
@@ -253,7 +256,7 @@ router.post('/content/:contentId/progress', protect, async (req, res, next) => {
       play_count,
       notes: JSON.stringify(notes),
       bookmarks: JSON.stringify(bookmarks),
-      highlights: JSON.stringify(highlights)
+      highlights: JSON.stringify(highlights),
     };
 
     if (is_completed && !existingProgress?.is_completed) {
@@ -270,23 +273,21 @@ router.post('/content/:contentId/progress', protect, async (req, res, next) => {
         .where({ content_id: contentId, user_id: req.user.id })
         .update({
           ...progressData,
-          updated_at: new Date()
+          updated_at: new Date(),
         });
-      
+
       progress = await db('content_progress')
         .where({ content_id: contentId, user_id: req.user.id })
         .first();
     } else {
-      progress = await db('content_progress')
-        .insert(progressData)
-        .returning('*');
+      progress = await db('content_progress').insert(progressData).returning('*');
       progress = progress[0];
     }
 
     res.status(200).json({
       success: true,
       message: 'Progress updated successfully',
-      data: progress
+      data: progress,
     });
   } catch (error) {
     next(error);
@@ -309,7 +310,7 @@ router.get('/:projectId/progress', protect, async (req, res, next) => {
     if (!projectAccess) {
       return res.status(403).json({
         success: false,
-        error: 'Access denied to this project'
+        error: 'Access denied to this project',
       });
     }
 
@@ -318,7 +319,7 @@ router.get('/:projectId/progress', protect, async (req, res, next) => {
         'cp.*',
         'lc.title as content_title',
         'lc.type as content_type',
-        'lc.category as content_category'
+        'lc.category as content_category',
       ])
       .join('learning_content as lc', 'cp.content_id', 'lc.id')
       .where('cp.user_id', req.user.id)
@@ -331,7 +332,7 @@ router.get('/:projectId/progress', protect, async (req, res, next) => {
     const progress = await query.orderBy('cp.last_accessed_at', 'desc');
 
     // Parse JSON fields
-    progress.forEach(item => {
+    progress.forEach((item) => {
       if (item.notes) {
         item.notes = JSON.parse(item.notes);
       }
@@ -345,7 +346,7 @@ router.get('/:projectId/progress', protect, async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      data: progress
+      data: progress,
     });
   } catch (error) {
     next(error);
@@ -365,16 +366,19 @@ router.post('/content/:contentId/rate', protect, async (req, res, next) => {
     if (!rating || rating < 1 || rating > 5) {
       return res.status(400).json({
         success: false,
-        error: 'Rating must be between 1 and 5'
+        error: 'Rating must be between 1 and 5',
       });
     }
 
     // Verify user has access to content
     const content = await db('learning_content as lc')
       .select(['lc.*', 'pm.role'])
-      .leftJoin('project_members as pm', function() {
-        this.on('lc.project_id', '=', 'pm.project_id')
-          .andOn('pm.user_id', '=', db.raw('?', [req.user.id]));
+      .leftJoin('project_members as pm', function () {
+        this.on('lc.project_id', '=', 'pm.project_id').andOn(
+          'pm.user_id',
+          '=',
+          db.raw('?', [req.user.id]),
+        );
       })
       .where('lc.id', contentId)
       .first();
@@ -382,7 +386,7 @@ router.post('/content/:contentId/rate', protect, async (req, res, next) => {
     if (!content) {
       return res.status(404).json({
         success: false,
-        error: 'Content not found'
+        error: 'Content not found',
       });
     }
 
@@ -392,32 +396,26 @@ router.post('/content/:contentId/rate', protect, async (req, res, next) => {
       .first();
 
     if (existingProgress) {
-      await db('content_progress')
-        .where({ content_id: contentId, user_id: req.user.id })
-        .update({
-          rating,
-          feedback,
-          updated_at: new Date()
-        });
+      await db('content_progress').where({ content_id: contentId, user_id: req.user.id }).update({
+        rating,
+        feedback,
+        updated_at: new Date(),
+      });
     } else {
-      await db('content_progress')
-        .insert({
-          content_id: contentId,
-          user_id: req.user.id,
-          rating,
-          feedback,
-          last_accessed_at: new Date()
-        });
+      await db('content_progress').insert({
+        content_id: contentId,
+        user_id: req.user.id,
+        rating,
+        feedback,
+        last_accessed_at: new Date(),
+      });
     }
 
     // Update content average rating
     const ratingStats = await db('content_progress')
       .where({ content_id: contentId })
       .whereNotNull('rating')
-      .select([
-        db.raw('AVG(rating) as avg_rating'),
-        db.raw('COUNT(*) as rating_count')
-      ])
+      .select([db.raw('AVG(rating) as avg_rating'), db.raw('COUNT(*) as rating_count')])
       .first();
 
     await db('learning_content')
@@ -425,7 +423,7 @@ router.post('/content/:contentId/rate', protect, async (req, res, next) => {
       .update({
         average_rating: parseFloat(ratingStats.avg_rating),
         rating_count: parseInt(ratingStats.rating_count),
-        updated_at: new Date()
+        updated_at: new Date(),
       });
 
     res.status(200).json({
@@ -435,8 +433,8 @@ router.post('/content/:contentId/rate', protect, async (req, res, next) => {
         rating,
         feedback,
         average_rating: parseFloat(ratingStats.avg_rating),
-        rating_count: parseInt(ratingStats.rating_count)
-      }
+        rating_count: parseInt(ratingStats.rating_count),
+      },
     });
   } catch (error) {
     next(error);
@@ -460,7 +458,7 @@ router.get('/:projectId/analytics', protect, async (req, res, next) => {
     if (!projectAccess || !['admin', 'mentor'].includes(projectAccess.role)) {
       return res.status(403).json({
         success: false,
-        error: 'Insufficient permissions to view analytics'
+        error: 'Insufficient permissions to view analytics',
       });
     }
 
@@ -470,7 +468,7 @@ router.get('/:projectId/analytics', protect, async (req, res, next) => {
       contentByCategory,
       completionStats,
       topRatedContent,
-      recentActivity
+      recentActivity,
     ] = await Promise.all([
       db('learning_content').where({ project_id: projectId }).count('* as count').first(),
       db('learning_content')
@@ -489,7 +487,7 @@ router.get('/:projectId/analytics', protect, async (req, res, next) => {
         .select([
           db.raw('COUNT(*) as total_progress_records'),
           db.raw('SUM(CASE WHEN is_completed = true THEN 1 ELSE 0 END) as completed_count'),
-          db.raw('AVG(progress_percentage) as avg_progress')
+          db.raw('AVG(progress_percentage) as avg_progress'),
         ])
         .first(),
       db('learning_content')
@@ -498,21 +496,21 @@ router.get('/:projectId/analytics', protect, async (req, res, next) => {
         .orderBy('average_rating', 'desc')
         .limit(5),
       db('content_progress as cp')
-        .select([
-          'cp.*',
-          'lc.title as content_title',
-          'u.first_name',
-          'u.last_name'
-        ])
+        .select(['cp.*', 'lc.title as content_title', 'u.first_name', 'u.last_name'])
         .join('learning_content as lc', 'cp.content_id', 'lc.id')
         .join('users as u', 'cp.user_id', 'u.id')
         .where('lc.project_id', projectId)
         .orderBy('cp.updated_at', 'desc')
-        .limit(10)
+        .limit(10),
     ]);
 
-    const completionRate = completionStats.total_progress_records > 0 ? 
-      (completionStats.completed_count / completionStats.total_progress_records * 100).toFixed(1) : 0;
+    const completionRate =
+      completionStats.total_progress_records > 0
+        ? (
+            (completionStats.completed_count / completionStats.total_progress_records) *
+            100
+          ).toFixed(1)
+        : 0;
 
     res.status(200).json({
       success: true,
@@ -524,11 +522,11 @@ router.get('/:projectId/analytics', protect, async (req, res, next) => {
           total_progress_records: parseInt(completionStats.total_progress_records),
           completed_count: parseInt(completionStats.completed_count),
           completion_rate: parseFloat(completionRate),
-          average_progress: parseFloat(completionStats.avg_progress) || 0
+          average_progress: parseFloat(completionStats.avg_progress) || 0,
         },
         top_rated_content: topRatedContent,
-        recent_activity: recentActivity
-      }
+        recent_activity: recentActivity,
+      },
     });
   } catch (error) {
     next(error);
@@ -552,7 +550,7 @@ router.get('/:projectId/folders', protect, async (req, res, next) => {
     if (!projectAccess) {
       return res.status(403).json({
         success: false,
-        error: 'Access denied to this project'
+        error: 'Access denied to this project',
       });
     }
 
@@ -566,7 +564,7 @@ router.get('/:projectId/folders', protect, async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      data: folders
+      data: folders,
     });
   } catch (error) {
     next(error);

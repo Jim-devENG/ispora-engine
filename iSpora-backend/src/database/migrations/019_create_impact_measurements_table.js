@@ -1,6 +1,6 @@
 exports.up = function(knex) {
   return knex.schema.createTable('impact_measurements', function(table) {
-    table.uuid('id').primary().defaultTo(knex.raw('gen_random_uuid()'));
+    table.uuid('id').primary().defaultTo(knex.raw('(lower(hex(randomblob(4))) || '-' || lower(hex(randomblob(2))) || '-4' || substr(lower(hex(randomblob(2))),2) || '-' || substr('89ab',abs(random()) % 4 + 1, 1) || substr(lower(hex(randomblob(2))),2) || '-' || lower(hex(randomblob(6))))'));
     table.uuid('metric_id').notNullable().references('id').inTable('impact_metrics').onDelete('CASCADE');
     table.uuid('user_id').notNullable().references('id').inTable('users').onDelete('CASCADE');
     

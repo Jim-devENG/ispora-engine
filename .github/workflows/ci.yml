@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install root deps
+        run: npm ci
+
+      - name: Install frontend deps
+        working-directory: iSpora-frontend
+        run: npm ci
+
+      - name: Install backend deps
+        working-directory: iSpora-backend
+        run: npm ci
+
+      - name: Lint frontend
+        working-directory: iSpora-frontend
+        run: npm run -s lint || npm run -s lint --if-present
+
+      - name: Typecheck frontend
+        working-directory: iSpora-frontend
+        run: npm run -s typecheck || npx tsc -p tsconfig.json --noEmit
+
+      - name: Build frontend
+        working-directory: iSpora-frontend
+        run: npm run -s build
+
+      - name: Lint backend
+        working-directory: iSpora-backend
+        run: npm run -s lint --if-present || echo "no backend lint configured"
+
+      - name: Typecheck backend (ts if present)
+        working-directory: iSpora-backend
+        run: |
+          if [ -f tsconfig.json ]; then
+            npx tsc -p tsconfig.json --noEmit
+          else
+            echo "No TS config in backend"
+          fi
+
+      - name: Build backend
+        working-directory: iSpora-backend
+        run: npm run -s build --if-present || echo "no backend build step"

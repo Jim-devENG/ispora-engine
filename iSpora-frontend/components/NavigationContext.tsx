@@ -11,7 +11,10 @@ interface NavigationContextType {
   navigateToCampaign: (campaign: any) => void;
   selectedProject: any;
   setSelectedProject: (project: any) => void;
-  navigateToWorkroom: (projectId?: string, options?: { openWorkspacePanel?: boolean; activeTab?: string }) => void;
+  navigateToWorkroom: (
+    projectId?: string,
+    options?: { openWorkspacePanel?: boolean; activeTab?: string },
+  ) => void;
   navigationOptions: any;
   setNavigationOptions: (options: any) => void;
   // New properties for specific navigation
@@ -50,29 +53,32 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
     console.log(`Navigating to campaign: ${campaign.title}`);
   };
 
-  const navigateToWorkroom = (projectId?: string, options?: { openWorkspacePanel?: boolean; activeTab?: string }) => {
+  const navigateToWorkroom = (
+    projectId?: string,
+    options?: { openWorkspacePanel?: boolean; activeTab?: string },
+  ) => {
     if (projectId) {
       setSelectedProject({ id: projectId });
     }
     setCurrentPage('Workroom');
     setActiveItem('Workroom');
-    
+
     // Store additional navigation options in context
     setNavigationOptions(options || {});
-    
+
     console.log(`Navigating to workroom for project: ${projectId || 'default'}`, options);
   };
 
   const navigateToSpecificProject = (projectId: string, params?: any) => {
     const projectData = {
       id: projectId,
-      ...params
+      ...params,
     };
     setSelectedProject(projectData);
     setNavigationParams({
       projectId,
       highlightProject: true,
-      ...params
+      ...params,
     });
     setCurrentPage('Project Dashboard');
     setActiveItem('Projects');
@@ -82,13 +88,13 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
   const navigateToSpecificOpportunity = (opportunityId: string, params?: any) => {
     const opportunityData = {
       id: opportunityId,
-      ...params
+      ...params,
     };
     setSelectedOpportunity(opportunityData);
     setNavigationParams({
       opportunityId,
       highlightOpportunity: true,
-      ...params
+      ...params,
     });
     setCurrentPage('Opportunities');
     setActiveItem('Opportunities');
@@ -96,27 +102,29 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <NavigationContext.Provider value={{ 
-      activeItem, 
-      setActiveItem, 
-      navigate, 
-      currentPage, 
-      setCurrentPage,
-      selectedCampaign,
-      setSelectedCampaign,
-      navigateToCampaign,
-      selectedProject,
-      setSelectedProject,
-      navigateToWorkroom,
-      navigationOptions,
-      setNavigationOptions,
-      selectedOpportunity,
-      setSelectedOpportunity,
-      navigationParams,
-      setNavigationParams,
-      navigateToSpecificProject,
-      navigateToSpecificOpportunity
-    }}>
+    <NavigationContext.Provider
+      value={{
+        activeItem,
+        setActiveItem,
+        navigate,
+        currentPage,
+        setCurrentPage,
+        selectedCampaign,
+        setSelectedCampaign,
+        navigateToCampaign,
+        selectedProject,
+        setSelectedProject,
+        navigateToWorkroom,
+        navigationOptions,
+        setNavigationOptions,
+        selectedOpportunity,
+        setSelectedOpportunity,
+        navigationParams,
+        setNavigationParams,
+        navigateToSpecificProject,
+        navigateToSpecificOpportunity,
+      }}
+    >
       {children}
     </NavigationContext.Provider>
   );

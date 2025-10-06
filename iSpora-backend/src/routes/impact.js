@@ -20,7 +20,7 @@ router.get('/metrics', protect, async (req, res, next) => {
         'im.*',
         'p.title as project_title',
         'verifier.first_name as verifier_first_name',
-        'verifier.last_name as verifier_last_name'
+        'verifier.last_name as verifier_last_name',
       ])
       .leftJoin('projects as p', 'im.project_id', 'p.id')
       .leftJoin('users as verifier', 'im.verified_by', 'verifier.id')
@@ -41,7 +41,7 @@ router.get('/metrics', protect, async (req, res, next) => {
         .where({ metric_id: metric.id })
         .orderBy('measurement_date', 'desc')
         .first();
-      
+
       metric.latest_measurement = latestMeasurement;
     }
 
@@ -57,9 +57,9 @@ router.get('/metrics', protect, async (req, res, next) => {
       pagination: {
         page: parseInt(page),
         limit: parseInt(limit),
-        pages: Math.ceil(totalCount.count / limit)
+        pages: Math.ceil(totalCount.count / limit),
       },
-      data: metrics
+      data: metrics,
     });
   } catch (error) {
     next(error);
@@ -85,13 +85,13 @@ router.post('/metrics', protect, async (req, res, next) => {
       tags,
       is_public,
       target_date,
-      beneficiaries
+      beneficiaries,
     } = req.body;
 
     if (!name || !category || !type) {
       return res.status(400).json({
         success: false,
-        error: 'Name, category, and type are required'
+        error: 'Name, category, and type are required',
       });
     }
 
@@ -111,7 +111,7 @@ router.post('/metrics', protect, async (req, res, next) => {
         tags: JSON.stringify(tags),
         is_public: is_public || false,
         target_date,
-        beneficiaries: JSON.stringify(beneficiaries)
+        beneficiaries: JSON.stringify(beneficiaries),
       })
       .returning('*');
 
@@ -122,13 +122,13 @@ router.post('/metrics', protect, async (req, res, next) => {
       description: description,
       impact_category: category,
       related_metric_id: metric[0].id,
-      related_project_id: project_id
+      related_project_id: project_id,
     });
 
     res.status(201).json({
       success: true,
       message: 'Impact metric created successfully',
-      data: metric[0]
+      data: metric[0],
     });
   } catch (error) {
     next(error);
@@ -143,14 +143,12 @@ router.put('/metrics/:id', protect, async (req, res, next) => {
     const { id } = req.params;
     const updateData = req.body;
 
-    const metric = await db('impact_metrics')
-      .where({ id, user_id: req.user.id })
-      .first();
+    const metric = await db('impact_metrics').where({ id, user_id: req.user.id }).first();
 
     if (!metric) {
       return res.status(404).json({
         success: false,
-        error: 'Impact metric not found'
+        error: 'Impact metric not found',
       });
     }
 
@@ -175,18 +173,14 @@ router.put('/metrics/:id', protect, async (req, res, next) => {
 
     updateData.updated_at = new Date();
 
-    await db('impact_metrics')
-      .where({ id })
-      .update(updateData);
+    await db('impact_metrics').where({ id }).update(updateData);
 
-    const updatedMetric = await db('impact_metrics')
-      .where({ id })
-      .first();
+    const updatedMetric = await db('impact_metrics').where({ id }).first();
 
     res.status(200).json({
       success: true,
       message: 'Impact metric updated successfully',
-      data: updatedMetric
+      data: updatedMetric,
     });
   } catch (error) {
     next(error);
@@ -211,24 +205,22 @@ router.post('/metrics/:id/measurements', protect, async (req, res, next) => {
       is_estimate,
       margin_of_error,
       context,
-      tags
+      tags,
     } = req.body;
 
     if (!value || !measurement_date) {
       return res.status(400).json({
         success: false,
-        error: 'Value and measurement date are required'
+        error: 'Value and measurement date are required',
       });
     }
 
-    const metric = await db('impact_metrics')
-      .where({ id, user_id: req.user.id })
-      .first();
+    const metric = await db('impact_metrics').where({ id, user_id: req.user.id }).first();
 
     if (!metric) {
       return res.status(404).json({
         success: false,
-        error: 'Impact metric not found'
+        error: 'Impact metric not found',
       });
     }
 
@@ -247,18 +239,16 @@ router.post('/metrics/:id/measurements', protect, async (req, res, next) => {
         is_estimate: is_estimate || false,
         margin_of_error,
         context: JSON.stringify(context),
-        tags: JSON.stringify(tags)
+        tags: JSON.stringify(tags),
       })
       .returning('*');
 
     // Update metric's current value
-    await db('impact_metrics')
-      .where({ id })
-      .update({
-        current_value: value,
-        measurement_date,
-        updated_at: new Date()
-      });
+    await db('impact_metrics').where({ id }).update({
+      current_value: value,
+      measurement_date,
+      updated_at: new Date(),
+    });
 
     // Create feed item
     await createImpactFeedItem(req.user.id, {
@@ -268,13 +258,13 @@ router.post('/metrics/:id/measurements', protect, async (req, res, next) => {
       impact_category: metric.category,
       related_metric_id: id,
       related_project_id: metric.project_id,
-      metadata: { value, unit: unit || metric.unit }
+      metadata: { value, unit: unit || metric.unit },
     });
 
     res.status(201).json({
       success: true,
       message: 'Measurement added successfully',
-      data: measurement[0]
+      data: measurement[0],
     });
   } catch (error) {
     next(error);
@@ -299,7 +289,7 @@ router.get('/stories', async (req, res, next) => {
         'u.avatar_url',
         'p.title as project_title',
         'verifier.first_name as verifier_first_name',
-        'verifier.last_name as verifier_last_name'
+        'verifier.last_name as verifier_last_name',
       ])
       .leftJoin('users as u', 'is.user_id', 'u.id')
       .leftJoin('projects as p', 'is.project_id', 'p.id')
@@ -331,9 +321,9 @@ router.get('/stories', async (req, res, next) => {
       pagination: {
         page: parseInt(page),
         limit: parseInt(limit),
-        pages: Math.ceil(totalCount.count / limit)
+        pages: Math.ceil(totalCount.count / limit),
       },
-      data: stories
+      data: stories,
     });
   } catch (error) {
     next(error);
@@ -361,13 +351,13 @@ router.post('/stories', protect, async (req, res, next) => {
       story_date,
       tags,
       is_public,
-      allow_comments
+      allow_comments,
     } = req.body;
 
     if (!title || !description || !category) {
       return res.status(400).json({
         success: false,
-        error: 'Title, description, and category are required'
+        error: 'Title, description, and category are required',
       });
     }
 
@@ -391,7 +381,7 @@ router.post('/stories', protect, async (req, res, next) => {
         is_public: is_public !== false,
         allow_comments: allow_comments !== false,
         status: 'published',
-        published_at: new Date()
+        published_at: new Date(),
       })
       .returning('*');
 
@@ -404,13 +394,13 @@ router.post('/stories', protect, async (req, res, next) => {
       related_story_id: story[0].id,
       related_project_id: project_id,
       featured_image_url,
-      metadata: { beneficiaries_count, impact_score }
+      metadata: { beneficiaries_count, impact_score },
     });
 
     res.status(201).json({
       success: true,
       message: 'Impact story created successfully',
-      data: story[0]
+      data: story[0],
     });
   } catch (error) {
     next(error);
@@ -437,7 +427,7 @@ router.get('/feed', async (req, res, next) => {
         'related_user.first_name as related_user_first_name',
         'related_user.last_name as related_user_last_name',
         'related_user.avatar_url as related_user_avatar',
-        'p.title as project_title'
+        'p.title as project_title',
       ])
       .leftJoin('users as u', 'if.user_id', 'u.id')
       .leftJoin('users as related_user', 'if.related_user_id', 'related_user.id')
@@ -468,9 +458,9 @@ router.get('/feed', async (req, res, next) => {
       pagination: {
         page: parseInt(page),
         limit: parseInt(limit),
-        pages: Math.ceil(totalCount.count / limit)
+        pages: Math.ceil(totalCount.count / limit),
       },
-      data: feedItems
+      data: feedItems,
     });
   } catch (error) {
     next(error);
@@ -504,8 +494,8 @@ router.get('/analytics', protect, async (req, res, next) => {
         summary: impactSummary,
         category_breakdown: categoryBreakdown,
         timeline: timelineData,
-        achievements: recentAchievements
-      }
+        achievements: recentAchievements,
+      },
     });
   } catch (error) {
     next(error);
@@ -527,16 +517,25 @@ router.get('/dashboard', protect, async (req, res, next) => {
       totalBeneficiaries,
       averageImpactScore,
       recentActivity,
-      topCategories
+      topCategories,
     ] = await Promise.all([
       db('impact_metrics').where({ user_id: req.user.id }).count('* as count').first(),
-      db('impact_metrics').where({ user_id: req.user.id, status: 'active' }).count('* as count').first(),
+      db('impact_metrics')
+        .where({ user_id: req.user.id, status: 'active' })
+        .count('* as count')
+        .first(),
       db('impact_stories').where({ user_id: req.user.id }).count('* as count').first(),
-      db('impact_stories').where({ user_id: req.user.id, is_verified: true }).count('* as count').first(),
-      db('impact_stories').where({ user_id: req.user.id }).sum('beneficiaries_count as total').first(),
+      db('impact_stories')
+        .where({ user_id: req.user.id, is_verified: true })
+        .count('* as count')
+        .first(),
+      db('impact_stories')
+        .where({ user_id: req.user.id })
+        .sum('beneficiaries_count as total')
+        .first(),
       db('impact_stories').where({ user_id: req.user.id }).avg('impact_score as avg').first(),
       getRecentImpactActivity(req.user.id),
-      getTopImpactCategories(req.user.id)
+      getTopImpactCategories(req.user.id),
     ]);
 
     res.status(200).json({
@@ -545,20 +544,23 @@ router.get('/dashboard', protect, async (req, res, next) => {
         metrics: {
           total: parseInt(totalMetrics.count),
           active: parseInt(activeMetrics.count),
-          completed: parseInt(totalMetrics.count) - parseInt(activeMetrics.count)
+          completed: parseInt(totalMetrics.count) - parseInt(activeMetrics.count),
         },
         stories: {
           total: parseInt(totalStories.count),
           verified: parseInt(verifiedStories.count),
-          verification_rate: totalStories.count > 0 ? (verifiedStories.count / totalStories.count * 100).toFixed(1) : 0
+          verification_rate:
+            totalStories.count > 0
+              ? ((verifiedStories.count / totalStories.count) * 100).toFixed(1)
+              : 0,
         },
         impact: {
           total_beneficiaries: parseInt(totalBeneficiaries.total) || 0,
-          average_score: parseFloat(averageImpactScore.avg) || 0
+          average_score: parseFloat(averageImpactScore.avg) || 0,
         },
         recent_activity: recentActivity,
-        top_categories: topCategories
-      }
+        top_categories: topCategories,
+      },
     });
   } catch (error) {
     next(error);
@@ -571,7 +573,7 @@ async function createImpactFeedItem(userId, feedData) {
     await db('impact_feed').insert({
       user_id: userId,
       ...feedData,
-      published_at: new Date()
+      published_at: new Date(),
     });
   } catch (error) {
     console.error('Failed to create impact feed item:', error);
@@ -579,23 +581,18 @@ async function createImpactFeedItem(userId, feedData) {
 }
 
 async function getUserImpactSummary(userId) {
-  const [
-    totalMetrics,
-    totalStories,
-    totalBeneficiaries,
-    averageScore
-  ] = await Promise.all([
+  const [totalMetrics, totalStories, totalBeneficiaries, averageScore] = await Promise.all([
     db('impact_metrics').where({ user_id: userId }).count('* as count').first(),
     db('impact_stories').where({ user_id: userId }).count('* as count').first(),
     db('impact_stories').where({ user_id: userId }).sum('beneficiaries_count as total').first(),
-    db('impact_stories').where({ user_id: userId }).avg('impact_score as avg').first()
+    db('impact_stories').where({ user_id: userId }).avg('impact_score as avg').first(),
   ]);
 
   return {
     total_metrics: parseInt(totalMetrics.count),
     total_stories: parseInt(totalStories.count),
     total_beneficiaries: parseInt(totalBeneficiaries.total) || 0,
-    average_impact_score: parseFloat(averageScore.avg) || 0
+    average_impact_score: parseFloat(averageScore.avg) || 0,
   };
 }
 

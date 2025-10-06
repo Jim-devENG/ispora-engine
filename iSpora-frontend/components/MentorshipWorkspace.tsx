@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
   Calendar,
   CheckSquare,
@@ -17,30 +17,30 @@ import {
   Play,
   Pause,
   UserCheck,
-  Menu
-} from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Button } from "./ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { Badge } from "./ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { ScrollArea } from "./ui/scroll-area";
-import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
-import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+  Menu,
+} from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Button } from './ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import { Badge } from './ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { ScrollArea } from './ui/scroll-area';
+import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 
 // Import workspace components
-import { SessionBoard } from "./workspace/SessionBoard";
-import { TaskManager } from "./workspace/TaskManager";
-import { VoiceChat } from "./workspace/VoiceChat";
-import { VideoRecorder } from "./workspace/VideoRecorder";
-import { LearningVault } from "./workspace/LearningVault";
-import { DeliverableSubmissions } from "./workspace/DeliverableSubmissions";
-import { WorkspaceCalendar } from "./workspace/WorkspaceCalendar";
-import { NotificationsPanel } from "./workspace/NotificationsPanel";
-import { CertificateManager } from "./workspace/CertificateManager";
-import { LiveSession } from "./workspace/LiveSession";
-import { MentorshipCampaigns } from "./workspace/MentorshipCampaigns";
-import { MenteeManagement } from "./workspace/MenteeManagement";
+import { SessionBoard } from './workspace/SessionBoard';
+import { TaskManager } from './workspace/TaskManager';
+import { VoiceChat } from './workspace/VoiceChat';
+import { VideoRecorder } from './workspace/VideoRecorder';
+import { LearningVault } from './workspace/LearningVault';
+import { DeliverableSubmissions } from './workspace/DeliverableSubmissions';
+import { WorkspaceCalendar } from './workspace/WorkspaceCalendar';
+import { NotificationsPanel } from './workspace/NotificationsPanel';
+import { CertificateManager } from './workspace/CertificateManager';
+import { LiveSession } from './workspace/LiveSession';
+import { MentorshipCampaigns } from './workspace/MentorshipCampaigns';
+import { MenteeManagement } from './workspace/MenteeManagement';
 
 interface Mentee {
   id: string;
@@ -57,38 +57,41 @@ interface Mentee {
 // Mock mentee data
 const mockMentees: Mentee[] = [
   {
-    id: "1",
-    name: "Alex Chen",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
-    university: "Stanford University",
-    program: "Computer Science",
-    year: "Junior",
-    status: "active",
+    id: '1',
+    name: 'Alex Chen',
+    avatar:
+      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+    university: 'Stanford University',
+    program: 'Computer Science',
+    year: 'Junior',
+    status: 'active',
     progress: 75,
-    isOnline: true
+    isOnline: true,
   },
   {
-    id: "2",
-    name: "Sarah Williams",
-    avatar: "https://images.unsplash.com/photo-1494790108755-2616b25f5e55?w=150&h=150&fit=crop&crop=face",
-    university: "MIT",
-    program: "Electrical Engineering",
-    year: "Sophomore",
-    status: "active",
+    id: '2',
+    name: 'Sarah Williams',
+    avatar:
+      'https://images.unsplash.com/photo-1494790108755-2616b25f5e55?w=150&h=150&fit=crop&crop=face',
+    university: 'MIT',
+    program: 'Electrical Engineering',
+    year: 'Sophomore',
+    status: 'active',
     progress: 60,
-    isOnline: false
+    isOnline: false,
   },
   {
-    id: "3",
-    name: "Jordan Martinez",
-    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
-    university: "UC Berkeley",
-    program: "Business Administration",
-    year: "Senior",
-    status: "completed",
+    id: '3',
+    name: 'Jordan Martinez',
+    avatar:
+      'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
+    university: 'UC Berkeley',
+    program: 'Business Administration',
+    year: 'Senior',
+    status: 'completed',
     progress: 100,
-    isOnline: true
-  }
+    isOnline: true,
+  },
 ];
 
 interface MentorshipWorkspaceProps {
@@ -103,11 +106,11 @@ function WorkspaceSettings() {
     notifications: true,
     syncCalendar: true,
     darkMode: false,
-    compactView: false
+    compactView: false,
   });
 
   const handleSettingChange = (key: string, value: boolean) => {
-    setSettings(prev => ({ ...prev, [key]: value }));
+    setSettings((prev) => ({ ...prev, [key]: value }));
   };
 
   return (
@@ -120,10 +123,12 @@ function WorkspaceSettings() {
             { key: 'notifications', label: 'Desktop notifications' },
             { key: 'syncCalendar', label: 'Sync with calendar' },
             { key: 'darkMode', label: 'Dark mode' },
-            { key: 'compactView', label: 'Compact view' }
+            { key: 'compactView', label: 'Compact view' },
           ].map(({ key, label }) => (
             <div key={key} className="flex items-center justify-between">
-              <label htmlFor={key} className="text-sm">{label}</label>
+              <label htmlFor={key} className="text-sm">
+                {label}
+              </label>
               <input
                 type="checkbox"
                 id={key}
@@ -135,7 +140,7 @@ function WorkspaceSettings() {
           ))}
         </div>
       </div>
-      
+
       <div className="pt-3 border-t">
         <Button variant="outline" size="sm" className="w-full">
           Reset to Defaults
@@ -145,27 +150,32 @@ function WorkspaceSettings() {
   );
 }
 
-export function MentorshipWorkspace({ onNavigateToCampaign, onCreateCampaign }: MentorshipWorkspaceProps) {
-  const [activeTab, setActiveTab] = useState("session-board");
+export function MentorshipWorkspace({
+  onNavigateToCampaign,
+  onCreateCampaign,
+}: MentorshipWorkspaceProps) {
+  const [activeTab, setActiveTab] = useState('session-board');
   const [selectedMentee, setSelectedMentee] = useState<Mentee>(mockMentees[0]);
   const [isRightPanelOpen, setIsRightPanelOpen] = useState(false);
-  const [rightPanelContent, setRightPanelContent] = useState<"calendar" | "notifications">("calendar");
+  const [rightPanelContent, setRightPanelContent] = useState<'calendar' | 'notifications'>(
+    'calendar',
+  );
   const [showMenteeManagement, setShowMenteeManagement] = useState(false);
 
   // Enhanced Tab Configuration with Campaigns
   const tabs = [
-    { id: "session-board", label: "Session Board", icon: Calendar },
-    { id: "task-manager", label: "Task Manager", icon: CheckSquare },
-    { id: "voice-chat", label: "Voice & Chat", icon: MessageCircle },
-    { id: "video-recorder", label: "Video Recording", icon: Video },
-    { id: "learning-vault", label: "Learning Vault", icon: BookOpen },
-    { id: "deliverables", label: "Deliverables", icon: FileText },
-    { id: "campaigns", label: "Campaigns", icon: Target }, // New Campaign Tab
-    { id: "certificates", label: "Certificates", icon: Award },
-    { id: "live-session", label: "Live Session", icon: Play }
+    { id: 'session-board', label: 'Session Board', icon: Calendar },
+    { id: 'task-manager', label: 'Task Manager', icon: CheckSquare },
+    { id: 'voice-chat', label: 'Voice & Chat', icon: MessageCircle },
+    { id: 'video-recorder', label: 'Video Recording', icon: Video },
+    { id: 'learning-vault', label: 'Learning Vault', icon: BookOpen },
+    { id: 'deliverables', label: 'Deliverables', icon: FileText },
+    { id: 'campaigns', label: 'Campaigns', icon: Target }, // New Campaign Tab
+    { id: 'certificates', label: 'Certificates', icon: Award },
+    { id: 'live-session', label: 'Live Session', icon: Play },
   ];
 
-  const openRightPanel = (content: "calendar" | "notifications") => {
+  const openRightPanel = (content: 'calendar' | 'notifications') => {
     setRightPanelContent(content);
     setIsRightPanelOpen(true);
   };
@@ -187,28 +197,28 @@ export function MentorshipWorkspace({ onNavigateToCampaign, onCreateCampaign }: 
 
   const renderTabContent = () => {
     switch (activeTab) {
-      case "session-board":
+      case 'session-board':
         return <SessionBoard mentee={selectedMentee} />;
-      case "task-manager":
+      case 'task-manager':
         return <TaskManager mentee={selectedMentee} />;
-      case "voice-chat":
+      case 'voice-chat':
         return <VoiceChat mentee={selectedMentee} />;
-      case "video-recorder":
+      case 'video-recorder':
         return <VideoRecorder mentee={selectedMentee} />;
-      case "learning-vault":
+      case 'learning-vault':
         return <LearningVault mentee={selectedMentee} />;
-      case "deliverables":
+      case 'deliverables':
         return <DeliverableSubmissions mentee={selectedMentee} />;
-      case "campaigns":
+      case 'campaigns':
         return (
-          <MentorshipCampaigns 
+          <MentorshipCampaigns
             onNavigateToCampaign={onNavigateToCampaign}
             onCreateCampaign={onCreateCampaign}
           />
         );
-      case "certificates":
+      case 'certificates':
         return <CertificateManager mentee={selectedMentee} />;
-      case "live-session":
+      case 'live-session':
         return <LiveSession mentee={selectedMentee} />;
       default:
         return <SessionBoard mentee={selectedMentee} />;
@@ -234,7 +244,12 @@ export function MentorshipWorkspace({ onNavigateToCampaign, onCreateCampaign }: 
                 >
                   <Avatar className="h-8 w-8">
                     <AvatarImage src={selectedMentee.avatar} />
-                    <AvatarFallback>{selectedMentee.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                    <AvatarFallback>
+                      {selectedMentee.name
+                        .split(' ')
+                        .map((n) => n[0])
+                        .join('')}
+                    </AvatarFallback>
                   </Avatar>
                   <div className="text-sm text-left">
                     <p className="font-medium">{selectedMentee.name}</p>
@@ -261,26 +276,22 @@ export function MentorshipWorkspace({ onNavigateToCampaign, onCreateCampaign }: 
               <UserCheck className="h-4 w-4" />
               All Mentees ({mockMentees.length})
             </Button>
-            
+
             {/* Calendar and Settings Icons Side by Side */}
             <div className="flex items-center gap-2">
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => openRightPanel("calendar")}
+                onClick={() => openRightPanel('calendar')}
                 className="flex items-center gap-2"
               >
                 <Calendar className="h-4 w-4" />
                 Calendar
               </Button>
-              
+
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="h-9 w-9 p-0 focus-ring-brand"
-                  >
+                  <Button variant="outline" size="sm" className="h-9 w-9 p-0 focus-ring-brand">
                     <Settings className="h-4 w-4" />
                   </Button>
                 </PopoverTrigger>
@@ -289,16 +300,18 @@ export function MentorshipWorkspace({ onNavigateToCampaign, onCreateCampaign }: 
                 </PopoverContent>
               </Popover>
             </div>
-            
+
             <Button
               variant="outline"
               size="sm"
-              onClick={() => openRightPanel("notifications")}
+              onClick={() => openRightPanel('notifications')}
               className="flex items-center gap-2"
             >
               <Bell className="h-4 w-4" />
               Notifications
-              <Badge variant="destructive" className="ml-1 h-4 w-4 p-0 text-xs">3</Badge>
+              <Badge variant="destructive" className="ml-1 h-4 w-4 p-0 text-xs">
+                3
+              </Badge>
             </Button>
           </div>
         </div>
@@ -329,9 +342,11 @@ export function MentorshipWorkspace({ onNavigateToCampaign, onCreateCampaign }: 
                         New
                       </Badge>
                     )}
-                    <ChevronRight className={`h-4 w-4 ml-auto transition-transform ${
-                      activeTab === tab.id ? 'rotate-90' : ''
-                    }`} />
+                    <ChevronRight
+                      className={`h-4 w-4 ml-auto transition-transform ${
+                        activeTab === tab.id ? 'rotate-90' : ''
+                      }`}
+                    />
                   </button>
                 );
               })}
@@ -346,12 +361,12 @@ export function MentorshipWorkspace({ onNavigateToCampaign, onCreateCampaign }: 
                   <span className="font-medium">{selectedMentee.progress}%</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div 
+                  <div
                     className="bg-[#021ff6] h-2 rounded-full transition-all duration-300"
                     style={{ width: `${selectedMentee.progress}%` }}
                   ></div>
                 </div>
-                <Badge 
+                <Badge
                   variant={selectedMentee.status === 'active' ? 'default' : 'secondary'}
                   className="w-full justify-center"
                 >
@@ -363,19 +378,17 @@ export function MentorshipWorkspace({ onNavigateToCampaign, onCreateCampaign }: 
         </div>
 
         {/* Main Content Area */}
-        <div className="flex-1 overflow-hidden">
-          {renderTabContent()}
-        </div>
+        <div className="flex-1 overflow-hidden">{renderTabContent()}</div>
 
         {/* Right Panel Overlay */}
         {isRightPanelOpen && (
           <>
             {/* Backdrop */}
-            <div 
+            <div
               className="fixed inset-0 bg-black/20 z-40 backdrop-enter"
               onClick={() => setIsRightPanelOpen(false)}
             />
-            
+
             {/* Panel */}
             <div className="fixed top-0 right-0 w-96 h-full bg-white shadow-2xl z-50 panel-enter panel-shadow">
               <div className="flex items-center justify-between p-6 border-b border-gray-200">
@@ -391,7 +404,7 @@ export function MentorshipWorkspace({ onNavigateToCampaign, onCreateCampaign }: 
                   <X className="h-4 w-4" />
                 </Button>
               </div>
-              
+
               {/* Scrollable content area */}
               <div className="h-[calc(100%-5rem)] overflow-hidden">
                 {rightPanelContent === 'calendar' ? (
@@ -410,11 +423,7 @@ export function MentorshipWorkspace({ onNavigateToCampaign, onCreateCampaign }: 
         onClick={() => setIsRightPanelOpen(!isRightPanelOpen)}
         className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-[#021ff6] hover:bg-[#021ff6]/90 shadow-lg z-30 workspace-toggle-btn"
       >
-        {isRightPanelOpen ? (
-          <X className="h-6 w-6" />
-        ) : (
-          <Menu className="h-6 w-6" />
-        )}
+        {isRightPanelOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
       </Button>
     </div>
   );

@@ -1,17 +1,17 @@
-import { useState, useEffect } from "react";
-import { Layout } from "./components/Layout";
-import { ComingSoon } from "./components/ComingSoon";
-import AdminConsole from "./components/AdminConsole";
-import { FeedProvider } from "./components/FeedService";
-import { ProfileProvider } from "./components/ProfileContext";
-import { OnboardingProvider } from "./components/OnboardingContext";
-import { ThemeProvider } from "./components/ThemeProvider";
-import { TooltipProvider } from "./components/ui/tooltip";
-import { UserTypeSelector } from "./components/UserTypeSelector";
-import { OnboardingFlow } from "./components/OnboardingFlow";
-import { NavigationProvider } from "./components/NavigationContext";
-import { AuthProvider, useAuth } from "./components/AuthContext";
-import { ProtectedRoute } from "./components/ProtectedRoute";
+import { useState, useEffect } from 'react';
+import { Layout } from './components/Layout';
+import { ComingSoon } from './components/ComingSoon';
+import AdminConsole from './components/AdminConsole';
+import { FeedProvider } from './components/FeedService';
+import { ProfileProvider } from './components/ProfileContext';
+import { OnboardingProvider } from './components/OnboardingContext';
+import { ThemeProvider } from './components/ThemeProvider';
+import { TooltipProvider } from './components/ui/tooltip';
+import { UserTypeSelector } from './components/UserTypeSelector';
+import { OnboardingFlow } from './components/OnboardingFlow';
+import { NavigationProvider } from './components/NavigationContext';
+import { AuthProvider, useAuth } from './components/AuthContext';
+import { ProtectedRoute } from './components/ProtectedRoute';
 
 // Development mode component
 function DevelopmentMode() {
@@ -66,9 +66,15 @@ function DevelopmentMode() {
 
     const tryBackendVerify = async (key) => {
       try {
-        const res = await fetch((import.meta.env.VITE_API_URL || 'https://ispora-backend.onrender.com/api').replace(/\/$/, '') + '/dev/verify', {
-          headers: { 'X-Dev-Key': key }
-        });
+        const res = await fetch(
+          (import.meta.env.VITE_API_URL || 'https://ispora-backend.onrender.com/api').replace(
+            /\/$/,
+            '',
+          ) + '/dev/verify',
+          {
+            headers: { 'X-Dev-Key': key },
+          },
+        );
         if (res.ok) {
           setDevModeAndCleanUrl(key);
           return true;
@@ -108,9 +114,7 @@ function DevelopmentMode() {
 
   // Route: /admin-console
   if (window.location.pathname.startsWith('/admin-console')) {
-    return (
-      <AdminConsole />
-    );
+    return <AdminConsole />;
   }
 
   if (showComingSoon) {

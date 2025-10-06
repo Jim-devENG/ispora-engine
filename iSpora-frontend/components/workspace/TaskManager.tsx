@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import {
   CheckSquare,
   Plus,
@@ -16,21 +16,34 @@ import {
   TrendingUp,
   BarChart3,
   Target,
-  Users
-} from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
-import { Button } from "../ui/button";
-import { Badge } from "../ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { Textarea } from "../ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { ScrollArea } from "../ui/scroll-area";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-import { Progress } from "../ui/progress";
+  Users,
+} from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
+import { Button } from '../ui/button';
+import { Badge } from '../ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '../ui/dialog';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
+import { Textarea } from '../ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { ScrollArea } from '../ui/scroll-area';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '../ui/dropdown-menu';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
+import { Progress } from '../ui/progress';
+import { ModernAddTaskModal } from '../../src/components/ModernAddTaskModal';
 
 interface Task {
   id: string;
@@ -81,8 +94,8 @@ interface ProjectMember {
   id: string;
   name: string;
   email: string;
-  role: "owner" | "admin" | "mentor" | "student" | "collaborator" | "viewer";
-  status: "active" | "pending" | "inactive";
+  role: 'owner' | 'admin' | 'mentor' | 'student' | 'collaborator' | 'viewer';
+  status: 'active' | 'pending' | 'inactive';
   avatar?: string;
 }
 
@@ -92,70 +105,79 @@ type TaskStatus = Task['status'];
 // Mock project members data
 const mockProjectMembers: ProjectMember[] = [
   {
-    id: "1",
-    name: "Dr. Amina Hassan",
-    email: "amina.hassan@university.edu",
-    role: "mentor",
-    status: "active",
-    avatar: "https://images.unsplash.com/photo-1494790108755-2616b25f5e55?w=150&h=150&fit=crop&crop=face"
+    id: '1',
+    name: 'Dr. Amina Hassan',
+    email: 'amina.hassan@university.edu',
+    role: 'mentor',
+    status: 'active',
+    avatar:
+      'https://images.unsplash.com/photo-1494790108755-2616b25f5e55?w=150&h=150&fit=crop&crop=face',
   },
   {
-    id: "2",
-    name: "Amara Okafor",
-    email: "amara.okafor@student.edu",
-    role: "student",
-    status: "active",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"
+    id: '2',
+    name: 'Amara Okafor',
+    email: 'amara.okafor@student.edu',
+    role: 'student',
+    status: 'active',
+    avatar:
+      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
   },
   {
-    id: "3",
-    name: "Maria Rodriguez",
-    email: "maria.r@techcorp.com",
-    role: "collaborator",
-    status: "active"
-  }
+    id: '3',
+    name: 'Maria Rodriguez',
+    email: 'maria.r@techcorp.com',
+    role: 'collaborator',
+    status: 'active',
+  },
 ];
 
 // API Base URL
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://ispora-backend.onrender.com/api';
 
 const statusConfig = {
-  'todo': { title: 'To Do', color: 'bg-gray-100', textColor: 'text-gray-800' },
+  todo: { title: 'To Do', color: 'bg-gray-100', textColor: 'text-gray-800' },
   'in-progress': { title: 'In Progress', color: 'bg-blue-100', textColor: 'text-blue-800' },
-  'done': { title: 'Done', color: 'bg-green-100', textColor: 'text-green-800' }
+  done: { title: 'Done', color: 'bg-green-100', textColor: 'text-green-800' },
 };
 
 const priorityColors = {
   low: 'bg-green-100 text-green-800',
   medium: 'bg-yellow-100 text-yellow-800',
-  high: 'bg-red-100 text-red-800'
+  high: 'bg-red-100 text-red-800',
 };
 
 const priorityIcons = {
   low: '🟢',
   medium: '🟡',
-  high: '🔴'
+  high: '🔴',
 };
 
-function TaskCard({ task, onEdit, onDelete, onStatusChange }: {
+function TaskCard({
+  task,
+  onEdit,
+  onDelete,
+  onStatusChange,
+}: {
   task: Task;
   onEdit: (task: Task) => void;
   onDelete: (taskId: string) => void;
   onStatusChange: (taskId: string, newStatus: TaskStatus) => void;
 }) {
   const [showComments, setShowComments] = useState(false);
-  const [newComment, setNewComment] = useState("");
+  const [newComment, setNewComment] = useState('');
 
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat('en-US', {
       month: 'short',
-      day: 'numeric'
+      day: 'numeric',
     }).format(date);
   };
 
   const isOverdue = task.dueDate && task.status !== 'done' && new Date() > task.dueDate;
-  const isDueSoon = task.dueDate && task.status !== 'done' && 
-    (task.dueDate.getTime() - Date.now()) <= 2 * 24 * 60 * 60 * 1000; // 2 days
+  const isDueSoon =
+    task.dueDate &&
+    task.status !== 'done' &&
+    task.dueDate.getTime() - Date.now() <= 2 * 24 * 60 * 60 * 1000; // 2 days
 
   const formatFileSize = (bytes: number) => {
     if (bytes === 0) return '0 Bytes';
@@ -200,13 +222,18 @@ function TaskCard({ task, onEdit, onDelete, onStatusChange }: {
       <CardContent className="pt-0 space-y-2">
         {/* Priority and Due Date */}
         <div className="flex items-center justify-between">
-          <Badge variant="outline" className={`${priorityColors[task.priority]} text-xs px-1.5 py-0.5`}>
+          <Badge
+            variant="outline"
+            className={`${priorityColors[task.priority]} text-xs px-1.5 py-0.5`}
+          >
             {priorityIcons[task.priority]} {task.priority}
           </Badge>
           {task.dueDate && (
-            <div className={`flex items-center gap-1 text-xs ${
-              isOverdue ? 'text-red-600' : isDueSoon ? 'text-yellow-600' : 'text-gray-600'
-            }`}>
+            <div
+              className={`flex items-center gap-1 text-xs ${
+                isOverdue ? 'text-red-600' : isDueSoon ? 'text-yellow-600' : 'text-gray-600'
+              }`}
+            >
               {isOverdue && <AlertCircle className="h-3 w-3" />}
               <Calendar className="h-3 w-3" />
               <span>{formatDate(task.dueDate)}</span>
@@ -240,7 +267,7 @@ function TaskCard({ task, onEdit, onDelete, onStatusChange }: {
               </div>
             )}
             {task.comments.length > 0 && (
-              <button 
+              <button
                 onClick={() => setShowComments(!showComments)}
                 className="flex items-center gap-1 hover:text-gray-700"
               >
@@ -250,7 +277,12 @@ function TaskCard({ task, onEdit, onDelete, onStatusChange }: {
             )}
           </div>
           <Avatar className="h-4 w-4">
-            <AvatarFallback className="text-xs">{task.assignee.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+            <AvatarFallback className="text-xs">
+              {task.assignee
+                .split(' ')
+                .map((n) => n[0])
+                .join('')}
+            </AvatarFallback>
           </Avatar>
         </div>
 
@@ -258,7 +290,10 @@ function TaskCard({ task, onEdit, onDelete, onStatusChange }: {
         {task.attachments.length > 0 && (
           <div className="space-y-1">
             {task.attachments.map((attachment) => (
-              <div key={attachment.id} className="flex items-center gap-2 p-2 bg-gray-50 rounded text-xs">
+              <div
+                key={attachment.id}
+                className="flex items-center gap-2 p-2 bg-gray-50 rounded text-xs"
+              >
                 <Paperclip className="h-3 w-3 text-gray-400" />
                 <span className="flex-1 truncate">{attachment.name}</span>
                 <span className="text-gray-500">{formatFileSize(attachment.size)}</span>
@@ -276,15 +311,16 @@ function TaskCard({ task, onEdit, onDelete, onStatusChange }: {
                   <Avatar className="h-5 w-5 flex-shrink-0">
                     <AvatarImage src={comment.authorAvatar} alt={comment.author} />
                     <AvatarFallback className="text-xs">
-                      {comment.author.split(' ').map(n => n[0]).join('')}
+                      {comment.author
+                        .split(' ')
+                        .map((n) => n[0])
+                        .join('')}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1 min-w-0">
                     <div className="text-xs font-medium">{comment.author}</div>
                     <div className="text-xs text-gray-600">{comment.content}</div>
-                    <div className="text-xs text-gray-400">
-                      {formatDate(comment.timestamp)}
-                    </div>
+                    <div className="text-xs text-gray-400">{formatDate(comment.timestamp)}</div>
                   </div>
                 </div>
               ))}
@@ -306,9 +342,9 @@ function TaskCard({ task, onEdit, onDelete, onStatusChange }: {
         {/* Status Change Buttons */}
         <div className="flex gap-1">
           {task.status !== 'todo' && (
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               className="text-xs h-6"
               onClick={() => onStatusChange(task.id, 'todo')}
             >
@@ -316,9 +352,9 @@ function TaskCard({ task, onEdit, onDelete, onStatusChange }: {
             </Button>
           )}
           {task.status !== 'in-progress' && (
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               className="text-xs h-6"
               onClick={() => onStatusChange(task.id, 'in-progress')}
             >
@@ -326,9 +362,9 @@ function TaskCard({ task, onEdit, onDelete, onStatusChange }: {
             </Button>
           )}
           {task.status !== 'done' && (
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               className="text-xs h-6"
               onClick={() => onStatusChange(task.id, 'done')}
             >
@@ -341,13 +377,13 @@ function TaskCard({ task, onEdit, onDelete, onStatusChange }: {
   );
 }
 
-function KanbanColumn({ 
-  status, 
-  tasks, 
-  onAddTask, 
-  onEditTask, 
-  onDeleteTask, 
-  onStatusChange 
+function KanbanColumn({
+  status,
+  tasks,
+  onAddTask,
+  onEditTask,
+  onDeleteTask,
+  onStatusChange,
 }: {
   status: TaskStatus;
   tasks: Task[];
@@ -371,7 +407,7 @@ function KanbanColumn({
           <Plus className="h-4 w-4" />
         </Button>
       </div>
-      
+
       <div className="space-y-2">
         {tasks.map((task) => (
           <TaskCard
@@ -393,33 +429,42 @@ function KanbanColumn({
   );
 }
 
-function TaskAnalytics({ tasks, projectMembers }: { tasks: Task[], projectMembers: ProjectMember[] }) {
+function TaskAnalytics({
+  tasks,
+  projectMembers,
+}: {
+  tasks: Task[];
+  projectMembers: ProjectMember[];
+}) {
   const totalTasks = tasks.length;
-  const completedTasks = tasks.filter(t => t.status === 'done').length;
-  const inProgressTasks = tasks.filter(t => t.status === 'in-progress').length;
-  const todoTasks = tasks.filter(t => t.status === 'todo').length;
-  const overdueTasks = tasks.filter(t => 
-    t.dueDate && t.status !== 'done' && new Date() > t.dueDate
+  const completedTasks = tasks.filter((t) => t.status === 'done').length;
+  const inProgressTasks = tasks.filter((t) => t.status === 'in-progress').length;
+  const todoTasks = tasks.filter((t) => t.status === 'todo').length;
+  const overdueTasks = tasks.filter(
+    (t) => t.dueDate && t.status !== 'done' && new Date() > t.dueDate,
   ).length;
 
   const completionRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
   // Task distribution by assignee
-  const tasksByAssignee = projectMembers.map(member => ({
-    name: member.name,
-    avatar: member.avatar,
-    role: member.role,
-    total: tasks.filter(t => t.assignee === member.name).length,
-    completed: tasks.filter(t => t.assignee === member.name && t.status === 'done').length,
-    inProgress: tasks.filter(t => t.assignee === member.name && t.status === 'in-progress').length,
-    todo: tasks.filter(t => t.assignee === member.name && t.status === 'todo').length
-  })).filter(member => member.total > 0);
+  const tasksByAssignee = projectMembers
+    .map((member) => ({
+      name: member.name,
+      avatar: member.avatar,
+      role: member.role,
+      total: tasks.filter((t) => t.assignee === member.name).length,
+      completed: tasks.filter((t) => t.assignee === member.name && t.status === 'done').length,
+      inProgress: tasks.filter((t) => t.assignee === member.name && t.status === 'in-progress')
+        .length,
+      todo: tasks.filter((t) => t.assignee === member.name && t.status === 'todo').length,
+    }))
+    .filter((member) => member.total > 0);
 
   // Priority distribution
   const priorityDistribution = {
-    high: tasks.filter(t => t.priority === 'high').length,
-    medium: tasks.filter(t => t.priority === 'medium').length,
-    low: tasks.filter(t => t.priority === 'low').length
+    high: tasks.filter((t) => t.priority === 'high').length,
+    medium: tasks.filter((t) => t.priority === 'medium').length,
+    low: tasks.filter((t) => t.priority === 'low').length,
   };
 
   return (
@@ -503,7 +548,10 @@ function TaskAnalytics({ tasks, projectMembers }: { tasks: Task[], projectMember
                       <AvatarImage src={member.avatar} alt={member.name} />
                     ) : (
                       <AvatarFallback className="text-xs">
-                        {member.name.split(' ').map(n => n[0]).join('')}
+                        {member.name
+                          .split(' ')
+                          .map((n) => n[0])
+                          .join('')}
                       </AvatarFallback>
                     )}
                   </Avatar>
@@ -513,15 +561,22 @@ function TaskAnalytics({ tasks, projectMembers }: { tasks: Task[], projectMember
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm font-medium">{member.completed}/{member.total}</p>
+                  <p className="text-sm font-medium">
+                    {member.completed}/{member.total}
+                  </p>
                   <p className="text-xs text-gray-500">
                     {member.total > 0 ? Math.round((member.completed / member.total) * 100) : 0}%
                   </p>
                 </div>
               </div>
-              <Progress value={member.total > 0 ? (member.completed / member.total) * 100 : 0} className="h-2" />
+              <Progress
+                value={member.total > 0 ? (member.completed / member.total) * 100 : 0}
+                className="h-2"
+              />
               <div className="flex justify-between text-xs text-gray-500">
-                <span>✅ {member.completed} • ⏳ {member.inProgress} • 📋 {member.todo}</span>
+                <span>
+                  ✅ {member.completed} • ⏳ {member.inProgress} • 📋 {member.todo}
+                </span>
               </div>
             </div>
           ))}
@@ -570,7 +625,7 @@ export function TaskManager({ mentee, projectMembers = mockProjectMembers }: Tas
     priority: 'medium' as Task['priority'],
     dueDate: '',
     assignee: mentee.name,
-    tags: ''
+    tags: '',
   });
 
   // Filter states
@@ -590,20 +645,20 @@ export function TaskManager({ mentee, projectMembers = mockProjectMembers }: Tas
 
         const res = await fetch(`${API_BASE_URL}/tasks`, { headers, signal: controller.signal });
         const json = await res.json();
-        const rows = Array.isArray(json.data) ? json.data : (Array.isArray(json) ? json : []);
+        const rows = Array.isArray(json.data) ? json.data : Array.isArray(json) ? json : [];
         const mapped: Task[] = rows.map((r: any) => ({
           id: r.id,
           title: r.title,
           description: r.description || undefined,
           status: (r.status || 'todo') as TaskStatus,
-          priority: (r.priority || 'medium'),
+          priority: r.priority || 'medium',
           assignee: r.assignee_name || r.assignee || mentee.name,
           assignedDate: r.created_at ? new Date(r.created_at) : new Date(),
           dueDate: r.due_at ? new Date(r.due_at) : undefined,
           completedDate: r.status === 'done' && r.updated_at ? new Date(r.updated_at) : undefined,
           comments: [],
           attachments: [],
-          tags: r.tags ? String(r.tags).split(',').filter(Boolean) : []
+          tags: r.tags ? String(r.tags).split(',').filter(Boolean) : [],
         }));
         setTasks(mapped);
       } catch (e) {
@@ -612,20 +667,23 @@ export function TaskManager({ mentee, projectMembers = mockProjectMembers }: Tas
     };
     load();
     const id = setInterval(load, 30000);
-    return () => { controller.abort(); clearInterval(id); };
+    return () => {
+      controller.abort();
+      clearInterval(id);
+    };
   }, [mentee.name]);
 
   // Apply filters
-  const filteredTasks = tasks.filter(task => {
+  const filteredTasks = tasks.filter((task) => {
     const assigneeMatch = selectedAssignee === 'all' || task.assignee === selectedAssignee;
     const priorityMatch = selectedPriority === 'all' || task.priority === selectedPriority;
     return assigneeMatch && priorityMatch;
   });
 
   const tasksByStatus = {
-    'todo': filteredTasks.filter(t => t.status === 'todo'),
-    'in-progress': filteredTasks.filter(t => t.status === 'in-progress'),
-    'done': filteredTasks.filter(t => t.status === 'done')
+    todo: filteredTasks.filter((t) => t.status === 'todo'),
+    'in-progress': filteredTasks.filter((t) => t.status === 'in-progress'),
+    done: filteredTasks.filter((t) => t.status === 'done'),
   };
 
   const handleAddTask = (status: TaskStatus) => {
@@ -637,7 +695,7 @@ export function TaskManager({ mentee, projectMembers = mockProjectMembers }: Tas
       priority: 'medium',
       dueDate: '',
       assignee: mentee.name,
-      tags: ''
+      tags: '',
     });
     setShowCreateDialog(true);
   };
@@ -650,7 +708,7 @@ export function TaskManager({ mentee, projectMembers = mockProjectMembers }: Tas
       priority: task.priority,
       dueDate: task.dueDate ? task.dueDate.toISOString().split('T')[0] : '',
       assignee: task.assignee,
-      tags: task.tags?.join(', ') || ''
+      tags: task.tags?.join(', ') || '',
     });
     setShowCreateDialog(true);
   };
@@ -663,7 +721,7 @@ export function TaskManager({ mentee, projectMembers = mockProjectMembers }: Tas
     if (token) headers['Authorization'] = `Bearer ${token}`;
     try {
       await fetch(`${API_BASE_URL}/tasks/${taskId}`, { method: 'DELETE', headers });
-      setTasks(prev => prev.filter(t => t.id !== taskId));
+      setTasks((prev) => prev.filter((t) => t.id !== taskId));
     } catch {}
   };
 
@@ -674,21 +732,30 @@ export function TaskManager({ mentee, projectMembers = mockProjectMembers }: Tas
     if (devKey) headers['X-Dev-Key'] = devKey;
     if (token) headers['Authorization'] = `Bearer ${token}`;
     try {
-      await fetch(`${API_BASE_URL}/tasks/${taskId}`, { method: 'PUT', headers, body: JSON.stringify({ status: newStatus }) });
-      setTasks(prev => prev.map(task => 
-        task.id === taskId 
-          ? { 
-              ...task, 
-              status: newStatus,
-              completedDate: newStatus === 'done' ? new Date() : undefined
-            }
-          : task
-      ));
+      await fetch(`${API_BASE_URL}/tasks/${taskId}`, {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify({ status: newStatus }),
+      });
+      setTasks((prev) =>
+        prev.map((task) =>
+          task.id === taskId
+            ? {
+                ...task,
+                status: newStatus,
+                completedDate: newStatus === 'done' ? new Date() : undefined,
+              }
+            : task,
+        ),
+      );
     } catch {}
   };
 
-  const handleSaveTask = async () => {
-    if (!newTaskData.title.trim()) return;
+  const handleSaveTask = async (taskData?: any) => {
+    // Use data from modern modal if provided, otherwise use old form data
+    const data = taskData || newTaskData;
+    
+    if (!data.title.trim()) return;
     const headers: Record<string, string> = { 'Content-Type': 'application/json' };
     const devKey = localStorage.getItem('devKey');
     const token = localStorage.getItem('token');
@@ -698,34 +765,61 @@ export function TaskManager({ mentee, projectMembers = mockProjectMembers }: Tas
     if (editingTask) {
       try {
         const body = {
-          title: newTaskData.title,
-          description: newTaskData.description || null,
-          priority: newTaskData.priority,
-          dueDate: newTaskData.dueDate || null,
-          tags: newTaskData.tags ? newTaskData.tags.split(',').map(t => t.trim()).filter(Boolean) : []
+          title: data.title,
+          description: data.description || null,
+          priority: data.priority,
+          dueDate: data.dueDate || null,
+          tags: data.tags
+            ? data.tags
+                .split(',')
+                .map((t) => t.trim())
+                .filter(Boolean)
+            : [],
         };
-        await fetch(`${API_BASE_URL}/tasks/${editingTask.id}`, { method: 'PUT', headers, body: JSON.stringify(body) });
-        setTasks(prev => prev.map(task => task.id === editingTask.id ? {
-          ...task,
-          title: newTaskData.title,
-          description: newTaskData.description || undefined,
-          priority: newTaskData.priority,
-          dueDate: newTaskData.dueDate ? new Date(newTaskData.dueDate) : undefined,
-          tags: body.tags
-        } : task));
+        await fetch(`${API_BASE_URL}/tasks/${editingTask.id}`, {
+          method: 'PUT',
+          headers,
+          body: JSON.stringify(body),
+        });
+        setTasks((prev) =>
+          prev.map((task) =>
+            task.id === editingTask.id
+              ? {
+                  ...task,
+                  title: data.title,
+                  description: data.description || undefined,
+                  priority: data.priority,
+                  dueDate: data.dueDate ? new Date(data.dueDate) : undefined,
+                  tags: body.tags,
+                }
+              : task,
+          ),
+        );
       } catch {}
     } else {
       try {
         const body = {
-          title: newTaskData.title,
-          description: newTaskData.description || null,
+          title: data.title,
+          description: data.description || null,
           status: createTaskStatus,
-          priority: newTaskData.priority,
+          priority: data.priority,
           assigneeId: null,
-          dueDate: newTaskData.dueDate || null,
-          tags: newTaskData.tags ? newTaskData.tags.split(',').map(t => t.trim()).filter(Boolean) : []
+          dueDate: data.dueDate || null,
+          estimatedHours: data.estimatedHours || null,
+          type: data.type || 'development',
+          notes: data.notes || null,
+          tags: data.tags
+            ? data.tags
+                .split(',')
+                .map((t) => t.trim())
+                .filter(Boolean)
+            : [],
         };
-        const res = await fetch(`${API_BASE_URL}/tasks`, { method: 'POST', headers, body: JSON.stringify(body) });
+        const res = await fetch(`${API_BASE_URL}/tasks`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(body),
+        });
         const json = await res.json();
         const r = json.data || json;
         const created: Task = {
@@ -733,16 +827,16 @@ export function TaskManager({ mentee, projectMembers = mockProjectMembers }: Tas
           title: r.title,
           description: r.description || undefined,
           status: r.status || createTaskStatus,
-          priority: r.priority || newTaskData.priority,
-          assignee: newTaskData.assignee,
+          priority: r.priority || data.priority,
+          assignee: data.assignee,
           assignedDate: new Date(),
-          dueDate: newTaskData.dueDate ? new Date(newTaskData.dueDate) : undefined,
+          dueDate: data.dueDate ? new Date(data.dueDate) : undefined,
           completedDate: undefined,
           comments: [],
           attachments: [],
-          tags: body.tags
+          tags: body.tags,
         };
-        setTasks(prev => [created, ...prev]);
+        setTasks((prev) => [created, ...prev]);
       } catch {}
     }
 
@@ -751,13 +845,13 @@ export function TaskManager({ mentee, projectMembers = mockProjectMembers }: Tas
   };
 
   const totalTasks = filteredTasks.length;
-  const completedTasks = filteredTasks.filter(t => t.status === 'done').length;
-  const overdueTasks = filteredTasks.filter(t => 
-    t.dueDate && t.status !== 'done' && new Date() > t.dueDate
+  const completedTasks = filteredTasks.filter((t) => t.status === 'done').length;
+  const overdueTasks = filteredTasks.filter(
+    (t) => t.dueDate && t.status !== 'done' && new Date() > t.dueDate,
   ).length;
 
   // Get unique assignees for filter
-  const assignees = Array.from(new Set(tasks.map(t => t.assignee)));
+  const assignees = Array.from(new Set(tasks.map((t) => t.assignee)));
 
   return (
     <div className="flex flex-col">
@@ -779,127 +873,14 @@ export function TaskManager({ mentee, projectMembers = mockProjectMembers }: Tas
                   Analytics
                 </TabsTrigger>
               </TabsList>
-              
-              <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-                <DialogTrigger asChild>
-                  <Button className="bg-[#021ff6] hover:bg-[#021ff6]/90">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Task
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="max-w-lg">
-                  <DialogHeader>
-                    <DialogTitle>
-                      {editingTask ? 'Edit Task' : 'Create New Task'}
-                    </DialogTitle>
-                    <DialogDescription>
-                      {editingTask ? 'Update task details' : `Create a task for ${mentee.name}`}
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="space-y-4">
-                    <div>
-                      <Label htmlFor="title">Task Title</Label>
-                      <Input 
-                        id="title" 
-                        placeholder="e.g., Complete ML project"
-                        value={newTaskData.title}
-                        onChange={(e) => setNewTaskData(prev => ({ ...prev, title: e.target.value }))}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="description">Description</Label>
-                      <Textarea 
-                        id="description" 
-                        placeholder="Task details and requirements..."
-                        value={newTaskData.description}
-                        onChange={(e) => setNewTaskData(prev => ({ ...prev, description: e.target.value }))}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="assignee">Assign To</Label>
-                      <Select 
-                        value={newTaskData.assignee} 
-                        onValueChange={(value) => setNewTaskData(prev => ({ ...prev, assignee: value }))}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select member" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {projectMembers
-                            .filter(member => member.status === 'active')
-                            .map((member) => (
-                              <SelectItem key={member.id} value={member.name} className="cursor-pointer">
-                                <div className="flex items-center gap-2 w-full">
-                                  <Avatar className="h-5 w-5 flex-shrink-0">
-                                    {member.avatar ? (
-                                      <AvatarImage src={member.avatar} alt={member.name} />
-                                    ) : (
-                                      <AvatarFallback className="text-xs">
-                                        {member.name.split(' ').map(n => n[0]).join('')}
-                                      </AvatarFallback>
-                                    )}
-                                  </Avatar>
-                                  <span className="flex-1 truncate">{member.name}</span>
-                                  <Badge variant="outline" className="text-xs flex-shrink-0 capitalize">
-                                    {member.role}
-                                  </Badge>
-                                </div>
-                              </SelectItem>
-                            ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <Label htmlFor="priority">Priority</Label>
-                        <Select 
-                          value={newTaskData.priority} 
-                          onValueChange={(value: Task['priority']) => setNewTaskData(prev => ({ ...prev, priority: value }))}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Medium" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="low">🟢 Low</SelectItem>
-                            <SelectItem value="medium">🟡 Medium</SelectItem>
-                            <SelectItem value="high">🔴 High</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div>
-                        <Label htmlFor="dueDate">Due Date</Label>
-                        <Input 
-                          id="dueDate" 
-                          type="date"
-                          value={newTaskData.dueDate}
-                          onChange={(e) => setNewTaskData(prev => ({ ...prev, dueDate: e.target.value }))}
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <Label htmlFor="tags">Tags (comma-separated)</Label>
-                      <Input 
-                        id="tags" 
-                        placeholder="e.g., coding, project, python"
-                        value={newTaskData.tags}
-                        onChange={(e) => setNewTaskData(prev => ({ ...prev, tags: e.target.value }))}
-                      />
-                    </div>
-                    <div className="flex items-center justify-end space-x-2">
-                      <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
-                        Cancel
-                      </Button>
-                      <Button 
-                        className="bg-[#021ff6] hover:bg-[#021ff6]/90"
-                        onClick={handleSaveTask}
-                        disabled={!newTaskData.title.trim()}
-                      >
-                        {editingTask ? 'Update Task' : 'Create Task'}
-                      </Button>
-                    </div>
-                  </div>
-                </DialogContent>
-              </Dialog>
+
+              <Button 
+                className="bg-[#021ff6] hover:bg-[#021ff6]/90"
+                onClick={() => setShowCreateDialog(true)}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add Task
+              </Button>
             </div>
           </div>
 
@@ -934,7 +915,7 @@ export function TaskManager({ mentee, projectMembers = mockProjectMembers }: Tas
                 <Filter className="h-4 w-4 text-gray-500" />
                 <span className="text-sm font-medium">Filters:</span>
               </div>
-              
+
               <Select value={selectedAssignee} onValueChange={setSelectedAssignee}>
                 <SelectTrigger className="w-48">
                   <SelectValue placeholder="All assignees" />
@@ -965,8 +946,8 @@ export function TaskManager({ mentee, projectMembers = mockProjectMembers }: Tas
               </Select>
 
               {(selectedAssignee !== 'all' || selectedPriority !== 'all') && (
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   size="sm"
                   onClick={() => {
                     setSelectedAssignee('all');
@@ -1005,6 +986,15 @@ export function TaskManager({ mentee, projectMembers = mockProjectMembers }: Tas
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Modern Add Task Modal */}
+      <ModernAddTaskModal
+        isOpen={showCreateDialog}
+        onClose={() => setShowCreateDialog(false)}
+        onSubmit={handleSaveTask}
+        projectMembers={projectMembers}
+        mentee={mentee}
+      />
     </div>
   );
 }

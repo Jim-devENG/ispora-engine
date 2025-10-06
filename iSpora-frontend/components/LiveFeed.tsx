@@ -1,7 +1,7 @@
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Badge } from "./ui/badge";
-import { ScrollArea } from "./ui/scroll-area";
-import { Bell, FolderOpen, Users, Star, Clock } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Badge } from './ui/badge';
+import { ScrollArea } from './ui/scroll-area';
+import { Bell, FolderOpen, Users, Star, Clock } from 'lucide-react';
 
 interface NotificationItem {
   id: string;
@@ -26,12 +26,12 @@ function getNotificationIcon(type: NotificationItem['type']) {
 
 function NotificationCard({ notification }: { notification: NotificationItem }) {
   return (
-    <div className={`flex items-start space-x-3 p-3 rounded-lg transition-colors ${
-      notification.isUnread ? 'bg-blue-50 dark:bg-blue-950/20' : 'hover:bg-muted/50'
-    }`}>
-      <div className="flex-shrink-0 mt-0.5">
-        {getNotificationIcon(notification.type)}
-      </div>
+    <div
+      className={`flex items-start space-x-3 p-3 rounded-lg transition-colors ${
+        notification.isUnread ? 'bg-blue-50 dark:bg-blue-950/20' : 'hover:bg-muted/50'
+      }`}
+    >
+      <div className="flex-shrink-0 mt-0.5">{getNotificationIcon(notification.type)}</div>
       <div className="flex-1 min-w-0">
         <p className="text-sm">{notification.message}</p>
         <div className="flex items-center mt-1 space-x-2">
@@ -57,46 +57,46 @@ export function LiveFeed() {
       type: 'project',
       message: 'Stanford University posted a new Aspora project',
       timestamp: '2 minutes ago',
-      isUnread: true
+      isUnread: true,
     },
     {
       id: '2',
       type: 'mentorship',
       message: 'Samuel requested mentorship in biotech',
-      timestamp: '15 minutes ago',  
-      isUnread: true
+      timestamp: '15 minutes ago',
+      isUnread: true,
     },
     {
       id: '3',
       type: 'credits',
       message: 'You earned 20 credits for completing a session',
       timestamp: '1 hour ago',
-      isUnread: false
+      isUnread: false,
     },
     {
       id: '4',
       type: 'project',
       message: 'Your project "Climate Solutions Lab" received 3 new collaborators',
       timestamp: '2 hours ago',
-      isUnread: false
+      isUnread: false,
     },
     {
       id: '5',
       type: 'mentorship',
       message: 'Maria completed her mentorship session with you',
       timestamp: '4 hours ago',
-      isUnread: false
+      isUnread: false,
     },
     {
       id: '6',
       type: 'general',
       message: 'New curriculum lab available: "Sustainable Engineering Practices"',
       timestamp: '6 hours ago',
-      isUnread: false
-    }
+      isUnread: false,
+    },
   ];
 
-  const unreadCount = notifications.filter(n => n.isUnread).length;
+  const unreadCount = notifications.filter((n) => n.isUnread).length;
 
   return (
     <Card>
@@ -115,10 +115,7 @@ export function LiveFeed() {
         <ScrollArea className="h-80">
           <div className="space-y-2">
             {notifications.map((notification) => (
-              <NotificationCard
-                key={notification.id}
-                notification={notification}
-              />
+              <NotificationCard key={notification.id} notification={notification} />
             ))}
           </div>
         </ScrollArea>

@@ -6,17 +6,14 @@ const db = require('../database/connection');
 const protect = async (req, res, next) => {
   let token;
 
-  if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith('Bearer')
-  ) {
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     token = req.headers.authorization.split(' ')[1];
   }
 
   if (!token) {
     return res.status(401).json({
       success: false,
-      error: 'Not authorized to access this route'
+      error: 'Not authorized to access this route',
     });
   }
 
@@ -25,14 +22,12 @@ const protect = async (req, res, next) => {
     const decoded = jwt.verify(token, config.jwt.secret);
 
     // Get user from database
-    const user = await db('users')
-      .where({ id: decoded.id })
-      .first();
+    const user = await db('users').where({ id: decoded.id }).first();
 
     if (!user) {
       return res.status(401).json({
         success: false,
-        error: 'Not authorized to access this route'
+        error: 'Not authorized to access this route',
       });
     }
 
@@ -41,7 +36,7 @@ const protect = async (req, res, next) => {
   } catch (error) {
     return res.status(401).json({
       success: false,
-      error: 'Not authorized to access this route'
+      error: 'Not authorized to access this route',
     });
   }
 };
@@ -52,7 +47,7 @@ const authorize = (...roles) => {
     if (!roles.includes(req.user.user_type)) {
       return res.status(403).json({
         success: false,
-        error: `User role ${req.user.user_type} is not authorized to access this route`
+        error: `User role ${req.user.user_type} is not authorized to access this route`,
       });
     }
     next();
@@ -63,20 +58,15 @@ const authorize = (...roles) => {
 const optionalAuth = async (req, res, next) => {
   let token;
 
-  if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith('Bearer')
-  ) {
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     token = req.headers.authorization.split(' ')[1];
   }
 
   if (token) {
     try {
       const decoded = jwt.verify(token, config.jwt.secret);
-      const user = await db('users')
-        .where({ id: decoded.id })
-        .first();
-      
+      const user = await db('users').where({ id: decoded.id }).first();
+
       if (user) {
         req.user = user;
       }
@@ -94,14 +84,14 @@ const requireAdmin = (req, res, next) => {
   if (!req.user) {
     return res.status(401).json({
       success: false,
-      error: 'Not authorized to access this route'
+      error: 'Not authorized to access this route',
     });
   }
 
   if (req.user.user_type !== 'admin') {
     return res.status(403).json({
       success: false,
-      error: 'Admin access required'
+      error: 'Admin access required',
     });
   }
 
@@ -112,5 +102,5 @@ module.exports = {
   protect,
   authorize,
   optionalAuth,
-  requireAdmin
+  requireAdmin,
 };

@@ -1,30 +1,25 @@
-import React from "react";
-import { Card, CardContent } from "./ui/card";
-import { Button } from "./ui/button";
-import { Badge } from "./ui/badge";
+import React from 'react';
+import { Card, CardContent } from './ui/card';
+import { Button } from './ui/button';
+import { Badge } from './ui/badge';
 
 export function BillingPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
       <div className="w-full p-6 space-y-8">
-        
         {/* Header */}
         <div className="text-center space-y-4">
           <div className="flex items-center justify-center space-x-2">
             <div className="w-12 h-12 bg-gradient-to-br from-green-600 to-blue-600 rounded-full flex items-center justify-center">
               <span className="text-white text-xl">💎</span>
             </div>
-            <Badge className="bg-blue-600 text-white">
-              Community Explorer
-            </Badge>
+            <Badge className="bg-blue-600 text-white">Community Explorer</Badge>
           </div>
-          
+
           <div>
-            <h1 className="text-4xl font-bold text-gray-900">
-              Support Youth-Led Innovation
-            </h1>
+            <h1 className="text-4xl font-bold text-gray-900">Support Youth-Led Innovation</h1>
             <p className="text-xl text-gray-600 mt-2 max-w-3xl">
-              Join thousands of diaspora professionals building the future. Explore for free or 
+              Join thousands of diaspora professionals building the future. Explore for free or
               support our mission for just $5/month to unlock community building powers.
             </p>
           </div>
@@ -37,15 +32,15 @@ export function BillingPage() {
               Welcome to Ispora! You're in your free trial period
             </h3>
             <p className="text-green-700 mt-1">
-              You have <span className="font-semibold">60 days</span> of full access to explore all features.
-              After your trial, you can continue with our generous free plan or support the community for just $5/month.
+              You have <span className="font-semibold">60 days</span> of full access to explore all
+              features. After your trial, you can continue with our generous free plan or support
+              the community for just $5/month.
             </p>
           </div>
         </div>
 
         {/* Plan Cards */}
         <div className="grid gap-8 md:grid-cols-2 max-w-5xl mx-auto">
-          
           {/* Community Explorer Plan */}
           <Card className="border-blue-200">
             <CardContent className="p-8">
@@ -56,15 +51,18 @@ export function BillingPage() {
                   </div>
                   <div>
                     <h3 className="text-2xl font-bold text-gray-900">Community Explorer</h3>
-                    <p className="text-gray-600 mt-2">Perfect for discovering opportunities and connecting with the diaspora community</p>
+                    <p className="text-gray-600 mt-2">
+                      Perfect for discovering opportunities and connecting with the diaspora
+                      community
+                    </p>
                   </div>
                 </div>
-                
+
                 <div className="space-y-3">
                   <div className="text-4xl font-bold text-gray-900">Free</div>
                   <p className="text-green-600 font-medium">Always free, no strings attached</p>
                 </div>
-                
+
                 <div className="space-y-3 text-left">
                   <div className="flex items-start space-x-3">
                     <span className="text-green-500 text-lg">✓</span>
@@ -72,14 +70,18 @@ export function BillingPage() {
                   </div>
                   <div className="flex items-start space-x-3">
                     <span className="text-green-500 text-lg">✓</span>
-                    <span className="text-sm text-gray-700">Discover unlimited projects & opportunities</span>
+                    <span className="text-sm text-gray-700">
+                      Discover unlimited projects & opportunities
+                    </span>
                   </div>
                   <div className="flex items-start space-x-3">
                     <span className="text-green-500 text-lg">✓</span>
-                    <span className="text-sm text-gray-700">Connect with diaspora professionals</span>
+                    <span className="text-sm text-gray-700">
+                      Connect with diaspora professionals
+                    </span>
                   </div>
                 </div>
-                
+
                 <Button className="w-full" variant="outline" disabled>
                   Current Plan
                 </Button>
@@ -94,7 +96,7 @@ export function BillingPage() {
                 💚 Support Our Mission
               </Badge>
             </div>
-            
+
             <CardContent className="p-8">
               <div className="text-center space-y-6">
                 <div className="space-y-4">
@@ -103,23 +105,25 @@ export function BillingPage() {
                   </div>
                   <div>
                     <h3 className="text-2xl font-bold text-gray-900">Pro Builder</h3>
-                    <p className="text-gray-600 mt-2">Support our mission and unlock full community building powers</p>
+                    <p className="text-gray-600 mt-2">
+                      Support our mission and unlock full community building powers
+                    </p>
                   </div>
                 </div>
-                
+
                 <div className="space-y-3">
                   <div className="flex items-baseline justify-center space-x-2">
                     <span className="text-4xl font-bold text-gray-900">$5</span>
                     <span className="text-gray-500 text-lg">/month</span>
                   </div>
-                  
+
                   <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-3">
                     <p className="text-sm text-green-800 font-medium">
                       Support youth-led innovation across the diaspora
                     </p>
                   </div>
                 </div>
-                
+
                 <div className="space-y-3 text-left">
                   <div className="flex items-start space-x-3">
                     <span className="text-green-500 text-lg">✓</span>
@@ -127,18 +131,20 @@ export function BillingPage() {
                   </div>
                   <div className="flex items-start space-x-3">
                     <span className="text-green-500 text-lg">✓</span>
-                    <span className="text-sm text-gray-700">Host unlimited projects & initiatives</span>
+                    <span className="text-sm text-gray-700">
+                      Host unlimited projects & initiatives
+                    </span>
                   </div>
                   <div className="flex items-start space-x-3">
                     <span className="text-green-500 text-lg">✓</span>
                     <span className="text-sm text-gray-700">Provide mentorship to community</span>
                   </div>
                 </div>
-                
+
                 <Button className="w-full bg-[#021ff6] hover:bg-[#021ff6]/90 text-white">
                   💚 Support for $5/month
                 </Button>
-                
+
                 <div className="space-y-2">
                   <p className="text-sm text-gray-500">
                     🌱 Your support helps fund youth-led innovation
@@ -222,7 +228,6 @@ export function BillingPage() {
             </CardContent>
           </Card>
         </div>
-
       </div>
     </div>
   );
