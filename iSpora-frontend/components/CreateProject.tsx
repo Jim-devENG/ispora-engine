@@ -436,10 +436,13 @@ export function CreateProject({ onBack, onSave }: CreateProjectProps) {
       aspiraCategory: formData.projectType,
     };
 
+    console.log('Saving project:', projectData);
+    
     if (onSave) {
       onSave(projectData);
+    } else {
+      console.warn('No onSave callback provided');
     }
-    console.log('Saving project:', projectData);
   };
 
   const nextStep = () => {
@@ -1293,7 +1296,10 @@ export function CreateProject({ onBack, onSave }: CreateProjectProps) {
             </Button>
             {currentStep === steps.length - 1 && (
               <Button
-                onClick={() => handleSave(false)}
+                onClick={() => {
+                  console.log('Creating project with data:', formData);
+                  handleSave(false);
+                }}
                 className="bg-[#021ff6] hover:bg-[#021ff6]/90"
               >
                 <Send className="h-4 w-4 mr-2" />
@@ -1352,7 +1358,7 @@ export function CreateProject({ onBack, onSave }: CreateProjectProps) {
               Previous
             </Button>
             <div className="flex items-center gap-2">
-              {currentStep < steps.length - 1 && (
+              {currentStep < steps.length - 1 ? (
                 <Button
                   onClick={nextStep}
                   disabled={!canProceed()}
@@ -1360,6 +1366,17 @@ export function CreateProject({ onBack, onSave }: CreateProjectProps) {
                 >
                   Next
                   <ChevronRight className="h-4 w-4 ml-2" />
+                </Button>
+              ) : (
+                <Button
+                  onClick={() => {
+                    console.log('Creating project from navigation with data:', formData);
+                    handleSave(false);
+                  }}
+                  className="bg-[#021ff6] hover:bg-[#021ff6]/90"
+                >
+                  <Send className="h-4 w-4 mr-2" />
+                  Create Project
                 </Button>
               )}
             </div>
