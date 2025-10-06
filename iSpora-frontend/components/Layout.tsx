@@ -133,9 +133,32 @@ function MainContent() {
       return (
         <CreateProject
           onBack={() => setCurrentPage('Project Dashboard')}
-          onSave={(projectData) => {
+          onSave={async (projectData) => {
             console.log('Project created:', projectData);
-            setCurrentPage('Project Dashboard');
+            
+            try {
+              const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+              const devKey = localStorage.getItem('devKey');
+              const token = localStorage.getItem('token');
+              if (devKey) headers['X-Dev-Key'] = devKey;
+              if (token) headers['Authorization'] = `Bearer ${token}`;
+
+              const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001/api'}/projects`, {
+                method: 'POST',
+                headers,
+                body: JSON.stringify(projectData),
+              });
+
+              if (response.ok) {
+                console.log('Project saved successfully');
+                // Navigate back to refresh the projects list
+                setCurrentPage('Project Dashboard');
+              } else {
+                console.error('Failed to save project:', await response.text());
+              }
+            } catch (error) {
+              console.error('Error saving project:', error);
+            }
           }}
         />
       );
