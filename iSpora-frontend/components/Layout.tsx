@@ -134,8 +134,27 @@ function MainContent() {
         <CreateProject
           onBack={() => setCurrentPage('Project Dashboard')}
           onSave={async (projectData) => {
-            console.log('Project created:', projectData);
-            
+            // Map frontend fields to backend expectations
+            const payload = {
+              id: undefined, // backend generates
+              title: projectData.title,
+              description: projectData.description,
+              type: projectData.projectType || projectData.category || 'collaboration',
+              tags: (projectData.tags || []).join(','),
+              status: projectData.status || 'active',
+              is_public: projectData.isPublic === undefined ? true : !!projectData.isPublic,
+              mentorship_connection: !!projectData.mentorshipConnection,
+              start_date: projectData.startDate || null,
+              end_date: projectData.endDate || null,
+              priority: projectData.priority || 'medium',
+              university: projectData.university || null,
+              objectives: JSON.stringify(projectData.objectives || []),
+              team_members: JSON.stringify(projectData.teamMembers || []),
+              diaspora_positions: JSON.stringify(projectData.diasporaPositions || []),
+              created_at: undefined, // backend sets
+              updated_at: undefined, // backend sets
+            };
+
             try {
               const headers: Record<string, string> = { 'Content-Type': 'application/json' };
               const devKey = localStorage.getItem('devKey');
@@ -143,21 +162,25 @@ function MainContent() {
               if (devKey) headers['X-Dev-Key'] = devKey;
               if (token) headers['Authorization'] = `Bearer ${token}`;
 
-              const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001/api'}/projects`, {
+              const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:3001/api').replace(/\/$/, '');
+              const response = await fetch(`${apiBase}/projects`, {
                 method: 'POST',
                 headers,
-                body: JSON.stringify(projectData),
+                body: JSON.stringify(payload),
               });
 
               if (response.ok) {
-                console.log('Project saved successfully');
-                // Navigate back to refresh the projects list
+                // success toast
+                try { (await import('./ui/sonner')).toast.success('Project created successfully'); } catch {}
                 setCurrentPage('Project Dashboard');
               } else {
-                console.error('Failed to save project:', await response.text());
+                const text = await response.text();
+                console.error('Failed to save project:', text);
+                try { (await import('./ui/sonner')).toast.error('Failed to create project'); } catch {}
               }
             } catch (error) {
               console.error('Error saving project:', error);
+              try { (await import('./ui/sonner')).toast.error('Network error creating project'); } catch {}
             }
           }}
         />

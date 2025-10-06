@@ -5,12 +5,12 @@ const { v4: uuidv4 } = require('uuid');
 
 const router = express.Router();
 
-// @desc    Get all projects
+// @desc    Get projects (public, or mine when requested)
 // @route   GET /api/projects
-// @access  Public
+// @access  Public (optionally personalized when authenticated)
 router.get('/', optionalAuth, async (req, res, next) => {
   try {
-    const { page = 1, limit = 20, search, type, status = 'active', tags, difficulty } = req.query;
+    const { page = 1, limit = 20, search, type, status, tags, difficulty, mine } = req.query;
 
     const offset = (page - 1) * limit;
 
@@ -22,8 +22,15 @@ router.get('/', optionalAuth, async (req, res, next) => {
         'u.username as creator_username',
         'u.avatar_url as creator_avatar',
       ])
-      .join('users as u', 'p.creator_id', 'u.id')
-      .where('p.is_public', true);
+      .join('users as u', 'p.creator_id', 'u.id');
+
+    // If requesting only my projects and we have an authenticated user, return all their projects
+    if (mine === 'true' && req.user && req.user.id) {
+      query = query.where('p.creator_id', req.user.id);
+    } else {
+      // Otherwise show only public projects
+      query = query.where('p.is_public', true);
+    }
 
     if (status) {
       query = query.where('p.status', status);
