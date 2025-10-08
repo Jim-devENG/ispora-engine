@@ -411,3 +411,25 @@ label, [class*="Label"] {
 [data-extension-error] {
   display: none !important;
 }
+
+/* Fix sidebar header layout - prevent logo overflow */
+.sidebar-header {
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+
+.sidebar-header button {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+}
+
+.sidebar-header .gap-2 {
+  gap: 0.5rem !important; /* Override compact.css for sidebar */
+}
+
+/* Ensure logo doesn't shrink too much */
+.sidebar-header .flex-shrink-0 {
+  flex-shrink: 0 !important;
+  min-width: 2rem !important;
+}

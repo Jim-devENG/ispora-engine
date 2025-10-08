@@ -147,18 +147,18 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
     <div className="h-full flex flex-col transition-all duration-300 ease-in-out glass-effect border-r border-white/20">
       {/* Header with Logo and Platform Name */}
       <div
-        className={`border-b border-white/20 transition-all duration-300 ${isCollapsed ? 'p-2' : 'p-3'}`}
+        className={`sidebar-header border-b border-white/20 transition-all duration-300 ${isCollapsed ? 'p-2' : 'p-3'}`}
       >
         {!isCollapsed ? (
           /* Expanded Header Layout */
           <Tooltip>
             <TooltipTrigger>
-              <button className="flex items-center space-x-2 transition-all duration-300 transform hover:scale-105 cursor-pointer bg-transparent border-none p-0 m-0 w-full text-left">
+              <button className="flex items-center gap-2 transition-all duration-300 transform hover:scale-105 cursor-pointer bg-transparent border-none p-0 m-0 w-full text-left overflow-hidden">
                 <IsporaLogo
                   size="default"
-                  className="transition-all duration-200 hover:scale-110"
+                  className="transition-all duration-200 hover:scale-110 flex-shrink-0"
                 />
-                <span className="font-bold text-gradient text-lg tracking-tight">iSpora</span>
+                <span className="font-bold text-gradient text-lg tracking-tight truncate">iSpora</span>
               </button>
             </TooltipTrigger>
             <TooltipContent side="bottom" className="tooltip-enhanced">
