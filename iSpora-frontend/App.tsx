@@ -20,34 +20,32 @@ function DevelopmentMode() {
   // no popup; unlock via URL or stored flag
 
   useEffect(() => {
-    // Force Coming Soon on production domain unless explicitly unlocked via backend verification
-    const isProdHost = typeof window !== 'undefined' && /(^|\.)ispora\.app$/i.test(window.location.hostname);
-    if (isProdHost) {
-      try {
-        // Ensure any prior dev flag is cleared on production domain
-        localStorage.removeItem('devMode');
-        localStorage.removeItem('devKey');
-      } catch {}
-      setShowComingSoon(true);
-      // Continue to allow unlock via ?unlock=KEY (handled below)
-    }
+    // DISABLED: Force Coming Soon on production domain unless explicitly unlocked via backend verification
+    // const isProdHost = typeof window !== 'undefined' && /(^|\.)ispora\.app$/i.test(window.location.hostname);
+    // if (isProdHost) {
+    //   try {
+    //     // Ensure any prior dev flag is cleared on production domain
+    //     localStorage.removeItem('devMode');
+    //     localStorage.removeItem('devKey');
+    //   } catch {}
+    //   setShowComingSoon(true);
+    //   // Continue to allow unlock via ?unlock=KEY (handled below)
+    // }
 
-    // In local development, skip Coming Soon entirely
-    if (import.meta.env.MODE === 'development') {
-      try {
-        localStorage.setItem('devMode', 'true');
-        const raw = localStorage.getItem('user');
-        if (raw) {
-          const u = JSON.parse(raw);
-          if (u && u.userType !== 'admin') {
-            u.userType = 'admin';
-            localStorage.setItem('user', JSON.stringify(u));
-          }
+    // ALWAYS skip Coming Soon for testing - enable full functionality
+    try {
+      localStorage.setItem('devMode', 'true');
+      const raw = localStorage.getItem('user');
+      if (raw) {
+        const u = JSON.parse(raw);
+        if (u && u.userType !== 'admin') {
+          u.userType = 'admin';
+          localStorage.setItem('user', JSON.stringify(u));
         }
-      } catch {}
-      setShowComingSoon(false);
-      return;
-    }
+      }
+    } catch {}
+    setShowComingSoon(false);
+    return;
 
     // URL unlock: ?unlock=KEY
     const params = new URLSearchParams(window.location.search);

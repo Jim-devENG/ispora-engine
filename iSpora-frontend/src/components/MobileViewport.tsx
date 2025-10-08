@@ -67,7 +67,6 @@ export function MobileViewport({ children }: MobileViewportProps) {
     <div 
       className="mobile-viewport"
       style={{
-        minHeight: '100vh',
         minHeight: '100dvh', // Dynamic viewport height for mobile
         width: '100%',
         overflowX: 'hidden'

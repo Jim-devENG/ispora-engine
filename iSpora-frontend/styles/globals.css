@@ -1,13 +1,13 @@
 ﻿@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 /* Import mobile-specific styles */
 @import './mobile.css';
 
 /* Import compact/modern design styles */
 @import './compact.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 /* Modern Compact Design System */
 :root {
