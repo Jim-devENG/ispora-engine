@@ -556,11 +556,11 @@ export function ProjectWorkspace({
           {/* Right Section - Controls */}
           <div className="flex items-center gap-3">
             {/* Project Selector */}
-            <div className="flex items-center gap-2">
+            <div className="workroom-project-selector flex items-center gap-3">
               <Tooltip>
                 <TooltipTrigger asChild>
                   <span
-                    className={`text-gray-600 font-medium ${getCompactClass('text-sm', 'text-xs')} whitespace-nowrap cursor-help`}
+                    className={`workroom-project-label text-gray-600 font-medium ${getCompactClass('text-sm', 'text-xs')} whitespace-nowrap cursor-help`}
                   >
                     Choose your project:
                   </span>
@@ -573,7 +573,7 @@ export function ProjectWorkspace({
                 <TooltipTrigger asChild>
                   <div className="form-field-enhanced">
                     <Select value={selectedProject.id} onValueChange={handleProjectChange}>
-                      <SelectTrigger className={getCompactClass('w-56 h-9', 'w-48 h-8 text-sm')}>
+                      <SelectTrigger className={`workroom-project-select ${getCompactClass('w-56 h-9', 'w-48 h-8 text-sm')}`}>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>

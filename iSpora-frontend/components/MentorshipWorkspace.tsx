@@ -240,7 +240,7 @@ export function MentorshipWorkspace({
               <TooltipTrigger asChild>
                 <button
                   onClick={() => setShowMenteeManagement(true)}
-                  className="flex items-center gap-3 bg-gray-100 hover:bg-gray-200 rounded-lg px-4 py-2 transition-colors group"
+                  className="workroom-mentee-selector flex items-center gap-3 bg-gray-100 hover:bg-gray-200 rounded-lg px-4 py-2 transition-colors group"
                 >
                   <Avatar className="h-8 w-8">
                     <AvatarImage src={selectedMentee.avatar} />

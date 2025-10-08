@@ -524,3 +524,56 @@ label, [class*="Label"] {
 .workroom-tab-btn .font-medium {
   font-weight: 500 !important;
 }
+
+/* Fix workroom project selector layout - less cramped */
+.workroom-project-selector {
+  gap: 0.75rem !important; /* More space between label and selector */
+  align-items: center !important;
+}
+
+.workroom-project-label {
+  font-size: 0.875rem !important; /* Readable label size */
+  font-weight: 500 !important;
+  color: #374151 !important;
+  white-space: nowrap !important;
+  min-width: fit-content !important;
+}
+
+.workroom-project-select {
+  min-width: 12rem !important; /* Ensure minimum width */
+  min-height: 2.25rem !important; /* Proper height */
+  padding: 0.5rem 0.75rem !important; /* Better padding */
+  font-size: 0.875rem !important; /* Readable font size */
+  border-radius: 0.5rem !important; /* Rounded corners */
+}
+
+/* Fix workroom mentee selector layout - less cramped */
+.workroom-mentee-selector {
+  padding: 0.75rem 1rem !important; /* More padding for mentee selector */
+  min-height: 2.5rem !important; /* Taller selector */
+  border-radius: 0.5rem !important; /* Rounded corners */
+  gap: 0.75rem !important; /* Better spacing between elements */
+}
+
+.workroom-mentee-selector .text-sm {
+  font-size: 0.875rem !important; /* Readable text size */
+}
+
+.workroom-mentee-selector .font-medium {
+  font-weight: 500 !important;
+  font-size: 0.875rem !important;
+}
+
+.workroom-mentee-selector .text-gray-600 {
+  font-size: 0.8125rem !important; /* Slightly smaller for secondary text */
+  color: #6b7280 !important;
+}
+
+/* Ensure proper spacing in workroom selectors */
+.workroom-project-selector .gap-2 {
+  gap: 0.5rem !important;
+}
+
+.workroom-mentee-selector .gap-3 {
+  gap: 0.75rem !important;
+}
