@@ -16,23 +16,10 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 // Development mode component
 function DevelopmentMode() {
   const { user } = useAuth();
-  const [showComingSoon, setShowComingSoon] = useState(true);
-  // no popup; unlock via URL or stored flag
+  const [showComingSoon, setShowComingSoon] = useState(false); // ALWAYS FALSE - Coming Soon disabled
 
   useEffect(() => {
-    // DISABLED: Force Coming Soon on production domain unless explicitly unlocked via backend verification
-    // const isProdHost = typeof window !== 'undefined' && /(^|\.)ispora\.app$/i.test(window.location.hostname);
-    // if (isProdHost) {
-    //   try {
-    //     // Ensure any prior dev flag is cleared on production domain
-    //     localStorage.removeItem('devMode');
-    //     localStorage.removeItem('devKey');
-    //   } catch {}
-    //   setShowComingSoon(true);
-    //   // Continue to allow unlock via ?unlock=KEY (handled below)
-    // }
-
-    // ALWAYS skip Coming Soon for testing - enable full functionality
+    // ALWAYS skip Coming Soon - enable full functionality everywhere
     try {
       localStorage.setItem('devMode', 'true');
       const raw = localStorage.getItem('user');
@@ -47,79 +34,7 @@ function DevelopmentMode() {
     setShowComingSoon(false);
     return;
 
-    // URL unlock: ?unlock=KEY
-    const params = new URLSearchParams(window.location.search);
-    const unlockKey = params.get('unlock');
-    const configuredKey = import.meta.env.VITE_DEV_KEY;
-
-    const setDevModeAndCleanUrl = (key?: string) => {
-      localStorage.setItem('devMode', 'true');
-      if (key) {
-        localStorage.setItem('devKey', key);
-      }
-      const url = new URL(window.location.href);
-      url.searchParams.delete('unlock');
-      window.history.replaceState({}, '', url.toString());
-      setShowComingSoon(false);
-      // Auto-promote current user to admin in dev mode
-      try {
-        const raw = localStorage.getItem('user');
-        if (raw) {
-          const u = JSON.parse(raw);
-          if (u && u.userType !== 'admin') {
-            u.userType = 'admin';
-            localStorage.setItem('user', JSON.stringify(u));
-          }
-        }
-      } catch {}
-    };
-
-    const tryBackendVerify = async (key) => {
-      try {
-        const res = await fetch(
-          (import.meta.env.VITE_API_URL || 'https://ispora-backend.onrender.com/api').replace(
-            /\/$/,
-            '',
-          ) + '/dev/verify',
-          {
-            headers: { 'X-Dev-Key': key },
-          },
-        );
-        if (res.ok) {
-          setDevModeAndCleanUrl(key);
-          return true;
-        }
-      } catch {}
-      return false;
-    };
-
-    (async () => {
-      if (unlockKey) {
-        // Prefer backend verification using header so frontend env key is not required
-        const ok = await tryBackendVerify(unlockKey);
-        if (ok) return;
-      }
-
-      if (unlockKey && configuredKey && unlockKey === configuredKey) {
-        setDevModeAndCleanUrl(unlockKey);
-      }
-    })();
-
-    const isDevMode = localStorage.getItem('devMode') === 'true';
-    if (!isProdHost && isDevMode) {
-      setShowComingSoon(false);
-      // Also ensure admin in dev mode on subsequent loads
-      try {
-        const raw = localStorage.getItem('user');
-        if (raw) {
-          const u = JSON.parse(raw);
-          if (u && u.userType !== 'admin') {
-            u.userType = 'admin';
-            localStorage.setItem('user', JSON.stringify(u));
-          }
-        }
-      } catch {}
-    }
+    // All Coming Soon logic removed - full functionality enabled
   }, []);
 
   // Route: /admin-console
