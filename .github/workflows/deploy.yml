@@ -25,13 +25,13 @@ jobs:
           node-version: '18'
 
       - name: Install dependencies
-        run: cd iSpora-frontend && npm ci
+        run: npm ci
 
       - name: Lint code (skip if no config)
-        run: cd iSpora-frontend && npm run -s lint || npm run -s lint --if-present || echo "Linting skipped - no config found"
+        run: npm run -s lint || npm run -s lint --if-present || echo "Linting skipped - no config found"
 
       - name: Build application
-        run: cd iSpora-frontend && npm run build
+        run: npm run build
 
       - name: Deploy to Namecheap via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
@@ -41,7 +41,7 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           port: 21
           protocol: ftp
-          local-dir: ./iSpora-frontend/dist/
+          local-dir: ./dist/
           server-dir: ./public_html/
           exclude: |
             **/.git*
