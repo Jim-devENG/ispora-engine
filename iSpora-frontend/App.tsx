@@ -20,8 +20,11 @@ function DevelopmentMode() {
 
   useEffect(() => {
     // ALWAYS skip Coming Soon - enable full functionality everywhere
+    // Force clear any cached Coming Soon state
     try {
+      localStorage.removeItem('showComingSoon');
       localStorage.setItem('devMode', 'true');
+      localStorage.setItem('appVersion', '2.0.0'); // Cache buster
       const raw = localStorage.getItem('user');
       if (raw) {
         const u = JSON.parse(raw);
