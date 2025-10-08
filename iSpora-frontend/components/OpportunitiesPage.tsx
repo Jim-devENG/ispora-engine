@@ -457,7 +457,7 @@ export function OpportunitiesPage() {
         </div>
 
         {/* Category Filter Tabs */}
-        <div className="flex gap-2 overflow-x-auto pb-2">
+        <div className="project-categories flex gap-3 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
           {categoryStats.map((cat) => {
             const Icon = cat.icon;
             const isActive = selectedCategory === cat.id;
@@ -467,15 +467,15 @@ export function OpportunitiesPage() {
                 variant={isActive ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setSelectedCategory(cat.id)}
-                className={`flex-shrink-0 ${
+                className={`project-category-btn flex-shrink-0 whitespace-nowrap ${
                   isActive
                     ? 'bg-[#021ff6] hover:bg-[#021ff6]/90'
                     : `${cat.color} border-transparent hover:shadow-md`
                 }`}
               >
-                <Icon className="h-4 w-4 mr-2" />
-                {cat.label}
-                <Badge variant="secondary" className="ml-2 text-xs">
+                <Icon className="h-4 w-4 mr-2 flex-shrink-0" />
+                <span className="truncate max-w-[200px]">{cat.label}</span>
+                <Badge variant="secondary" className="ml-2 text-xs flex-shrink-0">
                   {cat.count}
                 </Badge>
               </Button>

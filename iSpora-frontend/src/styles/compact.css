@@ -452,3 +452,37 @@ label, [class*="Label"] {
 .sidebar .account-switcher .gap-2 {
   gap: 0.5rem !important; /* Override compact.css for account switcher */
 }
+
+/* Fix project categories layout - less cramped */
+.project-categories {
+  padding: 0.5rem 0 !important;
+  gap: 0.75rem !important; /* More space between buttons */
+}
+
+.project-category-btn {
+  padding: 0.5rem 0.75rem !important; /* More padding */
+  min-height: 2.25rem !important; /* Taller buttons */
+  font-size: 0.875rem !important; /* Readable font size */
+  border-radius: 0.5rem !important; /* Rounded corners */
+  white-space: nowrap !important;
+  min-width: fit-content !important;
+}
+
+.project-category-btn .gap-2 {
+  gap: 0.5rem !important; /* Override compact.css for project categories */
+}
+
+.project-category-btn .mr-2 {
+  margin-right: 0.5rem !important; /* Proper icon spacing */
+}
+
+.project-category-btn .ml-2 {
+  margin-left: 0.5rem !important; /* Proper badge spacing */
+}
+
+/* Ensure project category buttons don't get too small */
+.project-category-btn[data-size="sm"] {
+  padding: 0.5rem 0.75rem !important;
+  font-size: 0.875rem !important;
+  min-height: 2.25rem !important;
+}
