@@ -433,3 +433,22 @@ label, [class*="Label"] {
   flex-shrink: 0 !important;
   min-width: 2rem !important;
 }
+
+/* Fix AccountSwitcher button layout in sidebar */
+.sidebar .account-switcher {
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0.5rem !important;
+}
+
+.sidebar .account-switcher button {
+  width: 100% !important;
+  justify-content: flex-start !important;
+  padding: 0.5rem 0.75rem !important;
+  font-size: 0.875rem !important;
+  min-height: 2rem !important;
+}
+
+.sidebar .account-switcher .gap-2 {
+  gap: 0.5rem !important; /* Override compact.css for account switcher */
+}

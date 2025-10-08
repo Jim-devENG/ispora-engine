@@ -144,7 +144,7 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
   ];
 
   return (
-    <div className="h-full flex flex-col transition-all duration-300 ease-in-out glass-effect border-r border-white/20">
+    <div className="sidebar h-full flex flex-col transition-all duration-300 ease-in-out glass-effect border-r border-white/20">
       {/* Header with Logo and Platform Name */}
       <div
         className={`sidebar-header border-b border-white/20 transition-all duration-300 ${isCollapsed ? 'p-2' : 'p-3'}`}
@@ -196,7 +196,7 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
 
       {/* Account Switcher */}
       {!isCollapsed && (
-        <div className="px-3 pb-2">
+        <div className="account-switcher px-3 pb-2">
           <AccountSwitcher showInHeader={true} />
         </div>
       )}
