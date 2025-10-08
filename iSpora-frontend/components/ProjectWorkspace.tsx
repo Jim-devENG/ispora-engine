@@ -501,11 +501,12 @@ export function ProjectWorkspace({
     <div className="flex flex-col bg-gray-50 relative">
       {/* Enhanced Header with Workspace Mode Display */}
       <div
-        className={`bg-white border-b border-gray-200 flex-shrink-0 ${getCompactClass('px-6 py-4', 'px-4 py-3')}`}
+        className={`workroom-header bg-white border-b border-gray-200 flex-shrink-0 ${getCompactClass('px-6 py-4', 'px-4 py-3')}`}
       >
-        <div className="flex items-center justify-between gap-4">
+        {/* Top Row - Navigation and Project Info */}
+        <div className="flex items-center justify-between gap-6 mb-4">
           {/* Left Section - Navigation & Project Info */}
-          <div className="flex items-center gap-4 flex-1 min-w-0">
+          <div className="flex items-center gap-6 flex-1 min-w-0">
             {/* Back Button */}
             <Tooltip>
               <TooltipTrigger asChild>
@@ -513,7 +514,7 @@ export function ProjectWorkspace({
                   variant="ghost"
                   size="sm"
                   onClick={onBackToProjects}
-                  className={`flex items-center gap-2 px-3 btn-hover-lift ${getCompactClass('py-2 h-9', 'py-1 h-8')}`}
+                  className={`workroom-back-btn flex items-center gap-2 px-4 btn-hover-lift ${getCompactClass('py-2 h-9', 'py-1 h-8')}`}
                 >
                   <ArrowLeft className={getCompactClass('h-4 w-4', 'h-3 w-3')} />
                   <span>Projects</span>
@@ -525,42 +526,41 @@ export function ProjectWorkspace({
             </Tooltip>
 
             {/* Separator */}
-            <div className={getCompactClass('h-5 w-px bg-gray-300', 'h-4 w-px bg-gray-300')} />
+            <div className={`workroom-separator ${getCompactClass('h-6 w-px bg-gray-300', 'h-5 w-px bg-gray-300')}`} />
 
             {/* Project Type Badge & Info */}
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="flex items-center gap-2">
+            <div className="workroom-project-info flex items-center gap-4 min-w-0">
+              <div className="flex items-center gap-3">
                 <ProjectIcon
-                  className={getCompactClass('h-5 w-5 flex-shrink-0', 'h-4 w-4 flex-shrink-0')}
+                  className={`workroom-project-icon ${getCompactClass('h-6 w-6 flex-shrink-0', 'h-5 w-5 flex-shrink-0')}`}
                 />
                 <Badge
                   variant="outline"
-                  className={`${projectTypeColors[selectedProject.type]} ${getCompactClass('px-2 py-1', 'px-1.5 py-0.5 text-xs')}`}
+                  className={`workroom-project-badge ${projectTypeColors[selectedProject.type]} ${getCompactClass('px-3 py-1.5', 'px-2 py-1 text-xs')}`}
                 >
                   {selectedProject.type}
                 </Badge>
               </div>
               <div className="min-w-0">
                 <h1
-                  className={`font-semibold text-gray-900 truncate ${getCompactClass('text-lg', 'text-base')}`}
+                  className={`workroom-project-title font-semibold text-gray-900 truncate ${getCompactClass('text-xl', 'text-lg')}`}
                 >
                   {selectedProject.title}
                 </h1>
-                <p className={`text-gray-600 truncate ${getCompactClass('text-sm', 'text-xs')}`}>
+                <p className={`workroom-project-description text-gray-600 truncate ${getCompactClass('text-base', 'text-sm')}`}>
                   {selectedProject.description}
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Right Section - Controls */}
-          <div className="flex items-center gap-3">
-            {/* Project Selector */}
-            <div className="workroom-project-selector flex items-center gap-3">
+          {/* Right Section - Project Selector */}
+          <div className="workroom-project-selector-section">
+            <div className="workroom-project-selector flex items-center gap-4">
               <Tooltip>
                 <TooltipTrigger asChild>
                   <span
-                    className={`workroom-project-label text-gray-600 font-medium ${getCompactClass('text-sm', 'text-xs')} whitespace-nowrap cursor-help`}
+                    className={`workroom-project-label text-gray-600 font-medium ${getCompactClass('text-base', 'text-sm')} whitespace-nowrap cursor-help`}
                   >
                     Choose your project:
                   </span>
@@ -573,7 +573,7 @@ export function ProjectWorkspace({
                 <TooltipTrigger asChild>
                   <div className="form-field-enhanced">
                     <Select value={selectedProject.id} onValueChange={handleProjectChange}>
-                      <SelectTrigger className={`workroom-project-select ${getCompactClass('w-56 h-9', 'w-48 h-8 text-sm')}`}>
+                      <SelectTrigger className={`workroom-project-select ${getCompactClass('w-64 h-10', 'w-56 h-9 text-sm')}`}>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -599,7 +599,32 @@ export function ProjectWorkspace({
                 </TooltipContent>
               </Tooltip>
             </div>
+          </div>
+        </div>
 
+        {/* Bottom Row - Action Buttons */}
+        <div className="workroom-actions flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            {/* Member Management */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setMemberModalOpen(true)}
+                  className={`workroom-member-btn border-[#021ff6] text-[#021ff6] hover:bg-[#021ff6] hover:text-white btn-hover-lift ${getCompactClass('h-9 px-3', 'h-8 px-2 text-sm')}`}
+                >
+                  <Users className={getCompactClass('h-4 w-4', 'h-3 w-3')} />
+                  <span className="ml-2">Manage Members</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="tooltip-enhanced">
+                <span className="text-xs">Add or remove team members</span>
+              </TooltipContent>
+            </Tooltip>
+          </div>
+
+          <div className="flex items-center gap-3">
             {/* Action Buttons */}
             <div className="flex items-center gap-2">
               <Tooltip>
