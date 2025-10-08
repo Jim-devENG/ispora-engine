@@ -1,9 +1,9 @@
 ﻿@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 /* Import mobile-specific styles */
-@import './mobile.css';
+@import '../src/styles/mobile.css';
 
 /* Import compact/modern design styles */
-@import './compact.css';
+@import '../src/styles/compact.css';
 
 @tailwind base;
 @tailwind components;
