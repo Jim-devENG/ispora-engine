@@ -20,21 +20,30 @@ function DevelopmentMode() {
 
   useEffect(() => {
     // ALWAYS skip Coming Soon - enable full functionality everywhere
+    console.log('🚀 iSpora: Coming Soon DISABLED - Full functionality enabled!');
+    console.log('🚀 iSpora: showComingSoon set to FALSE');
+    
     // Force clear any cached Coming Soon state
     try {
       localStorage.removeItem('showComingSoon');
       localStorage.setItem('devMode', 'true');
       localStorage.setItem('appVersion', '2.0.0'); // Cache buster
+      console.log('🚀 iSpora: Cache cleared, devMode enabled');
+      
       const raw = localStorage.getItem('user');
       if (raw) {
         const u = JSON.parse(raw);
         if (u && u.userType !== 'admin') {
           u.userType = 'admin';
           localStorage.setItem('user', JSON.stringify(u));
+          console.log('🚀 iSpora: User promoted to admin');
         }
       }
-    } catch {}
+    } catch (error) {
+      console.log('🚀 iSpora: Error in setup:', error);
+    }
     setShowComingSoon(false);
+    console.log('🚀 iSpora: showComingSoon = false confirmed');
     return;
 
     // All Coming Soon logic removed - full functionality enabled
@@ -45,9 +54,12 @@ function DevelopmentMode() {
     return <AdminConsole />;
   }
 
+  console.log('🚀 iSpora: Checking showComingSoon:', showComingSoon);
   if (showComingSoon) {
+    console.log('🚀 iSpora: ERROR - Coming Soon page is being shown!');
     return <ComingSoon />;
   }
+  console.log('🚀 iSpora: SUCCESS - Full app is being rendered!');
 
   return (
     <ProtectedRoute>
@@ -77,3 +89,4 @@ export default function App() {
     </ThemeProvider>
   );
 }
+
