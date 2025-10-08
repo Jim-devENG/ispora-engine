@@ -486,3 +486,41 @@ label, [class*="Label"] {
   font-size: 0.875rem !important;
   min-height: 2.25rem !important;
 }
+
+/* Fix workroom tabs layout - less cramped */
+.workroom-tabs {
+  padding: 0.5rem 0 !important;
+  gap: 0.5rem !important; /* Proper spacing between tabs */
+}
+
+.workroom-tab-btn {
+  padding: 0.75rem 1rem !important; /* More padding for workroom tabs */
+  min-height: 2.5rem !important; /* Taller tabs for better readability */
+  font-size: 0.875rem !important; /* Readable font size */
+  border-radius: 0.5rem !important; /* Rounded corners */
+  white-space: nowrap !important;
+  min-width: fit-content !important;
+}
+
+.workroom-tab-btn .gap-3 {
+  gap: 0.75rem !important; /* Override compact.css for workroom tabs */
+}
+
+.workroom-tab-btn .h-5 {
+  height: 1.25rem !important; /* Proper icon size */
+  width: 1.25rem !important;
+}
+
+.workroom-tab-btn .h-4 {
+  height: 1rem !important; /* Proper icon size */
+  width: 1rem !important;
+}
+
+/* Ensure workroom tab buttons have proper spacing */
+.workroom-tab-btn .ml-auto {
+  margin-left: auto !important;
+}
+
+.workroom-tab-btn .font-medium {
+  font-weight: 500 !important;
+}

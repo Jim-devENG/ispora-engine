@@ -322,14 +322,14 @@ export function MentorshipWorkspace({
         {/* Left Sidebar - Tab Navigation */}
         <div className="w-64 bg-white border-r border-gray-200 flex-shrink-0">
           <ScrollArea className="h-full p-4">
-            <div className="space-y-2">
+            <div className="workroom-tabs space-y-2">
               {tabs.map((tab) => {
                 const Icon = tab.icon;
                 return (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-all ${
+                    className={`workroom-tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-all ${
                       activeTab === tab.id
                         ? 'bg-[#021ff6] text-white shadow-md'
                         : 'text-gray-700 hover:bg-gray-100'

@@ -769,7 +769,7 @@ export function ProjectWorkspace({
           className={`bg-white border-r border-gray-200 flex-shrink-0 ${getCompactClass('w-64', 'w-56')}`}
         >
           <ScrollArea className={`h-full ${getCompactClass('p-4', 'p-3')}`}>
-            <div className={getCompactClass('space-y-2', 'space-y-1')}>
+            <div className={`workroom-tabs ${getCompactClass('space-y-2', 'space-y-1')}`}>
               {tabs.map((tab) => {
                 const Icon = tab.icon;
                 return (
@@ -778,7 +778,7 @@ export function ProjectWorkspace({
                       <Button
                         onClick={() => setActiveTab(tab.id)}
                         variant="ghost"
-                        className={`w-full flex items-center gap-3 rounded-lg text-left transition-all justify-start h-auto sidebar-item-hover ${getCompactClass('px-4 py-3', 'px-3 py-2')} ${
+                        className={`workroom-tab-btn w-full flex items-center gap-3 rounded-lg text-left transition-all justify-start h-auto sidebar-item-hover ${getCompactClass('px-4 py-3', 'px-3 py-2')} ${
                           activeTab === tab.id
                             ? 'bg-[#021ff6] text-white shadow-sm hover:bg-[#021ff6]'
                             : 'text-gray-700 hover:bg-gray-100'
