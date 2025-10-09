@@ -658,16 +658,16 @@ export function ProjectWorkspace({
           <div className="flex items-center gap-4">
             {/* Member Avatars */}
             {workspaceParticipants.length > 0 && (
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-600">Online:</span>
-                <div className="flex -space-x-2">
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-gray-600 font-medium">Online:</span>
+                <div className="flex items-center gap-1">
                   {workspaceParticipants.slice(0, 4).map((participant) => (
                     <Tooltip key={participant.id}>
                       <TooltipTrigger asChild>
                         <div className="relative">
-                          <Avatar className="h-8 w-8 border-2 border-white">
+                          <Avatar className="h-9 w-9 border-2 border-white shadow-sm">
                             <AvatarImage src={participant.avatar} alt={participant.name} />
-                            <AvatarFallback className="text-xs">
+                            <AvatarFallback className="text-xs font-medium">
                               {participant.name
                                 .split(' ')
                                 .map((n) => n[0])
@@ -675,7 +675,7 @@ export function ProjectWorkspace({
                             </AvatarFallback>
                           </Avatar>
                           {participant.isOnline && (
-                            <div className="absolute bg-green-500 rounded-full border-2 border-white w-3 h-3 -bottom-1 -right-1"></div>
+                            <div className="absolute bg-green-500 rounded-full border-2 border-white w-3 h-3 -bottom-0.5 -right-0.5"></div>
                           )}
                         </div>
                       </TooltipTrigger>
@@ -687,7 +687,7 @@ export function ProjectWorkspace({
                     </Tooltip>
                   ))}
                   {workspaceParticipants.length > 4 && (
-                    <div className="rounded-full bg-gray-100 border-2 border-white h-8 w-8 flex items-center justify-center">
+                    <div className="rounded-full bg-gray-100 border-2 border-white h-9 w-9 flex items-center justify-center shadow-sm">
                       <span className="text-xs font-medium text-gray-600">
                         +{workspaceParticipants.length - 4}
                       </span>
