@@ -659,6 +659,20 @@ label, [class*="Label"] {
   gap: 1rem !important; /* Space between left and right sections */
 }
 
+.workroom-actions-left,
+.workroom-actions-right {
+  align-items: center !important;
+  gap: 0.75rem !important;
+}
+
+@media (max-width: 768px) {
+  .workroom-actions-left,
+  .workroom-actions-right {
+    flex-wrap: wrap !important;
+    row-gap: 0.5rem !important;
+  }
+}
+
 .workroom-member-btn {
   padding: 0.75rem 1rem !important; /* More padding */
   min-height: 2.5rem !important; /* Taller button */

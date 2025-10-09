@@ -41,9 +41,9 @@ export function DashboardHeader({
     <TooltipProvider>
       <div className="modern-header sticky top-0 z-40">
         <div className="px-6 py-6">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-4 flex-wrap md:flex-nowrap">
             {/* Welcome Message */}
-            <div className="flex-1">
+            <div className="flex-1 min-w-[240px]">
               <h1 className="text-3xl font-bold text-foreground tracking-tight">
                 Welcome back, {userName}
               </h1>
@@ -51,19 +51,19 @@ export function DashboardHeader({
             </div>
 
             {/* Right Section: Live Sessions Widget, Search Bar, Notifications */}
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-4 flex-wrap md:flex-nowrap justify-end">
               {/* Live Sessions Widget */}
               <LiveSessionsWidget />
 
               {/* Search Bar */}
-              <div className="relative group">
+              <div className="relative group flex-shrink-0">
                 <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
                 <Input
                   type="text"
                   placeholder="Search projects, mentees, sessions..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="modern-input pl-12 pr-10 w-96 h-12 bg-background/50 border-border focus:bg-background focus:border-primary focus:ring-primary/20"
+                  className="modern-input pl-12 pr-10 w-72 md:w-96 h-12 bg-background/50 border-border focus:bg-background focus:border-primary focus:ring-primary/20"
                 />
                 {searchQuery && (
                   <button
@@ -76,7 +76,7 @@ export function DashboardHeader({
               </div>
 
               {/* Theme Toggle and Notifications */}
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-3 flex-shrink-0">
                 <ThemeToggle />
                 <Tooltip>
                   <TooltipTrigger asChild>

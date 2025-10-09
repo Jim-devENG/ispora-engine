@@ -604,7 +604,7 @@ export function ProjectWorkspace({
 
         {/* Bottom Row - Action Buttons */}
         <div className="workroom-actions flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <div className="workroom-actions-left flex items-center gap-3 flex-wrap md:flex-nowrap">
             {/* Member Management */}
             <Tooltip>
               <TooltipTrigger asChild>
@@ -624,7 +624,7 @@ export function ProjectWorkspace({
             </Tooltip>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="workroom-actions-right flex items-center gap-3 flex-wrap md:flex-nowrap">
             {/* Action Buttons */}
             <div className="flex items-center gap-2">
               <Tooltip>

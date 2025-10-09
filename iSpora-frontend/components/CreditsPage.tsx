@@ -643,7 +643,7 @@ export function CreditsPage() {
               Track your impact, earn rewards, and celebrate achievements in the diaspora community
             </p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-wrap md:flex-nowrap">
             <Button
               variant="outline"
               onClick={() => setShareDialogOpen(true)}
@@ -652,7 +652,26 @@ export function CreditsPage() {
               <Share2 className="h-4 w-4" />
               Share Progress
             </Button>
-            <Button variant="outline" size="sm">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                try {
+                  const dataStr = JSON.stringify({ stats, history, achievements }, null, 2);
+                  const blob = new Blob([dataStr], { type: 'application/json' });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = `ispora-credits-report-${new Date().toISOString().slice(0,10)}.json`;
+                  document.body.appendChild(a);
+                  a.click();
+                  a.remove();
+                  URL.revokeObjectURL(url);
+                } catch (e) {
+                  console.error('Export failed', e);
+                }
+              }}
+            >
               <Download className="h-4 w-4 mr-2" />
               Export Report
             </Button>
