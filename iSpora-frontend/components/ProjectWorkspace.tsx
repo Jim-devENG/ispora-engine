@@ -622,10 +622,99 @@ export function ProjectWorkspace({
                 <span className="text-xs">Add or remove team members</span>
               </TooltipContent>
             </Tooltip>
+
+            {/* Quick Actions */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setActiveTab('session-board')}
+                  className={`workroom-action-btn ${getCompactClass('h-9 px-3', 'h-8 px-2 text-sm')}`}
+                >
+                  <Calendar className={getCompactClass('h-4 w-4', 'h-3 w-3')} />
+                  <span className="ml-2">Sessions</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="tooltip-enhanced">
+                <span className="text-xs">View and manage sessions</span>
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setActiveTab('task-manager')}
+                  className={`workroom-action-btn ${getCompactClass('h-9 px-3', 'h-8 px-2 text-sm')}`}
+                >
+                  <CheckSquare className={getCompactClass('h-4 w-4', 'h-3 w-3')} />
+                  <span className="ml-2">Tasks</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="tooltip-enhanced">
+                <span className="text-xs">Manage project tasks</span>
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setActiveTab('voice-chat')}
+                  className={`workroom-action-btn ${getCompactClass('h-9 px-3', 'h-8 px-2 text-sm')}`}
+                >
+                  <MessageCircle className={getCompactClass('h-4 w-4', 'h-3 w-3')} />
+                  <span className="ml-2">Chat</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="tooltip-enhanced">
+                <span className="text-xs">Team communication</span>
+              </TooltipContent>
+            </Tooltip>
           </div>
 
           <div className="workroom-actions-right flex items-center gap-3 flex-wrap md:flex-nowrap">
-            {/* Action Buttons */}
+            {/* Workspace Tools */}
+            <div className="flex items-center gap-2">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setActiveTab('learning-vault')}
+                    className={`workroom-tool-btn ${getCompactClass('h-9 px-3', 'h-8 px-2 text-sm')}`}
+                  >
+                    <BookOpen className={getCompactClass('h-4 w-4', 'h-3 w-3')} />
+                    <span className="ml-2">Resources</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="tooltip-enhanced">
+                  <span className="text-xs">Access learning materials</span>
+                </TooltipContent>
+              </Tooltip>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setActiveTab('deliverables')}
+                    className={`workroom-tool-btn ${getCompactClass('h-9 px-3', 'h-8 px-2 text-sm')}`}
+                  >
+                    <FileText className={getCompactClass('h-4 w-4', 'h-3 w-3')} />
+                    <span className="ml-2">Deliverables</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="tooltip-enhanced">
+                  <span className="text-xs">Submit and review work</span>
+                </TooltipContent>
+              </Tooltip>
+            </div>
+
+            {/* Workspace Controls */}
             <div className="flex items-center gap-2">
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -633,9 +722,10 @@ export function ProjectWorkspace({
                     variant="outline"
                     size="sm"
                     onClick={() => openRightPanel('calendar')}
-                    className={`btn-hover-lift ${getCompactClass('h-9 px-3', 'h-8 px-2')}`}
+                    className={`workroom-control-btn ${getCompactClass('h-9 px-3', 'h-8 px-2')}`}
                   >
                     <Calendar className={getCompactClass('h-4 w-4', 'h-3 w-3')} />
+                    <span className="ml-2">Calendar</span>
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="bottom" className="tooltip-enhanced">
@@ -650,7 +740,7 @@ export function ProjectWorkspace({
                       <Button
                         variant="outline"
                         size="sm"
-                        className={`focus-ring-brand btn-hover-lift ${getCompactClass('h-9 w-9 p-0', 'h-8 w-8 p-0')}`}
+                        className={`workroom-control-btn focus-ring-brand btn-hover-lift ${getCompactClass('h-9 w-9 p-0', 'h-8 w-8 p-0')}`}
                       >
                         <Settings className={getCompactClass('h-4 w-4', 'h-3 w-3')} />
                       </Button>
@@ -671,9 +761,10 @@ export function ProjectWorkspace({
                     variant="outline"
                     size="sm"
                     onClick={() => openRightPanel('notifications')}
-                    className={`relative btn-hover-lift ${getCompactClass('h-9 px-3', 'h-8 px-2')}`}
+                    className={`workroom-control-btn relative btn-hover-lift ${getCompactClass('h-9 px-3', 'h-8 px-2')}`}
                   >
                     <Bell className={getCompactClass('h-4 w-4', 'h-3 w-3')} />
+                    <span className="ml-2">Notifications</span>
                     <Badge
                       variant="destructive"
                       className={`absolute -top-1 -right-1 p-0 text-xs flex items-center justify-center notification-pulse ${getCompactClass('h-5 w-5', 'h-4 w-4 text-xs')}`}

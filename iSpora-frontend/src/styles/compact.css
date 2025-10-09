@@ -681,6 +681,61 @@ label, [class*="Label"] {
   font-weight: 500 !important;
 }
 
+/* Workroom action buttons styling */
+.workroom-action-btn {
+  padding: 0.75rem 1rem !important; /* More padding */
+  min-height: 2.5rem !important; /* Taller button */
+  font-size: 0.875rem !important; /* Readable text */
+  border-radius: 0.5rem !important; /* Rounded corners */
+  font-weight: 500 !important;
+  border-color: #d1d5db !important;
+  color: #374151 !important;
+  background-color: white !important;
+  transition: all 0.2s ease !important;
+}
+
+.workroom-action-btn:hover {
+  background-color: #f9fafb !important;
+  border-color: #9ca3af !important;
+  color: #111827 !important;
+}
+
+.workroom-tool-btn {
+  padding: 0.75rem 1rem !important; /* More padding */
+  min-height: 2.5rem !important; /* Taller button */
+  font-size: 0.875rem !important; /* Readable text */
+  border-radius: 0.5rem !important; /* Rounded corners */
+  font-weight: 500 !important;
+  border-color: #d1d5db !important;
+  color: #374151 !important;
+  background-color: white !important;
+  transition: all 0.2s ease !important;
+}
+
+.workroom-tool-btn:hover {
+  background-color: #f0f9ff !important;
+  border-color: #3b82f6 !important;
+  color: #1e40af !important;
+}
+
+.workroom-control-btn {
+  padding: 0.75rem 1rem !important; /* More padding */
+  min-height: 2.5rem !important; /* Taller button */
+  font-size: 0.875rem !important; /* Readable text */
+  border-radius: 0.5rem !important; /* Rounded corners */
+  font-weight: 500 !important;
+  border-color: #d1d5db !important;
+  color: #374151 !important;
+  background-color: white !important;
+  transition: all 0.2s ease !important;
+}
+
+.workroom-control-btn:hover {
+  background-color: #fef3c7 !important;
+  border-color: #f59e0b !important;
+  color: #92400e !important;
+}
+
 /* Override compact.css for workroom header elements */
 .workroom-header .gap-2 {
   gap: 0.5rem !important;
