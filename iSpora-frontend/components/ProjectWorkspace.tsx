@@ -638,70 +638,62 @@ export function ProjectWorkspace({
         </div>
       </div>
 
-      {/* Workspace Mode Status Bar */}
-      <div
-        className={`bg-[#021ff6]/5 border-b border-[#021ff6]/10 flex-shrink-0 ${getCompactClass('px-6 py-3', 'px-4 py-2')}`}
-      >
-        <div className="flex items-center justify-between">
+      {/* Workspace Status Bar */}
+      <div className="bg-[#021ff6]/5 border-b border-[#021ff6]/10 flex-shrink-0 px-6 py-4">
+        <div className="flex items-center justify-between gap-4">
+          {/* Left Section - Active Members Info */}
           <div className="flex items-center gap-4">
-            {/* Current Participants Display */}
-            <div className="flex items-center gap-2">
-              <Users className={`text-[#021ff6] ${getCompactClass('h-4 w-4', 'h-3 w-3')}`} />
-              <span className={`font-medium text-[#021ff6] ${getCompactClass('', 'text-sm')}`}>
-                Active Members
-              </span>
-              <Badge
-                variant="outline"
-                className={`bg-[#021ff6] text-white border-[#021ff6] ${getCompactClass('', 'text-xs px-1.5 py-0.5')}`}
-              >
-                {workspaceParticipants.length} member{workspaceParticipants.length !== 1 ? 's' : ''}
-              </Badge>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <Users className="h-5 w-5 text-[#021ff6]" />
+                <span className="font-semibold text-[#021ff6]">Active Members</span>
+                <Badge className="bg-[#021ff6] text-white border-[#021ff6] px-2 py-1">
+                  {workspaceParticipants.length} member{workspaceParticipants.length !== 1 ? 's' : ''}
+                </Badge>
+              </div>
             </div>
           </div>
 
-          {/* Workspace Participants & Member Management */}
-          <div className="flex items-center gap-3">
-            {/* Participants Avatars */}
+          {/* Right Section - Member Avatars & Management */}
+          <div className="flex items-center gap-4">
+            {/* Member Avatars */}
             {workspaceParticipants.length > 0 && (
-              <div className="flex -space-x-2">
-                {workspaceParticipants.slice(0, 4).map((participant) => (
-                  <Tooltip key={participant.id}>
-                    <TooltipTrigger asChild>
-                      <div className="relative">
-                        <Avatar
-                          className={`border-2 border-white ${getCompactClass('h-8 w-8', 'h-6 w-6')}`}
-                        >
-                          <AvatarImage src={participant.avatar} alt={participant.name} />
-                          <AvatarFallback className={getCompactClass('text-xs', 'text-xs')}>
-                            {participant.name
-                              .split(' ')
-                              .map((n) => n[0])
-                              .join('')}
-                          </AvatarFallback>
-                        </Avatar>
-                        {participant.isOnline && (
-                          <div
-                            className={`absolute bg-green-500 rounded-full border-2 border-white ${getCompactClass('w-3 h-3 -bottom-1 -right-1', 'w-2 h-2 -bottom-0.5 -right-0.5')}`}
-                          ></div>
-                        )}
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <span className="text-xs">
-                        {participant.name} • {participant.role}
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-600">Online:</span>
+                <div className="flex -space-x-2">
+                  {workspaceParticipants.slice(0, 4).map((participant) => (
+                    <Tooltip key={participant.id}>
+                      <TooltipTrigger asChild>
+                        <div className="relative">
+                          <Avatar className="h-8 w-8 border-2 border-white">
+                            <AvatarImage src={participant.avatar} alt={participant.name} />
+                            <AvatarFallback className="text-xs">
+                              {participant.name
+                                .split(' ')
+                                .map((n) => n[0])
+                                .join('')}
+                            </AvatarFallback>
+                          </Avatar>
+                          {participant.isOnline && (
+                            <div className="absolute bg-green-500 rounded-full border-2 border-white w-3 h-3 -bottom-1 -right-1"></div>
+                          )}
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <span className="text-xs">
+                          {participant.name} • {participant.role}
+                        </span>
+                      </TooltipContent>
+                    </Tooltip>
+                  ))}
+                  {workspaceParticipants.length > 4 && (
+                    <div className="rounded-full bg-gray-100 border-2 border-white h-8 w-8 flex items-center justify-center">
+                      <span className="text-xs font-medium text-gray-600">
+                        +{workspaceParticipants.length - 4}
                       </span>
-                    </TooltipContent>
-                  </Tooltip>
-                ))}
-                {workspaceParticipants.length > 4 && (
-                  <div
-                    className={`rounded-full bg-muted border-2 border-white flex items-center justify-center ${getCompactClass('h-8 w-8', 'h-6 w-6')}`}
-                  >
-                    <span className={getCompactClass('text-xs font-medium', 'text-xs font-medium')}>
-                      +{workspaceParticipants.length - 4}
-                    </span>
-                  </div>
-                )}
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 
@@ -716,11 +708,10 @@ export function ProjectWorkspace({
                   initialActiveTab={navigationOptions?.activeTab}
                   trigger={
                     <Button
-                      variant="outline"
                       size="sm"
-                      className={`workroom-member-btn border-[#021ff6] text-[#021ff6] hover:bg-[#021ff6] hover:text-white btn-hover-lift ${getCompactClass('h-9 px-3', 'h-8 px-2 text-sm')}`}
+                      className="bg-[#021ff6] hover:bg-[#021ff6]/90 text-white px-4 py-2"
                     >
-                      <Users className={`mr-2 ${getCompactClass('h-4 w-4', 'h-3 w-3')}`} />
+                      <Users className="h-4 w-4 mr-2" />
                       Manage Members
                     </Button>
                   }
