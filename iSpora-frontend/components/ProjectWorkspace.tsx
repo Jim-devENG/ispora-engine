@@ -563,9 +563,8 @@ export function ProjectWorkspace({
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
             {/* Team Management */}
             <Button
-              variant="outline"
               onClick={() => setMemberModalOpen(true)}
-              className="modern-workroom-btn border-blue-200 text-blue-700 hover:bg-blue-50 hover:border-blue-300"
+              className="modern-workroom-btn bg-[#021ff6] hover:bg-[#021ff6]/90 text-white"
             >
               <Users className="h-5 w-5" />
               <span className="text-xs font-medium">Members</span>
@@ -573,27 +572,24 @@ export function ProjectWorkspace({
 
             {/* Quick Actions */}
             <Button
-              variant="outline"
               onClick={() => setActiveTab('session-board')}
-              className="modern-workroom-btn border-green-200 text-green-700 hover:bg-green-50 hover:border-green-300"
+              className="modern-workroom-btn bg-[#021ff6] hover:bg-[#021ff6]/90 text-white"
             >
               <Calendar className="h-5 w-5" />
               <span className="text-xs font-medium">Sessions</span>
             </Button>
 
             <Button
-              variant="outline"
               onClick={() => setActiveTab('task-manager')}
-              className="modern-workroom-btn border-purple-200 text-purple-700 hover:bg-purple-50 hover:border-purple-300"
+              className="modern-workroom-btn bg-[#021ff6] hover:bg-[#021ff6]/90 text-white"
             >
               <CheckSquare className="h-5 w-5" />
               <span className="text-xs font-medium">Tasks</span>
             </Button>
 
             <Button
-              variant="outline"
               onClick={() => setActiveTab('voice-chat')}
-              className="modern-workroom-btn border-orange-200 text-orange-700 hover:bg-orange-50 hover:border-orange-300"
+              className="modern-workroom-btn bg-[#021ff6] hover:bg-[#021ff6]/90 text-white"
             >
               <MessageCircle className="h-5 w-5" />
               <span className="text-xs font-medium">Chat</span>
@@ -601,18 +597,16 @@ export function ProjectWorkspace({
 
             {/* Workspace Tools */}
             <Button
-              variant="outline"
               onClick={() => setActiveTab('learning-vault')}
-              className="modern-workroom-btn border-indigo-200 text-indigo-700 hover:bg-indigo-50 hover:border-indigo-300"
+              className="modern-workroom-btn bg-[#021ff6] hover:bg-[#021ff6]/90 text-white"
             >
               <BookOpen className="h-5 w-5" />
               <span className="text-xs font-medium">Resources</span>
             </Button>
 
             <Button
-              variant="outline"
               onClick={() => setActiveTab('deliverables')}
-              className="modern-workroom-btn border-teal-200 text-teal-700 hover:bg-teal-50 hover:border-teal-300"
+              className="modern-workroom-btn bg-[#021ff6] hover:bg-[#021ff6]/90 text-white"
             >
               <FileText className="h-5 w-5" />
               <span className="text-xs font-medium">Files</span>
@@ -620,18 +614,16 @@ export function ProjectWorkspace({
 
             {/* Controls */}
             <Button
-              variant="outline"
               onClick={() => openRightPanel('calendar')}
-              className="modern-workroom-btn border-amber-200 text-amber-700 hover:bg-amber-50 hover:border-amber-300"
+              className="modern-workroom-btn bg-[#021ff6] hover:bg-[#021ff6]/90 text-white"
             >
               <Calendar className="h-5 w-5" />
               <span className="text-xs font-medium">Calendar</span>
             </Button>
 
             <Button
-              variant="outline"
               onClick={() => openRightPanel('notifications')}
-              className="modern-workroom-btn border-red-200 text-red-700 hover:bg-red-50 hover:border-red-300 relative"
+              className="modern-workroom-btn bg-[#021ff6] hover:bg-[#021ff6]/90 text-white relative"
             >
               <Bell className="h-5 w-5" />
               <span className="text-xs font-medium">Alerts</span>
