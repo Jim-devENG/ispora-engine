@@ -736,6 +736,60 @@ label, [class*="Label"] {
   color: #92400e !important;
 }
 
+/* Modern Workroom Header Styling */
+.modern-workroom-header {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%) !important;
+  border-bottom: 1px solid #e5e7eb !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+}
+
+.modern-workroom-btn {
+  padding: 0.75rem 1rem !important;
+  border-radius: 0.75rem !important;
+  font-weight: 500 !important;
+  transition: all 0.2s ease !important;
+  border-width: 1px !important;
+  min-height: 3rem !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.25rem !important;
+}
+
+.modern-workroom-btn:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+.modern-workroom-btn:active {
+  transform: translateY(0) !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Responsive grid adjustments */
+@media (max-width: 768px) {
+  .modern-workroom-header .grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.75rem !important;
+  }
+  
+  .modern-workroom-btn {
+    min-height: 2.5rem !important;
+    padding: 0.5rem 0.75rem !important;
+  }
+  
+  .modern-workroom-btn span {
+    font-size: 0.75rem !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .modern-workroom-header .grid {
+    grid-template-columns: repeat(1, 1fr) !important;
+  }
+}
+
 /* Override compact.css for workroom header elements */
 .workroom-header .gap-2 {
   gap: 0.5rem !important;

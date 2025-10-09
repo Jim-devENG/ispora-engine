@@ -499,285 +499,149 @@ export function ProjectWorkspace({
 
   return (
     <div className="flex flex-col bg-gray-50 relative">
-      {/* Enhanced Header with Workspace Mode Display */}
-      <div
-        className={`workroom-header bg-white border-b border-gray-200 flex-shrink-0 ${getCompactClass('px-6 py-4', 'px-4 py-3')}`}
-      >
-        {/* Top Row - Navigation and Project Info */}
-        <div className="flex items-center justify-between gap-6 mb-4">
-          {/* Left Section - Navigation & Project Info */}
-          <div className="flex items-center gap-6 flex-1 min-w-0">
-            {/* Back Button */}
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={onBackToProjects}
-                  className={`workroom-back-btn flex items-center gap-2 px-4 btn-hover-lift ${getCompactClass('py-2 h-9', 'py-1 h-8')}`}
-                >
-                  <ArrowLeft className={getCompactClass('h-4 w-4', 'h-3 w-3')} />
-                  <span>Projects</span>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" className="tooltip-enhanced">
-                <span className="text-xs">View all your projects</span>
-              </TooltipContent>
-            </Tooltip>
-
-            {/* Separator */}
-            <div className={`workroom-separator ${getCompactClass('h-6 w-px bg-gray-300', 'h-5 w-px bg-gray-300')}`} />
-
-            {/* Project Type Badge & Info */}
-            <div className="workroom-project-info flex items-center gap-4 min-w-0">
+      {/* Modern Workroom Header */}
+      <div className="modern-workroom-header bg-gradient-to-r from-white to-gray-50 border-b border-gray-200 shadow-sm">
+        {/* Header Content */}
+        <div className="px-6 py-6">
+          {/* Top Section - Project Info & Navigation */}
+          <div className="flex items-center justify-between mb-6">
+            {/* Left - Project Info */}
+            <div className="flex items-center gap-4">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onBackToProjects}
+                className="flex items-center gap-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                <span>Back to Projects</span>
+              </Button>
+              
+              <div className="h-6 w-px bg-gray-300" />
+              
               <div className="flex items-center gap-3">
-                <ProjectIcon
-                  className={`workroom-project-icon ${getCompactClass('h-6 w-6 flex-shrink-0', 'h-5 w-5 flex-shrink-0')}`}
-                />
-                <Badge
-                  variant="outline"
-                  className={`workroom-project-badge ${projectTypeColors[selectedProject.type]} ${getCompactClass('px-3 py-1.5', 'px-2 py-1 text-xs')}`}
-                >
-                  {selectedProject.type}
-                </Badge>
-              </div>
-              <div className="min-w-0">
-                <h1
-                  className={`workroom-project-title font-semibold text-gray-900 truncate ${getCompactClass('text-xl', 'text-lg')}`}
-                >
-                  {selectedProject.title}
-                </h1>
-                <p className={`workroom-project-description text-gray-600 truncate ${getCompactClass('text-base', 'text-sm')}`}>
-                  {selectedProject.description}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Section - Project Selector */}
-          <div className="workroom-project-selector-section">
-            <div className="workroom-project-selector flex items-center gap-4">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span
-                    className={`workroom-project-label text-gray-600 font-medium ${getCompactClass('text-base', 'text-sm')} whitespace-nowrap cursor-help`}
-                  >
-                    Choose your project:
-                  </span>
-                </TooltipTrigger>
-                <TooltipContent side="bottom" className="tooltip-enhanced">
-                  <span className="text-xs">Each project has different workspace tools</span>
-                </TooltipContent>
-              </Tooltip>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div className="form-field-enhanced">
-                    <Select value={selectedProject.id} onValueChange={handleProjectChange}>
-                      <SelectTrigger className={`workroom-project-select ${getCompactClass('w-64 h-10', 'w-56 h-9 text-sm')}`}>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {mockProjects.map((project) => {
-                          const Icon = projectTypeIcons[project.type];
-                          return (
-                            <SelectItem key={project.id} value={project.id}>
-                              <div className="flex items-center gap-2">
-                                <Icon className="h-4 w-4" />
-                                <span className="truncate">{project.title}</span>
-                              </div>
-                            </SelectItem>
-                          );
-                        })}
-                      </SelectContent>
-                    </Select>
+                <div className="p-2 bg-blue-50 rounded-lg">
+                  <ProjectIcon className="h-6 w-6 text-blue-600" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <h1 className="text-xl font-semibold text-gray-900">{selectedProject.title}</h1>
+                    <Badge variant="outline" className="text-xs px-2 py-1">
+                      {selectedProject.type}
+                    </Badge>
                   </div>
-                </TooltipTrigger>
-                <TooltipContent side="bottom" className="tooltip-enhanced">
-                  <span className="text-xs">
-                    Type: {selectedProject.type} • Progress: {selectedProject.progress}%
-                  </span>
-                </TooltipContent>
-              </Tooltip>
+                  <p className="text-sm text-gray-600">{selectedProject.description}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Right - Project Selector */}
+            <div className="flex items-center gap-3">
+              <span className="text-sm font-medium text-gray-700">Switch Project:</span>
+              <Select value={selectedProject.id} onValueChange={handleProjectChange}>
+                <SelectTrigger className="w-64 h-10">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {mockProjects.map((project) => {
+                    const Icon = projectTypeIcons[project.type];
+                    return (
+                      <SelectItem key={project.id} value={project.id}>
+                        <div className="flex items-center gap-2">
+                          <Icon className="h-4 w-4" />
+                          <span className="truncate">{project.title}</span>
+                        </div>
+                      </SelectItem>
+                    );
+                  })}
+                </SelectContent>
+              </Select>
             </div>
           </div>
-        </div>
 
-        {/* Bottom Row - Action Buttons */}
-        <div className="workroom-actions flex items-center justify-between">
-          <div className="workroom-actions-left flex items-center gap-3 flex-wrap md:flex-nowrap">
-            {/* Member Management */}
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setMemberModalOpen(true)}
-                  className={`workroom-member-btn border-[#021ff6] text-[#021ff6] hover:bg-[#021ff6] hover:text-white btn-hover-lift ${getCompactClass('h-9 px-3', 'h-8 px-2 text-sm')}`}
-                >
-                  <Users className={getCompactClass('h-4 w-4', 'h-3 w-3')} />
-                  <span className="ml-2">Manage Members</span>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" className="tooltip-enhanced">
-                <span className="text-xs">Add or remove team members</span>
-              </TooltipContent>
-            </Tooltip>
+          {/* Action Buttons Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
+            {/* Team Management */}
+            <Button
+              variant="outline"
+              onClick={() => setMemberModalOpen(true)}
+              className="modern-workroom-btn h-12 flex flex-col items-center gap-1 border-blue-200 text-blue-700 hover:bg-blue-50 hover:border-blue-300"
+            >
+              <Users className="h-5 w-5" />
+              <span className="text-xs font-medium">Manage Members</span>
+            </Button>
 
             {/* Quick Actions */}
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setActiveTab('session-board')}
-                  className={`workroom-action-btn ${getCompactClass('h-9 px-3', 'h-8 px-2 text-sm')}`}
-                >
-                  <Calendar className={getCompactClass('h-4 w-4', 'h-3 w-3')} />
-                  <span className="ml-2">Sessions</span>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" className="tooltip-enhanced">
-                <span className="text-xs">View and manage sessions</span>
-              </TooltipContent>
-            </Tooltip>
+            <Button
+              variant="outline"
+              onClick={() => setActiveTab('session-board')}
+              className="modern-workroom-btn h-12 flex flex-col items-center gap-1 border-green-200 text-green-700 hover:bg-green-50 hover:border-green-300"
+            >
+              <Calendar className="h-5 w-5" />
+              <span className="text-xs font-medium">Sessions</span>
+            </Button>
 
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setActiveTab('task-manager')}
-                  className={`workroom-action-btn ${getCompactClass('h-9 px-3', 'h-8 px-2 text-sm')}`}
-                >
-                  <CheckSquare className={getCompactClass('h-4 w-4', 'h-3 w-3')} />
-                  <span className="ml-2">Tasks</span>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" className="tooltip-enhanced">
-                <span className="text-xs">Manage project tasks</span>
-              </TooltipContent>
-            </Tooltip>
+            <Button
+              variant="outline"
+              onClick={() => setActiveTab('task-manager')}
+              className="modern-workroom-btn h-12 flex flex-col items-center gap-1 border-purple-200 text-purple-700 hover:bg-purple-50 hover:border-purple-300"
+            >
+              <CheckSquare className="h-5 w-5" />
+              <span className="text-xs font-medium">Tasks</span>
+            </Button>
 
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setActiveTab('voice-chat')}
-                  className={`workroom-action-btn ${getCompactClass('h-9 px-3', 'h-8 px-2 text-sm')}`}
-                >
-                  <MessageCircle className={getCompactClass('h-4 w-4', 'h-3 w-3')} />
-                  <span className="ml-2">Chat</span>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" className="tooltip-enhanced">
-                <span className="text-xs">Team communication</span>
-              </TooltipContent>
-            </Tooltip>
-          </div>
+            <Button
+              variant="outline"
+              onClick={() => setActiveTab('voice-chat')}
+              className="modern-workroom-btn h-12 flex flex-col items-center gap-1 border-orange-200 text-orange-700 hover:bg-orange-50 hover:border-orange-300"
+            >
+              <MessageCircle className="h-5 w-5" />
+              <span className="text-xs font-medium">Chat</span>
+            </Button>
 
-          <div className="workroom-actions-right flex items-center gap-3 flex-wrap md:flex-nowrap">
             {/* Workspace Tools */}
-            <div className="flex items-center gap-2">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setActiveTab('learning-vault')}
-                    className={`workroom-tool-btn ${getCompactClass('h-9 px-3', 'h-8 px-2 text-sm')}`}
-                  >
-                    <BookOpen className={getCompactClass('h-4 w-4', 'h-3 w-3')} />
-                    <span className="ml-2">Resources</span>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="bottom" className="tooltip-enhanced">
-                  <span className="text-xs">Access learning materials</span>
-                </TooltipContent>
-              </Tooltip>
+            <Button
+              variant="outline"
+              onClick={() => setActiveTab('learning-vault')}
+              className="modern-workroom-btn h-12 flex flex-col items-center gap-1 border-indigo-200 text-indigo-700 hover:bg-indigo-50 hover:border-indigo-300"
+            >
+              <BookOpen className="h-5 w-5" />
+              <span className="text-xs font-medium">Resources</span>
+            </Button>
 
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setActiveTab('deliverables')}
-                    className={`workroom-tool-btn ${getCompactClass('h-9 px-3', 'h-8 px-2 text-sm')}`}
-                  >
-                    <FileText className={getCompactClass('h-4 w-4', 'h-3 w-3')} />
-                    <span className="ml-2">Deliverables</span>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="bottom" className="tooltip-enhanced">
-                  <span className="text-xs">Submit and review work</span>
-                </TooltipContent>
-              </Tooltip>
-            </div>
+            <Button
+              variant="outline"
+              onClick={() => setActiveTab('deliverables')}
+              className="modern-workroom-btn h-12 flex flex-col items-center gap-1 border-teal-200 text-teal-700 hover:bg-teal-50 hover:border-teal-300"
+            >
+              <FileText className="h-5 w-5" />
+              <span className="text-xs font-medium">Deliverables</span>
+            </Button>
 
-            {/* Workspace Controls */}
-            <div className="flex items-center gap-2">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => openRightPanel('calendar')}
-                    className={`workroom-control-btn ${getCompactClass('h-9 px-3', 'h-8 px-2')}`}
-                  >
-                    <Calendar className={getCompactClass('h-4 w-4', 'h-3 w-3')} />
-                    <span className="ml-2">Calendar</span>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="bottom" className="tooltip-enhanced">
-                  <span className="text-xs">View sessions & deadlines</span>
-                </TooltipContent>
-              </Tooltip>
+            {/* Controls */}
+            <Button
+              variant="outline"
+              onClick={() => openRightPanel('calendar')}
+              className="modern-workroom-btn h-12 flex flex-col items-center gap-1 border-amber-200 text-amber-700 hover:bg-amber-50 hover:border-amber-300"
+            >
+              <Calendar className="h-5 w-5" />
+              <span className="text-xs font-medium">Calendar</span>
+            </Button>
 
-              <Popover>
-                <Tooltip>
-                  <PopoverTrigger asChild>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className={`workroom-control-btn focus-ring-brand btn-hover-lift ${getCompactClass('h-9 w-9 p-0', 'h-8 w-8 p-0')}`}
-                      >
-                        <Settings className={getCompactClass('h-4 w-4', 'h-3 w-3')} />
-                      </Button>
-                    </TooltipTrigger>
-                  </PopoverTrigger>
-                  <TooltipContent side="bottom" className="tooltip-enhanced">
-                    <span className="text-xs">Customize your workspace preferences</span>
-                  </TooltipContent>
-                </Tooltip>
-                <PopoverContent className="p-4" align="end">
-                  <WorkspaceSettings onSettingsChange={handleSettingsChange} />
-                </PopoverContent>
-              </Popover>
-
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => openRightPanel('notifications')}
-                    className={`workroom-control-btn relative btn-hover-lift ${getCompactClass('h-9 px-3', 'h-8 px-2')}`}
-                  >
-                    <Bell className={getCompactClass('h-4 w-4', 'h-3 w-3')} />
-                    <span className="ml-2">Notifications</span>
-                    <Badge
-                      variant="destructive"
-                      className={`absolute -top-1 -right-1 p-0 text-xs flex items-center justify-center notification-pulse ${getCompactClass('h-5 w-5', 'h-4 w-4 text-xs')}`}
-                    >
-                      3
-                    </Badge>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="bottom" className="tooltip-enhanced">
-                  <span className="text-xs">View recent activity & updates (3 new)</span>
-                </TooltipContent>
-              </Tooltip>
-            </div>
+            <Button
+              variant="outline"
+              onClick={() => openRightPanel('notifications')}
+              className="modern-workroom-btn h-12 flex flex-col items-center gap-1 border-red-200 text-red-700 hover:bg-red-50 hover:border-red-300 relative"
+            >
+              <Bell className="h-5 w-5" />
+              <span className="text-xs font-medium">Notifications</span>
+              <Badge
+                variant="destructive"
+                className="absolute -top-1 -right-1 h-5 w-5 p-0 text-xs flex items-center justify-center"
+              >
+                3
+              </Badge>
+            </Button>
           </div>
         </div>
       </div>
