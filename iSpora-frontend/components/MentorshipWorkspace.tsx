@@ -271,14 +271,14 @@ export function MentorshipWorkspace({
               variant="outline"
               size="sm"
               onClick={() => setShowMenteeManagement(true)}
-              className="flex items-center gap-2"
+              className="workroom-member-btn flex items-center gap-2"
             >
               <UserCheck className="h-4 w-4" />
               All Mentees ({mockMentees.length})
             </Button>
 
             {/* Calendar and Settings Icons Side by Side */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap md:flex-nowrap">
               <Button
                 variant="outline"
                 size="sm"

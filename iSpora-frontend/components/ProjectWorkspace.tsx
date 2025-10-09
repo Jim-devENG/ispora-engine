@@ -771,7 +771,7 @@ export function ProjectWorkspace({
                     <Button
                       variant="outline"
                       size="sm"
-                      className={`border-[#021ff6] text-[#021ff6] hover:bg-[#021ff6] hover:text-white btn-hover-lift ${getCompactClass('h-9 px-3', 'h-8 px-2 text-sm')}`}
+                      className={`workroom-member-btn border-[#021ff6] text-[#021ff6] hover:bg-[#021ff6] hover:text-white btn-hover-lift ${getCompactClass('h-9 px-3', 'h-8 px-2 text-sm')}`}
                     >
                       <Users className={`mr-2 ${getCompactClass('h-4 w-4', 'h-3 w-3')}`} />
                       Manage Members
