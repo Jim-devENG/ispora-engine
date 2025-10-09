@@ -565,17 +565,17 @@ export function ProjectWorkspace({
             <Button
               variant="outline"
               onClick={() => setMemberModalOpen(true)}
-              className="modern-workroom-btn h-12 flex flex-col items-center gap-1 border-blue-200 text-blue-700 hover:bg-blue-50 hover:border-blue-300"
+              className="modern-workroom-btn border-blue-200 text-blue-700 hover:bg-blue-50 hover:border-blue-300"
             >
               <Users className="h-5 w-5" />
-              <span className="text-xs font-medium">Manage Members</span>
+              <span className="text-xs font-medium">Members</span>
             </Button>
 
             {/* Quick Actions */}
             <Button
               variant="outline"
               onClick={() => setActiveTab('session-board')}
-              className="modern-workroom-btn h-12 flex flex-col items-center gap-1 border-green-200 text-green-700 hover:bg-green-50 hover:border-green-300"
+              className="modern-workroom-btn border-green-200 text-green-700 hover:bg-green-50 hover:border-green-300"
             >
               <Calendar className="h-5 w-5" />
               <span className="text-xs font-medium">Sessions</span>
@@ -584,7 +584,7 @@ export function ProjectWorkspace({
             <Button
               variant="outline"
               onClick={() => setActiveTab('task-manager')}
-              className="modern-workroom-btn h-12 flex flex-col items-center gap-1 border-purple-200 text-purple-700 hover:bg-purple-50 hover:border-purple-300"
+              className="modern-workroom-btn border-purple-200 text-purple-700 hover:bg-purple-50 hover:border-purple-300"
             >
               <CheckSquare className="h-5 w-5" />
               <span className="text-xs font-medium">Tasks</span>
@@ -593,7 +593,7 @@ export function ProjectWorkspace({
             <Button
               variant="outline"
               onClick={() => setActiveTab('voice-chat')}
-              className="modern-workroom-btn h-12 flex flex-col items-center gap-1 border-orange-200 text-orange-700 hover:bg-orange-50 hover:border-orange-300"
+              className="modern-workroom-btn border-orange-200 text-orange-700 hover:bg-orange-50 hover:border-orange-300"
             >
               <MessageCircle className="h-5 w-5" />
               <span className="text-xs font-medium">Chat</span>
@@ -603,7 +603,7 @@ export function ProjectWorkspace({
             <Button
               variant="outline"
               onClick={() => setActiveTab('learning-vault')}
-              className="modern-workroom-btn h-12 flex flex-col items-center gap-1 border-indigo-200 text-indigo-700 hover:bg-indigo-50 hover:border-indigo-300"
+              className="modern-workroom-btn border-indigo-200 text-indigo-700 hover:bg-indigo-50 hover:border-indigo-300"
             >
               <BookOpen className="h-5 w-5" />
               <span className="text-xs font-medium">Resources</span>
@@ -612,17 +612,17 @@ export function ProjectWorkspace({
             <Button
               variant="outline"
               onClick={() => setActiveTab('deliverables')}
-              className="modern-workroom-btn h-12 flex flex-col items-center gap-1 border-teal-200 text-teal-700 hover:bg-teal-50 hover:border-teal-300"
+              className="modern-workroom-btn border-teal-200 text-teal-700 hover:bg-teal-50 hover:border-teal-300"
             >
               <FileText className="h-5 w-5" />
-              <span className="text-xs font-medium">Deliverables</span>
+              <span className="text-xs font-medium">Files</span>
             </Button>
 
             {/* Controls */}
             <Button
               variant="outline"
               onClick={() => openRightPanel('calendar')}
-              className="modern-workroom-btn h-12 flex flex-col items-center gap-1 border-amber-200 text-amber-700 hover:bg-amber-50 hover:border-amber-300"
+              className="modern-workroom-btn border-amber-200 text-amber-700 hover:bg-amber-50 hover:border-amber-300"
             >
               <Calendar className="h-5 w-5" />
               <span className="text-xs font-medium">Calendar</span>
@@ -631,10 +631,10 @@ export function ProjectWorkspace({
             <Button
               variant="outline"
               onClick={() => openRightPanel('notifications')}
-              className="modern-workroom-btn h-12 flex flex-col items-center gap-1 border-red-200 text-red-700 hover:bg-red-50 hover:border-red-300 relative"
+              className="modern-workroom-btn border-red-200 text-red-700 hover:bg-red-50 hover:border-red-300 relative"
             >
               <Bell className="h-5 w-5" />
-              <span className="text-xs font-medium">Notifications</span>
+              <span className="text-xs font-medium">Alerts</span>
               <Badge
                 variant="destructive"
                 className="absolute -top-1 -right-1 h-5 w-5 p-0 text-xs flex items-center justify-center"
