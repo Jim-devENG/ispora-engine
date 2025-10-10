@@ -43,6 +43,8 @@ import { Separator } from '../ui/separator';
 import { Switch } from '../ui/switch';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { ModernSessionModal } from '../../src/components/ModernSessionModal';
+import { dataPersistenceService } from '../../src/services/DataPersistenceService';
+import { toast } from 'sonner';
 
 interface Session {
   id: string;
@@ -877,40 +879,41 @@ export function SessionBoard({ mentee }: SessionBoardProps) {
   const [shareSession, setShareSession] = useState<Session | null>(null);
   const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://ispora-backend.onrender.com/api';
 
-  // Load sessions from backend
+  // Load sessions from backend with enhanced persistence
   useEffect(() => {
     const controller = new AbortController();
     const load = async () => {
       try {
-        const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-        const devKey = localStorage.getItem('devKey');
-        const token = localStorage.getItem('token');
-        if (devKey) headers['X-Dev-Key'] = devKey;
-        if (token) headers['Authorization'] = `Bearer ${token}`;
-        const res = await fetch(`${API_BASE_URL}/sessions`, { headers, signal: controller.signal });
-        const json = await res.json();
-        const rows = Array.isArray(json.data) ? json.data : [];
-        const mapped: Session[] = rows.map((r: any) => ({
-          id: r.id,
-          title: r.title,
-          description: r.description || '',
-          scheduledDate: r.scheduled_at ? new Date(r.scheduled_at) : new Date(),
-          duration: r.duration || 60,
-          status: r.status || 'upcoming',
-          type: r.type || 'video',
-          meetingLink: r.meeting_link || undefined,
-          location: r.location || undefined,
-          agenda: r.agenda ? String(r.agenda).split('\n').filter(Boolean) : [],
-          notes: r.notes || undefined,
-          recordings: [],
-          attendees: [],
-          isPublic: !!r.is_public,
-          tags: r.tags ? String(r.tags).split(',').filter(Boolean) : [],
-          maxParticipants: r.max_participants || undefined,
-          shareUrl: undefined,
-        }));
-        setSessions(mapped);
-      } catch {
+        const result = await dataPersistenceService.getSessions();
+        
+        if (result.success && result.data) {
+          const rows = Array.isArray(result.data) ? result.data : [];
+          const mapped: Session[] = rows.map((r: any) => ({
+            id: r.id,
+            title: r.title,
+            description: r.description || '',
+            scheduledDate: r.scheduled_at ? new Date(r.scheduled_at) : new Date(),
+            duration: r.duration || 60,
+            status: r.status || 'upcoming',
+            type: r.type || 'video',
+            meetingLink: r.meeting_link || undefined,
+            location: r.location || undefined,
+            agenda: r.agenda ? String(r.agenda).split('\n').filter(Boolean) : [],
+            notes: r.notes || undefined,
+            recordings: [],
+            attendees: [],
+            isPublic: !!r.is_public,
+            tags: r.tags ? String(r.tags).split(',').filter(Boolean) : [],
+            maxParticipants: r.max_participants || undefined,
+            shareUrl: undefined,
+          }));
+          setSessions(mapped);
+        } else {
+          console.error('Failed to load sessions:', result.error);
+          setSessions([]);
+        }
+      } catch (e) {
+        console.error('Failed to load sessions:', e);
         setSessions([]);
       }
     };

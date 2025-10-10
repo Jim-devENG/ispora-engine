@@ -44,6 +44,8 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { Progress } from '../ui/progress';
 import { ModernAddTaskModal } from '../../src/components/ModernAddTaskModal';
+import { dataPersistenceService } from '../../src/services/DataPersistenceService';
+import { toast } from 'sonner';
 
 interface Task {
   id: string;
@@ -632,36 +634,36 @@ export function TaskManager({ mentee, projectMembers = mockProjectMembers }: Tas
   const [selectedAssignee, setSelectedAssignee] = useState<string>('all');
   const [selectedPriority, setSelectedPriority] = useState<string>('all');
 
-  // Load tasks from API
+  // Load tasks from API with enhanced persistence
   useEffect(() => {
     const controller = new AbortController();
     const load = async () => {
       try {
-        const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-        const devKey = localStorage.getItem('devKey');
-        const token = localStorage.getItem('token');
-        if (devKey) headers['X-Dev-Key'] = devKey;
-        if (token) headers['Authorization'] = `Bearer ${token}`;
-
-        const res = await fetch(`${API_BASE_URL}/tasks`, { headers, signal: controller.signal });
-        const json = await res.json();
-        const rows = Array.isArray(json.data) ? json.data : Array.isArray(json) ? json : [];
-        const mapped: Task[] = rows.map((r: any) => ({
-          id: r.id,
-          title: r.title,
-          description: r.description || undefined,
-          status: (r.status || 'todo') as TaskStatus,
-          priority: r.priority || 'medium',
-          assignee: r.assignee_name || r.assignee || mentee.name,
-          assignedDate: r.created_at ? new Date(r.created_at) : new Date(),
-          dueDate: r.due_at ? new Date(r.due_at) : undefined,
-          completedDate: r.status === 'done' && r.updated_at ? new Date(r.updated_at) : undefined,
-          comments: [],
-          attachments: [],
-          tags: r.tags ? String(r.tags).split(',').filter(Boolean) : [],
-        }));
-        setTasks(mapped);
+        const result = await dataPersistenceService.getTasks();
+        
+        if (result.success && result.data) {
+          const rows = Array.isArray(result.data) ? result.data : [];
+          const mapped: Task[] = rows.map((r: any) => ({
+            id: r.id,
+            title: r.title,
+            description: r.description || undefined,
+            status: (r.status || 'todo') as TaskStatus,
+            priority: r.priority || 'medium',
+            assignee: r.assignee_name || r.assignee || mentee.name,
+            assignedDate: r.created_at ? new Date(r.created_at) : new Date(),
+            dueDate: r.due_at ? new Date(r.due_at) : undefined,
+            completedDate: r.status === 'done' && r.updated_at ? new Date(r.updated_at) : undefined,
+            comments: [],
+            attachments: [],
+            tags: r.tags ? String(r.tags).split(',').filter(Boolean) : [],
+          }));
+          setTasks(mapped);
+        } else {
+          console.error('Failed to load tasks:', result.error);
+          setTasks([]);
+        }
       } catch (e) {
+        console.error('Failed to load tasks:', e);
         setTasks([]);
       }
     };
@@ -756,92 +758,78 @@ export function TaskManager({ mentee, projectMembers = mockProjectMembers }: Tas
     const data = taskData || newTaskData;
     
     if (!data.title.trim()) return;
-    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-    const devKey = localStorage.getItem('devKey');
-    const token = localStorage.getItem('token');
-    if (devKey) headers['X-Dev-Key'] = devKey;
-    if (token) headers['Authorization'] = `Bearer ${token}`;
 
-    if (editingTask) {
-      try {
-        const body = {
-          title: data.title,
-          description: data.description || null,
-          priority: data.priority,
-          dueDate: data.dueDate || null,
-          tags: data.tags
-            ? data.tags
-                .split(',')
-                .map((t) => t.trim())
-                .filter(Boolean)
-            : [],
-        };
-        await fetch(`${API_BASE_URL}/tasks/${editingTask.id}`, {
-          method: 'PUT',
-          headers,
-          body: JSON.stringify(body),
-        });
-        setTasks((prev) =>
-          prev.map((task) =>
-            task.id === editingTask.id
-              ? {
-                  ...task,
-                  title: data.title,
-                  description: data.description || undefined,
-                  priority: data.priority,
-                  dueDate: data.dueDate ? new Date(data.dueDate) : undefined,
-                  tags: body.tags,
-                }
-              : task,
-          ),
-        );
-      } catch {}
-    } else {
-      try {
-        const body = {
-          title: data.title,
-          description: data.description || null,
-          status: createTaskStatus,
-          priority: data.priority,
-          assigneeId: null,
-          dueDate: data.dueDate || null,
-          estimatedHours: data.estimatedHours || null,
-          type: data.type || 'development',
-          notes: data.notes || null,
-          tags: data.tags
-            ? data.tags
-                .split(',')
-                .map((t) => t.trim())
-                .filter(Boolean)
-            : [],
-        };
-        const res = await fetch(`${API_BASE_URL}/tasks`, {
-          method: 'POST',
-          headers,
-          body: JSON.stringify(body),
-        });
-        const json = await res.json();
-        const r = json.data || json;
-        const created: Task = {
-          id: r.id,
-          title: r.title,
-          description: r.description || undefined,
-          status: r.status || createTaskStatus,
-          priority: r.priority || data.priority,
-          assignee: data.assignee,
-          assignedDate: new Date(),
-          dueDate: data.dueDate ? new Date(data.dueDate) : undefined,
-          completedDate: undefined,
-          comments: [],
-          attachments: [],
-          tags: body.tags,
-        };
-        setTasks((prev) => [created, ...prev]);
-      } catch {}
+    try {
+      const taskPayload = {
+        id: editingTask?.id,
+        title: data.title,
+        description: data.description || null,
+        status: editingTask ? editingTask.status : createTaskStatus,
+        priority: data.priority,
+        assigneeId: null,
+        dueDate: data.dueDate || null,
+        estimatedHours: data.estimatedHours || null,
+        type: data.type || 'development',
+        notes: data.notes || null,
+        tags: data.tags
+          ? data.tags
+              .split(',')
+              .map((t: string) => t.trim())
+              .filter(Boolean)
+          : [],
+      };
+
+      const result = await dataPersistenceService.saveTask(taskPayload, {
+        showToast: true,
+        enableLocalStorage: true,
+      });
+
+      if (result.success) {
+        if (editingTask) {
+          // Update existing task
+          setTasks((prev) =>
+            prev.map((task) =>
+              task.id === editingTask.id
+                ? {
+                    ...task,
+                    title: data.title,
+                    description: data.description || undefined,
+                    priority: data.priority,
+                    dueDate: data.dueDate ? new Date(data.dueDate) : undefined,
+                    tags: taskPayload.tags,
+                  }
+                : task,
+            ),
+          );
+        } else {
+          // Create new task
+          const created: Task = {
+            id: result.data?.id || `temp_${Date.now()}`,
+            title: data.title,
+            description: data.description || undefined,
+            status: createTaskStatus,
+            priority: data.priority,
+            assignee: data.assignee || mentee.name,
+            assignedDate: new Date(),
+            dueDate: data.dueDate ? new Date(data.dueDate) : undefined,
+            completedDate: undefined,
+            comments: [],
+            attachments: [],
+            tags: taskPayload.tags,
+          };
+          setTasks((prev) => [created, ...prev]);
+        }
+        
+        setShowCreateDialog(false);
+        setEditingTask(null);
+        toast.success(editingTask ? 'Task updated successfully!' : 'Task created successfully!');
+      } else {
+        toast.error(`Failed to save task: ${result.error}`);
+      }
+    } catch (error) {
+      console.error('Error saving task:', error);
+      toast.error('Failed to save task. Please try again.');
     }
-
-    setShowCreateDialog(false);
-    setEditingTask(null);
   };
 
   const totalTasks = filteredTasks.length;
