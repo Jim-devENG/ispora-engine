@@ -28,18 +28,11 @@ const config = {
   },
 
   production: {
-    client: 'pg',
+    client: 'sqlite3',
     connection: {
-      host: process.env.DB_HOST || 'localhost',
-      port: process.env.DB_PORT || 5432,
-      database: process.env.DB_NAME || 'ispora_prod',
-      user: process.env.DB_USER || 'postgres',
-      password: process.env.DB_PASSWORD,
+      filename: process.env.DATABASE_URL || path.join(__dirname, '../../data/ispora_prod.db'),
     },
-    pool: {
-      min: 2,
-      max: 10,
-    },
+    useNullAsDefault: true,
     migrations: {
       directory: path.join(__dirname, '../database/migrations'),
     },

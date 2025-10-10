@@ -11,6 +11,8 @@ db.raw('SELECT 1')
   })
   .catch((err) => {
     console.error('❌ Database connection failed:', err.message);
+    console.error('Environment:', process.env.NODE_ENV);
+    console.error('Database config:', config[environment]);
   });
 
 module.exports = db;
