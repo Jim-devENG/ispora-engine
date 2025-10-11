@@ -12,7 +12,7 @@ const fetchFeedItems = async (page = 1, limit = 20) => {
     if (devKey) headers['X-Dev-Key'] = devKey;
     if (token) headers['Authorization'] = `Bearer ${token}`;
 
-    const response = await fetch(`${API_BASE_URL}/feed?page=${page}&limit=${limit}`, {
+    const response = await fetch(`${API_BASE_URL}/feed?page=${page}&limit=${limit}&realtime=true`, {
       method: 'GET',
       headers,
     });
@@ -22,10 +22,93 @@ const fetchFeedItems = async (page = 1, limit = 20) => {
     }
 
     const data = await response.json();
-    return data.success ? data.data : [];
+    return {
+      items: data.success ? data.data : [],
+      realtime: data.realtime || {},
+      pagination: data.pagination || {},
+    };
   } catch (error) {
     console.error('Failed to fetch feed items:', error);
-    return []; // Return empty array if API fails
+    return { items: [], realtime: {}, pagination: {} };
+  }
+};
+
+// Real-time feed updates using Server-Sent Events
+const createRealtimeConnection = (onUpdate: (update: any) => void) => {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  const devKey = localStorage.getItem('devKey');
+  const token = localStorage.getItem('token');
+  if (devKey) headers['X-Dev-Key'] = devKey;
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
+  const eventSource = new EventSource(`${API_BASE_URL}/feed/realtime`, {
+    headers,
+  });
+
+  eventSource.onmessage = (event) => {
+    try {
+      const update = JSON.parse(event.data);
+      onUpdate(update);
+    } catch (error) {
+      console.error('Failed to parse realtime update:', error);
+    }
+  };
+
+  eventSource.onerror = (error) => {
+    console.error('Realtime connection error:', error);
+    // Attempt to reconnect after 5 seconds
+    setTimeout(() => {
+      if (eventSource.readyState === EventSource.CLOSED) {
+        createRealtimeConnection(onUpdate);
+      }
+    }, 5000);
+  };
+
+  return eventSource;
+};
+
+// Track user activity
+const trackUserActivity = async (activity: string, metadata: any = {}) => {
+  try {
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    const devKey = localStorage.getItem('devKey');
+    const token = localStorage.getItem('token');
+    if (devKey) headers['X-Dev-Key'] = devKey;
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    await fetch(`${API_BASE_URL}/feed/activity`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ activity, metadata }),
+    });
+  } catch (error) {
+    console.error('Failed to track activity:', error);
+  }
+};
+
+// Get live sessions data
+const fetchLiveSessions = async () => {
+  try {
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    const devKey = localStorage.getItem('devKey');
+    const token = localStorage.getItem('token');
+    if (devKey) headers['X-Dev-Key'] = devKey;
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const response = await fetch(`${API_BASE_URL}/feed/live`, {
+      method: 'GET',
+      headers,
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.success ? data.data : { live: [], upcoming: [], activeUsers: 0 };
+  } catch (error) {
+    console.error('Failed to fetch live sessions:', error);
+    return { live: [], upcoming: [], activeUsers: 0 };
   }
 };
 
@@ -112,6 +195,10 @@ export class FeedService {
   private adminHighlights: AdminHighlight[] = [];
   private userActions: UserAction[] = [];
   private subscribers: Array<() => void> = [];
+  private realtimeConnection: EventSource | null = null;
+  private realtimeData: any = {};
+  private liveSessions: any[] = [];
+  private isConnected = false;
 
   public static getInstance(): FeedService {
     if (!FeedService.instance) {
@@ -130,6 +217,93 @@ export class FeedService {
 
   private notifySubscribers(): void {
     this.subscribers.forEach((callback) => callback());
+  }
+
+  // Connect to real-time updates
+  public connectRealtime(): void {
+    if (this.isConnected) return;
+
+    this.realtimeConnection = createRealtimeConnection((update) => {
+      this.handleRealtimeUpdate(update);
+    });
+
+    this.isConnected = true;
+    this.notifySubscribers();
+  }
+
+  // Disconnect from real-time updates
+  public disconnectRealtime(): void {
+    if (this.realtimeConnection) {
+      this.realtimeConnection.close();
+      this.realtimeConnection = null;
+    }
+    this.isConnected = false;
+    this.notifySubscribers();
+  }
+
+  // Handle real-time updates
+  private handleRealtimeUpdate(update: any): void {
+    switch (update.type) {
+      case 'connection':
+        console.log('Connected to real-time feed:', update);
+        break;
+      case 'heartbeat':
+        this.realtimeData = {
+          ...this.realtimeData,
+          activeUsers: update.activeUsers,
+          lastHeartbeat: update.timestamp,
+        };
+        break;
+      case 'user_activity':
+        this.realtimeData = {
+          ...this.realtimeData,
+          activeUsers: update.activeUsers || this.realtimeData.activeUsers,
+          lastActivity: update.timestamp,
+        };
+        break;
+      case 'feed_update':
+        // Handle new feed items
+        if (update.feedItem) {
+          this.addFeedItem(update.feedItem);
+        }
+        break;
+      default:
+        console.log('Unknown realtime update:', update);
+    }
+    this.notifySubscribers();
+  }
+
+  // Get real-time data
+  public getRealtimeData(): any {
+    return this.realtimeData;
+  }
+
+  // Get live sessions
+  public async getLiveSessions(): Promise<any> {
+    try {
+      const data = await fetchLiveSessions();
+      this.liveSessions = data.live || [];
+      this.realtimeData = {
+        ...this.realtimeData,
+        activeUsers: data.activeUsers,
+        liveSessions: data.live,
+        upcomingSessions: data.upcoming,
+      };
+      this.notifySubscribers();
+      return data;
+    } catch (error) {
+      console.error('Failed to get live sessions:', error);
+      return { live: [], upcoming: [], activeUsers: 0 };
+    }
+  }
+
+  // Track user activity
+  public async trackActivity(activity: string, metadata: any = {}): Promise<void> {
+    try {
+      await trackUserActivity(activity, metadata);
+    } catch (error) {
+      console.error('Failed to track activity:', error);
+    }
   }
 
   // Track user actions and generate feed items
@@ -423,8 +597,10 @@ export class FeedService {
 
   // Initialize with real data (no mock data)
   public initializeRealData(): void {
-    // This method is now handled by the React hook with real API calls
+    // Clear any existing mock data
     this.feedItems = [];
+    this.adminHighlights = [];
+    this.userActions = [];
     this.notifySubscribers();
   }
 
@@ -455,16 +631,19 @@ export function useFeedService() {
   const feedService = useContext(FeedContext) || FeedService.getInstance();
   const [feedItems, setFeedItems] = useState<FeedItem[]>([]);
   const [loading, setLoading] = useState(false);
+  const [realtimeData, setRealtimeData] = useState<any>({});
+  const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
     // Load real-time data from API
     const loadFeedData = async () => {
       setLoading(true);
       try {
-        const realData = await fetchFeedItems(1, 50);
-        if (realData.length > 0) {
+        const result = await fetchFeedItems(1, 50);
+        if (result.items.length > 0) {
           // Use real data from backend
-          setFeedItems(realData);
+          setFeedItems(result.items);
+          setRealtimeData(result.realtime || {});
         } else {
           // If no real data, show empty feed
           setFeedItems([]);
@@ -480,18 +659,36 @@ export function useFeedService() {
 
     loadFeedData();
 
-    // Set up polling for real-time updates (every 30 seconds)
-    const interval = setInterval(loadFeedData, 30000);
+    // Connect to real-time updates
+    feedService.connectRealtime();
+    setIsConnected(true);
 
-    return () => clearInterval(interval);
+    // Load live sessions
+    feedService.getLiveSessions();
+
+    // Subscribe to feed service updates
+    const unsubscribe = feedService.subscribe(() => {
+      setFeedItems([...feedService.feedItems]);
+      setRealtimeData(feedService.getRealtimeData());
+      setIsConnected(feedService.isConnected);
+    });
+
+    // Track user activity
+    feedService.trackActivity('viewing_feed', { timestamp: new Date().toISOString() });
+
+    return () => {
+      unsubscribe();
+      feedService.disconnectRealtime();
+    };
   }, []);
 
   const refreshFeed = async (options?: Parameters<typeof feedService.getFeedItems>[0]) => {
     setLoading(true);
     try {
-      const realData = await fetchFeedItems(1, 50);
-      if (realData.length > 0) {
-        setFeedItems(realData);
+      const result = await fetchFeedItems(1, 50);
+      if (result.items.length > 0) {
+        setFeedItems(result.items);
+        setRealtimeData(result.realtime || {});
       } else {
         setFeedItems([]);
       }
@@ -521,13 +718,25 @@ export function useFeedService() {
     return feedService.getFeedStats();
   };
 
+  const trackActivity = (activity: string, metadata: any = {}) => {
+    feedService.trackActivity(activity, metadata);
+  };
+
+  const getLiveSessions = () => {
+    return feedService.getLiveSessions();
+  };
+
   return {
     feedItems,
     loading,
+    realtimeData,
+    isConnected,
     refreshFeed,
     recordUserAction,
     createAdminHighlight,
     getFeedStats,
+    trackActivity,
+    getLiveSessions,
     feedService,
   };
 }

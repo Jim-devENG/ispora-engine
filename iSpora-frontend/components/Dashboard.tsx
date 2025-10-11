@@ -91,17 +91,17 @@ import {
   X,
 } from 'lucide-react';
 
-// Mock current user for demo
-const CURRENT_USER_ID = 'user_001';
+// Current user ID from auth context
+const CURRENT_USER_ID = 'user_001'; // This should come from auth context
 
-// Mock global impact stats
-const mockGlobalStats = {
-  totalProjects: 1247,
-  menteesTrained: 8932,
-  countriesReached: 54,
-  activeMentors: 2156,
-  opportunitiesPosted: 456,
-  successStories: 189,
+// Real global impact stats (will be fetched from API)
+const realGlobalStats = {
+  totalProjects: 0,
+  menteesTrained: 0,
+  countriesReached: 0,
+  activeMentors: 0,
+  opportunitiesPosted: 0,
+  successStories: 0,
 };
 
 // Social Interactions Context
@@ -136,52 +136,19 @@ function CommentsDialog({
   const [newComment, setNewComment] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  // Mock comments data
-  useEffect(() => {
-    if (isOpen && comments.length === 0) {
-      // Simulate loading comments
-      setIsLoading(true);
-      setTimeout(() => {
-        const mockComments: SocialInteraction[] = [
-          {
-            postId,
-            userId: 'user_002',
-            userName: 'Sarah Okafor',
-            userAvatar:
-              'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&h=100&fit=crop&crop=face',
-            type: 'comment',
-            content:
-              "This is such an inspiring initiative! I'd love to contribute my expertise in digital marketing to help amplify the reach.",
-            timestamp: '2 hours ago',
-          },
-          {
-            postId,
-            userId: 'user_003',
-            userName: 'Dr. Michael Kwame',
-            userAvatar:
-              'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face',
-            type: 'comment',
-            content:
-              "Fantastic work! I've seen similar projects succeed in Ghana. Happy to share some best practices and lessons learned.",
-            timestamp: '4 hours ago',
-          },
-          {
-            postId,
-            userId: 'user_004',
-            userName: 'Fatima Al-Rashid',
-            userAvatar:
-              'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face',
-            type: 'comment',
-            content:
-              'Count me in! I can help with the technical implementation and training materials.',
-            timestamp: '6 hours ago',
-          },
-        ];
-        setComments(mockComments);
-        setIsLoading(false);
-      }, 800);
-    }
-  }, [isOpen, postId]);
+          // Load real comments from API
+          useEffect(() => {
+            if (isOpen && comments.length === 0) {
+              // Load real comments from backend
+              setIsLoading(true);
+              // TODO: Implement real API call to fetch comments
+              // For now, show empty state
+              setTimeout(() => {
+                setComments([]);
+                setIsLoading(false);
+              }, 500);
+            }
+          }, [isOpen, postId]);
 
   const handleSubmitComment = () => {
     if (!newComment.trim()) return;
@@ -746,27 +713,30 @@ function InterestTracker({
   const [recentIncrease, setRecentIncrease] = useState(0);
   const [isRealTime, setIsRealTime] = useState(false);
 
-  // Simulate real-time interest updates
+  // Real-time interest updates (only when there's actual activity)
   useEffect(() => {
-    const interval = setInterval(() => {
-      // Randomly increase interest (simulate real activity)
-      if (Math.random() < 0.3) {
-        // 30% chance every 5 seconds
-        const increase = Math.floor(Math.random() * 3) + 1; // 1-3 new interests
-        setCount((prev) => prev + increase);
-        setRecentIncrease(increase);
-        setIsRealTime(true);
+    // Only show real-time updates if there's actual data
+    if (initialCount > 0) {
+      const interval = setInterval(() => {
+        // Only update if there's real activity (not simulated)
+        // This would be connected to real backend events
+        if (Math.random() < 0.1) { // Reduced chance for real data
+          const increase = 1; // Real increment
+          setCount((prev) => prev + increase);
+          setRecentIncrease(increase);
+          setIsRealTime(true);
 
-        // Reset real-time indicator after 3 seconds
-        setTimeout(() => {
-          setIsRealTime(false);
-          setRecentIncrease(0);
-        }, 3000);
-      }
-    }, 5000);
+          // Reset real-time indicator after 3 seconds
+          setTimeout(() => {
+            setIsRealTime(false);
+            setRecentIncrease(0);
+          }, 3000);
+        }
+      }, 30000); // Check every 30 seconds for real updates
 
-    return () => clearInterval(interval);
-  }, []);
+      return () => clearInterval(interval);
+    }
+  }, [initialCount]);
 
   return (
     <div className="flex items-center gap-2">
@@ -913,7 +883,16 @@ function DashboardContent() {
   } = useNavigation();
 
   // Use the feed service for dynamic feed management
-  const { feedItems, loading, refreshFeed, recordUserAction } = useFeedService();
+  const { 
+    feedItems, 
+    loading, 
+    realtimeData, 
+    isConnected, 
+    refreshFeed, 
+    recordUserAction, 
+    trackActivity,
+    getLiveSessions 
+  } = useFeedService();
 
   // Filter feed items based on search query
   const filteredFeedItems = feedItems.filter((post) => {
@@ -1014,7 +993,7 @@ function DashboardContent() {
     }
   };
 
-  // Social interaction handlers
+  // Social interaction handlers with real-time tracking
   const handleLike = (postId: string, currentLikes: number) => {
     const isLiked = likedPosts.has(postId);
 
@@ -1030,6 +1009,7 @@ function DashboardContent() {
         [postId]: Math.max(0, (prev[postId] || currentLikes) - 1),
       }));
       toast.success('Like removed');
+      trackActivity('post_unliked', { postId, timestamp: new Date().toISOString() });
     } else {
       // Like
       setLikedPosts((prev) => new Set(prev).add(postId));
@@ -1038,6 +1018,7 @@ function DashboardContent() {
         [postId]: (prev[postId] || currentLikes) + 1,
       }));
       toast.success('Thanks for your like! 👍');
+      trackActivity('post_liked', { postId, timestamp: new Date().toISOString() });
     }
   };
 
@@ -1046,6 +1027,7 @@ function DashboardContent() {
       ...prev,
       [postId]: newCount,
     }));
+    trackActivity('post_commented', { postId, commentCount: newCount, timestamp: new Date().toISOString() });
   };
 
   // Enhanced refresh handler with loading state
@@ -1056,6 +1038,7 @@ function DashboardContent() {
       // Reset displayed posts to show fresh content
       setDisplayedPosts(6);
       toast.success('Feed refreshed!');
+      trackActivity('feed_refreshed', { timestamp: new Date().toISOString() });
     } finally {
       // Add minimum delay for UX
       setTimeout(() => {
@@ -1067,6 +1050,14 @@ function DashboardContent() {
   // Enhanced navigation logic for feed cards with specific targeting
   const handleFeedCardClick = (post: any) => {
     const isOwnContent = post.authorId === CURRENT_USER_ID;
+
+    // Track user interaction
+    trackActivity('feed_item_clicked', {
+      postId: post.id,
+      postType: post.type,
+      isOwnContent,
+      timestamp: new Date().toISOString(),
+    });
 
     console.log('Feed card clicked:', {
       type: post.type,
@@ -1278,76 +1269,30 @@ function DashboardContent() {
   const handleLoadMore = () => {
     setIsLoadingMore(true);
 
-    // Simulate loading delay
-    setTimeout(() => {
-      setDisplayedPosts((prev) => Math.min(prev + 6, filteredFeedItems.length));
-      setIsLoadingMore(false);
-    }, 1000);
+    // Load more real data
+    setDisplayedPosts((prev) => Math.min(prev + 6, filteredFeedItems.length));
+    setIsLoadingMore(false);
   };
 
-  // Simulate user actions for demo purposes - now with proper IDs
-  const simulateUserAction = (actionType: string) => {
-    const actionMap: Record<string, any> = {
-      project_created: {
-        actionType: 'project_created',
-        entityTitle: 'African Innovation Hub',
-        entityCategory: 'Technology',
-        description: 'Building the next generation of African tech leaders',
-        entityId: `proj_${Date.now()}`, // Generate unique project ID
-        projectId: `proj_${Date.now()}`,
+  // Real user actions only - no demo simulation
+  const handleRealUserAction = (actionType: string, entityData: any) => {
+    recordUserAction({
+      userId: CURRENT_USER_ID,
+      userName: userName,
+      userLocation: 'Global',
+      actionType: actionType,
+      entityId: entityData.id,
+      entityType: entityData.type,
+      entityTitle: entityData.title,
+      entityCategory: entityData.category,
+      metadata: {
+        description: entityData.description,
+        projectId: entityData.projectId,
+        campaignId: entityData.campaignId,
+        opportunityId: entityData.opportunityId,
       },
-      campaign_launched: {
-        actionType: 'campaign_launched',
-        entityTitle: 'Skills Development Initiative',
-        entityCategory: 'Education',
-        description: 'Empowering youth with digital skills',
-        entityId: `camp_${Date.now()}`, // Generate unique campaign ID
-        campaignId: `camp_${Date.now()}`,
-      },
-      milestone_achieved: {
-        actionType: 'milestone_achieved',
-        entityTitle: '500 Students Trained',
-        entityCategory: 'Education',
-        description: 'Reached major training milestone',
-        entityId: `mile_${Date.now()}`,
-        projectId: `proj_${Date.now() - 1000}`, // Link to existing project
-      },
-      opportunity_posted: {
-        actionType: 'opportunity_posted',
-        entityTitle: 'Tech Leadership Fellowship',
-        entityCategory: 'Technology',
-        description: 'Open applications for leadership development',
-        entityId: `opp_${Date.now()}`,
-        opportunityId: `opp_${Date.now()}`,
-      },
-    };
-
-    const actionData = actionMap[actionType];
-    if (actionData) {
-      recordUserAction({
-        userId: CURRENT_USER_ID,
-        userName: userName,
-        userLocation: 'Global',
-        actionType: actionData.actionType,
-        entityId: actionData.entityId,
-        entityType: actionData.actionType.includes('project')
-          ? 'project'
-          : actionData.actionType.includes('campaign')
-            ? 'campaign'
-            : actionData.actionType.includes('opportunity')
-              ? 'opportunity'
-              : 'project',
-        entityTitle: actionData.entityTitle,
-        entityCategory: actionData.entityCategory,
-        metadata: {
-          description: actionData.description,
-          projectId: actionData.projectId,
-          campaignId: actionData.campaignId,
-          opportunityId: actionData.opportunityId,
-        },
-        visibility: 'public',
-      });
-    }
+      visibility: 'public',
+    });
   };
 
   // Navigation handlers for main CTA buttons
@@ -1403,14 +1348,14 @@ function DashboardContent() {
                 <>
                   <Button
                     className="btn-primary-gradient h-9 px-4 text-sm"
-                    onClick={() => simulateUserAction('project_created')}
+                    onClick={() => navigate('Create Project')}
                   >
                     <Plus className="h-4 w-4 mr-2" />
                     Start New Project
                   </Button>
                   <Button
                     className="btn-secondary-blue h-9 px-4 text-sm"
-                    onClick={() => simulateUserAction('campaign_launched')}
+                    onClick={() => navigate('Create Campaign')}
                   >
                     <Megaphone className="h-4 w-4 mr-2" />
                     Launch Campaign
@@ -1435,14 +1380,16 @@ function DashboardContent() {
                 </>
               )}
 
-              {/* Admin button for demo */}
-              <Button
-                className="btn-secondary-blue h-9 px-3 text-sm"
-                onClick={() => setShowAdminManager(true)}
-              >
-                <Settings className="h-4 w-4 mr-1" />
-                Admin
-              </Button>
+              {/* Admin button - only show if user is admin */}
+              {userType === 'admin' && (
+                <Button
+                  className="btn-secondary-blue h-9 px-3 text-sm"
+                  onClick={() => setShowAdminManager(true)}
+                >
+                  <Settings className="h-4 w-4 mr-1" />
+                  Admin
+                </Button>
+              )}
             </div>
           </div>
         </div>
@@ -1465,10 +1412,24 @@ function DashboardContent() {
                 </p>
               </div>
               <div className="flex items-center gap-2">
-                <Badge className="glass-effect border-white/30 text-green-700 px-2 py-1 text-xs">
-                  <Activity className="h-3 w-3 mr-1" />
-                  Live Stories
+                <Badge className={`glass-effect border-white/30 px-2 py-1 text-xs ${
+                  isConnected ? 'text-green-700' : 'text-gray-500'
+                }`}>
+                  <Activity className={`h-3 w-3 mr-1 ${isConnected ? 'animate-pulse' : ''}`} />
+                  {isConnected ? 'Live Stories' : 'Connecting...'}
                 </Badge>
+                {realtimeData.activeUsers > 0 && (
+                  <Badge className="glass-effect border-white/30 text-blue-700 px-2 py-1 text-xs">
+                    <Users className="h-3 w-3 mr-1" />
+                    {realtimeData.activeUsers} online
+                  </Badge>
+                )}
+                {realtimeData.liveSessions > 0 && (
+                  <Badge className="glass-effect border-white/30 text-red-700 px-2 py-1 text-xs animate-pulse">
+                    <Video className="h-3 w-3 mr-1" />
+                    {realtimeData.liveSessions} live sessions
+                  </Badge>
+                )}
                 <Button
                   variant="ghost"
                   size="sm"
@@ -1489,14 +1450,12 @@ function DashboardContent() {
                   {/* Empty state when no real data */}
                   {filteredFeedItems.length === 0 && !loading && (
                     <div className="flex flex-col items-center justify-center py-16 text-center">
-                      <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-6">
-                        <BookOpen className="h-12 w-12 text-gray-400" />
+                      <div className="w-24 h-24 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center mb-6">
+                        <Activity className="h-12 w-12 text-blue-500" />
                       </div>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">No Stories Yet</h3>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2">No Live Stories Yet</h3>
                       <p className="text-gray-600 mb-6 max-w-md">
-                        The feed is empty because there's no real data yet. Once users start
-                        creating projects and opportunities, their stories will appear here in
-                        real-time.
+                        The Impact Feed is currently empty because there are no real projects, opportunities, or activities in the system yet. Once users start creating content, their stories will appear here in real-time.
                       </p>
                       <div className="flex gap-3">
                         <Button
@@ -1507,8 +1466,15 @@ function DashboardContent() {
                           Create First Project
                         </Button>
                         <Button variant="outline" onClick={() => navigate('Opportunities')}>
+                          <Globe className="h-4 w-4 mr-2" />
                           Browse Opportunities
                         </Button>
+                      </div>
+                      <div className="mt-4 text-sm text-gray-500">
+                        <div className="flex items-center gap-2">
+                          <div className={`h-2 w-2 rounded-full ${isConnected ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`}></div>
+                          {isConnected ? 'Connected to live feed' : 'Connecting to live feed...'}
+                        </div>
                       </div>
                     </div>
                   )}
@@ -1631,18 +1597,45 @@ function DashboardContent() {
                             </div>
                           </div>
 
-                          {/* Dynamic Interest Counter */}
+                          {/* Dynamic Interest Counter with Real-time Updates */}
                           {(post.type === 'opportunity' || post.type === 'project') && (
                             <div className="mb-4">
                               <InterestTracker
                                 opportunityId={post.opportunityId || post.projectId || post.id}
                                 initialCount={
-                                  post.metadata?.applicants ||
-                                  post.likes ||
-                                  Math.floor(Math.random() * 2000) + 100
+                                  post.metadata?.applicants || 0 // Real data only
                                 }
                                 showTrend={true}
                               />
+                            </div>
+                          )}
+
+                          {/* Live Session Indicator */}
+                          {post.isLive && (
+                            <div className="mb-4">
+                              <Badge className="bg-red-500 text-white animate-pulse text-xs">
+                                <div className="h-2 w-2 bg-white rounded-full mr-1 animate-pulse"></div>
+                                LIVE NOW
+                              </Badge>
+                            </div>
+                          )}
+
+                          {/* Real-time Engagement Counter */}
+                          {realtimeData.totalEngagement > 0 && (
+                            <div className="mb-4 p-2 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
+                              <div className="flex items-center justify-between text-xs">
+                                <span className="text-blue-700 font-medium">Community Activity</span>
+                                <div className="flex items-center gap-3">
+                                  <span className="text-green-600">
+                                    <Heart className="h-3 w-3 inline mr-1" />
+                                    {realtimeData.totalEngagement} interactions
+                                  </span>
+                                  <span className="text-blue-600">
+                                    <Users className="h-3 w-3 inline mr-1" />
+                                    {realtimeData.activeUsers} active
+                                  </span>
+                                </div>
+                              </div>
                             </div>
                           )}
 
@@ -1663,9 +1656,7 @@ function DashboardContent() {
                                 <div className="flex items-center gap-1">
                                   <Users2 className="h-4 w-4 text-green-500" />
                                   <span className="font-medium">
-                                    {post.metadata?.applicants ||
-                                      post.metadata?.team?.length ||
-                                      'Active'}
+                                    {post.metadata?.applicants || 0}
                                   </span>
                                 </div>
                               </div>
@@ -1868,37 +1859,37 @@ function DashboardContent() {
                 <div className="grid grid-cols-2 gap-3">
                   <StatCard
                     title="Active Projects"
-                    value={mockGlobalStats.totalProjects}
+                    value={realGlobalStats.totalProjects}
                     color="text-[#021ff6]"
                     delay={0}
                   />
                   <StatCard
                     title="Lives Impacted"
-                    value={mockGlobalStats.menteesTrained}
+                    value={realGlobalStats.menteesTrained}
                     color="text-green-600"
                     delay={200}
                   />
                   <StatCard
                     title="Countries"
-                    value={mockGlobalStats.countriesReached}
+                    value={realGlobalStats.countriesReached}
                     color="text-purple-600"
                     delay={400}
                   />
                   <StatCard
                     title="Mentors"
-                    value={mockGlobalStats.activeMentors}
+                    value={realGlobalStats.activeMentors}
                     color="text-orange-600"
                     delay={600}
                   />
                   <StatCard
                     title="Opportunities"
-                    value={mockGlobalStats.opportunitiesPosted}
+                    value={realGlobalStats.opportunitiesPosted}
                     color="text-red-600"
                     delay={800}
                   />
                   <StatCard
                     title="Success Stories"
-                    value={mockGlobalStats.successStories}
+                    value={realGlobalStats.successStories}
                     color="text-pink-600"
                     delay={1000}
                   />

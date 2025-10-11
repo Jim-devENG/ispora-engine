@@ -4,13 +4,51 @@ const { protect, optionalAuth } = require('../middleware/auth');
 
 const router = express.Router();
 
+// Real-time activity tracking
+const activeUsers = new Set();
+const feedSubscribers = new Set();
+
+// WebSocket-like functionality for real-time updates
+const broadcastFeedUpdate = (update) => {
+  feedSubscribers.forEach(callback => {
+    try {
+      callback(update);
+    } catch (error) {
+      console.error('Error broadcasting feed update:', error);
+    }
+  });
+};
+
+// Track user activity
+const trackUserActivity = (userId, activity) => {
+  activeUsers.add(userId);
+  
+  // Broadcast activity to feed subscribers
+  broadcastFeedUpdate({
+    type: 'user_activity',
+    userId,
+    activity,
+    timestamp: new Date().toISOString()
+  });
+  
+  // Remove from active users after 5 minutes of inactivity
+  setTimeout(() => {
+    activeUsers.delete(userId);
+  }, 5 * 60 * 1000);
+};
+
 // @desc    Get feed items (projects, opportunities, activities)
 // @route   GET /api/feed
 // @access  Public
 router.get('/', optionalAuth, async (req, res, next) => {
   try {
-    const { page = 1, limit = 20 } = req.query;
+    const { page = 1, limit = 20, realtime = false } = req.query;
     const offset = (page - 1) * limit;
+    
+    // Track user activity if authenticated
+    if (req.user) {
+      trackUserActivity(req.user.id, 'viewing_feed');
+    }
 
     // Get projects
     const projects = await db('projects as p')
@@ -157,59 +195,140 @@ router.get('/', optionalAuth, async (req, res, next) => {
         .offset(offset);
     } catch (_) {}
 
-    // Combine all feed items
+    // Get real-time metrics for projects
+    const projectMetrics = await Promise.all(
+      projects.map(async (project) => {
+        try {
+          const [likesResult, commentsResult, participantsResult] = await Promise.all([
+            db('project_likes').where('project_id', project.id).count('* as count').first(),
+            db('project_comments').where('project_id', project.id).count('* as count').first(),
+            db('project_members').where('project_id', project.id).count('* as count').first(),
+          ]);
+          
+          return {
+            projectId: project.id,
+            likes: parseInt(likesResult?.count || 0),
+            comments: parseInt(commentsResult?.count || 0),
+            participants: parseInt(participantsResult?.count || 0),
+          };
+        } catch (error) {
+          console.error(`Error getting metrics for project ${project.id}:`, error);
+          return {
+            projectId: project.id,
+            likes: 0,
+            comments: 0,
+            participants: 0,
+          };
+        }
+      })
+    );
+
+    // Create metrics lookup
+    const metricsLookup = projectMetrics.reduce((acc, metric) => {
+      acc[metric.projectId] = metric;
+      return acc;
+    }, {});
+
+    // Combine all feed items with real-time data
     const feedItems = [
-      ...projects.map((project) => ({
-        id: project.id,
-        type: 'project',
-        title: project.title,
-        description: project.description,
-        status: project.status,
-        category: project.category,
-        location: project.location,
-        tags: (() => { try { return project.tags ? JSON.parse(project.tags) : []; } catch { return []; } })(),
-        authorName: `${project.author_first_name} ${project.author_last_name}`,
-        authorAvatar: project.author_avatar,
-        timestamp: project.created_at,
-        likes: 0, // Will be calculated separately
-        comments: 0, // Will be calculated separately
-        isPublic: true,
-      })),
-      ...opportunities.map((opportunity) => ({
-        id: opportunity.id,
-        type: 'opportunity',
-        title: opportunity.title,
-        description: opportunity.description,
-        status: opportunity.type,
-        category: opportunity.company,
-        location: opportunity.location,
-        tags: [],
-        authorName: `${opportunity.author_first_name} ${opportunity.author_last_name}`,
-        authorAvatar: opportunity.author_avatar,
-        timestamp: opportunity.created_at,
-        likes: 0,
-        comments: 0,
-        isPublic: true,
-      })),
-      ...sessions.map((s) => ({
-        id: s.id,
-        type: 'session',
-        title: s.title,
-        description: s.description,
-        status: s.type,
-        category: s.project_title || 'Session',
-        location: '',
-        tags: [],
-        authorName: `${s.author_first_name || ''} ${s.author_last_name || ''}`.trim(),
-        authorAvatar: s.author_avatar,
-        timestamp: s.scheduled_date,
-        likes: 0,
-        comments: 0,
-        isPublic: true,
-      })),
+      ...projects.map((project) => {
+        const metrics = metricsLookup[project.id] || { likes: 0, comments: 0, participants: 0 };
+        const isLive = project.status === 'active' && 
+          new Date(project.updated_at) > new Date(Date.now() - 24 * 60 * 60 * 1000); // Updated in last 24h
+        
+        return {
+          id: project.id,
+          type: 'project',
+          title: project.title,
+          description: project.description,
+          status: project.status,
+          category: project.category,
+          location: project.location,
+          tags: (() => { try { return project.tags ? JSON.parse(project.tags) : []; } catch { return []; } })(),
+          authorName: `${project.author_first_name} ${project.author_last_name}`,
+          authorAvatar: project.author_avatar,
+          timestamp: project.created_at,
+          likes: metrics.likes,
+          comments: metrics.comments,
+          participants: metrics.participants,
+          isPublic: true,
+          isLive,
+          isPinned: false,
+          isAdminCurated: false,
+          authorId: project.creator_id,
+          projectId: project.id,
+          metadata: {
+            participants: metrics.participants,
+            lastActivity: project.updated_at,
+            isActive: project.status === 'active',
+          },
+        };
+      }),
+      ...opportunities.map((opportunity) => {
+        const isUrgent = opportunity.deadline && 
+          new Date(opportunity.deadline) < new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // Within 7 days
+        
+        return {
+          id: opportunity.id,
+          type: 'opportunity',
+          title: opportunity.title,
+          description: opportunity.description,
+          status: opportunity.type,
+          category: opportunity.company,
+          location: opportunity.location,
+          tags: [],
+          authorName: `${opportunity.author_first_name} ${opportunity.author_last_name}`,
+          authorAvatar: opportunity.author_avatar,
+          timestamp: opportunity.created_at,
+          likes: 0, // Real data only - no simulation
+          comments: 0, // Real data only - no simulation
+          isPublic: true,
+          urgent: isUrgent,
+          deadline: opportunity.deadline,
+          authorId: opportunity.posted_by,
+          opportunityId: opportunity.id,
+          metadata: {
+            applicants: 0, // Real data only - no simulation
+            deadline: opportunity.deadline,
+            isUrgent,
+          },
+        };
+      }),
+      ...sessions.map((s) => {
+        const isLive = new Date(s.scheduled_date) <= new Date() && 
+          new Date(s.scheduled_date) > new Date(Date.now() - s.duration_minutes * 60 * 1000);
+        const isUpcoming = new Date(s.scheduled_date) > new Date();
+        
+        return {
+          id: s.id,
+          type: isLive ? 'live_event' : isUpcoming ? 'session' : 'session',
+          title: s.title,
+          description: s.description,
+          status: s.type,
+          category: s.project_title || 'Session',
+          location: '',
+          tags: [],
+          authorName: `${s.author_first_name || ''} ${s.author_last_name || ''}`.trim(),
+          authorAvatar: s.author_avatar,
+          timestamp: s.scheduled_date,
+          likes: 0, // Real data only - no simulation
+          comments: 0, // Real data only - no simulation
+          isPublic: true,
+          isLive,
+          isUpcoming,
+          projectId: s.project_id,
+          sessionId: s.id,
+          metadata: {
+            duration: s.duration_minutes,
+            type: s.type,
+            isLive,
+            isUpcoming,
+          },
+        };
+      }),
       ...impact.map((i) => ({
         id: i.id,
-        type: 'impact',
+        type: 'success_story',
         title: i.title,
         description: i.summary,
         status: i.impact_category,
@@ -219,9 +338,15 @@ router.get('/', optionalAuth, async (req, res, next) => {
         authorName: `${i.author_first_name || ''} ${i.author_last_name || ''}`.trim(),
         authorAvatar: i.author_avatar,
         timestamp: i.published_at,
-        likes: 0,
-        comments: 0,
+        likes: 0, // Real data only - no simulation
+        comments: 0, // Real data only - no simulation
         isPublic: true,
+        isAdminCurated: true,
+        projectId: i.related_project_id,
+        metadata: {
+          impactCategory: i.impact_category,
+          isSuccessStory: true,
+        },
       })),
       ...research.map((r) => ({
         id: r.id,
@@ -235,13 +360,18 @@ router.get('/', optionalAuth, async (req, res, next) => {
         authorName: `${r.author_first_name || ''} ${r.author_last_name || ''}`.trim(),
         authorAvatar: r.author_avatar,
         timestamp: r.created_at,
-        likes: 0,
-        comments: 0,
+        likes: 0, // Real data only - no simulation
+        comments: 0, // Real data only - no simulation
         isPublic: true,
+        projectId: r.project_id,
+        metadata: {
+          contentType: r.type,
+          isResearch: true,
+        },
       })),
       ...badges.map((b) => ({
         id: b.id,
-        type: 'badge',
+        type: 'achievement',
         title: b.title,
         description: b.description,
         status: 'achievement',
@@ -251,18 +381,37 @@ router.get('/', optionalAuth, async (req, res, next) => {
         authorName: `${b.author_first_name || ''} ${b.author_last_name || ''}`.trim(),
         authorAvatar: b.author_avatar,
         timestamp: b.created_at,
-        likes: 0,
-        comments: 0,
+        likes: 0, // Real data only - no simulation
+        comments: 0, // Real data only - no simulation
         isPublic: true,
+        isAdminCurated: true,
+        metadata: {
+          isAchievement: true,
+          badgeId: b.id,
+        },
       })),
     ];
 
     // Sort by timestamp (most recent first)
     feedItems.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
+    // Add real-time activity data
+    const realtimeData = {
+      activeUsers: activeUsers.size,
+      liveSessions: feedItems.filter(item => item.isLive).length,
+      recentActivity: feedItems.filter(item => {
+        const itemDate = new Date(item.timestamp);
+        const now = new Date();
+        const diffHours = (now.getTime() - itemDate.getTime()) / (1000 * 60 * 60);
+        return diffHours <= 24;
+      }).length,
+      totalEngagement: feedItems.reduce((sum, item) => sum + (item.likes || 0) + (item.comments || 0), 0),
+    };
+
     res.json({
       success: true,
       data: feedItems,
+      realtime: realtimeData,
       pagination: {
         page: parseInt(page),
         limit: parseInt(limit),
@@ -360,6 +509,187 @@ router.get('/:id', optionalAuth, async (req, res, next) => {
     res.status(500).json({
       success: false,
       message: 'Failed to fetch feed item',
+      error: error.message,
+    });
+  }
+});
+
+// @desc    Get real-time feed updates (WebSocket-like)
+// @route   GET /api/feed/realtime
+// @access  Public
+router.get('/realtime', optionalAuth, (req, res) => {
+  // Set up Server-Sent Events for real-time updates
+  res.writeHead(200, {
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache',
+    'Connection': 'keep-alive',
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Cache-Control',
+  });
+
+  // Track user activity
+  if (req.user) {
+    trackUserActivity(req.user.id, 'subscribed_to_realtime');
+  }
+
+  // Add client to subscribers
+  const clientId = Date.now() + Math.random();
+  const sendUpdate = (update) => {
+    res.write(`data: ${JSON.stringify(update)}\n\n`);
+  };
+
+  feedSubscribers.add(sendUpdate);
+
+  // Send initial connection message
+  res.write(`data: ${JSON.stringify({
+    type: 'connection',
+    clientId,
+    timestamp: new Date().toISOString(),
+    activeUsers: activeUsers.size,
+  })}\n\n`);
+
+  // Send periodic heartbeat
+  const heartbeat = setInterval(() => {
+    res.write(`data: ${JSON.stringify({
+      type: 'heartbeat',
+      timestamp: new Date().toISOString(),
+      activeUsers: activeUsers.size,
+    })}\n\n`);
+  }, 30000); // Every 30 seconds
+
+  // Handle client disconnect
+  req.on('close', () => {
+    feedSubscribers.delete(sendUpdate);
+    clearInterval(heartbeat);
+    if (req.user) {
+      activeUsers.delete(req.user.id);
+    }
+  });
+});
+
+// @desc    Track user activity for real-time updates
+// @route   POST /api/feed/activity
+// @access  Protected
+router.post('/activity', protect, async (req, res) => {
+  try {
+    const { activity, metadata = {} } = req.body;
+    
+    trackUserActivity(req.user.id, activity);
+    
+    // Store activity in database for analytics
+    await db('user_activities').insert({
+      user_id: req.user.id,
+      activity,
+      metadata: JSON.stringify(metadata),
+      created_at: new Date(),
+    });
+
+    res.json({
+      success: true,
+      message: 'Activity tracked successfully',
+    });
+  } catch (error) {
+    console.error('Activity tracking error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to track activity',
+      error: error.message,
+    });
+  }
+});
+
+// @desc    Get live session data
+// @route   GET /api/feed/live
+// @access  Public
+router.get('/live', optionalAuth, async (req, res) => {
+  try {
+    const now = new Date();
+    const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
+    const oneHourFromNow = new Date(now.getTime() + 60 * 60 * 1000);
+
+    // Get live sessions
+    const liveSessions = await db('project_sessions as s')
+      .select([
+        's.id',
+        's.project_id',
+        's.title',
+        's.description',
+        's.scheduled_date',
+        's.duration_minutes',
+        's.type',
+        's.is_public',
+        'u.first_name as author_first_name',
+        'u.last_name as author_last_name',
+        'u.username as author_username',
+        'u.avatar_url as author_avatar',
+        'p.title as project_title',
+      ])
+      .leftJoin('users as u', 's.created_by', 'u.id')
+      .leftJoin('projects as p', 's.project_id', 'p.id')
+      .where('s.is_public', true)
+      .whereBetween('s.scheduled_date', [oneHourAgo, oneHourFromNow])
+      .orderBy('s.scheduled_date', 'asc');
+
+    // Get upcoming sessions
+    const upcomingSessions = await db('project_sessions as s')
+      .select([
+        's.id',
+        's.project_id',
+        's.title',
+        's.description',
+        's.scheduled_date',
+        's.duration_minutes',
+        's.type',
+        's.is_public',
+        'u.first_name as author_first_name',
+        'u.last_name as author_last_name',
+        'u.username as author_username',
+        'u.avatar_url as author_avatar',
+        'p.title as project_title',
+      ])
+      .leftJoin('users as u', 's.created_by', 'u.id')
+      .leftJoin('projects as p', 's.project_id', 'p.id')
+      .where('s.is_public', true)
+      .where('s.scheduled_date', '>', now)
+      .orderBy('s.scheduled_date', 'asc')
+      .limit(10);
+
+    res.json({
+      success: true,
+      data: {
+        live: liveSessions.map(session => ({
+          id: session.id,
+          title: session.title,
+          description: session.description,
+          projectTitle: session.project_title,
+          authorName: `${session.author_first_name || ''} ${session.author_last_name || ''}`.trim(),
+          authorAvatar: session.author_avatar,
+          scheduledDate: session.scheduled_date,
+          duration: session.duration_minutes,
+          type: session.type,
+          isLive: true,
+        })),
+        upcoming: upcomingSessions.map(session => ({
+          id: session.id,
+          title: session.title,
+          description: session.description,
+          projectTitle: session.project_title,
+          authorName: `${session.author_first_name || ''} ${session.author_last_name || ''}`.trim(),
+          authorAvatar: session.author_avatar,
+          scheduledDate: session.scheduled_date,
+          duration: session.duration_minutes,
+          type: session.type,
+          isUpcoming: true,
+        })),
+        activeUsers: activeUsers.size,
+        timestamp: now.toISOString(),
+      },
+    });
+  } catch (error) {
+    console.error('Live sessions error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch live sessions',
       error: error.message,
     });
   }
