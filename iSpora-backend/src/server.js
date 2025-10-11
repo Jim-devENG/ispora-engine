@@ -68,7 +68,7 @@ const learningRoutes = require('./routes/learning');
 const liveRoutes = require('./routes/live');
 const researchRoutes = require('./routes/research');
 const corsTestRoutes = require('./routes/cors-test');
-const mockRoutes = require('./routes/mock-routes');
+// Mock routes removed - using real data only
 
 // Import middleware
 const errorHandler = require('./middleware/errorHandler');
@@ -156,10 +156,7 @@ app.get('/health', (req, res) => {
 });
 
 // API routes
-// Mount mock routes FIRST for local development to avoid auth/404s
-app.use('/api/network', mockRoutes);
-app.use('/api/credits', mockRoutes);
-app.use('/api/notifications', mockRoutes);
+// Mock routes removed - using real data only
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/projects', projectRoutes);
@@ -212,9 +209,7 @@ app.use('/api/learning', learningRoutes);
 app.use('/api/live', liveRoutes);
 app.use('/api/research', researchRoutes);
 app.use('/api/cors-test', corsTestRoutes);
-app.use('/api/network', mockRoutes);
-app.use('/api/credits', mockRoutes);
-app.use('/api/notifications', mockRoutes);
+// Mock routes removed - using real data only
 
 // Coming Soon gate (place after auth route so login/register still works,
 // and after protect can set req.user on routes that use it). We mount it late
