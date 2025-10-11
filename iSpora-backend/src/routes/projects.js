@@ -117,13 +117,31 @@ router.get('/:id', optionalAuth, async (req, res, next) => {
 // @access  Private
 router.post('/', protect, async (req, res, next) => {
   try {
+    // Validate required fields
+    if (!req.body.title) {
+      return res.status(400).json({
+        success: false,
+        error: 'Title is required',
+      });
+    }
+
     const projectData = {
       id: uuidv4(),
       creator_id: req.user.id,
-      ...req.body,
+      title: req.body.title,
+      description: req.body.description || '',
+      detailed_description: req.body.detailed_description || '',
+      type: req.body.type || 'academic',
+      status: req.body.status || 'draft',
+      tags: req.body.tags || [],
+      is_public: req.body.is_public !== undefined ? req.body.is_public : true,
+      start_date: req.body.start_date || null,
+      end_date: req.body.end_date || null,
       created_at: new Date(),
       updated_at: new Date(),
     };
+
+    console.log('Creating project with data:', projectData);
 
     await db('projects').insert(projectData);
 
@@ -139,11 +157,14 @@ router.post('/', protect, async (req, res, next) => {
       .where('p.id', projectData.id)
       .first();
 
+    console.log('Project created successfully:', project);
+
     res.status(201).json({
       success: true,
       data: project,
     });
   } catch (error) {
+    console.error('Error creating project:', error);
     next(error);
   }
 });

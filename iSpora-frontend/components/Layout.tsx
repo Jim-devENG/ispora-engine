@@ -136,23 +136,23 @@ function MainContent() {
           onSave={async (projectData) => {
             // Map frontend fields to backend expectations
             const payload = {
-              id: undefined, // backend generates
               title: projectData.title,
               description: projectData.description,
-              type: projectData.projectType || projectData.category || 'collaboration',
-              tags: (projectData.tags || []).join(','),
-              status: projectData.status || 'active',
+              type: projectData.projectType || 'academic', // Map to valid backend type
+              tags: projectData.tags || [], // Keep as JSON array
+              status: projectData.status || 'draft', // Start as draft
               is_public: projectData.isPublic === undefined ? true : !!projectData.isPublic,
-              mentorship_connection: !!projectData.mentorshipConnection,
               start_date: projectData.startDate || null,
               end_date: projectData.endDate || null,
-              priority: projectData.priority || 'medium',
-              university: projectData.university || null,
-              objectives: JSON.stringify(projectData.objectives || []),
-              team_members: JSON.stringify(projectData.teamMembers || []),
-              diaspora_positions: JSON.stringify(projectData.diasporaPositions || []),
-              created_at: undefined, // backend sets
-              updated_at: undefined, // backend sets
+              // Store additional data in detailed_description as JSON
+              detailed_description: JSON.stringify({
+                objectives: projectData.objectives || [],
+                teamMembers: projectData.teamMembers || [],
+                diasporaPositions: projectData.diasporaPositions || [],
+                priority: projectData.priority || 'medium',
+                university: projectData.university || null,
+                mentorshipConnection: !!projectData.mentorshipConnection,
+              }),
             };
 
             try {
@@ -170,13 +170,14 @@ function MainContent() {
               });
 
               if (response.ok) {
-                // success toast
-                try { (await import('./ui/sonner')).toast.success('Project created successfully'); } catch {}
+                const result = await response.json();
+                console.log('Project created successfully:', result);
+                try { (await import('./ui/sonner')).toast.success('Project created successfully!'); } catch {}
                 setCurrentPage('Project Dashboard');
               } else {
-                const text = await response.text();
-                console.error('Failed to save project:', text);
-                try { (await import('./ui/sonner')).toast.error('Failed to create project'); } catch {}
+                const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+                console.error('Failed to save project:', errorData);
+                try { (await import('./ui/sonner')).toast.error(`Failed to create project: ${errorData.error || 'Unknown error'}`); } catch {}
               }
             } catch (error) {
               console.error('Error saving project:', error);

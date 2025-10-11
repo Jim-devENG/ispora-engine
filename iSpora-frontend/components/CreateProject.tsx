@@ -427,6 +427,12 @@ export function CreateProject({ onBack, onSave }: CreateProjectProps) {
   );
 
   const handleSave = (isDraft: boolean = false) => {
+    // Basic validation for required fields
+    if (!isDraft && (!formData.title || !formData.description || !formData.projectType)) {
+      alert('Please fill in all required fields: Title, Description, and Project Type');
+      return;
+    }
+
     const projectData = {
       ...formData,
       teamMembers,
