@@ -94,13 +94,18 @@ const io = new Server(httpServer, {
   },
 });
 
-// Rate limiting
+// Rate limiting - more lenient for development
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  max: process.env.NODE_ENV === 'production' ? 100 : 1000, // More lenient in development
   message: 'Too many requests from this IP, please try again later.',
   standardHeaders: true,
   legacyHeaders: false,
+  // Skip rate limiting for development
+  skip: (req) => {
+    // Skip rate limiting in development or for localhost
+    return process.env.NODE_ENV === 'development' || req.ip === '127.0.0.1' || req.ip === '::1';
+  },
 });
 
 // Security middleware
