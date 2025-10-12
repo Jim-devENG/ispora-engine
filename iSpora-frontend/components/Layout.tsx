@@ -134,6 +134,8 @@ function MainContent() {
         <CreateProject
           onBack={() => setCurrentPage('Project Dashboard')}
           onSave={async (projectData) => {
+            console.log('onSave called in Layout.tsx with projectData:', projectData);
+            
             // Map frontend fields to backend expectations
             const payload = {
               title: projectData.title,
@@ -154,8 +156,11 @@ function MainContent() {
                 mentorshipConnection: !!projectData.mentorshipConnection,
               }),
             };
+            
+            console.log('Mapped payload:', payload);
 
             try {
+              console.log('Making API call to create project...');
               const headers: Record<string, string> = { 'Content-Type': 'application/json' };
               const devKey = localStorage.getItem('devKey');
               const token = localStorage.getItem('token');
@@ -163,11 +168,18 @@ function MainContent() {
               if (token) headers['Authorization'] = `Bearer ${token}`;
 
               const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:3001/api').replace(/\/$/, '');
+              console.log('API Base URL:', apiBase);
+              console.log('Request headers:', headers);
+              console.log('Request payload:', JSON.stringify(payload, null, 2));
+              
               const response = await fetch(`${apiBase}/projects`, {
                 method: 'POST',
                 headers,
                 body: JSON.stringify(payload),
               });
+              
+              console.log('Response status:', response.status);
+              console.log('Response ok:', response.ok);
 
               if (response.ok) {
                 const result = await response.json();
