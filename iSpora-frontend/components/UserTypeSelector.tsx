@@ -17,7 +17,7 @@ export function UserTypeSelector() {
 
   return (
     <Dialog open={state.userType === null && state.isFirstTime} onOpenChange={() => {}}>
-      <DialogContent className="max-w-xl p-0 gap-0">
+      <DialogContent className="max-w-xl w-[90vw] p-0 gap-0">
         {/* Header */}
         <div className="text-center p-4 bg-gradient-to-r from-blue-50 to-green-50">
           <h1 className="text-xl font-bold text-gray-900 mb-1">Welcome to Aspora</h1>
@@ -26,21 +26,23 @@ export function UserTypeSelector() {
 
         {/* Content */}
         <div className="p-4">
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {/* Diaspora Option */}
             <Card
               className="group cursor-pointer transition-all duration-200 hover:shadow-md border-2 hover:border-blue-200"
               onClick={() => handleSelectUserType('diaspora')}
             >
-              <CardContent className="p-4 text-center">
-                <div className="w-12 h-12 mx-auto bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-3">
+              <CardContent className="p-4 text-center flex flex-col h-full">
+                <div className="w-12 h-12 mx-auto bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-3 flex-shrink-0">
                   <Globe className="w-6 h-6" />
                 </div>
                 <h3 className="font-semibold text-blue-900 mb-1">Diaspora Member</h3>
                 <p className="text-xs text-gray-600 mb-3">Mentor youth back home</p>
-                <Button size="sm" className="w-full bg-blue-600 hover:bg-blue-700">
+                <div className="mt-auto">
+                  <Button size="sm" className="w-full h-9 text-sm font-semibold bg-blue-600 hover:bg-blue-700 flex items-center justify-center">
                   Get Started
-                </Button>
+                  </Button>
+                </div>
               </CardContent>
             </Card>
 
@@ -49,15 +51,17 @@ export function UserTypeSelector() {
               className="group cursor-pointer transition-all duration-200 hover:shadow-md border-2 hover:border-green-200"
               onClick={() => handleSelectUserType('local')}
             >
-              <CardContent className="p-4 text-center">
-                <div className="w-12 h-12 mx-auto bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-3">
+              <CardContent className="p-4 text-center flex flex-col h-full">
+                <div className="w-12 h-12 mx-auto bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-3 flex-shrink-0">
                   <GraduationCap className="w-6 h-6" />
                 </div>
                 <h3 className="font-semibold text-green-900 mb-1">Student/Youth</h3>
                 <p className="text-xs text-gray-600 mb-3">Find mentors & opportunities</p>
-                <Button size="sm" className="w-full bg-green-600 hover:bg-green-700">
-                  Get Started
-                </Button>
+                <div className="mt-auto">
+                  <Button size="sm" className="w-full h-9 text-sm font-semibold bg-green-600 hover:bg-green-700 flex items-center justify-center">
+                    Get Started
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </div>
