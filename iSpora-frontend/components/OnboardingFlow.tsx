@@ -401,16 +401,16 @@ export function OnboardingFlow() {
               variant="outline"
               size="sm"
               onClick={handleSwitchUserType}
-              className="flex items-center gap-2 text-xs hover:shadow-md transition-all duration-200 border-2 hover:border-blue-300"
+              className="h-9 px-3 flex items-center justify-center gap-2 text-sm font-semibold whitespace-nowrap hover:shadow-md transition-all duration-200 border-2 hover:border-blue-300"
             >
               {state.userType === 'diaspora' ? (
                 <>
-                  <GraduationCap className="w-3 h-3" />
+                  <GraduationCap className="w-4 h-4" />
                   Switch to Student/Youth
                 </>
               ) : (
                 <>
-                  <Globe className="w-3 h-3" />
+                  <Globe className="w-4 h-4" />
                   Switch to Diaspora
                 </>
               )}
