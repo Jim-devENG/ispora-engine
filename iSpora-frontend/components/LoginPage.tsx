@@ -185,7 +185,7 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
                       Email Address
                     </Label>
                     <div className="relative group">
-                      <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-[#021ff6] transition-colors">
+                      <div className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-gray-400 group-focus-within:text-[#021ff6] transition-colors">
                         <Mail className="h-4 w-4" />
                       </div>
                       <Input
@@ -207,7 +207,7 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
                       Password
                     </Label>
                     <div className="relative group">
-                      <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-[#021ff6] transition-colors">
+                      <div className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-gray-400 group-focus-within:text-[#021ff6] transition-colors">
                         <Lock className="h-4 w-4" />
                       </div>
                       <Input
@@ -224,7 +224,7 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                        className="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
                       >
                         {showPassword ? (
                           <EyeOff className="h-4 w-4" />
@@ -300,7 +300,7 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
                       Email Address
                     </Label>
                     <div className="relative group">
-                      <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-[#021ff6] transition-colors">
+                      <div className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-gray-400 group-focus-within:text-[#021ff6] transition-colors">
                         <Mail className="h-4 w-4" />
                       </div>
                       <Input
@@ -364,7 +364,7 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
                       Password
                     </Label>
                     <div className="relative group">
-                      <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-[#021ff6] transition-colors">
+                      <div className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-gray-400 group-focus-within:text-[#021ff6] transition-colors">
                         <Lock className="h-4 w-4" />
                       </div>
                       <Input
@@ -381,7 +381,7 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                        className="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
                       >
                         {showPassword ? (
                           <EyeOff className="h-4 w-4" />
@@ -400,7 +400,7 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
                       Confirm Password
                     </Label>
                     <div className="relative group">
-                      <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-[#021ff6] transition-colors">
+                      <div className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-gray-400 group-focus-within:text-[#021ff6] transition-colors">
                         <Lock className="h-4 w-4" />
                       </div>
                       <Input
