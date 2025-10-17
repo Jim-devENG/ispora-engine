@@ -5,18 +5,7 @@ import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Alert, AlertDescription } from './ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import {
-  Mail,
-  Lock,
-  User,
-  Eye,
-  EyeOff,
-  Loader2,
-  Globe,
-  GraduationCap,
-  Users,
-  BookOpen,
-} from 'lucide-react';
+import { Loader2, GraduationCap, Users, BookOpen } from 'lucide-react';
 import { useAuth } from './AuthContext';
 import { toast } from 'sonner';
 
@@ -184,55 +173,30 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
                     <Label htmlFor="login-email" className="text-xs font-medium text-gray-700">
                       Email Address
                     </Label>
-                    <div className="relative group">
-                      <div className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-gray-400 group-focus-within:text-[#021ff6] transition-colors">
-                        <Mail className="h-4 w-4" />
-                      </div>
-                      <Input
-                        id="login-email"
-                        type="email"
-                        placeholder="Enter your email"
-                        value={loginData.email}
-                        onChange={(e) =>
-                          setLoginData((prev) => ({ ...prev, email: e.target.value }))
-                        }
-                        className="pl-10 h-9 border-gray-200 focus:border-[#021ff6] focus:ring-[#021ff6]/20 rounded-lg transition-all text-sm"
-                        required
-                      />
-                    </div>
+                    <Input
+                      id="login-email"
+                      type="email"
+                      placeholder="Enter your email"
+                      value={loginData.email}
+                      onChange={(e) => setLoginData((prev) => ({ ...prev, email: e.target.value }))}
+                      className="h-9 border-gray-200 focus:border-[#021ff6] focus:ring-[#021ff6]/20 rounded-lg transition-all text-sm"
+                      required
+                    />
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="login-password" className="text-xs font-medium text-gray-700">
                       Password
                     </Label>
-                    <div className="relative group">
-                      <div className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-gray-400 group-focus-within:text-[#021ff6] transition-colors">
-                        <Lock className="h-4 w-4" />
-                      </div>
-                      <Input
-                        id="login-password"
-                        type={showPassword ? 'text' : 'password'}
-                        placeholder="Enter your password"
-                        value={loginData.password}
-                        onChange={(e) =>
-                          setLoginData((prev) => ({ ...prev, password: e.target.value }))
-                        }
-                        className="pl-10 pr-10 h-9 border-gray-200 focus:border-[#021ff6] focus:ring-[#021ff6]/20 rounded-lg transition-all text-sm"
-                        required
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
-                      >
-                        {showPassword ? (
-                          <EyeOff className="h-4 w-4" />
-                        ) : (
-                          <Eye className="h-4 w-4" />
-                        )}
-                      </button>
-                    </div>
+                    <Input
+                      id="login-password"
+                      type="password"
+                      placeholder="Enter your password"
+                      value={loginData.password}
+                      onChange={(e) => setLoginData((prev) => ({ ...prev, password: e.target.value }))}
+                      className="h-9 border-gray-200 focus:border-[#021ff6] focus:ring-[#021ff6]/20 rounded-lg transition-all text-sm"
+                      required
+                    />
                   </div>
 
                   <Button
@@ -299,22 +263,15 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
                     <Label htmlFor="register-email" className="text-xs font-medium text-gray-700">
                       Email Address
                     </Label>
-                    <div className="relative group">
-                      <div className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-gray-400 group-focus-within:text-[#021ff6] transition-colors">
-                        <Mail className="h-4 w-4" />
-                      </div>
-                      <Input
-                        id="register-email"
-                        type="email"
-                        placeholder="Enter your email"
-                        value={registerData.email}
-                        onChange={(e) =>
-                          setRegisterData((prev) => ({ ...prev, email: e.target.value }))
-                        }
-                        className="pl-10 h-9 border-gray-200 focus:border-[#021ff6] focus:ring-[#021ff6]/20 rounded-lg transition-all text-sm"
-                        required
-                      />
-                    </div>
+                    <Input
+                      id="register-email"
+                      type="email"
+                      placeholder="Enter your email"
+                      value={registerData.email}
+                      onChange={(e) => setRegisterData((prev) => ({ ...prev, email: e.target.value }))}
+                      className="h-9 border-gray-200 focus:border-[#021ff6] focus:ring-[#021ff6]/20 rounded-lg transition-all text-sm"
+                      required
+                    />
                   </div>
 
                   <div className="space-y-2">
@@ -357,64 +314,33 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
                   </div>
 
                   <div className="space-y-2">
-                    <Label
-                      htmlFor="register-password"
-                      className="text-xs font-medium text-gray-700"
-                    >
+                    <Label htmlFor="register-password" className="text-xs font-medium text-gray-700">
                       Password
                     </Label>
-                    <div className="relative group">
-                      <div className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-gray-400 group-focus-within:text-[#021ff6] transition-colors">
-                        <Lock className="h-4 w-4" />
-                      </div>
-                      <Input
-                        id="register-password"
-                        type={showPassword ? 'text' : 'password'}
-                        placeholder="Choose a strong password"
-                        value={registerData.password}
-                        onChange={(e) =>
-                          setRegisterData((prev) => ({ ...prev, password: e.target.value }))
-                        }
-                        className="pl-10 pr-10 h-9 border-gray-200 focus:border-[#021ff6] focus:ring-[#021ff6]/20 rounded-lg transition-all text-sm"
-                        required
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
-                      >
-                        {showPassword ? (
-                          <EyeOff className="h-4 w-4" />
-                        ) : (
-                          <Eye className="h-4 w-4" />
-                        )}
-                      </button>
-                    </div>
+                    <Input
+                      id="register-password"
+                      type="password"
+                      placeholder="Choose a strong password"
+                      value={registerData.password}
+                      onChange={(e) => setRegisterData((prev) => ({ ...prev, password: e.target.value }))}
+                      className="h-9 border-gray-200 focus:border-[#021ff6] focus:ring-[#021ff6]/20 rounded-lg transition-all text-sm"
+                      required
+                    />
                   </div>
 
                   <div className="space-y-2">
-                    <Label
-                      htmlFor="register-confirmPassword"
-                      className="text-xs font-medium text-gray-700"
-                    >
+                    <Label htmlFor="register-confirmPassword" className="text-xs font-medium text-gray-700">
                       Confirm Password
                     </Label>
-                    <div className="relative group">
-                      <div className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-gray-400 group-focus-within:text-[#021ff6] transition-colors">
-                        <Lock className="h-4 w-4" />
-                      </div>
-                      <Input
-                        id="register-confirmPassword"
-                        type={showPassword ? 'text' : 'password'}
-                        placeholder="Confirm your password"
-                        value={registerData.confirmPassword}
-                        onChange={(e) =>
-                          setRegisterData((prev) => ({ ...prev, confirmPassword: e.target.value }))
-                        }
-                        className="pl-10 h-9 border-gray-200 focus:border-[#021ff6] focus:ring-[#021ff6]/20 rounded-lg transition-all text-sm"
-                        required
-                      />
-                    </div>
+                    <Input
+                      id="register-confirmPassword"
+                      type="password"
+                      placeholder="Confirm your password"
+                      value={registerData.confirmPassword}
+                      onChange={(e) => setRegisterData((prev) => ({ ...prev, confirmPassword: e.target.value }))}
+                      className="h-9 border-gray-200 focus:border-[#021ff6] focus:ring-[#021ff6]/20 rounded-lg transition-all text-sm"
+                      required
+                    />
                   </div>
 
                   <Button
