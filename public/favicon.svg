@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="iSpora">
+  <defs>
+    <radialGradient id="g" cx="35%" cy="30%" r="85%">
+      <stop offset="0%" stop-color="#3c7dff"/>
+      <stop offset="60%" stop-color="#246bff"/>
+      <stop offset="100%" stop-color="#1358ff"/>
+    </radialGradient>
+  </defs>
+  <circle cx="256" cy="256" r="256" fill="url(#g)"/>
+  <g fill="#ffffff" transform="translate(78, 320)">
+    <!-- Render the word 'iSpora' approximately centered -->
+    <text x="0" y="0" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="210" font-weight="700" letter-spacing="1">
+      i<tspan font-weight="700">Spora</tspan>
+    </text>
+  </g>
+</svg>
+
+
