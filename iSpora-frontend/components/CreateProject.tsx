@@ -427,17 +427,8 @@ export function CreateProject({ onBack, onSave }: CreateProjectProps) {
   );
 
   const handleSave = (isDraft: boolean = false) => {
-    console.log('handleSave called with isDraft:', isDraft);
-    console.log('Current formData:', formData);
-    console.log('Selected project type:', selectedProjectType);
-    
     // Basic validation for required fields
     if (!isDraft && (!formData.title || !formData.description || !formData.projectType)) {
-      console.log('Validation failed:', {
-        title: formData.title,
-        description: formData.description,
-        projectType: formData.projectType
-      });
       alert('Please fill in all required fields: Title, Description, and Project Type');
       return;
     }
@@ -451,10 +442,7 @@ export function CreateProject({ onBack, onSave }: CreateProjectProps) {
       aspiraCategory: formData.projectType,
     };
 
-    console.log('Saving project:', projectData);
-    
     if (onSave) {
-      console.log('Calling onSave with projectData');
       onSave(projectData);
     } else {
       console.warn('No onSave callback provided');
@@ -1386,11 +1374,6 @@ export function CreateProject({ onBack, onSave }: CreateProjectProps) {
               ) : (
                 <Button
                   onClick={() => {
-                    console.log('Create Project button clicked');
-                    console.log('Current step:', currentStep);
-                    console.log('Form data:', formData);
-                    console.log('Selected project type:', selectedProjectType);
-                    console.log('Creating project from navigation with data:', formData);
                     handleSave(false);
                   }}
                   className="bg-[#021ff6] hover:bg-[#021ff6]/90"
