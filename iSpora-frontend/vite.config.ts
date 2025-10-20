@@ -32,6 +32,6 @@ export default defineConfig({
   },
   base: '/',
   define: {
-    'import.meta.env.VITE_API_URL': JSON.stringify(process.env.VITE_API_URL || 'https://ispora-backend.onrender.com/api'),
+    'import.meta.env.VITE_API_URL': JSON.stringify('https://ispora-backend.onrender.com/api'),
   },
 });
