@@ -3,7 +3,7 @@ services:
     name: ispora-backend
     env: node
     plan: free
-    buildCommand: npm install && node create-essential-tables.js
+    buildCommand: npm install && node create-essential-tables-v2.js
     startCommand: npm start
     envVars:
       - key: NODE_ENV

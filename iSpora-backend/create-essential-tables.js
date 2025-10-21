@@ -4,6 +4,10 @@ async function createEssentialTables() {
   try {
     console.log('Creating essential database tables...');
     
+    // Test database connection first
+    await db.raw('SELECT 1');
+    console.log('✅ Database connection successful');
+    
     // Check if tables exist
     const tables = await db.raw("SELECT name FROM sqlite_master WHERE type='table'");
     const existingTables = tables.map(r => r.name);
@@ -13,47 +17,59 @@ async function createEssentialTables() {
     // Create users table if it doesn't exist
     if (!existingTables.includes('users')) {
       console.log('Creating users table...');
-      await db.schema.createTable('users', function(table) {
-        table.uuid('id').primary();
-        table.string('email', 255).notNullable().unique();
-        table.string('password_hash', 255).notNullable();
-        table.string('first_name', 100).notNullable();
-        table.string('last_name', 100).notNullable();
-        table.string('username', 50).notNullable().unique();
-        table.string('avatar_url', 500).nullable();
-        table.string('role', 20).defaultTo('user');
-        table.boolean('is_verified').defaultTo(false);
-        table.boolean('is_active').defaultTo(true);
-        table.timestamps(true, true);
-        
-        table.index('email');
-        table.index('username');
-      });
-      console.log('✅ Created users table');
+      try {
+        await db.schema.createTable('users', function(table) {
+          table.uuid('id').primary();
+          table.string('email', 255).notNullable().unique();
+          table.string('password_hash', 255).notNullable();
+          table.string('first_name', 100).notNullable();
+          table.string('last_name', 100).notNullable();
+          table.string('username', 50).notNullable().unique();
+          table.string('avatar_url', 500).nullable();
+          table.string('role', 20).defaultTo('user');
+          table.boolean('is_verified').defaultTo(false);
+          table.boolean('is_active').defaultTo(true);
+          table.timestamps(true, true);
+          
+          table.index('email');
+          table.index('username');
+        });
+        console.log('✅ Created users table');
+      } catch (error) {
+        console.log('⚠️ Users table creation failed (might already exist):', error.message);
+      }
+    } else {
+      console.log('✅ Users table already exists');
     }
     
     // Create projects table if it doesn't exist
     if (!existingTables.includes('projects')) {
       console.log('Creating projects table...');
-      await db.schema.createTable('projects', function(table) {
-        table.uuid('id').primary();
-        table.uuid('creator_id').notNullable().references('id').inTable('users').onDelete('CASCADE');
-        table.string('title', 200).notNullable();
-        table.text('description').nullable();
-        table.text('detailed_description').nullable();
-        table.string('type', 50).defaultTo('academic');
-        table.string('status', 20).defaultTo('active');
-        table.json('tags').nullable();
-        table.boolean('is_public').defaultTo(true);
-        table.date('start_date').nullable();
-        table.date('end_date').nullable();
-        table.timestamps(true, true);
-        
-        table.index('creator_id');
-        table.index('status');
-        table.index('is_public');
-      });
-      console.log('✅ Created projects table');
+      try {
+        await db.schema.createTable('projects', function(table) {
+          table.uuid('id').primary();
+          table.uuid('creator_id').notNullable().references('id').inTable('users').onDelete('CASCADE');
+          table.string('title', 200).notNullable();
+          table.text('description').nullable();
+          table.text('detailed_description').nullable();
+          table.string('type', 50).defaultTo('academic');
+          table.string('status', 20).defaultTo('active');
+          table.json('tags').nullable();
+          table.boolean('is_public').defaultTo(true);
+          table.date('start_date').nullable();
+          table.date('end_date').nullable();
+          table.timestamps(true, true);
+          
+          table.index('creator_id');
+          table.index('status');
+          table.index('is_public');
+        });
+        console.log('✅ Created projects table');
+      } catch (error) {
+        console.log('⚠️ Projects table creation failed (might already exist):', error.message);
+      }
+    } else {
+      console.log('✅ Projects table already exists');
     }
     
     // Create project_sessions table if it doesn't exist
