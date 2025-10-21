@@ -139,9 +139,8 @@ router.get('/', optionalAuth, async (req, res, next) => {
           'p.title as project_title',
         ])
         .leftJoin('users as u', 'if.user_id', 'u.id')
-        .leftJoin('projects as p', 'if.related_project_id', 'p.id')
-        .where('if.visibility', 'public')
-        .andWhere('if.status', 'active')
+        .leftJoin('projects as p', 'if.project_id', 'p.id')
+        .where('if.status', 'published')
         .orderBy('if.published_at', 'desc')
         .limit(limit)
         .offset(offset);
