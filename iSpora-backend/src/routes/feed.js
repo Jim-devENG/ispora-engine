@@ -4,6 +4,12 @@ const { protect, optionalAuth } = require('../middleware/auth');
 
 const router = express.Router();
 
+// Simple test route
+router.get('/test', (req, res) => {
+  console.log('🔍 /test route hit');
+  res.json({ message: 'Feed routes working', timestamp: new Date().toISOString() });
+});
+
 // Real-time activity tracking
 const activeUsers = new Set();
 const feedSubscribers = new Set();
