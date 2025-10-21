@@ -16,17 +16,129 @@ const { closeConnections } = require('./config/redis');
 // Initialize Sentry
 initSentry();
 
-// Simple database setup on startup
+// Database setup on startup - create essential tables
 const setupDatabase = async () => {
   try {
-    console.log('Checking database setup...');
+    console.log('🔧 Setting up database tables...');
     const db = require('./database/connection');
     
-    // Just test the connection
+    // Test database connection
     await db.raw('SELECT 1');
-    console.log('✅ Database connection verified');
+    console.log('✅ Database connection successful');
+    
+    // Check existing tables
+    const tables = await db.raw("SELECT name FROM sqlite_master WHERE type='table'");
+    const existingTables = tables.map(r => r.name);
+    console.log('📋 Existing tables:', existingTables);
+    
+    // Create essential tables if they don't exist
+    const essentialTables = {
+      users: () => db.schema.createTable('users', function(table) {
+        table.uuid('id').primary();
+        table.string('email', 255).notNullable().unique();
+        table.string('password_hash', 255).notNullable();
+        table.string('first_name', 100).notNullable();
+        table.string('last_name', 100).notNullable();
+        table.string('username', 50).notNullable().unique();
+        table.string('avatar_url', 500).nullable();
+        table.string('role', 20).defaultTo('user');
+        table.boolean('is_verified').defaultTo(false);
+        table.boolean('is_active').defaultTo(true);
+        table.timestamps(true, true);
+        table.index('email');
+        table.index('username');
+      }),
+      
+      projects: () => db.schema.createTable('projects', function(table) {
+        table.uuid('id').primary();
+        table.uuid('creator_id').notNullable().references('id').inTable('users').onDelete('CASCADE');
+        table.string('title', 200).notNullable();
+        table.text('description').nullable();
+        table.text('detailed_description').nullable();
+        table.string('type', 50).defaultTo('academic');
+        table.string('status', 20).defaultTo('active');
+        table.json('tags').nullable();
+        table.boolean('is_public').defaultTo(true);
+        table.date('start_date').nullable();
+        table.date('end_date').nullable();
+        table.timestamps(true, true);
+        table.index('creator_id');
+        table.index('status');
+        table.index('is_public');
+      }),
+      
+      project_sessions: () => db.schema.createTable('project_sessions', function(table) {
+        table.uuid('id').primary();
+        table.uuid('project_id').notNullable().references('id').inTable('projects').onDelete('CASCADE');
+        table.uuid('created_by').notNullable().references('id').inTable('users').onDelete('CASCADE');
+        table.string('title', 200).notNullable();
+        table.text('description').nullable();
+        table.timestamp('scheduled_date').notNullable();
+        table.integer('duration_minutes').defaultTo(60);
+        table.string('type', 50).defaultTo('meeting');
+        table.boolean('is_public').defaultTo(false);
+        table.string('meeting_link', 500).nullable();
+        table.string('status', 20).defaultTo('scheduled');
+        table.timestamps(true, true);
+        table.index('project_id');
+        table.index('created_by');
+        table.index('scheduled_date');
+      }),
+      
+      impact_feed: () => db.schema.createTable('impact_feed', function(table) {
+        table.uuid('id').primary();
+        table.uuid('user_id').notNullable().references('id').inTable('users').onDelete('CASCADE');
+        table.uuid('project_id').nullable().references('id').inTable('projects').onDelete('SET NULL');
+        table.string('title', 200).notNullable();
+        table.text('summary').nullable();
+        table.text('description').nullable();
+        table.string('impact_category', 50).notNullable();
+        table.string('location', 100).nullable();
+        table.integer('people_impacted').nullable();
+        table.decimal('monetary_impact', 15, 2).nullable();
+        table.json('metrics').nullable();
+        table.string('status', 20).defaultTo('draft');
+        table.timestamp('published_at').nullable();
+        table.timestamps(true, true);
+        table.index('user_id');
+        table.index('project_id');
+        table.index('impact_category');
+        table.index('status');
+        table.index('published_at');
+      }),
+      
+      session_attendees: () => db.schema.createTable('session_attendees', function(table) {
+        table.uuid('id').primary();
+        table.uuid('session_id').notNullable().references('id').inTable('project_sessions').onDelete('CASCADE');
+        table.uuid('user_id').notNullable().references('id').inTable('users').onDelete('CASCADE');
+        table.string('status', 20).defaultTo('invited');
+        table.timestamp('responded_at').nullable();
+        table.timestamp('attended_at').nullable();
+        table.timestamps(true, true);
+        table.unique(['session_id', 'user_id']);
+        table.index('session_id');
+        table.index('user_id');
+      })
+    };
+    
+    // Create missing tables
+    for (const [tableName, createFunction] of Object.entries(essentialTables)) {
+      if (!existingTables.includes(tableName)) {
+        console.log(`🔨 Creating ${tableName} table...`);
+        try {
+          await createFunction();
+          console.log(`✅ Created ${tableName} table`);
+        } catch (error) {
+          console.log(`⚠️ Failed to create ${tableName} table:`, error.message);
+        }
+      } else {
+        console.log(`✅ ${tableName} table already exists`);
+      }
+    }
+    
+    console.log('🎉 Database setup completed!');
   } catch (error) {
-    console.error('❌ Database connection failed:', error);
+    console.error('❌ Database setup failed:', error);
     // Don't exit on database errors, let the server start
   }
 };
