@@ -597,6 +597,11 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// Test route to verify basic functionality
+app.get('/api/test', (req, res) => {
+  res.status(200).json({ message: 'Test route working' });
+});
+
 // API routes
 // Mock routes removed - using real data only
 app.use('/api/auth', authRoutes);
@@ -642,6 +647,14 @@ app.use('/api/notification-templates', notificationTemplatesRoutes);
 app.use('/api/notification-analytics', notificationAnalyticsRoutes);
 app.use('/api/notification-batches', notificationBatchesRoutes);
 app.use('/api/feed', feedRoutes);
+
+// Debug: Log all registered routes
+console.log('🔍 Registered feed routes:');
+feedRoutes.stack.forEach((middleware) => {
+  if (middleware.route) {
+    console.log(`  ${Object.keys(middleware.route.methods).join(', ').toUpperCase()} ${middleware.route.path}`);
+  }
+});
 app.use('/api/admin', adminRoutes);
 app.use('/api/dev', devRoutes);
 app.use('/api/sessions', sessionsRoutes);
