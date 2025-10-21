@@ -1,6 +1,6 @@
 exports.up = function(knex) {
   return knex.schema.createTable('billing_invoices', function(table) {
-    table.uuid('id').primary().defaultTo(knex.raw('(lower(hex(randomblob(4))) || '-' || lower(hex(randomblob(2))) || '-4' || substr(lower(hex(randomblob(2))),2) || '-' || substr('89ab',abs(random()) % 4 + 1, 1) || substr(lower(hex(randomblob(2))),2) || '-' || lower(hex(randomblob(6))))'));
+    table.uuid('id').primary().defaultTo(knex.raw('lower(hex(randomblob(16)))'));
     table.uuid('user_id').notNullable().references('id').inTable('users').onDelete('CASCADE');
     table.uuid('subscription_id').nullable().references('id').inTable('billing_subscriptions').onDelete('SET NULL');
     
@@ -16,21 +16,10 @@ exports.up = function(knex) {
     table.timestamp('due_date').notNullable();
     table.timestamp('paid_at').nullable();
     
-    // External references
-    table.string('external_invoice_id', 100).nullable(); // Stripe invoice ID
-    table.string('payment_intent_id', 100).nullable(); // Stripe payment intent ID
-    
-    // Invoice items (stored as JSON for flexibility)
-    table.json('items').nullable();
-    
-    // Billing address
-    table.string('billing_name').nullable();
-    table.string('billing_email').nullable();
-    table.text('billing_address').nullable();
-    table.string('billing_city').nullable();
-    table.string('billing_state').nullable();
-    table.string('billing_country').nullable();
-    table.string('billing_postal_code').nullable();
+    // Payment details
+    table.string('payment_method', 50).nullable();
+    table.string('transaction_id', 100).nullable();
+    table.text('notes').nullable();
     
     table.timestamps(true, true);
     
