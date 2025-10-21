@@ -3,7 +3,7 @@ services:
     name: ispora-backend
     env: node
     plan: free
-    buildCommand: npm install && node setup-database.js && node setup-production-db.js
+    buildCommand: npm install
     startCommand: npm start
     envVars:
       - key: NODE_ENV

@@ -16,6 +16,93 @@ const { closeConnections } = require('./config/redis');
 // Initialize Sentry
 initSentry();
 
+// Setup database on startup
+const setupDatabase = async () => {
+  try {
+    console.log('Setting up database...');
+    const db = require('./database/connection');
+    
+    // Check if tables exist, if not create them
+    const tables = await db.raw("SELECT name FROM sqlite_master WHERE type='table'");
+    const existingTables = tables.map(r => r.name);
+    
+    console.log('Existing tables:', existingTables);
+    
+    // Create missing tables if they don't exist
+    if (!existingTables.includes('project_sessions')) {
+      console.log('Creating project_sessions table...');
+      await db.schema.createTable('project_sessions', function(table) {
+        table.uuid('id').primary();
+        table.uuid('project_id').notNullable().references('id').inTable('projects').onDelete('CASCADE');
+        table.uuid('created_by').notNullable().references('id').inTable('users').onDelete('CASCADE');
+        table.string('title', 200).notNullable();
+        table.text('description').nullable();
+        table.timestamp('scheduled_date').notNullable();
+        table.integer('duration_minutes').defaultTo(60);
+        table.string('type', 50).defaultTo('meeting');
+        table.boolean('is_public').defaultTo(false);
+        table.string('meeting_link', 500).nullable();
+        table.string('status', 20).defaultTo('scheduled');
+        table.timestamps(true, true);
+        
+        table.index('project_id');
+        table.index('created_by');
+        table.index('scheduled_date');
+      });
+      console.log('✅ Created project_sessions table');
+    }
+    
+    if (!existingTables.includes('impact_feed')) {
+      console.log('Creating impact_feed table...');
+      await db.schema.createTable('impact_feed', function(table) {
+        table.uuid('id').primary();
+        table.uuid('user_id').notNullable().references('id').inTable('users').onDelete('CASCADE');
+        table.uuid('project_id').nullable().references('id').inTable('projects').onDelete('SET NULL');
+        table.string('title', 200).notNullable();
+        table.text('summary').nullable();
+        table.text('description').nullable();
+        table.string('impact_category', 50).notNullable();
+        table.string('location', 100).nullable();
+        table.integer('people_impacted').nullable();
+        table.decimal('monetary_impact', 15, 2).nullable();
+        table.json('metrics').nullable();
+        table.string('status', 20).defaultTo('draft');
+        table.timestamp('published_at').nullable();
+        table.timestamps(true, true);
+        
+        table.index('user_id');
+        table.index('project_id');
+        table.index('impact_category');
+        table.index('status');
+        table.index('published_at');
+      });
+      console.log('✅ Created impact_feed table');
+    }
+    
+    if (!existingTables.includes('session_attendees')) {
+      console.log('Creating session_attendees table...');
+      await db.schema.createTable('session_attendees', function(table) {
+        table.uuid('id').primary();
+        table.uuid('session_id').notNullable().references('id').inTable('project_sessions').onDelete('CASCADE');
+        table.uuid('user_id').notNullable().references('id').inTable('users').onDelete('CASCADE');
+        table.string('status', 20).defaultTo('invited');
+        table.timestamp('responded_at').nullable();
+        table.timestamp('attended_at').nullable();
+        table.timestamps(true, true);
+        
+        table.unique(['session_id', 'user_id']);
+        table.index('session_id');
+        table.index('user_id');
+      });
+      console.log('✅ Created session_attendees table');
+    }
+    
+    console.log('✅ Database setup complete!');
+  } catch (error) {
+    console.error('❌ Error setting up database:', error);
+  }
+};
+
 // Import routes
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
@@ -238,12 +325,24 @@ app.use('*', (req, res) => {
 
 const PORT = process.env.PORT || 3001;
 
-httpServer.listen(PORT, () => {
-  console.log(`🚀 iSpora Backend Server running on port ${PORT}`);
-  console.log(`📊 Health check: http://localhost:${PORT}/health`);
-  console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🔗 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:5173'}`);
-});
+// Setup database and start server
+const startServer = async () => {
+  try {
+    await setupDatabase();
+    
+    httpServer.listen(PORT, () => {
+      console.log(`🚀 iSpora Backend Server running on port ${PORT}`);
+      console.log(`📊 Health check: http://localhost:${PORT}/health`);
+      console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+      console.log(`🔗 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:5173'}`);
+    });
+  } catch (error) {
+    console.error('❌ Failed to start server:', error);
+    process.exit(1);
+  }
+};
+
+startServer();
 
 // Graceful shutdown
 process.on('SIGTERM', async () => {
