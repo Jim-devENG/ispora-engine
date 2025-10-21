@@ -126,20 +126,26 @@ const setupDatabase = async () => {
       opportunities: () => db.schema.createTable('opportunities', function(table) {
         table.uuid('id').primary();
         table.uuid('creator_id').notNullable().references('id').inTable('users').onDelete('CASCADE');
+        table.uuid('posted_by').notNullable().references('id').inTable('users').onDelete('CASCADE');
         table.string('title', 200).notNullable();
         table.text('description').nullable();
+        table.string('type', 50).nullable();
+        table.string('company', 200).nullable();
         table.string('status', 20).defaultTo('active');
         table.string('category', 50).nullable();
         table.string('location', 100).nullable();
         table.json('tags').nullable();
         table.boolean('is_public').defaultTo(true);
+        table.boolean('is_active').defaultTo(true);
         table.date('application_deadline').nullable();
         table.date('start_date').nullable();
         table.date('end_date').nullable();
         table.timestamps(true, true);
         table.index('creator_id');
+        table.index('posted_by');
         table.index('status');
         table.index('is_public');
+        table.index('is_active');
         table.index('category');
         table.index('application_deadline');
       }),
@@ -383,6 +389,49 @@ const setupDatabase = async () => {
             }
           } catch (error) {
             console.log(`⚠️ Failed to add columns to projects table:`, error.message);
+          }
+        }
+        
+        // For existing opportunities table, check if we need to add missing columns
+        if (tableName === 'opportunities') {
+          try {
+            // Check if type column exists
+            const columns = await db.raw("PRAGMA table_info(opportunities)");
+            const columnNames = columns.map(col => col.name);
+            
+            if (!columnNames.includes('type')) {
+              console.log(`🔧 Adding missing 'type' column to opportunities table...`);
+              await db.schema.alterTable('opportunities', function(table) {
+                table.string('type', 50).nullable();
+              });
+              console.log(`✅ Added 'type' column to opportunities table`);
+            }
+            
+            if (!columnNames.includes('company')) {
+              console.log(`🔧 Adding missing 'company' column to opportunities table...`);
+              await db.schema.alterTable('opportunities', function(table) {
+                table.string('company', 200).nullable();
+              });
+              console.log(`✅ Added 'company' column to opportunities table`);
+            }
+            
+            if (!columnNames.includes('posted_by')) {
+              console.log(`🔧 Adding missing 'posted_by' column to opportunities table...`);
+              await db.schema.alterTable('opportunities', function(table) {
+                table.uuid('posted_by').notNullable().references('id').inTable('users').onDelete('CASCADE');
+              });
+              console.log(`✅ Added 'posted_by' column to opportunities table`);
+            }
+            
+            if (!columnNames.includes('is_active')) {
+              console.log(`🔧 Adding missing 'is_active' column to opportunities table...`);
+              await db.schema.alterTable('opportunities', function(table) {
+                table.boolean('is_active').defaultTo(true);
+              });
+              console.log(`✅ Added 'is_active' column to opportunities table`);
+            }
+          } catch (error) {
+            console.log(`⚠️ Failed to add columns to opportunities table:`, error.message);
           }
         }
       }
