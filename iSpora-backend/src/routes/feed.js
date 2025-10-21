@@ -522,8 +522,8 @@ router.get('/:id', optionalAuth, async (req, res, next) => {
 // @desc    Get real-time feed updates (WebSocket-like)
 // @route   GET /api/feed/realtime
 // @access  Public
-router.get('/realtime', optionalAuth, (req, res) => {
-  console.log('🔍 /realtime route hit');
+router.get('/realtime', (req, res) => {
+  console.log('🔍 /realtime route hit - simplified version');
   // Set up Server-Sent Events for real-time updates
   res.writeHead(200, {
     'Content-Type': 'text/event-stream',
@@ -607,8 +607,8 @@ router.post('/activity', protect, async (req, res) => {
 // @desc    Get live session data
 // @route   GET /api/feed/live
 // @access  Public
-router.get('/live', optionalAuth, async (req, res) => {
-  console.log('🔍 /live route hit');
+router.get('/live', async (req, res) => {
+  console.log('🔍 /live route hit - simplified version');
   try {
     const now = new Date();
     const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
