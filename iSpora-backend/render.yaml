@@ -3,7 +3,7 @@ services:
     name: ispora-backend
     env: node
     plan: free
-    buildCommand: npm install
+    buildCommand: npm install && node setup-tables.js
     startCommand: npm start
     envVars:
       - key: NODE_ENV
