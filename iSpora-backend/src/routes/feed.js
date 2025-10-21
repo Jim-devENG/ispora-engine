@@ -10,6 +10,18 @@ router.get('/test', (req, res) => {
   res.json({ message: 'Feed routes working', timestamp: new Date().toISOString() });
 });
 
+// Ultra simple realtime route
+router.get('/realtime-simple', (req, res) => {
+  console.log('🔍 /realtime-simple route hit');
+  res.json({ message: 'Realtime simple route working', timestamp: new Date().toISOString() });
+});
+
+// Ultra simple live route
+router.get('/live-simple', (req, res) => {
+  console.log('🔍 /live-simple route hit');
+  res.json({ message: 'Live simple route working', timestamp: new Date().toISOString() });
+});
+
 // Real-time activity tracking
 const activeUsers = new Set();
 const feedSubscribers = new Set();
