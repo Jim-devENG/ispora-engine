@@ -650,11 +650,18 @@ app.use('/api/feed', feedRoutes);
 
 // Debug: Log all registered routes
 console.log('🔍 Registered feed routes:');
-feedRoutes.stack.forEach((middleware) => {
-  if (middleware.route) {
-    console.log(`  ${Object.keys(middleware.route.methods).join(', ').toUpperCase()} ${middleware.route.path}`);
-  }
-});
+try {
+  feedRoutes.stack.forEach((middleware) => {
+    if (middleware.route) {
+      console.log(`  ${Object.keys(middleware.route.methods).join(', ').toUpperCase()} ${middleware.route.path}`);
+    } else {
+      console.log(`  Middleware: ${middleware.name || 'unnamed'}`);
+    }
+  });
+  console.log(`✅ Total feed routes registered: ${feedRoutes.stack.length}`);
+} catch (error) {
+  console.error('❌ Error logging feed routes:', error);
+}
 app.use('/api/admin', adminRoutes);
 app.use('/api/dev', devRoutes);
 app.use('/api/sessions', sessionsRoutes);

@@ -702,4 +702,15 @@ router.get('/live', optionalAuth, async (req, res) => {
   }
 });
 
+// Catch-all route for debugging
+router.use('*', (req, res) => {
+  console.log(`🔍 Feed router catch-all hit: ${req.method} ${req.originalUrl}`);
+  res.status(404).json({ 
+    message: 'Route not found in feed router', 
+    method: req.method, 
+    url: req.originalUrl,
+    availableRoutes: ['/test', '/realtime', '/live', '/', '/activity']
+  });
+});
+
 module.exports = router;
