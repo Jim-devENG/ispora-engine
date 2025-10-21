@@ -121,6 +121,228 @@ const setupDatabase = async () => {
         table.unique(['session_id', 'user_id']);
         table.index('session_id');
         table.index('user_id');
+      }),
+      
+      opportunities: () => db.schema.createTable('opportunities', function(table) {
+        table.uuid('id').primary();
+        table.uuid('creator_id').notNullable().references('id').inTable('users').onDelete('CASCADE');
+        table.string('title', 200).notNullable();
+        table.text('description').nullable();
+        table.string('status', 20).defaultTo('active');
+        table.string('category', 50).nullable();
+        table.string('location', 100).nullable();
+        table.json('tags').nullable();
+        table.boolean('is_public').defaultTo(true);
+        table.date('application_deadline').nullable();
+        table.date('start_date').nullable();
+        table.date('end_date').nullable();
+        table.timestamps(true, true);
+        table.index('creator_id');
+        table.index('status');
+        table.index('is_public');
+        table.index('category');
+        table.index('application_deadline');
+      }),
+      
+      user_activities: () => db.schema.createTable('user_activities', function(table) {
+        table.uuid('id').primary();
+        table.uuid('user_id').notNullable().references('id').inTable('users').onDelete('CASCADE');
+        table.string('activity', 100).notNullable();
+        table.json('metadata').nullable();
+        table.timestamps(true, true);
+        table.index('user_id');
+        table.index('activity');
+        table.index('created_at');
+      }),
+      
+      user_settings: () => db.schema.createTable('user_settings', function(table) {
+        table.uuid('id').primary();
+        table.uuid('user_id').notNullable().references('id').inTable('users').onDelete('CASCADE');
+        table.json('notifications').nullable();
+        table.json('privacy').nullable();
+        table.json('preferences').nullable();
+        table.timestamps(true, true);
+        table.unique('user_id');
+      }),
+      
+      security_logs: () => db.schema.createTable('security_logs', function(table) {
+        table.uuid('id').primary();
+        table.uuid('user_id').notNullable().references('id').inTable('users').onDelete('CASCADE');
+        table.string('event_type', 50).notNullable();
+        table.string('category', 50).notNullable();
+        table.text('description').nullable();
+        table.string('ip_address', 45).nullable();
+        table.string('user_agent', 500).nullable();
+        table.timestamps(true, true);
+        table.index('user_id');
+        table.index('event_type');
+        table.index('created_at');
+      }),
+      
+      sessions: () => db.schema.createTable('sessions', function(table) {
+        table.uuid('id').primary();
+        table.uuid('user_id').notNullable().references('id').inTable('users').onDelete('CASCADE');
+        table.string('token', 500).notNullable();
+        table.timestamp('expires_at').notNullable();
+        table.string('ip_address', 45).nullable();
+        table.string('user_agent', 500).nullable();
+        table.timestamps(true, true);
+        table.index('user_id');
+        table.index('token');
+        table.index('expires_at');
+      }),
+      
+      tasks: () => db.schema.createTable('tasks', function(table) {
+        table.uuid('id').primary();
+        table.string('project_id', 50).nullable();
+        table.string('title', 200).notNullable();
+        table.text('description').nullable();
+        table.string('status', 20).defaultTo('pending');
+        table.string('priority', 20).defaultTo('medium');
+        table.timestamp('due_at').nullable();
+        table.timestamps(true, true);
+        table.index('project_id');
+        table.index('status');
+        table.index('due_at');
+      }),
+      
+      project_likes: () => db.schema.createTable('project_likes', function(table) {
+        table.uuid('id').primary();
+        table.uuid('project_id').notNullable().references('id').inTable('projects').onDelete('CASCADE');
+        table.uuid('user_id').notNullable().references('id').inTable('users').onDelete('CASCADE');
+        table.timestamps(true, true);
+        table.unique(['project_id', 'user_id']);
+        table.index('project_id');
+        table.index('user_id');
+      }),
+      
+      project_comments: () => db.schema.createTable('project_comments', function(table) {
+        table.uuid('id').primary();
+        table.uuid('project_id').notNullable().references('id').inTable('projects').onDelete('CASCADE');
+        table.uuid('user_id').notNullable().references('id').inTable('users').onDelete('CASCADE');
+        table.text('content').notNullable();
+        table.timestamps(true, true);
+        table.index('project_id');
+        table.index('user_id');
+      }),
+      
+      project_members: () => db.schema.createTable('project_members', function(table) {
+        table.uuid('id').primary();
+        table.uuid('project_id').notNullable().references('id').inTable('projects').onDelete('CASCADE');
+        table.uuid('user_id').notNullable().references('id').inTable('users').onDelete('CASCADE');
+        table.string('role', 50).defaultTo('member');
+        table.string('status', 20).defaultTo('active');
+        table.timestamps(true, true);
+        table.unique(['project_id', 'user_id']);
+        table.index('project_id');
+        table.index('user_id');
+        table.index('status');
+      }),
+      
+      project_tasks: () => db.schema.createTable('project_tasks', function(table) {
+        table.uuid('id').primary();
+        table.uuid('project_id').notNullable().references('id').inTable('projects').onDelete('CASCADE');
+        table.uuid('created_by').notNullable().references('id').inTable('users').onDelete('CASCADE');
+        table.uuid('assigned_to').nullable().references('id').inTable('users').onDelete('SET NULL');
+        table.string('title', 200).notNullable();
+        table.text('description').nullable();
+        table.string('status', 20).defaultTo('pending');
+        table.string('priority', 20).defaultTo('medium');
+        table.integer('estimated_hours').nullable();
+        table.integer('actual_hours').nullable();
+        table.uuid('parent_task_id').nullable().references('id').inTable('project_tasks').onDelete('SET NULL');
+        table.timestamp('due_at').nullable();
+        table.timestamps(true, true);
+        table.index('project_id');
+        table.index('assigned_to');
+        table.index('status');
+        table.index('parent_task_id');
+      }),
+      
+      task_comments: () => db.schema.createTable('task_comments', function(table) {
+        table.uuid('id').primary();
+        table.uuid('task_id').notNullable().references('id').inTable('project_tasks').onDelete('CASCADE');
+        table.uuid('user_id').notNullable().references('id').inTable('users').onDelete('CASCADE');
+        table.text('content').notNullable();
+        table.timestamps(true, true);
+        table.index('task_id');
+        table.index('user_id');
+      }),
+      
+      project_messages: () => db.schema.createTable('project_messages', function(table) {
+        table.uuid('id').primary();
+        table.uuid('project_id').notNullable().references('id').inTable('projects').onDelete('CASCADE');
+        table.uuid('user_id').notNullable().references('id').inTable('users').onDelete('CASCADE');
+        table.uuid('parent_message_id').nullable().references('id').inTable('project_messages').onDelete('CASCADE');
+        table.string('channel', 100).defaultTo('general');
+        table.text('content').notNullable();
+        table.json('attachments').nullable();
+        table.timestamps(true, true);
+        table.index('project_id');
+        table.index('user_id');
+        table.index('channel');
+        table.index('parent_message_id');
+      }),
+      
+      learning_content: () => db.schema.createTable('learning_content', function(table) {
+        table.uuid('id').primary();
+        table.uuid('project_id').notNullable().references('id').inTable('projects').onDelete('CASCADE');
+        table.uuid('created_by').notNullable().references('id').inTable('users').onDelete('CASCADE');
+        table.string('title', 200).notNullable();
+        table.text('description').nullable();
+        table.string('type', 50).notNullable(); // video, article, quiz, etc.
+        table.string('content_url', 500).nullable();
+        table.integer('duration_minutes').nullable();
+        table.string('difficulty', 20).defaultTo('beginner');
+        table.json('metadata').nullable();
+        table.timestamps(true, true);
+        table.index('project_id');
+        table.index('type');
+        table.index('difficulty');
+      }),
+      
+      content_progress: () => db.schema.createTable('content_progress', function(table) {
+        table.uuid('id').primary();
+        table.uuid('content_id').notNullable().references('id').inTable('learning_content').onDelete('CASCADE');
+        table.uuid('user_id').notNullable().references('id').inTable('users').onDelete('CASCADE');
+        table.integer('progress_percentage').defaultTo(0);
+        table.integer('time_spent_minutes').defaultTo(0);
+        table.integer('rating').nullable(); // 1-5 stars
+        table.text('notes').nullable();
+        table.timestamp('completed_at').nullable();
+        table.timestamps(true, true);
+        table.unique(['content_id', 'user_id']);
+        table.index('content_id');
+        table.index('user_id');
+      }),
+      
+      project_deliverables: () => db.schema.createTable('project_deliverables', function(table) {
+        table.uuid('id').primary();
+        table.uuid('project_id').notNullable().references('id').inTable('projects').onDelete('CASCADE');
+        table.uuid('created_by').notNullable().references('id').inTable('users').onDelete('CASCADE');
+        table.string('title', 200).notNullable();
+        table.text('description').nullable();
+        table.string('type', 50).notNullable();
+        table.string('status', 20).defaultTo('draft');
+        table.string('file_url', 500).nullable();
+        table.timestamp('due_at').nullable();
+        table.timestamp('submitted_at').nullable();
+        table.timestamps(true, true);
+        table.index('project_id');
+        table.index('status');
+        table.index('due_at');
+      }),
+      
+      project_certificates: () => db.schema.createTable('project_certificates', function(table) {
+        table.uuid('id').primary();
+        table.uuid('project_id').notNullable().references('id').inTable('projects').onDelete('CASCADE');
+        table.uuid('user_id').notNullable().references('id').inTable('users').onDelete('CASCADE');
+        table.string('certificate_url', 500).nullable();
+        table.timestamp('issued_at').nullable();
+        table.timestamps(true, true);
+        table.unique(['project_id', 'user_id']);
+        table.index('project_id');
+        table.index('user_id');
       })
     };
     
