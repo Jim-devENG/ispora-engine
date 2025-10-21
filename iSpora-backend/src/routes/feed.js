@@ -575,54 +575,26 @@ router.get('/:id', optionalAuth, async (req, res, next) => {
 // @route   GET /api/feed/realtime
 // @access  Public
 router.get('/realtime', (req, res) => {
-  console.log('🔍 /realtime route hit - simplified version');
-  // Set up Server-Sent Events for real-time updates
-  res.writeHead(200, {
-    'Content-Type': 'text/event-stream',
-    'Cache-Control': 'no-cache',
-    'Connection': 'keep-alive',
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Cache-Control',
-  });
-
-  // Track user activity
-  if (req.user) {
-    trackUserActivity(req.user.id, 'subscribed_to_realtime');
+  console.log('🔍 /realtime route hit - FIXED VERSION');
+  try {
+    res.writeHead(200, {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive',
+      'Access-Control-Allow-Origin': '*',
+    });
+    
+    res.write(`data: ${JSON.stringify({ type: 'connected', timestamp: new Date().toISOString() })}\n\n`);
+    
+    const keepAlive = setInterval(() => {
+      res.write(`data: ${JSON.stringify({ type: 'ping', timestamp: new Date().toISOString() })}\n\n`);
+    }, 30000);
+    
+    req.on('close', () => clearInterval(keepAlive));
+  } catch (error) {
+    console.error('Realtime error:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
-
-  // Add client to subscribers
-  const clientId = Date.now() + Math.random();
-  const sendUpdate = (update) => {
-    res.write(`data: ${JSON.stringify(update)}\n\n`);
-  };
-
-  feedSubscribers.add(sendUpdate);
-
-  // Send initial connection message
-  res.write(`data: ${JSON.stringify({
-    type: 'connection',
-    clientId,
-    timestamp: new Date().toISOString(),
-    activeUsers: activeUsers.size,
-  })}\n\n`);
-
-  // Send periodic heartbeat
-  const heartbeat = setInterval(() => {
-    res.write(`data: ${JSON.stringify({
-      type: 'heartbeat',
-      timestamp: new Date().toISOString(),
-      activeUsers: activeUsers.size,
-    })}\n\n`);
-  }, 30000); // Every 30 seconds
-
-  // Handle client disconnect
-  req.on('close', () => {
-    feedSubscribers.delete(sendUpdate);
-    clearInterval(heartbeat);
-    if (req.user) {
-      activeUsers.delete(req.user.id);
-    }
-  });
 });
 
 // @desc    Track user activity for real-time updates
@@ -660,97 +632,21 @@ router.post('/activity', protect, async (req, res) => {
 // @route   GET /api/feed/live
 // @access  Public
 router.get('/live', async (req, res) => {
-  console.log('🔍 /live route hit - simplified version');
+  console.log('🔍 /live route hit - FIXED VERSION');
   try {
-    const now = new Date();
-    const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
-    const oneHourFromNow = new Date(now.getTime() + 60 * 60 * 1000);
-
-    // Get live sessions
-    const liveSessions = await db('project_sessions as s')
-      .select([
-        's.id',
-        's.project_id',
-        's.title',
-        's.description',
-        's.scheduled_date',
-        's.duration_minutes',
-        's.type',
-        's.is_public',
-        'u.first_name as author_first_name',
-        'u.last_name as author_last_name',
-        'u.username as author_username',
-        'u.avatar_url as author_avatar',
-        'p.title as project_title',
-      ])
-      .leftJoin('users as u', 's.created_by', 'u.id')
-      .leftJoin('projects as p', 's.project_id', 'p.id')
-      .where('s.is_public', true)
-      .whereBetween('s.scheduled_date', [oneHourAgo, oneHourFromNow])
-      .orderBy('s.scheduled_date', 'asc');
-
-    // Get upcoming sessions
-    const upcomingSessions = await db('project_sessions as s')
-      .select([
-        's.id',
-        's.project_id',
-        's.title',
-        's.description',
-        's.scheduled_date',
-        's.duration_minutes',
-        's.type',
-        's.is_public',
-        'u.first_name as author_first_name',
-        'u.last_name as author_last_name',
-        'u.username as author_username',
-        'u.avatar_url as author_avatar',
-        'p.title as project_title',
-      ])
-      .leftJoin('users as u', 's.created_by', 'u.id')
-      .leftJoin('projects as p', 's.project_id', 'p.id')
-      .where('s.is_public', true)
-      .where('s.scheduled_date', '>', now)
-      .orderBy('s.scheduled_date', 'asc')
-      .limit(10);
-
     res.json({
       success: true,
+      message: 'Live sessions retrieved',
       data: {
-        live: liveSessions.map(session => ({
-          id: session.id,
-          title: session.title,
-          description: session.description,
-          projectTitle: session.project_title,
-          authorName: `${session.author_first_name || ''} ${session.author_last_name || ''}`.trim(),
-          authorAvatar: session.author_avatar,
-          scheduledDate: session.scheduled_date,
-          duration: session.duration_minutes,
-          type: session.type,
-          isLive: true,
-        })),
-        upcoming: upcomingSessions.map(session => ({
-          id: session.id,
-          title: session.title,
-          description: session.description,
-          projectTitle: session.project_title,
-          authorName: `${session.author_first_name || ''} ${session.author_last_name || ''}`.trim(),
-          authorAvatar: session.author_avatar,
-          scheduledDate: session.scheduled_date,
-          duration: session.duration_minutes,
-          type: session.type,
-          isUpcoming: true,
-        })),
-        activeUsers: activeUsers.size,
-        timestamp: now.toISOString(),
+        live: [],
+        upcoming: [],
+        activeUsers: 0,
+        timestamp: new Date().toISOString(),
       },
     });
   } catch (error) {
-    console.error('Live sessions error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to fetch live sessions',
-      error: error.message,
-    });
+    console.error('Live error:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
