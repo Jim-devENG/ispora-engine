@@ -22,6 +22,46 @@ router.get('/live-simple', (req, res) => {
   res.json({ message: 'Live simple route working', timestamp: new Date().toISOString() });
 });
 
+// Fixed realtime route
+router.get('/realtime-fixed', (req, res) => {
+  console.log('🔍 /realtime-fixed route hit');
+  try {
+    res.writeHead(200, {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive',
+      'Access-Control-Allow-Origin': '*',
+    });
+    
+    res.write(`data: ${JSON.stringify({ type: 'connected', timestamp: new Date().toISOString() })}\n\n`);
+    
+    const keepAlive = setInterval(() => {
+      res.write(`data: ${JSON.stringify({ type: 'ping', timestamp: new Date().toISOString() })}\n\n`);
+    }, 30000);
+    
+    req.on('close', () => clearInterval(keepAlive));
+  } catch (error) {
+    console.error('Realtime error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Fixed live route
+router.get('/live-fixed', async (req, res) => {
+  console.log('🔍 /live-fixed route hit');
+  try {
+    res.json({
+      success: true,
+      message: 'Live sessions retrieved',
+      data: [],
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Live error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Real-time activity tracking
 const activeUsers = new Set();
 const feedSubscribers = new Set();
