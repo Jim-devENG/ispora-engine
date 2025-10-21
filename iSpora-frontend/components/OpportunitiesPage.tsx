@@ -60,7 +60,7 @@ import { Checkbox } from './ui/checkbox';
 import { ScrollArea } from './ui/scroll-area';
 import { toast } from 'sonner';
 import { PostOpportunityModal } from '../src/components/PostOpportunityModal';
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://ispora-backend.onrender.com/api';
 interface Opportunity {
   id: string;
   title: string;

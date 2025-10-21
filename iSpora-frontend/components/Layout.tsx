@@ -162,7 +162,7 @@ function MainContent() {
               if (devKey) headers['X-Dev-Key'] = devKey;
               if (token) headers['Authorization'] = `Bearer ${token}`;
 
-              const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:3001/api').replace(/\/$/, '');
+              const apiBase = (import.meta.env.VITE_API_URL || 'https://ispora-backend.onrender.com/api').replace(/\/$/, '');
               
               const response = await fetch(`${apiBase}/projects`, {
                 method: 'POST',

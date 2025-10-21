@@ -41,7 +41,7 @@ import { DashboardHeader } from './DashboardHeader';
 import { useNavigation } from './NavigationContext';
 import { toast } from 'sonner';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://ispora-backend.onrender.com/api';
 
 interface Notification {
   id: string;

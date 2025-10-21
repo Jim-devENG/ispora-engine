@@ -1,7 +1,7 @@
 import { useState, useEffect, useContext, createContext } from 'react';
 
 // API base URL
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://ispora-backend.onrender.com/api';
 
 // Real-time feed service using backend API
 const fetchFeedItems = async (page = 1, limit = 20) => {
