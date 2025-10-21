@@ -1,9 +1,9 @@
 const Redis = require('ioredis');
 const { Queue, Worker } = require('bullmq');
 
-// Check if Redis is available
-const isRedisAvailable = process.env.REDIS_HOST && process.env.REDIS_HOST !== 'localhost' || 
-                         process.env.NODE_ENV === 'production';
+// Check if Redis is available - disable for production to avoid connection errors
+const isRedisAvailable = process.env.REDIS_HOST && process.env.REDIS_HOST !== 'localhost' && 
+                         process.env.NODE_ENV !== 'production';
 
 // Redis connection options for BullMQ
 const redisConnection = {
