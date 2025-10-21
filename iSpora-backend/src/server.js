@@ -57,6 +57,8 @@ const setupDatabase = async () => {
         table.text('detailed_description').nullable();
         table.string('type', 50).defaultTo('academic');
         table.string('status', 20).defaultTo('active');
+        table.string('category', 50).nullable();
+        table.string('location', 100).nullable();
         table.json('tags').nullable();
         table.boolean('is_public').defaultTo(true);
         table.date('start_date').nullable();
@@ -65,6 +67,7 @@ const setupDatabase = async () => {
         table.index('creator_id');
         table.index('status');
         table.index('is_public');
+        table.index('category');
       }),
       
       project_sessions: () => db.schema.createTable('project_sessions', function(table) {
@@ -133,6 +136,33 @@ const setupDatabase = async () => {
         }
       } else {
         console.log(`✅ ${tableName} table already exists`);
+        
+        // For existing projects table, check if we need to add missing columns
+        if (tableName === 'projects') {
+          try {
+            // Check if category column exists
+            const columns = await db.raw("PRAGMA table_info(projects)");
+            const columnNames = columns.map(col => col.name);
+            
+            if (!columnNames.includes('category')) {
+              console.log(`🔧 Adding missing 'category' column to projects table...`);
+              await db.schema.alterTable('projects', function(table) {
+                table.string('category', 50).nullable();
+              });
+              console.log(`✅ Added 'category' column to projects table`);
+            }
+            
+            if (!columnNames.includes('location')) {
+              console.log(`🔧 Adding missing 'location' column to projects table...`);
+              await db.schema.alterTable('projects', function(table) {
+                table.string('location', 100).nullable();
+              });
+              console.log(`✅ Added 'location' column to projects table`);
+            }
+          } catch (error) {
+            console.log(`⚠️ Failed to add columns to projects table:`, error.message);
+          }
+        }
       }
     }
     
