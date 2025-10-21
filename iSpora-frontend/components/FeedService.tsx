@@ -41,7 +41,7 @@ const createRealtimeConnection = (onUpdate: (update: any) => void) => {
   if (devKey) headers['X-Dev-Key'] = devKey;
   if (token) headers['Authorization'] = `Bearer ${token}`;
 
-  const eventSource = new EventSource(`${API_BASE_URL}/feed/realtime`, {
+  const eventSource = new EventSource(`${API_BASE_URL}/feed/stream`, {
     headers,
   });
 
@@ -95,7 +95,7 @@ const fetchLiveSessions = async () => {
     if (devKey) headers['X-Dev-Key'] = devKey;
     if (token) headers['Authorization'] = `Bearer ${token}`;
 
-    const response = await fetch(`${API_BASE_URL}/feed/live`, {
+    const response = await fetch(`${API_BASE_URL}/feed/sessions`, {
       method: 'GET',
       headers,
     });
