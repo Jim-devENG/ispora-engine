@@ -1,6 +1,6 @@
 exports.up = function(knex) {
   return knex.schema.createTable('billing_invoices', function(table) {
-    table.uuid('id').primary().defaultTo(knex.raw('lower(hex(randomblob(16)))'));
+    table.uuid('id').primary();
     table.uuid('user_id').notNullable().references('id').inTable('users').onDelete('CASCADE');
     table.uuid('subscription_id').nullable().references('id').inTable('billing_subscriptions').onDelete('SET NULL');
     

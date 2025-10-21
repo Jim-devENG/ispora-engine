@@ -4,7 +4,7 @@
  */
 exports.up = function(knex) {
   return knex.schema.createTable('opportunities', function(table) {
-    table.uuid('id').primary().defaultTo(knex.raw('(lower(hex(randomblob(4))) || '-' || lower(hex(randomblob(2))) || '-4' || substr(lower(hex(randomblob(2))),2) || '-' || substr('89ab',abs(random()) % 4 + 1, 1) || substr(lower(hex(randomblob(2))),2) || '-' || lower(hex(randomblob(6))))'));
+    table.uuid('id').primary();
     table.string('title').notNullable();
     table.enum('type', [
       'scholarship', 
@@ -32,7 +32,7 @@ exports.up = function(knex) {
     table.integer('applicants').defaultTo(0);
     table.date('deadline').nullable();
     table.date('event_date').nullable();
-    table.timestamp('posted_date').defaultTo(knex.fn.now());
+    table.timestamp('posted_date').defaultTo(knex.fn.now();
     table.boolean('featured').defaultTo(false);
     table.boolean('urgent').defaultTo(false);
     table.integer('boost').defaultTo(0);
@@ -48,8 +48,8 @@ exports.up = function(knex) {
     table.boolean('is_verified').defaultTo(false);
     table.timestamp('verified_at').nullable();
     table.uuid('verified_by').nullable().references('id').inTable('users').onDelete('SET NULL');
-    table.timestamp('created_at').defaultTo(knex.fn.now());
-    table.timestamp('updated_at').defaultTo(knex.fn.now());
+    table.timestamp('created_at').defaultTo(knex.fn.now();
+    table.timestamp('updated_at').defaultTo(knex.fn.now();
     
     // Indexes for better performance
     table.index(['type']);

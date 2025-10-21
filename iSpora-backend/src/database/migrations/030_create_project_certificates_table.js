@@ -1,6 +1,6 @@
 exports.up = function(knex) {
   return knex.schema.createTable('project_certificates', function(table) {
-    table.uuid('id').primary().defaultTo(knex.raw('(lower(hex(randomblob(4))) || '-' || lower(hex(randomblob(2))) || '-4' || substr(lower(hex(randomblob(2))),2) || '-' || substr('89ab',abs(random()) % 4 + 1, 1) || substr(lower(hex(randomblob(2))),2) || '-' || lower(hex(randomblob(6))))'));
+    table.uuid('id').primary();
     table.uuid('project_id').notNullable().references('id').inTable('projects').onDelete('CASCADE');
     table.uuid('user_id').notNullable().references('id').inTable('users').onDelete('CASCADE');
     table.uuid('issued_by').notNullable().references('id').inTable('users').onDelete('CASCADE');
@@ -19,7 +19,7 @@ exports.up = function(knex) {
     table.decimal('passing_score', 5, 2).nullable();
     
     // Dates
-    table.timestamp('issued_date').defaultTo(knex.fn.now());
+    table.timestamp('issued_date').defaultTo(knex.fn.now();
     table.timestamp('expiry_date').nullable();
     table.timestamp('revoked_date').nullable();
     table.text('revocation_reason').nullable();

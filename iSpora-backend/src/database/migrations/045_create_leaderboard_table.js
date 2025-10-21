@@ -4,7 +4,7 @@
  */
 exports.up = function(knex) {
   return knex.schema.createTable('leaderboard', function(table) {
-    table.uuid('id').primary().defaultTo(knex.raw('(lower(hex(randomblob(4))) || '-' || lower(hex(randomblob(2))) || '-4' || substr(lower(hex(randomblob(2))),2) || '-' || substr('89ab',abs(random()) % 4 + 1, 1) || substr(lower(hex(randomblob(2))),2) || '-' || lower(hex(randomblob(6))))'));
+    table.uuid('id').primary();
     table.uuid('user_id').notNullable().references('id').inTable('users').onDelete('CASCADE');
     
     // Leaderboard data
@@ -28,8 +28,8 @@ exports.up = function(knex) {
     table.integer('weekly_points').defaultTo(0);
     table.integer('daily_points').defaultTo(0);
     
-    table.timestamp('created_at').defaultTo(knex.fn.now());
-    table.timestamp('updated_at').defaultTo(knex.fn.now());
+    table.timestamp('created_at').defaultTo(knex.fn.now();
+    table.timestamp('updated_at').defaultTo(knex.fn.now();
     
     // Indexes
     table.index(['rank']);

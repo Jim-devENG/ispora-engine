@@ -4,7 +4,7 @@
  */
 exports.up = function(knex) {
   return knex.schema.createTable('user_credits', function(table) {
-    table.uuid('id').primary().defaultTo(knex.raw('(lower(hex(randomblob(4))) || '-' || lower(hex(randomblob(2))) || '-4' || substr(lower(hex(randomblob(2))),2) || '-' || substr('89ab',abs(random()) % 4 + 1, 1) || substr(lower(hex(randomblob(2))),2) || '-' || lower(hex(randomblob(6))))'));
+    table.uuid('id').primary();
     table.uuid('user_id').notNullable().references('id').inTable('users').onDelete('CASCADE');
     
     // Credit system
@@ -33,8 +33,8 @@ exports.up = function(knex) {
     table.json('level_config').nullable(); // Store level requirements and rewards
     table.timestamp('last_level_up').nullable();
     
-    table.timestamp('created_at').defaultTo(knex.fn.now());
-    table.timestamp('updated_at').defaultTo(knex.fn.now());
+    table.timestamp('created_at').defaultTo(knex.fn.now();
+    table.timestamp('updated_at').defaultTo(knex.fn.now();
     
     // Ensure one credit record per user
     table.unique(['user_id']);

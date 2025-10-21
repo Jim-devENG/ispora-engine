@@ -1,6 +1,6 @@
 exports.up = function(knex) {
   return knex.schema.createTable('impact_feed', function(table) {
-    table.uuid('id').primary().defaultTo(knex.raw('(lower(hex(randomblob(4))) || '-' || lower(hex(randomblob(2))) || '-4' || substr(lower(hex(randomblob(2))),2) || '-' || substr('89ab',abs(random()) % 4 + 1, 1) || substr(lower(hex(randomblob(2))),2) || '-' || lower(hex(randomblob(6))))'));
+    table.uuid('id').primary();
     table.uuid('user_id').notNullable().references('id').inTable('users').onDelete('CASCADE');
     table.uuid('related_user_id').nullable().references('id').inTable('users').onDelete('CASCADE');
     table.uuid('related_project_id').nullable().references('id').inTable('projects').onDelete('CASCADE');
@@ -44,7 +44,7 @@ exports.up = function(knex) {
     
     // Timeline
     table.timestamp('event_date').nullable(); // When the actual event occurred
-    table.timestamp('published_at').defaultTo(knex.fn.now());
+    table.timestamp('published_at').defaultTo(knex.fn.now();
     table.timestamp('featured_at').nullable();
     
     table.timestamps(true, true);

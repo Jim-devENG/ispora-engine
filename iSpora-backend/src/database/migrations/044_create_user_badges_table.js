@@ -4,7 +4,7 @@
  */
 exports.up = function(knex) {
   return knex.schema.createTable('user_badges', function(table) {
-    table.uuid('id').primary().defaultTo(knex.raw('(lower(hex(randomblob(4))) || '-' || lower(hex(randomblob(2))) || '-4' || substr(lower(hex(randomblob(2))),2) || '-' || substr('89ab',abs(random()) % 4 + 1, 1) || substr(lower(hex(randomblob(2))),2) || '-' || lower(hex(randomblob(6))))'));
+    table.uuid('id').primary();
     table.uuid('user_id').notNullable().references('id').inTable('users').onDelete('CASCADE');
     table.uuid('badge_id').notNullable().references('id').inTable('badges').onDelete('CASCADE');
     
@@ -28,8 +28,8 @@ exports.up = function(knex) {
     table.timestamp('shared_date').nullable();
     table.json('shared_platforms').nullable(); // Array of platforms shared on
     
-    table.timestamp('created_at').defaultTo(knex.fn.now());
-    table.timestamp('updated_at').defaultTo(knex.fn.now());
+    table.timestamp('created_at').defaultTo(knex.fn.now();
+    table.timestamp('updated_at').defaultTo(knex.fn.now();
     
     // Ensure unique badge per user
     table.unique(['user_id', 'badge_id']);

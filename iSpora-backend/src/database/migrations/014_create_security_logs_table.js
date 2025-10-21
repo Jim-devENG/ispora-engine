@@ -1,6 +1,6 @@
 exports.up = function(knex) {
   return knex.schema.createTable('security_logs', function(table) {
-    table.uuid('id').primary().defaultTo(knex.raw('lower(hex(randomblob(16)))'));
+    table.uuid('id').primary();
     table.uuid('user_id').nullable().references('id').inTable('users').onDelete('CASCADE');
     
     // Event details

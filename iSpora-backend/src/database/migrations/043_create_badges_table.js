@@ -4,7 +4,7 @@
  */
 exports.up = function(knex) {
   return knex.schema.createTable('badges', function(table) {
-    table.uuid('id').primary().defaultTo(knex.raw('(lower(hex(randomblob(4))) || '-' || lower(hex(randomblob(2))) || '-4' || substr(lower(hex(randomblob(2))),2) || '-' || substr('89ab',abs(random()) % 4 + 1, 1) || substr(lower(hex(randomblob(2))),2) || '-' || lower(hex(randomblob(6))))'));
+    table.uuid('id').primary();
     
     // Badge details
     table.string('name').notNullable();
@@ -34,8 +34,8 @@ exports.up = function(knex) {
     table.string('badge_url').nullable(); // URL to badge image
     table.json('badge_metadata').nullable(); // Additional badge data
     
-    table.timestamp('created_at').defaultTo(knex.fn.now());
-    table.timestamp('updated_at').defaultTo(knex.fn.now());
+    table.timestamp('created_at').defaultTo(knex.fn.now();
+    table.timestamp('updated_at').defaultTo(knex.fn.now();
     
     // Indexes
     table.index(['rarity']);

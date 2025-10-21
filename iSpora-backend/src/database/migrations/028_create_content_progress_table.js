@@ -1,6 +1,6 @@
 exports.up = function(knex) {
   return knex.schema.createTable('content_progress', function(table) {
-    table.uuid('id').primary().defaultTo(knex.raw('(lower(hex(randomblob(4))) || '-' || lower(hex(randomblob(2))) || '-4' || substr(lower(hex(randomblob(2))),2) || '-' || substr('89ab',abs(random()) % 4 + 1, 1) || substr(lower(hex(randomblob(2))),2) || '-' || lower(hex(randomblob(6))))'));
+    table.uuid('id').primary();
     table.uuid('content_id').notNullable().references('id').inTable('learning_content').onDelete('CASCADE');
     table.uuid('user_id').notNullable().references('id').inTable('users').onDelete('CASCADE');
     
@@ -9,7 +9,7 @@ exports.up = function(knex) {
     table.integer('time_spent_seconds').defaultTo(0);
     table.timestamp('started_at').nullable();
     table.timestamp('completed_at').nullable();
-    table.timestamp('last_accessed_at').defaultTo(knex.fn.now());
+    table.timestamp('last_accessed_at').defaultTo(knex.fn.now();
     
     // Completion status
     table.boolean('is_completed').defaultTo(false);
