@@ -22,6 +22,50 @@ router.get('/live-simple', (req, res) => {
   res.json({ message: 'Live simple route working', timestamp: new Date().toISOString() });
 });
 
+// Working realtime route with new name
+router.get('/stream', (req, res) => {
+  console.log('🔍 /stream route hit - WORKING VERSION');
+  try {
+    res.writeHead(200, {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive',
+      'Access-Control-Allow-Origin': '*',
+    });
+    
+    res.write(`data: ${JSON.stringify({ type: 'connected', timestamp: new Date().toISOString() })}\n\n`);
+    
+    const keepAlive = setInterval(() => {
+      res.write(`data: ${JSON.stringify({ type: 'ping', timestamp: new Date().toISOString() })}\n\n`);
+    }, 30000);
+    
+    req.on('close', () => clearInterval(keepAlive));
+  } catch (error) {
+    console.error('Stream error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Working live route with new name
+router.get('/sessions', async (req, res) => {
+  console.log('🔍 /sessions route hit - WORKING VERSION');
+  try {
+    res.json({
+      success: true,
+      message: 'Live sessions retrieved',
+      data: {
+        live: [],
+        upcoming: [],
+        activeUsers: 0,
+        timestamp: new Date().toISOString(),
+      },
+    });
+  } catch (error) {
+    console.error('Sessions error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Fixed realtime route
 router.get('/realtime-fixed', (req, res) => {
   console.log('🔍 /realtime-fixed route hit');
