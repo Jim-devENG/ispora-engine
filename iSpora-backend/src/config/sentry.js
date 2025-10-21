@@ -1,5 +1,4 @@
 const Sentry = require('@sentry/node');
-const { nodeProfilingIntegration } = require('@sentry/profiling-node');
 
 function initSentry() {
   // Only initialize Sentry if a valid DSN is provided
@@ -9,16 +8,17 @@ function initSentry() {
     return;
   }
 
+  // Skip profiling integration for now to avoid deployment issues
+  const integrations = [];
+
   Sentry.init({
     dsn: dsn,
     environment: process.env.NODE_ENV || 'development',
-    integrations: [
-      nodeProfilingIntegration(),
-    ],
+    integrations: integrations,
     // Performance Monitoring
     tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
-    // Profiling
-    profilesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
+    // Profiling disabled to avoid deployment issues
+    profilesSampleRate: 0,
     // Release tracking
     release: process.env.SENTRY_RELEASE || 'unknown',
     // Error filtering
