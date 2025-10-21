@@ -36,5 +36,6 @@ export default defineConfig({
   base: '/',
   define: {
     'import.meta.env.VITE_API_URL': JSON.stringify('https://ispora-backend.onrender.com/api'),
+    'import.meta.env.BUILD_VERSION': JSON.stringify('v4-live-backend'),
   },
 });
