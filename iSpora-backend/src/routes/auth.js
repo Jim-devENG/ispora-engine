@@ -113,9 +113,16 @@ router.post('/register', async (req, res, next) => {
 router.post('/login', async (req, res, next) => {
   try {
     const { email, password } = req.body;
+    
+    console.log('🔍 Login attempt:', {
+      email: email,
+      passwordLength: password ? password.length : 0,
+      timestamp: new Date().toISOString()
+    });
 
     // Validate email & password
     if (!email || !password) {
+      console.log('❌ Missing credentials');
       return res.status(400).json({
         success: false,
         error: 'Please provide an email and password',
@@ -123,25 +130,39 @@ router.post('/login', async (req, res, next) => {
     }
 
     // Check for user
+    console.log('🔍 Looking for user with email:', email.toLowerCase());
     const user = await db('users').where({ email: email.toLowerCase() }).first();
-
+    
     if (!user) {
+      console.log('❌ User not found in database');
       return res.status(401).json({
         success: false,
         error: 'Invalid credentials',
       });
     }
+    
+    console.log('✅ User found:', {
+      id: user.id,
+      email: user.email,
+      firstName: user.first_name,
+      hasPasswordHash: !!user.password_hash,
+      passwordHashLength: user.password_hash ? user.password_hash.length : 0
+    });
 
     // Check if password matches
+    console.log('🔍 Comparing passwords...');
     const isMatch = await bcrypt.compare(password, user.password_hash);
+    console.log('🔍 Password comparison result:', isMatch);
 
     if (!isMatch) {
+      console.log('❌ Password does not match');
       return res.status(401).json({
         success: false,
         error: 'Invalid credentials',
       });
     }
 
+    console.log('✅ Password matches, updating last login...');
     // Update last login
     await db('users').where({ id: user.id }).update({
       last_login: new Date(),
@@ -151,9 +172,11 @@ router.post('/login', async (req, res, next) => {
 
     // Get updated user
     const updatedUser = await db('users').where({ id: user.id }).first();
+    console.log('✅ Login successful for user:', updatedUser.email);
 
     sendTokenResponse(updatedUser, 200, res);
   } catch (error) {
+    console.error('❌ Login error:', error);
     next(error);
   }
 });

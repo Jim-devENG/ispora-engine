@@ -29,7 +29,9 @@ async function createDemoUser() {
       user_type: 'student',
       username: 'demo',
       is_verified: true,
-      is_active: true,
+      email_verified: true,
+      profile_completed: true,
+      status: 'active',
       created_at: new Date(),
       updated_at: new Date(),
     };
