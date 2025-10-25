@@ -33,11 +33,13 @@ const authenticateToken = async (req, res, next) => {
     console.log('🔍 User lookup result:', user ? `User found: ${user.email}` : 'User not found');
     
     if (!user) {
-      console.log('❌ User not found in database');
+      console.log('❌ User not found in database - clearing token');
+      // Clear any stored tokens on frontend by returning specific error
       return res.status(401).json({
         success: false,
         error: 'Invalid token - user not found',
-        code: 'USER_NOT_FOUND'
+        code: 'USER_NOT_FOUND',
+        clearToken: true // Signal to frontend to clear token
       });
     }
 
