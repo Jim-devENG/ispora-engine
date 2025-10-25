@@ -129,6 +129,12 @@ router.post('/login', async (req, res) => {
 
     // Generate token
     const token = generateToken(user.id);
+    console.log('🔍 Generated token for user:', {
+      userId: user.id,
+      userEmail: user.email,
+      tokenLength: token.length,
+      tokenPreview: token.substring(0, 50) + '...'
+    });
 
     // Remove password from response
     const { password_hash, ...userResponse } = user;

@@ -8,7 +8,13 @@ const authenticateToken = async (req, res, next) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
 
+    console.log('🔍 Auth middleware - Headers:', {
+      authorization: authHeader,
+      token: token ? `${token.substring(0, 20)}...` : 'No token'
+    });
+
     if (!token) {
+      console.log('❌ No token provided');
       return res.status(401).json({
         success: false,
         error: 'Access token required',
@@ -17,12 +23,17 @@ const authenticateToken = async (req, res, next) => {
     }
 
     // Verify JWT token
+    console.log('🔍 Verifying token with secret:', config.jwt.secret ? 'Secret exists' : 'No secret');
     const decoded = jwt.verify(token, config.jwt.secret);
+    console.log('✅ Token decoded successfully:', { id: decoded.id, exp: decoded.exp });
     
     // Get user from database
+    console.log('🔍 Looking for user with ID:', decoded.id);
     const user = await db('users').where({ id: decoded.id }).first();
+    console.log('🔍 User lookup result:', user ? `User found: ${user.email}` : 'User not found');
     
     if (!user) {
+      console.log('❌ User not found in database');
       return res.status(401).json({
         success: false,
         error: 'Invalid token - user not found',
@@ -32,8 +43,11 @@ const authenticateToken = async (req, res, next) => {
 
     // Attach user to request
     req.user = user;
+    console.log('✅ Auth successful for user:', user.email);
     next();
   } catch (error) {
+    console.log('❌ Auth middleware error:', error.message);
+    
     if (error.name === 'JsonWebTokenError') {
       return res.status(401).json({
         success: false,
