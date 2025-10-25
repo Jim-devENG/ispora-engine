@@ -119,6 +119,10 @@ router.post('/login', async (req, res, next) => {
       passwordLength: password ? password.length : 0,
       timestamp: new Date().toISOString()
     });
+    
+    // Enhanced debugging as requested
+    console.log("Email received:", email);
+    console.log("Password received:", password ? `[${password.length} chars]` : 'null');
 
     // Validate email & password
     if (!email || !password) {
@@ -148,11 +152,18 @@ router.post('/login', async (req, res, next) => {
       hasPasswordHash: !!user.password_hash,
       passwordHashLength: user.password_hash ? user.password_hash.length : 0
     });
+    
+    // Enhanced debugging as requested
+    console.log("User found:", user);
 
     // Check if password matches
     console.log('🔍 Comparing passwords...');
     const isMatch = await bcrypt.compare(password, user.password_hash);
     console.log('🔍 Password comparison result:', isMatch);
+    
+    // Enhanced debugging as requested
+    console.log("Password match:", isMatch);
+    console.log("Stored password hash:", user.password_hash ? `${user.password_hash.substring(0, 20)}...` : 'null');
 
     if (!isMatch) {
       console.log('❌ Password does not match');
@@ -276,6 +287,41 @@ router.put('/updatepassword', protect, async (req, res, next) => {
     sendTokenResponse(updatedUser, 200, res);
   } catch (error) {
     next(error);
+  }
+});
+
+// @desc    Debug route to test database connection
+// @route   GET /api/debug
+// @access  Public
+router.get('/debug', async (req, res) => {
+  try {
+    console.log('🔍 Debug route hit - testing database connection...');
+    
+    // Test database connection
+    await db.raw('SELECT 1');
+    console.log('✅ Database connection successful');
+    
+    // Get user count
+    const userCount = await db('users').count('id as count').first();
+    console.log('📊 User count:', userCount.count);
+    
+    // Get all users (without passwords)
+    const users = await db('users').select('id', 'email', 'first_name', 'last_name', 'user_type', 'created_at');
+    console.log('👥 Users in database:', users.length);
+    
+    res.json({
+      connected: true,
+      userCount: userCount.count,
+      users: users,
+      timestamp: new Date().toISOString()
+    });
+  } catch (err) {
+    console.error('❌ Debug route error:', err);
+    res.json({
+      connected: false,
+      error: err.message,
+      timestamp: new Date().toISOString()
+    });
   }
 });
 
