@@ -52,6 +52,20 @@ class DataPersistenceService {
           return { success: true, data: data.data || data };
         } else {
           const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+          
+          // Handle 401 Unauthorized specifically
+          if (response.status === 401) {
+            console.error('Authentication failed - redirecting to login');
+            // Clear invalid token
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            // Redirect to login or show auth error
+            if (showToast) {
+              toast.error('Session expired. Please log in again.');
+            }
+            return { success: false, error: 'Authentication required' };
+          }
+          
           throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
         }
       } catch (error) {

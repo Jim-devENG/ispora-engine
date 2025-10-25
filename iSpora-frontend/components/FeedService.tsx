@@ -408,7 +408,7 @@ export class FeedService {
 
     if (categoryFilter) {
       feedItems = feedItems.filter((item) =>
-        item.category.toLowerCase().includes(categoryFilter.toLowerCase()),
+        item.category?.toLowerCase().includes(categoryFilter.toLowerCase()),
       );
     }
 

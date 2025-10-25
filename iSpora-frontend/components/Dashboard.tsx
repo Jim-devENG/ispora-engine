@@ -900,12 +900,12 @@ function DashboardContent() {
 
     const query = searchQuery.toLowerCase();
     return (
-      post.title.toLowerCase().includes(query) ||
-      post.description.toLowerCase().includes(query) ||
-      post.authorName.toLowerCase().includes(query) ||
-      post.category.toLowerCase().includes(query) ||
-      post.location.toLowerCase().includes(query) ||
-      post.type.toLowerCase().includes(query)
+      post.title?.toLowerCase().includes(query) ||
+      post.description?.toLowerCase().includes(query) ||
+      post.authorName?.toLowerCase().includes(query) ||
+      post.category?.toLowerCase().includes(query) ||
+      post.location?.toLowerCase().includes(query) ||
+      post.type?.toLowerCase().includes(query)
     );
   });
 
@@ -953,7 +953,7 @@ function DashboardContent() {
         return {
           narrative: isOwnContent
             ? `You've launched an exciting new initiative that's now connecting communities across ${post.location}. This project is making a real difference and building bridges between diaspora professionals and local communities.`
-            : `${post.authorName} is building something impactful in ${post.category.toLowerCase()}, creating opportunities for diaspora professionals to make a difference. This initiative represents the kind of collaboration that strengthens our global network.`,
+            : `${post.authorName} is building something impactful in ${post.category?.toLowerCase() || 'general'}, creating opportunities for diaspora professionals to make a difference. This initiative represents the kind of collaboration that strengthens our global network.`,
           ctaText: isOwnContent ? 'Manage Your Project' : 'Join This Mission',
           impact: `Seeking ${post.metadata?.seekingSupport?.length || 0} types of support`,
           visual: 'bg-gradient-to-br from-blue-50 to-indigo-50 border-[#021ff6]/20',
@@ -961,7 +961,7 @@ function DashboardContent() {
 
       case 'opportunity':
         return {
-          narrative: `${post.authorName} has shared a ${post.metadata?.type || 'opportunity'} that could transform careers. This ${post.category.toLowerCase()} opportunity is exactly the kind that can accelerate professional growth and create lasting impact.`,
+          narrative: `${post.authorName} has shared a ${post.metadata?.type || 'opportunity'} that could transform careers. This ${post.category?.toLowerCase() || 'general'} opportunity is exactly the kind that can accelerate professional growth and create lasting impact.`,
           ctaText: post.urgent ? 'Apply Before Deadline' : 'Learn More',
           impact: post.deadline ? `Deadline: ${post.deadline}` : 'Open application',
           visual: 'bg-gradient-to-br from-green-50 to-emerald-50 border-green-200',
@@ -985,7 +985,7 @@ function DashboardContent() {
 
       default:
         return {
-          narrative: `${post.authorName} is making moves in the ${post.category.toLowerCase()} space, contributing to our growing ecosystem of diaspora-driven impact. Every contribution matters in building our collective strength and reach.`,
+          narrative: `${post.authorName} is making moves in the ${post.category?.toLowerCase() || 'general'} space, contributing to our growing ecosystem of diaspora-driven impact. Every contribution matters in building our collective strength and reach.`,
           ctaText: 'Get Involved',
           impact: 'Community activity',
           visual: 'bg-gradient-to-br from-gray-50 to-slate-50 border-gray-200',
