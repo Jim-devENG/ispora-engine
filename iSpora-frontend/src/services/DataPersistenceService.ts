@@ -24,6 +24,12 @@ class DataPersistenceService {
     const devKey = localStorage.getItem('devKey');
     const token = localStorage.getItem('token');
     
+    console.log('🔍 DataPersistenceService - Auth headers:', {
+      hasToken: !!token,
+      tokenPreview: token ? `${token.substring(0, 20)}...` : 'No token',
+      hasDevKey: !!devKey
+    });
+    
     if (devKey) headers['X-Dev-Key'] = devKey;
     if (token) headers['Authorization'] = `Bearer ${token}`;
     
@@ -53,9 +59,16 @@ class DataPersistenceService {
         } else {
           const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
           
+          console.error(`❌ API request failed: ${response.status} ${response.statusText}`, {
+            endpoint,
+            method: options.method || 'GET',
+            errorData,
+            headers: this.getAuthHeaders()
+          });
+          
           // Handle 401 Unauthorized specifically
           if (response.status === 401) {
-            console.error('Authentication failed - redirecting to login');
+            console.error('🔐 Authentication failed - clearing invalid token');
             // Clear invalid token
             localStorage.removeItem('token');
             localStorage.removeItem('user');
