@@ -13,6 +13,9 @@ const { initSentry } = require('./config/sentry');
 const { createRequestLogger, logger, logError } = require('./config/logger');
 const { closeConnections } = require('./config/redis');
 
+// Import database connection
+const db = require('./database/connection');
+
 // Initialize Sentry
 initSentry();
 
@@ -438,9 +441,6 @@ const setupDatabase = async () => {
     }
     
     console.log('🎉 Database setup completed!');
-    
-    // Create demo user after database setup
-    await createDemoUser();
   } catch (error) {
     console.error('❌ Database setup failed:', error);
     // Don't exit on database errors, let the server start
@@ -451,6 +451,11 @@ const setupDatabase = async () => {
 const createDemoUser = async () => {
   try {
     console.log('🔧 Checking for demo user...');
+    
+    // Test database connection first
+    await db.raw('SELECT 1');
+    console.log('✅ Database connection verified');
+    
     const existingUser = await db('users').where({ email: 'demo@ispora.com' }).first();
     
     if (!existingUser) {
@@ -480,11 +485,15 @@ const createDemoUser = async () => {
       
       await db('users').insert(userData);
       console.log('✅ Demo user created successfully!');
+      console.log('📧 Email: demo@ispora.com');
+      console.log('🔑 Password: demo123');
     } else {
       console.log('✅ Demo user already exists');
     }
   } catch (error) {
-    console.error('❌ Error creating demo user:', error);
+    console.error('❌ Error creating demo user:', error.message);
+    console.error('❌ Error details:', error);
+    // Don't throw - let server continue even if demo user creation fails
   }
 };
 
@@ -752,8 +761,10 @@ httpServer.listen(PORT, () => {
   console.log(`  NODE_ENV: ${process.env.NODE_ENV || 'development'}`);
   console.log(`  PORT: ${process.env.PORT || '3001'}`);
   
-  // Setup database after server starts (non-blocking)
-  setupDatabase().catch(console.error);
+  // Setup database and demo user after server starts (non-blocking)
+  setupDatabase()
+    .then(() => createDemoUser())
+    .catch(console.error);
 });
 
 // Graceful shutdown
