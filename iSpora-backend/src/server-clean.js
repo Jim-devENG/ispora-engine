@@ -13,6 +13,8 @@ const db = require('./database/connection');
 // Import routes
 const authRoutes = require('./routes/auth-clean');
 const taskRoutes = require('./routes/tasks-clean');
+const healthRoutes = require('./routes/health');
+const feedRoutes = require('./routes/feed');
 
 const app = express();
 const httpServer = createServer(app);
@@ -60,19 +62,11 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('combined'));
 }
 
-// Health check route
-app.get('/health', (req, res) => {
-  res.json({
-    success: true,
-    message: 'Server is running',
-    timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'development'
-  });
-});
-
 // API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/tasks', taskRoutes);
+app.use('/api/health', healthRoutes);
+app.use('/api/feed', feedRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
