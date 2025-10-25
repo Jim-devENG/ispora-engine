@@ -39,9 +39,25 @@ class ApiClient {
       (error) => {
         if (error.response?.status === 401) {
           console.log('401 Unauthorized - clearing auth');
+          
+          // Check if backend specifically requested token clearing
+          const errorData = error.response?.data;
+          if (errorData?.clearToken) {
+            console.log('🔄 Backend requested token clearing - user not found');
+          }
+          
           authService.logout();
-          // Redirect to login page
-          window.location.href = '/login';
+          
+          // Show user-friendly error message
+          if (typeof window !== 'undefined') {
+            // Import toast dynamically to avoid circular dependencies
+            import('sonner').then(({ toast }) => {
+              toast.error('Session expired. Please log in again.');
+            });
+            
+            // Redirect to login page
+            window.location.href = '/login';
+          }
         }
         return Promise.reject(error);
       }

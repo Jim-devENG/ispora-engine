@@ -52,7 +52,24 @@ class DataPersistenceService {
       if (showToast) {
         toast.error('Please log in to continue');
       }
+      // Redirect to login page
+      if (typeof window !== 'undefined') {
+        window.location.href = '/login';
+      }
       return { success: false, error: 'Authentication required' };
+    }
+    
+    // Additional token validation
+    const token = authService.getToken();
+    if (!token) {
+      console.warn('⚠️ No token available - redirecting to login');
+      if (showToast) {
+        toast.error('Session expired. Please log in again.');
+      }
+      if (typeof window !== 'undefined') {
+        window.location.href = '/login';
+      }
+      return { success: false, error: 'No authentication token' };
     }
     
     for (let attempt = 1; attempt <= retryAttempts; attempt++) {
@@ -81,12 +98,25 @@ class DataPersistenceService {
           // Handle 401 Unauthorized specifically
           if (response.status === 401) {
             console.error('🔐 Authentication failed - clearing invalid token');
+            
+            // Check if backend specifically requested token clearing
+            if (errorData.clearToken) {
+              console.log('🔄 Backend requested token clearing - user not found');
+            }
+            
             // Use authService to clear authentication
             authService.logout();
+            
             // Redirect to login or show auth error
             if (showToast) {
               toast.error('Session expired. Please log in again.');
             }
+            
+            // Redirect to login page
+            if (typeof window !== 'undefined') {
+              window.location.href = '/login';
+            }
+            
             return { success: false, error: 'Authentication required' };
           }
           
