@@ -99,32 +99,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const data = await response.json();
 
       if (response.ok) {
+        console.log('✅ Login successful, token received:', data.token ? 'Yes' : 'No');
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
         setUser(data.user);
         return { success: true };
       } else {
-        // Fallback to mock authentication for development
-        if (email && password && password.length >= 6) {
-          const mockUser = {
-            id: '1',
-            email: email,
-            firstName: email.split('@')[0] || 'User',
-            lastName: 'User',
-            userType: 'student' as const,
-            username: email.split('@')[0] || 'user',
-          };
-
-          localStorage.setItem('token', 'mock-token-' + Date.now());
-          localStorage.setItem('user', JSON.stringify(mockUser));
-          setUser(mockUser);
-          return { success: true };
-        }
+        console.error('❌ Login failed:', data.error);
         return { success: false, error: data.error || 'Login failed' };
       }
     } catch (error) {
-      console.error('Login error:', error);
-      return { success: false, error: 'Invalid credentials. Try demo@ispora.com / demo123' };
+      console.error('❌ Login error:', error);
+      return { success: false, error: 'Network error. Please check your connection.' };
     } finally {
       setIsLoading(false);
     }
@@ -136,27 +122,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       setIsLoading(true);
 
-      // Mock registration - accept any valid data
-      if (userData.email && userData.password && userData.firstName && userData.lastName) {
-        const mockUser = {
-          id: '1',
-          email: userData.email,
-          firstName: userData.firstName,
-          lastName: userData.lastName,
-          userType: userData.userType || 'student',
-          username: userData.username || userData.email.split('@')[0],
-        };
+      // Try backend API first
+      const response = await fetch(`${API_BASE_URL}/auth/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userData),
+      });
 
-        localStorage.setItem('token', 'mock-token-' + Date.now());
-        localStorage.setItem('user', JSON.stringify(mockUser));
-        setUser(mockUser);
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log('✅ Registration successful, token received:', data.token ? 'Yes' : 'No');
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        setUser(data.user);
         return { success: true };
+      } else {
+        console.error('❌ Registration failed:', data.error);
+        return { success: false, error: data.error || 'Registration failed' };
       }
-
-      return { success: false, error: 'Please fill in all required fields' };
     } catch (error) {
-      console.error('Registration error:', error);
-      return { success: false, error: 'Registration failed. Please try again.' };
+      console.error('❌ Registration error:', error);
+      return { success: false, error: 'Network error. Please check your connection.' };
     } finally {
       setIsLoading(false);
     }

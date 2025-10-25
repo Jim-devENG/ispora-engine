@@ -35,15 +35,15 @@ const fetchFeedItems = async (page = 1, limit = 20) => {
 
 // Real-time feed updates using Server-Sent Events
 const createRealtimeConnection = (onUpdate: (update: any) => void) => {
-  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-  const devKey = localStorage.getItem('devKey');
   const token = localStorage.getItem('token');
-  if (devKey) headers['X-Dev-Key'] = devKey;
-  if (token) headers['Authorization'] = `Bearer ${token}`;
+  const devKey = localStorage.getItem('devKey');
+  
+  // Build URL with token as query parameter since EventSource doesn't support headers
+  const url = new URL(`${API_BASE_URL}/feed/stream`);
+  if (token) url.searchParams.set('token', token);
+  if (devKey) url.searchParams.set('devKey', devKey);
 
-  const eventSource = new EventSource(`${API_BASE_URL}/feed/stream`, {
-    headers,
-  });
+  const eventSource = new EventSource(url.toString());
 
   eventSource.onmessage = (event) => {
     try {
