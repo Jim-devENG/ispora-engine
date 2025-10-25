@@ -2,26 +2,12 @@ services:
   - type: web
     name: ispora-backend
     env: node
-    plan: free
-    buildCommand: npm install
-    startCommand: npm start
-    rootDir: iSpora-backend
+    buildCommand: cd iSpora-backend && npm install
+    startCommand: cd iSpora-backend && npm start
     envVars:
       - key: NODE_ENV
         value: production
-      - key: PORT
-        value: 10000
-      - key: COMING_SOON
-        value: true
-      - key: DEV_ACCESS_KEY
-        value: CHANGE_ME_STRONG_KEY
-      - key: DB_CLIENT
-        value: sqlite3
-      - key: DB_FILENAME
-        value: ./data/ispora.db
       - key: JWT_SECRET
         generateValue: true
-      - key: FRONTEND_URL
-        value: https://ispora.app
-      - key: CORS_ORIGIN
-        value: https://ispora.app
+      - key: DATABASE_URL
+        value: sqlite:./data/ispora.db
