@@ -4,9 +4,10 @@
   "description": "Backend API for iSpora mentorship platform",
   "main": "src/server.js",
   "scripts": {
-    "start": "node src/server-clean.js",
+    "start": "node src/server-v2.js",
+    "start:clean": "node src/server-clean.js",
     "start:original": "node src/server.js",
-    "dev": "nodemon src/server-clean.js",
+    "dev": "nodemon src/server-v2.js",
     "test": "jest",
     "test:watch": "jest --watch",
     "lint": "eslint src/",
