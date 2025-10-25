@@ -25,6 +25,16 @@ router.get('/live-simple', (req, res) => {
 // Working realtime route with new name
 router.get('/stream', (req, res) => {
   console.log('🔍 /stream route hit - WORKING VERSION');
+  console.log('🔍 Stream query params:', req.query);
+  
+  // Handle authentication for SSE
+  const token = req.query.token || req.headers.authorization?.split(' ')[1];
+  const devKey = req.query.devKey || req.headers['x-dev-key'];
+  
+  if (token) {
+    console.log('🔍 SSE Token provided:', token.substring(0, 20) + '...');
+  }
+  
   try {
     res.writeHead(200, {
       'Content-Type': 'text/event-stream',
