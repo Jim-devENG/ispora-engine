@@ -1,32 +1,30 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { authService, User } from '../services/authService';
 
-interface AuthContextType {
+interface UseAuthReturn {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   register: (userData: any) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
-  updateUser: (userData: Partial<User>) => void;
   refreshUser: () => Promise<void>;
+  updateUser: (userData: Partial<User>) => void;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-export function AuthProvider({ children }: { children: ReactNode }) {
+export function useAuth(): UseAuthReturn {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Check if user is authenticated
   const isAuthenticated = !!user;
 
-  // Initialize auth state from auth service
+  // Initialize auth state
   useEffect(() => {
     const initializeAuth = async () => {
       try {
         setIsLoading(true);
         
+        // Check if user is already authenticated
         if (authService.isAuthenticated()) {
           const currentUser = authService.getUser();
           setUser(currentUser);
@@ -38,6 +36,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       } catch (error) {
         console.error('Auth initialization error:', error);
+        // Clear invalid auth data
         authService.logout();
         setUser(null);
       } finally {
@@ -48,10 +47,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     initializeAuth();
   }, []);
 
-  const login = async (
-    email: string,
-    password: string,
-  ): Promise<{ success: boolean; error?: string }> => {
+  const login = useCallback(async (email: string, password: string) => {
     try {
       setIsLoading(true);
       const result = await authService.login(email, password);
@@ -68,11 +64,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
-  const register = async (
-    userData: any,
-  ): Promise<{ success: boolean; error?: string }> => {
+  const register = useCallback(async (userData: any) => {
     try {
       setIsLoading(true);
       const result = await authService.register(userData);
@@ -89,9 +83,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
-  const logout = async (): Promise<void> => {
+  const logout = useCallback(async () => {
     try {
       setIsLoading(true);
       await authService.logout();
@@ -101,17 +95,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
-  const updateUser = (userData: Partial<User>) => {
-    if (user) {
-      const updatedUser = { ...user, ...userData };
-      setUser(updatedUser);
-      localStorage.setItem('user', JSON.stringify(updatedUser));
-    }
-  };
-
-  const refreshUser = async () => {
+  const refreshUser = useCallback(async () => {
     try {
       await authService.refreshUser();
       const user = authService.getUser();
@@ -119,26 +105,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       console.error('Refresh user error:', error);
     }
-  };
+  }, []);
 
-  const value: AuthContextType = {
+  const updateUser = useCallback((userData: Partial<User>) => {
+    if (user) {
+      const updatedUser = { ...user, ...userData };
+      setUser(updatedUser);
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+    }
+  }, [user]);
+
+  return {
     user,
     isAuthenticated,
     isLoading,
     login,
     register,
     logout,
-    updateUser,
     refreshUser,
+    updateUser,
   };
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-}
-
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
 }

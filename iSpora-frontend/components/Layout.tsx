@@ -134,55 +134,36 @@ function MainContent() {
         <CreateProject
           onBack={() => setCurrentPage('Project Dashboard')}
           onSave={async (projectData) => {
-            // Map frontend fields to backend expectations
-            const payload = {
-              title: projectData.title,
-              description: projectData.description,
-              type: projectData.projectType || 'academic', // Map to valid backend type
-              tags: projectData.tags || [], // Keep as JSON array
-              status: projectData.status || 'draft', // Start as draft
-              is_public: projectData.isPublic === undefined ? true : !!projectData.isPublic,
-              start_date: projectData.startDate || null,
-              end_date: projectData.endDate || null,
-              // Store additional data in detailed_description as JSON
-              detailed_description: JSON.stringify({
+            try {
+              // Map frontend fields to backend expectations
+              const payload = {
+                title: projectData.title,
+                description: projectData.description,
+                type: projectData.projectType || 'academic',
+                category: projectData.category || 'general',
+                tags: projectData.tags || [],
                 objectives: projectData.objectives || [],
                 teamMembers: projectData.teamMembers || [],
                 diasporaPositions: projectData.diasporaPositions || [],
                 priority: projectData.priority || 'medium',
-                university: projectData.university || null,
-                mentorshipConnection: !!projectData.mentorshipConnection,
-              }),
-            };
+                university: projectData.university || '',
+                mentorshipConnection: projectData.mentorshipConnection || false,
+                isPublic: projectData.isPublic !== undefined ? projectData.isPublic : true,
+              };
 
-            try {
-              const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-              const devKey = localStorage.getItem('devKey');
-              const token = localStorage.getItem('token');
-              if (devKey) headers['X-Dev-Key'] = devKey;
-              if (token) headers['Authorization'] = `Bearer ${token}`;
+              console.log('Creating project with payload:', payload);
 
-              const apiBase = (import.meta.env.VITE_API_URL || 'https://ispora-backend.onrender.com/api').replace(/\/$/, '');
-              
-              const response = await fetch(`${apiBase}/projects`, {
-                method: 'POST',
-                headers,
-                body: JSON.stringify(payload),
-              });
+              // Use the API client for automatic token injection
+              const { apiClient } = await import('../services/apiClient');
+              const result = await apiClient.createProject(payload);
 
-              if (response.ok) {
-                const result = await response.json();
-                console.log('Project created successfully:', result);
-                try { (await import('./ui/sonner')).toast.success('Project created successfully!'); } catch {}
-                setCurrentPage('Project Dashboard');
-              } else {
-                const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
-                console.error('Failed to save project:', errorData);
-                try { (await import('./ui/sonner')).toast.error(`Failed to create project: ${errorData.error || 'Unknown error'}`); } catch {}
-              }
-            } catch (error) {
-              console.error('Error saving project:', error);
-              try { (await import('./ui/sonner')).toast.error('Network error creating project'); } catch {}
+              console.log('Project created successfully:', result);
+              try { (await import('./ui/sonner')).toast.success('Project created successfully!'); } catch {}
+              setCurrentPage('Project Dashboard');
+            } catch (error: any) {
+              console.error('Error creating project:', error);
+              const errorMessage = error.response?.data?.error || error.message || 'Failed to create project';
+              try { (await import('./ui/sonner')).toast.error(`Failed to create project: ${errorMessage}`); } catch {}
             }
           }}
         />
