@@ -154,7 +154,7 @@ function MainContent() {
               console.log('Creating project with payload:', payload);
 
               // Use the API client for automatic token injection
-              const { apiClient } = await import('../services/apiClient');
+              const { apiClient } = await import('../src/services/apiClient');
               const result = await apiClient.createProject(payload);
 
               console.log('Project created successfully:', result);
