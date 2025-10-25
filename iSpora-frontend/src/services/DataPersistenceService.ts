@@ -1,5 +1,6 @@
 // Enhanced data persistence service with error handling and localStorage fallback
 import { toast } from 'sonner';
+import { authService } from './authService';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://ispora-backend.onrender.com/api';
 
@@ -21,13 +22,15 @@ class DataPersistenceService {
       'Content-Type': 'application/json',
     };
     
+    // Use authService for consistent authentication
+    const token = authService.getToken();
     const devKey = localStorage.getItem('devKey');
-    const token = localStorage.getItem('token');
     
     console.log('🔍 DataPersistenceService - Auth headers:', {
       hasToken: !!token,
       tokenPreview: token ? `${token.substring(0, 20)}...` : 'No token',
-      hasDevKey: !!devKey
+      hasDevKey: !!devKey,
+      isAuthenticated: authService.isAuthenticated()
     });
     
     if (devKey) headers['X-Dev-Key'] = devKey;
@@ -42,6 +45,15 @@ class DataPersistenceService {
     persistenceOptions: PersistenceOptions = {}
   ): Promise<ApiResponse<T>> {
     const { enableLocalStorage = true, showToast = true, retryAttempts = 3 } = persistenceOptions;
+    
+    // Check if user is authenticated before making request
+    if (!authService.isAuthenticated()) {
+      console.warn('⚠️ User not authenticated - request may fail');
+      if (showToast) {
+        toast.error('Please log in to continue');
+      }
+      return { success: false, error: 'Authentication required' };
+    }
     
     for (let attempt = 1; attempt <= retryAttempts; attempt++) {
       try {
@@ -69,9 +81,8 @@ class DataPersistenceService {
           // Handle 401 Unauthorized specifically
           if (response.status === 401) {
             console.error('🔐 Authentication failed - clearing invalid token');
-            // Clear invalid token
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
+            // Use authService to clear authentication
+            authService.logout();
             // Redirect to login or show auth error
             if (showToast) {
               toast.error('Session expired. Please log in again.');
