@@ -438,9 +438,53 @@ const setupDatabase = async () => {
     }
     
     console.log('🎉 Database setup completed!');
+    
+    // Create demo user after database setup
+    await createDemoUser();
   } catch (error) {
     console.error('❌ Database setup failed:', error);
     // Don't exit on database errors, let the server start
+  }
+};
+
+// Create demo user on startup
+const createDemoUser = async () => {
+  try {
+    console.log('🔧 Checking for demo user...');
+    const existingUser = await db('users').where({ email: 'demo@ispora.com' }).first();
+    
+    if (!existingUser) {
+      console.log('🔧 Creating demo user...');
+      const bcrypt = require('bcryptjs');
+      const { v4: uuidv4 } = require('uuid');
+      
+      const salt = await bcrypt.genSalt(12);
+      const passwordHash = await bcrypt.hash('demo123', salt);
+      
+      const userId = uuidv4();
+      const userData = {
+        id: userId,
+        email: 'demo@ispora.com',
+        password_hash: passwordHash,
+        first_name: 'Demo',
+        last_name: 'User',
+        user_type: 'student',
+        username: 'demo',
+        is_verified: true,
+        email_verified: true,
+        profile_completed: true,
+        status: 'active',
+        created_at: new Date(),
+        updated_at: new Date(),
+      };
+      
+      await db('users').insert(userData);
+      console.log('✅ Demo user created successfully!');
+    } else {
+      console.log('✅ Demo user already exists');
+    }
+  } catch (error) {
+    console.error('❌ Error creating demo user:', error);
   }
 };
 
