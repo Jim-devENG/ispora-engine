@@ -15,6 +15,7 @@ const authRoutes = require('./routes/auth-clean');
 const taskRoutes = require('./routes/tasks-clean');
 const healthRoutes = require('./routes/health');
 const feedRoutes = require('./routes/feed');
+const projectRoutes = require('./routes/projects');
 
 const app = express();
 const httpServer = createServer(app);
@@ -67,6 +68,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/health', healthRoutes);
 app.use('/api/feed', feedRoutes);
+app.use('/api/projects', projectRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -156,6 +158,26 @@ const initializeDatabase = async () => {
                 t.string('status').defaultTo('pending');
                 t.timestamp('due_date');
                 t.foreign('user_id').references('id').inTable('users');
+              }
+              
+              if (table === 'projects') {
+                t.string('title').notNullable();
+                t.text('description');
+                t.string('type').defaultTo('academic');
+                t.string('category');
+                t.string('status').defaultTo('active');
+                t.text('tags');
+                t.text('media');
+                t.text('collaborators');
+                t.text('objectives');
+                t.text('team_members');
+                t.text('diaspora_positions');
+                t.string('priority').defaultTo('medium');
+                t.string('university');
+                t.string('mentorship_connection');
+                t.boolean('is_public').defaultTo(true);
+                t.uuid('created_by').notNullable();
+                t.foreign('created_by').references('id').inTable('users');
               }
             });
           }
