@@ -16,6 +16,19 @@ const { closeConnections } = require('./config/redis');
 // Import database connection
 const db = require('./database/connection');
 
+// Ensure database connection is established
+const ensureDatabaseConnection = async () => {
+  try {
+    console.log('🔧 Testing database connection...');
+    await db.raw('SELECT 1');
+    console.log('✅ Database connection verified');
+    return true;
+  } catch (error) {
+    console.error('❌ Database connection failed:', error.message);
+    return false;
+  }
+};
+
 // Initialize Sentry
 initSentry();
 
@@ -450,16 +463,19 @@ const setupDatabase = async () => {
 // Create demo user on startup
 const createDemoUser = async () => {
   try {
-    console.log('🔧 Checking for demo user...');
+    console.log('🔧 Creating demo user...');
     
     // Test database connection first
-    await db.raw('SELECT 1');
-    console.log('✅ Database connection verified');
+    const isConnected = await ensureDatabaseConnection();
+    if (!isConnected) {
+      console.error('❌ Cannot create demo user - database not connected');
+      return;
+    }
     
     const existingUser = await db('users').where({ email: 'demo@ispora.com' }).first();
     
     if (!existingUser) {
-      console.log('🔧 Creating demo user...');
+      console.log('🔧 Demo user not found, creating new user...');
       const bcrypt = require('bcryptjs');
       const { v4: uuidv4 } = require('uuid');
       
@@ -762,9 +778,30 @@ httpServer.listen(PORT, () => {
   console.log(`  PORT: ${process.env.PORT || '3001'}`);
   
   // Setup database and demo user after server starts (non-blocking)
-  setupDatabase()
-    .then(() => createDemoUser())
-    .catch(console.error);
+  const initializeApp = async () => {
+    try {
+      console.log('🚀 Initializing application...');
+      
+      // 1. Ensure database connection
+      const isConnected = await ensureDatabaseConnection();
+      if (!isConnected) {
+        console.error('❌ Failed to connect to database');
+        return;
+      }
+      
+      // 2. Setup database tables
+      await setupDatabase();
+      
+      // 3. Create demo user
+      await createDemoUser();
+      
+      console.log('✅ Application initialization complete');
+    } catch (error) {
+      console.error('❌ Application initialization failed:', error);
+    }
+  };
+  
+  initializeApp();
 });
 
 // Graceful shutdown

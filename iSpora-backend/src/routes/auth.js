@@ -309,10 +309,21 @@ router.get('/debug', async (req, res) => {
     const users = await db('users').select('id', 'email', 'first_name', 'last_name', 'user_type', 'created_at');
     console.log('👥 Users in database:', users.length);
     
+    // Check for demo user specifically
+    const demoUser = await db('users').where({ email: 'demo@ispora.com' }).first();
+    
     res.json({
       connected: true,
       userCount: userCount.count,
       users: users,
+      demoUser: demoUser ? {
+        id: demoUser.id,
+        email: demoUser.email,
+        firstName: demoUser.first_name,
+        lastName: demoUser.last_name,
+        userType: demoUser.user_type,
+        createdAt: demoUser.created_at
+      } : null,
       timestamp: new Date().toISOString()
     });
   } catch (err) {
