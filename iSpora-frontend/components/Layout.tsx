@@ -153,9 +153,9 @@ function MainContent() {
 
               console.log('Creating project with payload:', payload);
 
-              // Use the API client for automatic token injection
-              const { apiClient } = await import('../src/services/apiClient');
-              const result = await apiClient.createProject(payload);
+              // Use the Auth v2 API client for automatic token injection
+              const { apiClientV2 } = await import('../src/services/apiClient-v2');
+              const result = await apiClientV2.createProject(payload);
 
               console.log('Project created successfully:', result);
               try { (await import('./ui/sonner')).toast.success('Project created successfully!'); } catch {}
