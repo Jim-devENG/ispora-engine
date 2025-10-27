@@ -2,6 +2,7 @@ services:
   - type: web
     name: ispora-backend
     env: node
+    rootDir: iSpora-backend
     buildCommand: npm install && npm run migrate --if-present && npm run seed --if-present
     startCommand: npm start
     envVars:

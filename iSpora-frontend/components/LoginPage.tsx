@@ -46,7 +46,7 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
     }
 
     const result = await login(loginData.email, loginData.password);
-
+    
     if (result.success) {
       toast.success('Welcome back!');
       onSuccess?.();
@@ -87,7 +87,7 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
       userType: registerData.userType,
       username: registerData.username,
     });
-
+    
     if (result.success) {
       toast.success('Account created successfully!');
       onSuccess?.();
@@ -143,7 +143,7 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
               Sign in to your account or create a new one
             </CardDescription>
           </CardHeader>
-
+          
           <CardContent className="p-4">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="grid w-full grid-cols-2 mb-4 bg-gray-100 p-1 rounded-lg">
@@ -173,34 +173,34 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
                     <Label htmlFor="login-email" className="text-xs font-medium text-gray-700">
                       Email Address
                     </Label>
-                    <Input
-                      id="login-email"
-                      type="email"
-                      placeholder="Enter your email"
-                      value={loginData.email}
+                      <Input
+                        id="login-email"
+                        type="email"
+                        placeholder="Enter your email"
+                        value={loginData.email}
                       onChange={(e) => setLoginData((prev) => ({ ...prev, email: e.target.value }))}
                       className="h-9 border-gray-200 focus:border-[#021ff6] focus:ring-[#021ff6]/20 rounded-lg transition-all text-sm"
-                      required
-                    />
+                        required
+                      />
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="login-password" className="text-xs font-medium text-gray-700">
                       Password
                     </Label>
-                    <Input
-                      id="login-password"
+                      <Input
+                        id="login-password"
                       type="password"
-                      placeholder="Enter your password"
-                      value={loginData.password}
+                        placeholder="Enter your password"
+                        value={loginData.password}
                       onChange={(e) => setLoginData((prev) => ({ ...prev, password: e.target.value }))}
                       className="h-9 border-gray-200 focus:border-[#021ff6] focus:ring-[#021ff6]/20 rounded-lg transition-all text-sm"
-                      required
-                    />
+                        required
+                      />
                   </div>
 
-                  <Button
-                    type="submit"
+                  <Button 
+                    type="submit" 
                     className="w-full h-9 bg-[#021ff6] hover:bg-[#021ff6]/90 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 text-sm"
                     disabled={isLoading}
                   >
@@ -263,52 +263,52 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
                     <Label htmlFor="register-email" className="text-xs font-medium text-gray-700">
                       Email Address
                     </Label>
-                    <Input
-                      id="register-email"
-                      type="email"
-                      placeholder="Enter your email"
-                      value={registerData.email}
+                      <Input
+                        id="register-email"
+                        type="email"
+                        placeholder="Enter your email"
+                        value={registerData.email}
                       onChange={(e) => setRegisterData((prev) => ({ ...prev, email: e.target.value }))}
                       className="h-9 border-gray-200 focus:border-[#021ff6] focus:ring-[#021ff6]/20 rounded-lg transition-all text-sm"
-                      required
-                    />
+                        required
+                      />
                   </div>
 
                   <div className="space-y-2">
                     <Label className="text-xs font-medium text-gray-700">User Type</Label>
                     <div className="grid grid-cols-1 gap-2">
                       {userTypeOptions.map((option) => (
-                        <label
-                          key={option.value}
+                          <label
+                            key={option.value}
                           className={`relative flex items-center p-3 rounded-lg border-2 cursor-pointer transition-all hover:shadow-sm ${
-                            registerData.userType === option.value
+                              registerData.userType === option.value
                               ? 'border-[#021ff6] bg-[#021ff6]/5 shadow-sm'
-                              : 'border-gray-200 hover:border-gray-300 bg-white'
-                          }`}
-                        >
-                          <input
-                            type="radio"
-                            name="userType"
-                            value={option.value}
-                            checked={registerData.userType === option.value}
+                                : 'border-gray-200 hover:border-gray-300 bg-white'
+                            }`}
+                          >
+                            <input
+                              type="radio"
+                              name="userType"
+                              value={option.value}
+                              checked={registerData.userType === option.value}
                             onChange={(e) =>
                               setRegisterData((prev) => ({
                                 ...prev,
                                 userType: e.target.value as 'student' | 'professional' | 'mentor',
                               }))
                             }
-                            className="sr-only"
-                          />
+                              className="sr-only"
+                            />
                           <div className={`flex-shrink-0 mr-3 ${option.color}`}>
                             <option.icon size={18} />
                           </div>
-                          <div>
+                            <div>
                             <div className="font-semibold text-gray-900 text-sm">
                               {option.label}
                             </div>
                             <div className="text-xs text-gray-500">{option.description}</div>
-                          </div>
-                        </label>
+                            </div>
+                          </label>
                       ))}
                     </div>
                   </div>
@@ -317,34 +317,34 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
                     <Label htmlFor="register-password" className="text-xs font-medium text-gray-700">
                       Password
                     </Label>
-                    <Input
-                      id="register-password"
+                      <Input
+                        id="register-password"
                       type="password"
                       placeholder="Choose a strong password"
-                      value={registerData.password}
+                        value={registerData.password}
                       onChange={(e) => setRegisterData((prev) => ({ ...prev, password: e.target.value }))}
                       className="h-9 border-gray-200 focus:border-[#021ff6] focus:ring-[#021ff6]/20 rounded-lg transition-all text-sm"
-                      required
-                    />
+                        required
+                      />
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="register-confirmPassword" className="text-xs font-medium text-gray-700">
                       Confirm Password
                     </Label>
-                    <Input
-                      id="register-confirmPassword"
+                      <Input
+                        id="register-confirmPassword"
                       type="password"
-                      placeholder="Confirm your password"
-                      value={registerData.confirmPassword}
+                        placeholder="Confirm your password"
+                        value={registerData.confirmPassword}
                       onChange={(e) => setRegisterData((prev) => ({ ...prev, confirmPassword: e.target.value }))}
                       className="h-9 border-gray-200 focus:border-[#021ff6] focus:ring-[#021ff6]/20 rounded-lg transition-all text-sm"
-                      required
-                    />
+                        required
+                      />
                   </div>
 
-                  <Button
-                    type="submit"
+                  <Button 
+                    type="submit" 
                     className="w-full h-9 bg-[#021ff6] hover:bg-[#021ff6]/90 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 text-sm"
                     disabled={isLoading}
                   >
