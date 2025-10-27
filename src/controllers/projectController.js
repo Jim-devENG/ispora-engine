@@ -2,12 +2,19 @@ const { v4: uuidv4 } = require('uuid');
 const knex = require('knex');
 const config = require('../knexfile');
 const logger = require('../utils/logger');
+const { validatePayload, sanitizePayload, ValidationError } = require('../utils/validation');
 
 const db = knex(config.development);
 
 // Create new project
 const createProject = async (req, res) => {
   try {
+    console.log("📩 POST /api/projects - payload:", req.body);
+    
+    // Validate and sanitize payload
+    const validatedPayload = validatePayload(req.body, 'createProject');
+    const sanitizedPayload = sanitizePayload(validatedPayload);
+    
     const {
       title,
       description,
@@ -21,22 +28,7 @@ const createProject = async (req, res) => {
       university = '',
       mentorshipConnection = false,
       isPublic = true
-    } = req.body;
-
-    // Validation
-    if (!title) {
-      return res.status(400).json({
-        success: false,
-        error: 'Project title is required'
-      });
-    }
-
-    if (!description) {
-      return res.status(400).json({
-        success: false,
-        error: 'Project description is required'
-      });
-    }
+    } = sanitizedPayload;
 
     // Create project
     const projectId = uuidv4();
@@ -90,11 +82,12 @@ const createProject = async (req, res) => {
 
     await db('feed_entries').insert(feedEntryData);
 
+    console.log("✅ Project created successfully:", projectId);
     logger.info({ 
       projectId, 
       userId: req.user.id, 
       title 
-    }, 'Project created successfully');
+    }, '✅ Project created successfully');
 
     res.status(201).json({
       success: true,
@@ -108,7 +101,28 @@ const createProject = async (req, res) => {
     });
 
   } catch (error) {
-    logger.error({ error: error.message }, 'Project creation failed');
+    console.log("❌ Project creation failed:", error.message);
+    
+    if (error instanceof ValidationError) {
+      logger.warn({ 
+        validationError: error.message,
+        details: error.details,
+        payload: req.body
+      }, '❌ Project creation failed - validation error');
+      return res.status(400).json({
+        success: false,
+        error: error.message,
+        code: 'VALIDATION_ERROR',
+        details: error.details
+      });
+    }
+    
+    logger.error({ 
+      error: error.message,
+      stack: error.stack,
+      payload: req.body
+    }, '❌ Project creation failed');
+    
     res.status(500).json({
       success: false,
       error: 'Server error during project creation'

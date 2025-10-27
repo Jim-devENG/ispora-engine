@@ -16,6 +16,9 @@
     "test": "jest --runInBand",
     "test:watch": "jest --watch --runInBand",
     "test:coverage": "jest --coverage --runInBand",
+    "test:guardian": "jest src/tests/devops-guardian.test.js --runInBand",
+    "guard:check": "node src/scripts/deployment-guard.js",
+    "guard:pre-deploy": "npm run guard:check && npm run test:guardian",
     "lint": "eslint src/",
     "lint:fix": "eslint src/ --fix"
   },

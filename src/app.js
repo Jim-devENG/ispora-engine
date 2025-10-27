@@ -4,6 +4,7 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const logger = require('./utils/logger');
 const errorHandler = require('./middleware/errorHandler');
+const requestLogger = require('./middleware/requestLogger');
 
 // Import routes
 const healthRoutes = require('./routes/health');
@@ -47,16 +48,8 @@ app.use('/api/', limiter);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Request logging
-app.use((req, res, next) => {
-  logger.info({
-    method: req.method,
-    url: req.url,
-    ip: req.ip,
-    userAgent: req.get('User-Agent')
-  }, 'Incoming request');
-  next();
-});
+// Enhanced request logging with observability
+app.use(requestLogger);
 
 // Health check (before other routes)
 app.use('/api/health', healthRoutes);

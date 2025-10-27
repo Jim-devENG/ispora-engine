@@ -1,6 +1,7 @@
 const knex = require('knex');
 const config = require('../knexfile');
 const logger = require('../utils/logger');
+const { validatePayload, sanitizePayload, ValidationError } = require('../utils/validation');
 
 const db = knex(config.development);
 
@@ -91,6 +92,12 @@ const getFeed = async (req, res) => {
 // Track activity
 const trackActivity = async (req, res) => {
   try {
+    console.log("📩 POST /api/feed/activity - payload:", req.body);
+    
+    // Validate and sanitize payload
+    const validatedPayload = validatePayload(req.body, 'createActivity');
+    const sanitizedPayload = sanitizePayload(validatedPayload);
+    
     const {
       type,
       title,
@@ -98,15 +105,7 @@ const trackActivity = async (req, res) => {
       category = 'general',
       metadata = {},
       projectId
-    } = req.body;
-
-    // Validation
-    if (!type || !title) {
-      return res.status(400).json({
-        success: false,
-        error: 'Type and title are required'
-      });
-    }
+    } = sanitizedPayload;
 
     // Get user ID from auth middleware if available
     const userId = req.user ? req.user.id : 'anonymous';
@@ -132,11 +131,12 @@ const trackActivity = async (req, res) => {
 
     await db('feed_entries').insert(activityData);
 
+    console.log("✅ Activity tracked successfully:", activityId);
     logger.info({ 
       activityId, 
       type, 
       userId 
-    }, 'Activity tracked successfully');
+    }, '✅ Activity tracked successfully');
 
     res.status(201).json({
       success: true,
@@ -150,7 +150,28 @@ const trackActivity = async (req, res) => {
     });
 
   } catch (error) {
-    logger.error({ error: error.message }, 'Track activity failed');
+    console.log("❌ Activity tracking failed:", error.message);
+    
+    if (error instanceof ValidationError) {
+      logger.warn({ 
+        validationError: error.message,
+        details: error.details,
+        payload: req.body
+      }, '❌ Activity tracking failed - validation error');
+      return res.status(400).json({
+        success: false,
+        error: error.message,
+        code: 'VALIDATION_ERROR',
+        details: error.details
+      });
+    }
+    
+    logger.error({ 
+      error: error.message,
+      stack: error.stack,
+      payload: req.body
+    }, '❌ Activity tracking failed');
+    
     res.status(500).json({
       success: false,
       error: 'Server error tracking activity'

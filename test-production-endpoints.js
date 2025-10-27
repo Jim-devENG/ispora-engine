@@ -1,15 +1,16 @@
 const http = require('http');
 
-console.log('🧪 Testing iSpora Backend Endpoints...\n');
+console.log('🧪 Testing iSpora Backend on Render...\n');
 
-const baseUrl = 'http://localhost:5000';
+const baseUrl = 'https://ispora-backend.onrender.com';
 
 function makeRequest(method, path, data = null) {
   return new Promise((resolve, reject) => {
+    const url = new URL(path, baseUrl);
     const options = {
-      hostname: 'localhost',
-      port: 5000,
-      path: path,
+      hostname: url.hostname,
+      port: url.port || 443,
+      path: url.pathname + url.search,
       method: method,
       headers: {
         'Content-Type': 'application/json'
@@ -59,8 +60,8 @@ async function runTests() {
 
     console.log('2️⃣ Testing POST /api/tasks...');
     const taskData = {
-      title: 'Test Task',
-      description: 'This is a test task',
+      title: 'Test Task from Production',
+      description: 'This is a test task from production',
       priority: 'high',
       dueDate: '2025-02-01'
     };
@@ -71,10 +72,10 @@ async function runTests() {
     console.log('3️⃣ Testing POST /api/feed/activity...');
     const activityData = {
       type: 'test',
-      title: 'Test Activity',
-      description: 'This is a test activity',
+      title: 'Test Activity from Production',
+      description: 'This is a test activity from production',
       category: 'general',
-      metadata: { test: true }
+      metadata: { test: true, source: 'production' }
     };
     const activityResponse = await makeRequest('POST', '/api/feed/activity', activityData);
     console.log(`   Status: ${activityResponse.status}`);
@@ -91,7 +92,7 @@ async function runTests() {
     console.log(`   Status: ${tasksResponse.status}`);
     console.log(`   Response: ${JSON.stringify(tasksResponse.data, null, 2)}\n`);
 
-    console.log('✅ All tests completed!');
+    console.log('✅ All production tests completed!');
     
   } catch (error) {
     console.error('❌ Test failed:', error.message);
