@@ -2,12 +2,27 @@ services:
   - type: web
     name: ispora-backend
     env: node
-    buildCommand: cd iSpora-backend && npm install
+    buildCommand: cd iSpora-backend && npm install && npm run migrate --if-present && npm run seed --if-present
     startCommand: cd iSpora-backend && npm start
     envVars:
       - key: NODE_ENV
         value: production
+      - key: PORT
+        value: 10000
       - key: JWT_SECRET
         generateValue: true
       - key: DATABASE_URL
-        value: sqlite:./data/ispora.db
+        fromDatabase:
+          name: ispora-postgres
+          property: connectionString
+      - key: SENTRY_DSN
+        sync: false
+    healthCheckPath: /api/health
+    autoDeploy: true
+    branch: main
+
+databases:
+  - name: ispora-postgres
+    databaseName: ispora
+    user: ispora_user
+    plan: free
