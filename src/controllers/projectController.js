@@ -11,6 +11,12 @@ const createProject = async (req, res) => {
   try {
     console.log("📩 POST /api/projects - payload:", req.body);
     
+    // 🛡️ DevOps Guardian: Development fallback for missing category
+    if (!req.body.category && process.env.NODE_ENV === 'development') {
+      console.warn("⚠️ Missing category field on project creation. Assigning 'Uncategorized' as fallback.");
+      req.body.category = 'Uncategorized';
+    }
+    
     // Validate and sanitize payload
     const validatedPayload = validatePayload(req.body, 'createProject');
     const sanitizedPayload = sanitizePayload(validatedPayload);
@@ -19,7 +25,7 @@ const createProject = async (req, res) => {
       title,
       description,
       type = 'academic',
-      category = 'general',
+      category = 'Uncategorized', // 🛡️ DevOps Guardian: Default fallback for missing category
       tags = [],
       objectives = '',
       teamMembers = [],

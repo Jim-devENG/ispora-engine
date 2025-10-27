@@ -41,8 +41,8 @@ const SCHEMAS = {
   
   // Project schemas
   createProject: {
-    required: ['title', 'description', 'category'],
-    optional: ['status', 'priority', 'dueDate', 'tags'],
+    required: ['title', 'description'],
+    optional: ['category', 'status', 'priority', 'dueDate', 'tags'],
     types: {
       title: 'string',
       description: 'string',

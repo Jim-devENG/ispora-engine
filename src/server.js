@@ -4,7 +4,7 @@ const app = require('./app');
 const config = require('./config');
 const logger = require('./utils/logger');
 
-// Initialize Sentry (optional)
+// 🛡️ DevOps Guardian: Safe Sentry initialization
 let Sentry;
 try {
   if (process.env.SENTRY_DSN) {
@@ -16,9 +16,11 @@ try {
     });
     logger.info('Sentry initialized successfully');
   } else {
+    console.log("🧩 Sentry skipped: No DSN provided");
     logger.warn('SENTRY_DSN not provided, skipping Sentry initialization');
   }
 } catch (error) {
+  console.log("🧩 Sentry initialization failed:", error.message);
   logger.error({ error: error.message }, 'Failed to initialize Sentry');
 }
 

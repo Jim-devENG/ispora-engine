@@ -428,8 +428,8 @@ export function CreateProject({ onBack, onSave }: CreateProjectProps) {
 
   const handleSave = (isDraft: boolean = false) => {
     // Basic validation for required fields
-    if (!isDraft && (!formData.title || !formData.description || !formData.projectType)) {
-      alert('Please fill in all required fields: Title, Description, and Project Type');
+    if (!isDraft && (!formData.title || !formData.description || !formData.projectType || !formData.category)) {
+      alert('Please fill in all required fields: Title, Description, Project Type, and Subject Area');
       return;
     }
 
@@ -441,6 +441,12 @@ export function CreateProject({ onBack, onSave }: CreateProjectProps) {
       createdAt: new Date().toISOString(),
       aspiraCategory: formData.projectType,
     };
+
+    // 🚀 DevOps Guardian: Log final payload before submission
+    console.log("🚀 Project submission payload:", projectData);
+    console.log("🚀 Project category:", projectData.category);
+    console.log("🚀 Project title:", projectData.title);
+    console.log("🚀 Project description:", projectData.description);
 
     if (onSave) {
       onSave(projectData);
