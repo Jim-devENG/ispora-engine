@@ -9,7 +9,7 @@
     "format": "prettier --write .",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "preview": "vite preview",
-    "start": "node src-backend/server.js",
+    "start": "cd iSpora-backend && npm start",
     "backend:dev": "cd iSpora-backend && npm run dev",
     "backend:test": "cd iSpora-backend && npm test",
     "backend:migrate": "cd iSpora-backend && npm run migrate",
