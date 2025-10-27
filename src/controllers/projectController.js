@@ -9,7 +9,29 @@ const db = knex(config.development);
 // Create new project
 const createProject = async (req, res) => {
   try {
-    console.log("📩 POST /api/projects - payload:", req.body);
+    console.log('[DEBUG] Incoming payload:', req.body);
+
+    // Validate required fields
+    if (!req.body.title || !req.body.description) {
+      console.error('[ERROR] Missing required fields:', {
+        hasTitle: !!req.body.title,
+        hasDescription: !!req.body.description
+      });
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required fields: title and description are required',
+        code: 'MISSING_REQUIRED_FIELDS'
+      });
+    }
+
+    if (!req.user || !req.user.id) {
+      console.error('[ERROR] Missing authentication:', { hasUser: !!req.user, hasUserId: !!req.user?.id });
+      return res.status(401).json({
+        success: false,
+        error: 'Authentication required',
+        code: 'AUTHENTICATION_REQUIRED'
+      });
+    }
     
     // 🛡️ DevOps Guardian: Development fallback for missing category
     if (!req.body.category && process.env.NODE_ENV === 'development') {
@@ -107,10 +129,16 @@ const createProject = async (req, res) => {
     });
 
   } catch (error) {
-    console.log("❌ Project creation failed:", error.message);
-    
+    console.error('[ERROR] Project creation failed:', error);
+    console.error('[ERROR] Error details:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name,
+      code: error.code
+    });
+
     if (error instanceof ValidationError) {
-      logger.warn({ 
+      logger.warn({
         validationError: error.message,
         details: error.details,
         payload: req.body
@@ -122,16 +150,30 @@ const createProject = async (req, res) => {
         details: error.details
       });
     }
-    
-    logger.error({ 
+
+    // Handle database constraint errors
+    if (error.code === 'SQLITE_CONSTRAINT' || error.code === '23505') {
+      logger.error({
+        error: error.message,
+        code: error.code,
+        payload: req.body
+      }, '❌ Project creation failed - database constraint error');
+      return res.status(400).json({
+        success: false,
+        error: 'Database constraint error. Please check your data.',
+        code: 'CONSTRAINT_ERROR'
+      });
+    }
+
+    logger.error({
       error: error.message,
       stack: error.stack,
       payload: req.body
     }, '❌ Project creation failed');
-    
+
     res.status(500).json({
       success: false,
-      error: 'Server error during project creation'
+      error: error.message || 'Server error during project creation'
     });
   }
 };

@@ -92,35 +92,32 @@ const getFeed = async (req, res) => {
 // Track activity
 const trackActivity = async (req, res) => {
   try {
-    console.log("📩 POST /api/feed/activity - payload:", req.body);
-    
-    // Validate and sanitize payload
-    const validatedPayload = validatePayload(req.body, 'createActivity');
-    const sanitizedPayload = sanitizePayload(validatedPayload);
-    
-    const {
-      type,
-      title,
-      description,
-      category = 'general',
-      metadata = {},
-      projectId
-    } = sanitizedPayload;
+    console.log('[DEBUG] Incoming payload:', req.body);
 
-    // Get user ID from auth middleware if available
-    const userId = req.user ? req.user.id : 'anonymous';
+    // Simple validation
+    if (!req.body.type || !req.body.title) {
+      console.error('[ERROR] Missing required fields');
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required fields: type and title are required',
+        code: 'MISSING_REQUIRED_FIELDS'
+      });
+    }
 
-    // Create activity entry
+    // Get user ID - use demo user for now
+    const userId = '00000000-0000-0000-0000-000000000001';
+
+    // Create simple activity entry
     const activityId = require('uuid').v4();
     const activityData = {
       id: activityId,
-      type,
-      title,
-      description,
-      category,
-      metadata: JSON.stringify(metadata),
+      type: req.body.type,
+      title: req.body.title,
+      description: req.body.description || '',
+      category: req.body.category || 'general',
+      metadata: JSON.stringify(req.body.metadata || {}),
       user_id: userId,
-      project_id: projectId || null,
+      project_id: req.body.projectId || null,
       is_public: true,
       created_at: new Date(),
       updated_at: new Date(),
@@ -129,52 +126,34 @@ const trackActivity = async (req, res) => {
       shares: 0
     };
 
+    // Insert activity data
     await db('feed_entries').insert(activityData);
 
     console.log("✅ Activity tracked successfully:", activityId);
-    logger.info({ 
-      activityId, 
-      type, 
-      userId 
-    }, '✅ Activity tracked successfully');
 
     res.status(201).json({
       success: true,
       message: 'Activity tracked successfully',
       data: {
         id: activityId,
-        type,
-        title,
+        type: req.body.type,
+        title: req.body.title,
         created_at: activityData.created_at
       }
     });
 
   } catch (error) {
-    console.log("❌ Activity tracking failed:", error.message);
-    
-    if (error instanceof ValidationError) {
-      logger.warn({ 
-        validationError: error.message,
-        details: error.details,
-        payload: req.body
-      }, '❌ Activity tracking failed - validation error');
-      return res.status(400).json({
-        success: false,
-        error: error.message,
-        code: 'VALIDATION_ERROR',
-        details: error.details
-      });
-    }
-    
-    logger.error({ 
-      error: error.message,
+    console.error('[ERROR] Activity tracking failed:', error);
+    console.error('[ERROR] Error details:', {
+      message: error.message,
       stack: error.stack,
-      payload: req.body
-    }, '❌ Activity tracking failed');
-    
+      name: error.name,
+      code: error.code
+    });
+
     res.status(500).json({
       success: false,
-      error: 'Server error tracking activity'
+      error: error.message || 'Server error tracking activity'
     });
   }
 };
