@@ -10,6 +10,8 @@ const healthRoutes = require('./routes/health');
 const authRoutes = require('./routes/auth');
 const projectRoutes = require('./routes/projects');
 const feedRoutes = require('./routes/feed');
+const taskRoutes = require('./routes/tasks');
+const placeholderRoutes = require('./routes/placeholder');
 
 const app = express();
 
@@ -63,6 +65,8 @@ app.use('/api/health', healthRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/feed', feedRoutes);
+app.use('/api/tasks', taskRoutes);
+app.use('/api/placeholder', placeholderRoutes);
 
 // 404 handler
 app.use('*', (req, res) => {

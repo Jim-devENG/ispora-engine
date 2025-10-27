@@ -1,10 +1,30 @@
-// Simple test to verify the basic server setup
-const app = require('./src/app');
+const http = require('http');
 
-console.log('✅ App module loaded successfully');
+console.log('Testing server on port 3000...');
 
-// Test if the app has the expected routes
-const routes = ['/api/health', '/api/auth', '/api/projects', '/api/feed'];
-console.log('✅ App structure verified');
+const options = {
+  hostname: 'localhost',
+  port: 3000,
+  path: '/api/health',
+  method: 'GET'
+};
 
-console.log('✅ Basic server setup test PASSED');
+const req = http.request(options, (res) => {
+  console.log(`Status: ${res.statusCode}`);
+  console.log(`Headers:`, res.headers);
+  
+  let data = '';
+  res.on('data', (chunk) => {
+    data += chunk;
+  });
+  
+  res.on('end', () => {
+    console.log('Response:', data);
+  });
+});
+
+req.on('error', (error) => {
+  console.error('Error:', error.message);
+});
+
+req.end();
