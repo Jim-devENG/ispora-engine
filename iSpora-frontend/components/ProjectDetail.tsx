@@ -1279,7 +1279,7 @@ export function ProjectDetail({ projectId, onBack, onJoinProject }: ProjectDetai
             <span>Start Date: {new Date(project.startDate).toLocaleDateString()}</span>
             <span>End Date: {new Date(project.endDate).toLocaleDateString()}</span>
             <span>
-              Priority: {(project?.priority || '').charAt(0).toUpperCase() + (project?.priority || '').slice(1)}
+              Priority: {((project?.priority || '').toString() || '').charAt(0).toUpperCase() + ((project?.priority || '').toString() || '').slice(1)}
             </span>
           </div>
 
@@ -1478,7 +1478,7 @@ export function ProjectDetail({ projectId, onBack, onJoinProject }: ProjectDetai
                                 : 'bg-green-100 text-green-700'
                           }
                         >
-                          {(project?.priority || '').charAt(0).toUpperCase() + (project?.priority || '').slice(1)}
+                          {((project?.priority || '').toString() || '').charAt(0).toUpperCase() + ((project?.priority || '').toString() || '').slice(1)}
                         </Badge>
                       </div>
                     </div>
@@ -1490,7 +1490,7 @@ export function ProjectDetail({ projectId, onBack, onJoinProject }: ProjectDetai
                       <div className="flex items-center gap-2">
                         <span className="font-medium text-sm text-gray-700">Status:</span>
                         <Badge variant="outline" className="bg-green-100 text-green-700">
-                          {(project?.status || '').charAt(0).toUpperCase() + (project?.status || '').slice(1)}
+                          {((project?.status || '').toString() || '').charAt(0).toUpperCase() + ((project?.status || '').toString() || '').slice(1)}
                         </Badge>
                       </div>
                       <div className="flex items-center gap-2">

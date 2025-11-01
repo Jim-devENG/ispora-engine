@@ -1488,14 +1488,19 @@ function DashboardContent() {
                   )}
 
                   {filteredFeedItems.slice(0, displayedPosts).map((post) => {
+                    // 🛡️ DevOps Guardian: Safely extract author name from different data structures
+                    const authorName = post.authorName || post.author?.name || 'Unknown User';
+                    const authorAvatar = post.authorAvatar || post.author?.avatar || null;
+                    const authorId = post.authorId || post.author?.id || null;
+                    
                     const story = getStoryNarrative(post);
-                    const isOwnContent = post.authorId === CURRENT_USER_ID;
+                    const isOwnContent = authorId === CURRENT_USER_ID;
                     const isLiked = likedPosts.has(post.id);
-                    const currentLikes = postLikes[post.id] || post.likes;
+                    const currentLikes = postLikes[post.id] || post.likes || 0;
                     const currentComments =
                       postComments[post.id] ||
                       post.metadata?.comments ||
-                      Math.floor(post.likes / 4);
+                      Math.floor((post.likes || 0) / 4);
 
                     return (
                       <Card
@@ -1516,16 +1521,16 @@ function DashboardContent() {
                           {/* Header with Avatar and Metadata */}
                           <div className="flex items-start gap-4 mb-4">
                             <Avatar className="h-12 w-12 ring-2 ring-white shadow-md">
-                              <AvatarImage src={post.authorAvatar} alt={post.authorName} />
+                              <AvatarImage src={authorAvatar || undefined} alt={authorName} />
                               <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold">
-                                {((post.authorName || 'U').toString() || 'U').charAt(0)}
+                                {((authorName || 'U').toString() || 'U').charAt(0)}
                               </AvatarFallback>
                             </Avatar>
 
                             <div className="flex-1 min-w-0 pr-8">
                               <div className="flex items-center gap-2 mb-1">
                                 <h3 className="font-semibold text-gray-900 truncate">
-                                  {post.authorName}
+                                  {authorName}
                                   {isOwnContent && (
                                     <span className="text-[#021ff6] text-sm ml-2 font-normal">
                                       (You)

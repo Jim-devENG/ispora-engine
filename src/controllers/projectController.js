@@ -429,17 +429,65 @@ const getProjects = async (req, res) => {
     // Apply pagination
     const projects = await query.limit(limit).offset(offset);
 
-    // Parse JSON fields
-    const formattedProjects = projects.map(project => ({
-      ...project,
-      tags: JSON.parse(project.tags || '[]'),
-      team_members: JSON.parse(project.team_members || '[]'),
-      diaspora_positions: JSON.parse(project.diaspora_positions || '[]'),
-      creator: {
-        name: `${project.first_name} ${project.last_name}`,
-        email: project.creator_email
+    // Parse JSON fields with error handling
+    // 🛡️ DevOps Guardian: Safely parse JSON fields
+    const formattedProjects = projects.map(project => {
+      let tags = [];
+      let teamMembers = [];
+      let diasporaPositions = [];
+      
+      try {
+        if (project.tags) {
+          tags = typeof project.tags === 'string' 
+            ? JSON.parse(project.tags || '[]')
+            : (Array.isArray(project.tags) ? project.tags : []);
+        }
+      } catch (e) {
+        console.warn('⚠️ Failed to parse tags for project:', project.id);
+        tags = [];
       }
-    }));
+      
+      try {
+        if (project.team_members) {
+          teamMembers = typeof project.team_members === 'string'
+            ? JSON.parse(project.team_members || '[]')
+            : (Array.isArray(project.team_members) ? project.team_members : []);
+        }
+      } catch (e) {
+        console.warn('⚠️ Failed to parse team_members for project:', project.id);
+        teamMembers = [];
+      }
+      
+      try {
+        if (project.diaspora_positions) {
+          diasporaPositions = typeof project.diaspora_positions === 'string'
+            ? JSON.parse(project.diaspora_positions || '[]')
+            : (Array.isArray(project.diaspora_positions) ? project.diaspora_positions : []);
+        }
+      } catch (e) {
+        console.warn('⚠️ Failed to parse diaspora_positions for project:', project.id);
+        diasporaPositions = [];
+      }
+      
+      // Build creator name safely
+      let creatorName = 'Unknown';
+      if (project.first_name || project.last_name) {
+        creatorName = `${project.first_name || ''} ${project.last_name || ''}`.trim() || 'Unknown';
+      } else if (project.creator_email) {
+        creatorName = project.creator_email;
+      }
+      
+      return {
+        ...project,
+        tags,
+        team_members: teamMembers,
+        diaspora_positions: diasporaPositions,
+        creator: {
+          name: creatorName,
+          email: project.creator_email || null
+        }
+      };
+    });
 
     logger.info({ 
       count: projects.length, 
@@ -459,10 +507,30 @@ const getProjects = async (req, res) => {
     });
 
   } catch (error) {
-    logger.error({ error: error.message }, 'Get projects failed');
+    logger.error({ 
+      error: error.message,
+      stack: error.stack,
+      name: error.name 
+    }, 'Get projects failed');
+    
+    console.error('[ERROR] Get projects error:', {
+      message: error.message,
+      stack: error.stack?.split('\n').slice(0, 5)
+    });
+    
+    // 🛡️ DevOps Guardian: Add CORS headers to error response
+    const origin = req.headers.origin;
+    if (origin && (origin.includes('ispora.app') || origin.includes('localhost'))) {
+      res.setHeader('Access-Control-Allow-Origin', origin);
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
+    }
+    
     res.status(500).json({
       success: false,
-      error: 'Server error fetching projects'
+      error: 'Server error fetching projects',
+      ...(process.env.NODE_ENV === 'development' && {
+        details: error.message
+      })
     });
   }
 };
