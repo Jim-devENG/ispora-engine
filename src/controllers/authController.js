@@ -83,12 +83,14 @@ const register = async (req, res) => {
       });
     }
 
-    // Check if user already exists
-    const existingUser = await db('users').where({ email: email.toLowerCase() }).first();
+    // Check if user already exists - normalize email
+    const normalizedEmail = email.toLowerCase().trim();
+    const existingUser = await db('users').where({ email: normalizedEmail }).first();
     if (existingUser) {
       return res.status(400).json({
         success: false,
-        error: 'User already exists with this email'
+        error: 'An account with this email already exists. Please log in instead.',
+        code: 'USER_ALREADY_EXISTS'
       });
     }
 
@@ -96,11 +98,11 @@ const register = async (req, res) => {
     const saltRounds = 12;
     const passwordHash = await bcrypt.hash(password, saltRounds);
 
-    // Create user
+    // Create user with normalized email
     const userId = uuidv4();
     const userData = {
       id: userId,
-      email: email.toLowerCase(),
+      email: normalizedEmail,
       password_hash: passwordHash,
       first_name: firstName,
       last_name: lastName,
@@ -117,7 +119,7 @@ const register = async (req, res) => {
     await db('users').insert(userData);
 
     // Generate token with user info
-    const token = generateToken(userId, email.toLowerCase());
+    const token = generateToken(userId, normalizedEmail);
 
     // Remove password hash from response
     const { password_hash, ...userResponse } = userData;
@@ -176,23 +178,38 @@ const login = async (req, res) => {
       });
     }
 
-    // Check for user
-    const user = await db('users').where({ email: email.toLowerCase() }).first();
+    // Check for user - ensure email is normalized to lowercase and trimmed
+    const normalizedEmail = email.toLowerCase().trim();
+    const user = await db('users').where({ email: normalizedEmail }).first();
+    
     if (!user) {
-      logger.warn({ email }, 'Login failed: User not found');
+      logger.warn({ email: normalizedEmail }, 'Login failed: User not found');
+      console.log('🔍 Login attempt - User lookup:', {
+        providedEmail: email,
+        normalizedEmail,
+        userFound: false
+      });
       return res.status(400).json({
         success: false,
-        error: 'Invalid credentials'
+        error: 'Invalid email or password. Please check your credentials or create a new account.',
+        code: 'INVALID_CREDENTIALS'
       });
     }
+    
+    console.log('🔍 Login attempt - User found:', {
+      userId: user.id,
+      userEmail: user.email,
+      emailMatch: user.email === normalizedEmail
+    });
 
     // Check password
     const isMatch = await bcrypt.compare(password, user.password_hash);
     if (!isMatch) {
-      logger.warn({ email }, 'Login failed: Invalid password');
+      logger.warn({ email: normalizedEmail }, 'Login failed: Invalid password');
       return res.status(400).json({
         success: false,
-        error: 'Invalid credentials'
+        error: 'Invalid email or password. Please check your credentials.',
+        code: 'INVALID_CREDENTIALS'
       });
     }
 
