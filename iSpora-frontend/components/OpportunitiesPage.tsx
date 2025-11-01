@@ -846,7 +846,7 @@ export function OpportunitiesPage() {
                   <div className="flex items-center gap-2">
                     <Avatar className="h-8 w-8">
                       <AvatarImage src={selectedOpportunity.postedBy.avatar} />
-                      <AvatarFallback>{selectedOpportunity.postedBy.name.charAt(0)}</AvatarFallback>
+                      <AvatarFallback>{(selectedOpportunity.postedBy?.name || '').charAt(0)}</AvatarFallback>
                     </Avatar>
                     <div>
                       <div className="flex items-center gap-2">

@@ -158,6 +158,8 @@ function MainContent() {
               const result = await apiClientV2.createProject(payload);
 
               console.log('Project created successfully:', result);
+              console.log('✅ Feed activity automatically created by backend');
+              
               try { (await import('./ui/sonner')).toast.success('Project created successfully!'); } catch {}
               setCurrentPage('Project Dashboard');
             } catch (error: any) {

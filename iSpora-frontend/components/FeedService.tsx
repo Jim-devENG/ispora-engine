@@ -67,7 +67,7 @@ const createRealtimeConnection = (onUpdate: (update: any) => void) => {
   return eventSource;
 };
 
-// Track user activity
+// 🌐 FRONTEND FEED FIX: Track user activity with correct payload structure
 const trackUserActivity = async (activity: string, metadata: any = {}) => {
   try {
     const headers: Record<string, string> = { 'Content-Type': 'application/json' };
@@ -76,13 +76,48 @@ const trackUserActivity = async (activity: string, metadata: any = {}) => {
     if (devKey) headers['X-Dev-Key'] = devKey;
     if (token) headers['Authorization'] = `Bearer ${token}`;
 
-    await fetch(`${API_BASE_URL}/feed/activity`, {
+    // 🚀 DevOps Guardian: Log outgoing payload for debugging
+    console.log('🚀 Feed activity payload:', {
+      activity,
+      metadata,
+      timestamp: new Date().toISOString()
+    });
+
+    // Transform activity data to match backend schema
+    const activityData = {
+      type: activity,
+      title: metadata.title || activity.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+      description: metadata.description || '',
+      category: metadata.category || 'general',
+      metadata: metadata
+    };
+
+    console.log('📤 Sending feed activity:', activityData);
+
+    const response = await fetch(`${API_BASE_URL}/feed/activity`, {
       method: 'POST',
       headers,
-      body: JSON.stringify({ activity, metadata }),
+      body: JSON.stringify(activityData),
     });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('❌ Activity tracking failed:', {
+        status: response.status,
+        statusText: response.statusText,
+        errorData,
+        payload: activityData
+      });
+    } else {
+      const successData = await response.json();
+      console.log('✅ Activity tracked successfully:', successData);
+    }
   } catch (error) {
-    console.error('Failed to track activity:', error);
+    console.error('❌ Failed to track activity:', {
+      error: error.message,
+      activity,
+      metadata
+    });
   }
 };
 
@@ -228,7 +263,7 @@ export class FeedService {
     });
 
     this.isConnected = true;
-    this.notifySubscribers();
+      this.notifySubscribers();
   }
 
   // Disconnect from real-time updates
@@ -245,9 +280,24 @@ export class FeedService {
   private handleRealtimeUpdate(update: any): void {
     switch (update.type) {
       case 'connection':
-        console.log('Connected to real-time feed:', update);
+      case 'connected':
+        console.info('🔗 Realtime feed connection active');
+        this.realtimeData = {
+          ...this.realtimeData,
+          isConnected: true,
+          lastConnection: update.timestamp || new Date().toISOString(),
+        };
+        break;
+      case 'welcome':
+        console.info('👋 Realtime feed welcome message received');
+        this.realtimeData = {
+          ...this.realtimeData,
+          isConnected: true,
+          lastWelcome: update.timestamp || new Date().toISOString(),
+        };
         break;
       case 'heartbeat':
+      case 'ping':
         this.realtimeData = {
           ...this.realtimeData,
           activeUsers: update.activeUsers,
@@ -262,13 +312,17 @@ export class FeedService {
         };
         break;
       case 'feed_update':
+      case 'new_post':
         // Handle new feed items
         if (update.feedItem) {
           this.addFeedItem(update.feedItem);
         }
         break;
+      case 'error':
+        console.warn('⚠️ Realtime feed error:', update.message || update.error);
+        break;
       default:
-        console.log('Unknown realtime update:', update);
+        console.warn('🔍 Unhandled realtime event:', update.type, update);
     }
     this.notifySubscribers();
   }
@@ -339,21 +393,21 @@ export class FeedService {
   // Get all feed items with filtering options
   public getFeedItems(
     options: {
-      includeAdminHighlights?: boolean;
-      userFilter?: string;
-      categoryFilter?: string;
-      significanceFilter?: 'all' | 'low' | 'medium' | 'high' | 'critical';
-      limit?: number;
+    includeAdminHighlights?: boolean;
+    userFilter?: string;
+    categoryFilter?: string;
+    significanceFilter?: 'all' | 'low' | 'medium' | 'high' | 'critical';
+    limit?: number;
       visibility?: 'all' | 'public' | 'authenticated';
-      includeExpired?: boolean;
+    includeExpired?: boolean;
     } = {},
   ): FeedItem[] {
-    const {
-      includeAdminHighlights = true,
-      userFilter,
+    const { 
+      includeAdminHighlights = true, 
+      userFilter, 
       categoryFilter,
       significanceFilter = 'all',
-      limit,
+      limit, 
       visibility = 'all',
       includeExpired = true,
     } = options;
@@ -400,8 +454,8 @@ export class FeedService {
     if (userFilter) {
       feedItems = feedItems.filter(
         (item) =>
-          item.authorName?.toLowerCase().includes(userFilter.toLowerCase()) ||
-          item.title.toLowerCase().includes(userFilter.toLowerCase()) ||
+        item.authorName?.toLowerCase().includes(userFilter.toLowerCase()) ||
+        item.title.toLowerCase().includes(userFilter.toLowerCase()) ||
           item.description?.toLowerCase().includes(userFilter.toLowerCase()),
       );
     }
@@ -442,7 +496,7 @@ export class FeedService {
     recentActivity: number;
   } {
     const allItems = this.getFeedItems();
-
+    
     return {
       totalItems: allItems.length,
       adminHighlights: allItems.filter((item) => item.isAdminCurated).length,
@@ -476,7 +530,7 @@ export class FeedService {
           authorId: action.userId,
           authorName: action.userName,
           projectId: action.entityId,
-          visibility: 'public',
+      visibility: 'public',
           significance,
           isAutoGenerated: true,
         };
@@ -494,7 +548,7 @@ export class FeedService {
           authorId: action.userId,
           authorName: action.userName,
           projectId: action.entityId,
-          visibility: 'public',
+      visibility: 'public',
           significance,
           isAutoGenerated: true,
         };
@@ -512,7 +566,7 @@ export class FeedService {
           authorId: action.userId,
           authorName: action.userName,
           opportunityId: action.entityId,
-          visibility: 'public',
+      visibility: 'public',
           significance,
           isAutoGenerated: true,
         };
@@ -706,7 +760,7 @@ export function useFeedService() {
       id: `action_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       timestamp: new Date().toISOString(),
     };
-
+    
     return feedService.recordUserAction(fullAction);
   };
 

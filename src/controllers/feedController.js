@@ -3,7 +3,12 @@ const config = require('../knexfile');
 const logger = require('../utils/logger');
 const { validatePayload, sanitizePayload, ValidationError } = require('../utils/validation');
 
-const db = knex(config.development);
+// 🛡️ DevOps Guardian: Use environment-appropriate database config
+const dbConfig = process.env.NODE_ENV === 'production' 
+  ? (config.production || config.development)
+  : config.development;
+
+const db = knex(dbConfig);
 
 // Get feed entries
 const getFeed = async (req, res) => {
@@ -47,7 +52,10 @@ const getFeed = async (req, res) => {
       title: entry.title,
       description: entry.description,
       category: entry.category,
-      metadata: JSON.parse(entry.metadata || '{}'),
+      // 🛡️ DevOps Guardian: Parse metadata - handle both string and object formats
+      metadata: typeof entry.metadata === 'string' 
+        ? JSON.parse(entry.metadata || '{}')
+        : (entry.metadata || {}),
       author: {
         name: `${entry.first_name} ${entry.last_name}`,
         email: entry.author_email
@@ -89,23 +97,39 @@ const getFeed = async (req, res) => {
   }
 };
 
-// Track activity
+// 🌐 BACKEND FEED FIX: Enhanced activity tracking with better validation
 const trackActivity = async (req, res) => {
   try {
-    console.log('[DEBUG] Incoming payload:', req.body);
+    console.log('[DEBUG] Incoming feed activity payload:', req.body);
 
-    // Simple validation
-    if (!req.body.type || !req.body.title) {
-      console.error('[ERROR] Missing required fields');
+    // Enhanced validation with detailed error messages
+    const missingFields = [];
+    if (!req.body.type) missingFields.push('type');
+    if (!req.body.title) missingFields.push('title');
+    
+    if (missingFields.length > 0) {
+      console.error('[ERROR] Missing required fields for feed activity:', missingFields);
+      console.error('[ERROR] Received payload:', req.body);
       return res.status(400).json({
         success: false,
-        error: 'Missing required fields: type and title are required',
-        code: 'MISSING_REQUIRED_FIELDS'
+        error: `Missing required fields: ${missingFields.join(', ')}`,
+        code: 'MISSING_REQUIRED_FIELDS',
+        missingFields: missingFields,
+        receivedPayload: req.body
       });
     }
 
-    // Get user ID - use demo user for now
-    const userId = '00000000-0000-0000-0000-000000000001';
+    // Log successful validation
+    console.log('✅ Feed activity validation passed:', {
+      type: req.body.type,
+      title: req.body.title,
+      hasDescription: !!req.body.description,
+      hasCategory: !!req.body.category,
+      hasMetadata: !!req.body.metadata
+    });
+
+    // Get user ID - try to get from authenticated user first, fallback to demo user
+    const userId = req.user?.id || '00000000-0000-0000-0000-000000000001';
 
     // Create simple activity entry
     const activityId = require('uuid').v4();

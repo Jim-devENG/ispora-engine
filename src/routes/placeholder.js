@@ -7,6 +7,7 @@ const router = express.Router();
 router.get('/:width/:height', (req, res) => {
   try {
     const { width, height } = req.params;
+    const { redirect } = req.query;
     
     // Validate dimensions
     const w = parseInt(width);
@@ -17,6 +18,13 @@ router.get('/:width/:height', (req, res) => {
         success: false,
         error: 'Invalid dimensions. Width and height must be numbers between 1 and 2000'
       });
+    }
+    
+    // If redirect=true, redirect to via.placeholder.com
+    if (redirect === 'true') {
+      const placeholderUrl = `https://via.placeholder.com/${w}x${h}`;
+      logger.info({ width: w, height: h, url: placeholderUrl }, 'Redirecting to via.placeholder.com');
+      return res.redirect(placeholderUrl);
     }
     
     // Generate SVG placeholder

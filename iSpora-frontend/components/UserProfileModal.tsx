@@ -450,7 +450,7 @@ export function UserProfileModal({
               <div className="flex items-center gap-2">
                 <Badge className={roleInfo.color}>
                   <RoleIcon className="h-3 w-3 mr-1" />
-                  {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+                  {(user?.role || '').charAt(0).toUpperCase() + (user?.role || '').slice(1)}
                 </Badge>
                 <Badge
                   variant="outline"

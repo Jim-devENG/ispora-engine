@@ -291,7 +291,7 @@ function LeaderboardRow({ entry }: { entry: any }) {
         <div className="flex items-center gap-3">
           <Avatar className="h-10 w-10">
             <AvatarImage src={userInfo.avatar} alt={userInfo.name || 'User'} />
-            <AvatarFallback>{(userInfo.name || 'U').charAt(0)}</AvatarFallback>
+            <AvatarFallback>{(userInfo?.name || 'U').charAt(0)}</AvatarFallback>
           </Avatar>
 
           <div>

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-// Create axios instance with base configuration
+// 🌐 FRONTEND API FIX: Enhanced axios configuration with proper base URL
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'https://ispora-backend.onrender.com/api',
   timeout: 10000,

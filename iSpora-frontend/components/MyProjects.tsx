@@ -184,7 +184,7 @@ function ProjectCard({ project }: { project: Project }) {
                 {project.status === 'paused' && <PauseCircle className="h-3 w-3 mr-1" />}
                 {project.status === 'completed' && <CheckCircle className="h-3 w-3 mr-1" />}
                 {project.status === 'draft' && <Clock className="h-3 w-3 mr-1" />}
-                {project.status.charAt(0).toUpperCase() + project.status.slice(1)}
+                {(project.status || '').charAt(0).toUpperCase() + (project.status || '').slice(1)}
               </Badge>
               {project.isPublic && (
                 <Badge variant="outline" className="text-xs">

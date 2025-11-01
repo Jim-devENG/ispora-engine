@@ -5,34 +5,81 @@ const knex = require('knex');
 const config = require('../knexfile');
 const logger = require('../utils/logger');
 
-const db = knex(config.development);
+// 🛡️ DevOps Guardian: Use environment-appropriate database config
+const dbConfig = process.env.NODE_ENV === 'production' 
+  ? (config.production || config.development)
+  : config.development;
+
+const db = knex(dbConfig);
 
 // Generate JWT token
-const generateToken = (userId) => {
+const generateToken = (userId, email = null) => {
+  const payload = { id: userId };
+  // Include email in token if provided (for better user lookup)
+  if (email) {
+    payload.email = email;
+  }
   return jwt.sign(
-    { id: userId },
-    process.env.JWT_SECRET || 'fallback-secret-change-in-production',
-    { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+    payload,
+    process.env.JWT_SECRET || config.jwt?.secret || 'fallback-secret-change-in-production',
+    { expiresIn: process.env.JWT_EXPIRES_IN || config.jwt?.expiresIn || '7d' }
   );
 };
 
 // Register user
 const register = async (req, res) => {
   try {
+    console.log('🔍 Auth registration debugging:', {
+      hasEmail: !!req.body.email,
+      hasPassword: !!req.body.password,
+      hasFirstName: !!req.body.firstName,
+      hasLastName: !!req.body.lastName,
+      userType: req.body.userType
+    });
+
     const { email, password, firstName, lastName, userType = 'student' } = req.body;
 
-    // Validation
-    if (!email || !password || !firstName || !lastName) {
+    // Enhanced validation with specific field checks
+    const missingFields = [];
+    if (!email) missingFields.push('email');
+    if (!password) missingFields.push('password');
+    if (!firstName) missingFields.push('firstName');
+    if (!lastName) missingFields.push('lastName');
+
+    if (missingFields.length > 0) {
+      console.error('❌ Missing required fields:', missingFields);
       return res.status(400).json({
         success: false,
-        error: 'Email, password, first name, and last name are required'
+        error: `Missing required fields: ${missingFields.join(', ')}`,
+        code: 'MISSING_REQUIRED_FIELDS',
+        missingFields: missingFields
       });
     }
 
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid email format',
+        code: 'INVALID_EMAIL'
+      });
+    }
+
+    // Password validation
     if (password.length < 6) {
       return res.status(400).json({
         success: false,
-        error: 'Password must be at least 6 characters long'
+        error: 'Password must be at least 6 characters long',
+        code: 'PASSWORD_TOO_SHORT'
+      });
+    }
+
+    if (password.length > 128) {
+      return res.status(400).json({
+        success: false,
+        error: 'Password must be less than 128 characters',
+        code: 'PASSWORD_TOO_LONG'
       });
     }
 
@@ -69,8 +116,8 @@ const register = async (req, res) => {
 
     await db('users').insert(userData);
 
-    // Generate token
-    const token = generateToken(userId);
+    // Generate token with user info
+    const token = generateToken(userId, email.toLowerCase());
 
     // Remove password hash from response
     const { password_hash, ...userResponse } = userData;
@@ -96,13 +143,36 @@ const register = async (req, res) => {
 // Login user
 const login = async (req, res) => {
   try {
+    console.log('🔍 Auth login debugging:', {
+      hasEmail: !!req.body.email,
+      hasPassword: !!req.body.password,
+      email: req.body.email
+    });
+
     const { email, password } = req.body;
 
-    // Validation
-    if (!email || !password) {
+    // Enhanced validation
+    const missingFields = [];
+    if (!email) missingFields.push('email');
+    if (!password) missingFields.push('password');
+
+    if (missingFields.length > 0) {
+      console.error('❌ Missing required fields for login:', missingFields);
       return res.status(400).json({
         success: false,
-        error: 'Email and password are required'
+        error: `Missing required fields: ${missingFields.join(', ')}`,
+        code: 'MISSING_REQUIRED_FIELDS',
+        missingFields: missingFields
+      });
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid email format',
+        code: 'INVALID_EMAIL'
       });
     }
 
@@ -126,8 +196,8 @@ const login = async (req, res) => {
       });
     }
 
-    // Generate token
-    const token = generateToken(user.id);
+    // Generate token with user info
+    const token = generateToken(user.id, user.email);
 
     // Update last login
     await db('users').where({ id: user.id }).update({ 

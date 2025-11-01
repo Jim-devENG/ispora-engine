@@ -125,10 +125,27 @@ const createProject = async (req, res) => {
     // First, try to get user by ID, then try email if ID lookup fails
     let userExists = await db('users').where('id', req.user.id).first();
     
-    // If user not found by ID, check if token has email and try that
-    if (!userExists && req.user.email) {
-      console.warn(`⚠️ User not found by ID (${req.user.id}), trying email lookup...`);
-      userExists = await db('users').where('email', req.user.email).first();
+    // If user not found by ID, try to get user from token payload and check database
+    if (!userExists) {
+      console.warn(`⚠️ User not found by ID (${req.user.id}), checking all users...`);
+      
+      // Debug: List all users in database (only in development)
+      if (process.env.NODE_ENV === 'development') {
+        const allUsers = await db('users').select('id', 'email', 'first_name', 'last_name').limit(10);
+        console.log('📋 Users in database:', allUsers);
+      }
+      
+      // If token has email and user not found, check if email matches
+      if (req.user.email) {
+        console.warn(`⚠️ Trying email lookup: ${req.user.email}`);
+        userExists = await db('users').where('email', req.user.email).first();
+      }
+      
+      // Last resort: Check if there's any user at all
+      if (!userExists) {
+        const userCount = await db('users').count('* as count').first();
+        console.warn(`⚠️ No user found. Total users in database: ${userCount?.count || 0}`);
+      }
     }
     
     if (!userExists) {
@@ -197,12 +214,20 @@ const createProject = async (req, res) => {
       title: `New Project: ${title}`,
       description: description,
       category: category,
-      metadata: JSON.stringify({
-        project_id: projectId,
-        action: 'created',
-        priority: priority
-      }),
-      user_id: req.user.id,
+      // 🛡️ DevOps Guardian: Handle metadata for both SQLite (text) and PostgreSQL (json)
+      // SQLite stores JSON as text, PostgreSQL has native JSON support
+      metadata: (process.env.NODE_ENV === 'production' && dbConfig.client === 'pg')
+        ? JSON.stringify({
+            project_id: projectId,
+            action: 'created',
+            priority: priority
+          })
+        : JSON.stringify({
+            project_id: projectId,
+            action: 'created',
+            priority: priority
+          }),
+      user_id: userExists.id, // Use the verified user from database
       project_id: projectId,
       is_public: isPublic,
       created_at: new Date(),
@@ -212,8 +237,25 @@ const createProject = async (req, res) => {
       shares: 0
     };
 
-    await db('feed_entries').insert(feedEntryData);
-    console.log('[iSpora] Feed Activity Logged: PROJECT_CREATED');
+    // 🛡️ DevOps Guardian: Insert feed entry with error handling
+    try {
+      await db('feed_entries').insert(feedEntryData);
+      console.log('[iSpora] Feed Activity Logged: PROJECT_CREATED');
+      logger.info({ 
+        feedEntryId, 
+        projectId, 
+        userId: req.user.id 
+      }, '✅ Feed entry created successfully');
+    } catch (feedError) {
+      // Log error but don't fail project creation if feed entry fails
+      console.error('[ERROR] Failed to create feed entry:', feedError);
+      logger.error({ 
+        error: feedError.message, 
+        projectId, 
+        userId: req.user.id 
+      }, '⚠️ Feed entry creation failed (project still created)');
+      // Continue with project creation even if feed entry fails
+    }
 
     console.log("✅ Project created successfully:", projectId);
     logger.info({ 

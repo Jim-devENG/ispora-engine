@@ -199,7 +199,7 @@ function CommentsDialog({
             <div className="flex gap-3">
               <Avatar className="h-8 w-8">
                 <AvatarFallback className="bg-[#021ff6] text-white text-sm">
-                  {userName.charAt(0)}
+                  {(userName || 'U').charAt(0)}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1">
@@ -257,7 +257,7 @@ function CommentsDialog({
                     <Avatar className="h-8 w-8">
                       <AvatarImage src={comment.userAvatar} alt={comment.userName} />
                       <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white text-sm">
-                        {comment.userName.charAt(0)}
+                        {(comment.userName || 'U').charAt(0)}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1">
@@ -1518,7 +1518,7 @@ function DashboardContent() {
                             <Avatar className="h-12 w-12 ring-2 ring-white shadow-md">
                               <AvatarImage src={post.authorAvatar} alt={post.authorName} />
                               <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold">
-                                {post.authorName.charAt(0)}
+                                {(post.authorName || 'U').charAt(0)}
                               </AvatarFallback>
                             </Avatar>
 

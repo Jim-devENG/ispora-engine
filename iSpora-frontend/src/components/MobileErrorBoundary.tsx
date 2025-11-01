@@ -26,8 +26,35 @@ export class MobileErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('MobileErrorBoundary caught an error:', error, errorInfo);
+    
+    // Log error to backend
+    this.logErrorToBackend(error, errorInfo);
+    
     this.props.onError?.(error, errorInfo);
   }
+
+  logErrorToBackend = async (error: Error, errorInfo: ErrorInfo) => {
+    try {
+      const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://ispora-backend.onrender.com/api';
+      await fetch(`${API_BASE_URL}/logs`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          error: error.message,
+          stack: error.stack,
+          componentStack: errorInfo.componentStack,
+          timestamp: new Date().toISOString(),
+          userAgent: navigator.userAgent,
+          url: window.location.href,
+          type: 'react_error_boundary'
+        })
+      });
+    } catch (logError) {
+      console.error('Failed to log error to backend:', logError);
+    }
+  };
 
   handleRetry = () => {
     this.setState({ hasError: false, error: undefined });

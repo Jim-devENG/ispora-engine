@@ -35,6 +35,29 @@ const requestLogger = (req, res, next) => {
       body: sanitizedBody,
       bodySize: JSON.stringify(req.body).length
     }, `📩 ${req.method} ${req.url} - payload`);
+    
+    // Additional debugging for specific routes
+    if (req.url.includes('/auth/')) {
+      console.log('🔍 Auth request debugging:', {
+        url: req.url,
+        hasEmail: !!req.body.email,
+        hasPassword: !!req.body.password,
+        hasFirstName: !!req.body.firstName,
+        hasLastName: !!req.body.lastName
+      });
+    }
+    
+    if (req.url.includes('/projects')) {
+      console.log('🔍 Project request debugging:', {
+        url: req.url,
+        hasTitle: !!req.body.title,
+        hasDescription: !!req.body.description,
+        hasCategory: !!req.body.category,
+        hasType: !!req.body.type,
+        hasPriority: !!req.body.priority,
+        userId: req.user?.id
+      });
+    }
   }
   
   // Override res.json to log responses

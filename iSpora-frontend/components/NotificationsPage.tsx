@@ -151,7 +151,7 @@ function NotificationDetailModal({
                 <div
                   className={`px-3 py-1 rounded-full border text-sm font-medium ${getPriorityColor(notification.metadata.priority)}`}
                 >
-                  {notification.metadata.priority.charAt(0).toUpperCase() +
+                  {(notification.metadata?.priority || '').charAt(0).toUpperCase() +
                     notification.metadata.priority.slice(1)}{' '}
                   Priority
                 </div>

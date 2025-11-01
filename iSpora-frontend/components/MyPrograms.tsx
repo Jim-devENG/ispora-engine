@@ -262,7 +262,7 @@ function ProgramCard({ program }: { program: Program }) {
                 {program.status === 'paused' && <PauseCircle className="h-3 w-3 mr-1" />}
                 {program.status === 'completed' && <CheckCircle className="h-3 w-3 mr-1" />}
                 {program.status === 'draft' && <Clock className="h-3 w-3 mr-1" />}
-                {program.status.charAt(0).toUpperCase() + program.status.slice(1)}
+                {(program?.status || '').charAt(0).toUpperCase() + (program?.status || '').slice(1)}
               </Badge>
               {program.isPublic && (
                 <Badge variant="outline" className="text-xs">
