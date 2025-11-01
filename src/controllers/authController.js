@@ -94,9 +94,14 @@ const register = async (req, res) => {
       });
     }
 
-    // Hash password
+    // 🛡️ DevOps Guardian: Hash password with bcrypt
     const saltRounds = 12;
+    console.log('🔍 [REGISTER] Hashing password with bcrypt (salt rounds:', saltRounds, ')...');
     const passwordHash = await bcrypt.hash(password, saltRounds);
+    console.log('✅ [REGISTER] Password hashed successfully:', {
+      hashLength: passwordHash.length,
+      hashPreview: passwordHash.substring(0, 20) + '...'
+    });
 
     // Create user with normalized email
     const userId = uuidv4();
@@ -116,10 +121,45 @@ const register = async (req, res) => {
       updated_at: new Date()
     };
 
+    // 🛡️ DevOps Guardian: Verify database connection before inserting
+    try {
+      await db.raw('SELECT 1');
+      console.log('✅ [REGISTER] Database connection verified');
+    } catch (dbError) {
+      console.error('❌ [REGISTER] Database connection failed:', dbError.message);
+      logger.error({ error: dbError.message }, 'Database connection failed during registration');
+      return res.status(500).json({
+        success: false,
+        error: 'Database connection error. Please try again.',
+        msg: 'Database connection failed'
+      });
+    }
+    
     await db('users').insert(userData);
+    console.log('✅ [REGISTER] User inserted into database:', {
+      userId,
+      email: normalizedEmail
+    });
+    
+    // 🛡️ DevOps Guardian: Verify user was actually created
+    const createdUser = await db('users').where({ id: userId }).first();
+    if (!createdUser) {
+      console.error('❌ [REGISTER] User was not found after insertion');
+      logger.error({ userId, email: normalizedEmail }, 'User not found after registration');
+      return res.status(500).json({
+        success: false,
+        error: 'Registration failed. User was not created.',
+        msg: 'Registration failed'
+      });
+    }
+    console.log('✅ [REGISTER] User verified in database after creation');
 
     // Generate token with user info
     const token = generateToken(userId, normalizedEmail);
+    console.log('✅ [REGISTER] JWT token generated:', {
+      userId,
+      tokenLength: token.length
+    });
 
     // Remove password hash from response
     const { password_hash, ...userResponse } = userData;
@@ -134,9 +174,23 @@ const register = async (req, res) => {
     });
 
   } catch (error) {
-    logger.error({ error: error.message }, 'Registration failed');
+    console.error('❌ [REGISTER] Unexpected error:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    });
+    logger.error({ error: error.message, stack: error.stack }, 'Registration failed');
+    
+    // 🛡️ DevOps Guardian: Add CORS headers to error response
+    const origin = req.headers.origin;
+    if (origin && origin.includes('ispora.app')) {
+      res.setHeader('Access-Control-Allow-Origin', origin);
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
+    }
+    
     res.status(500).json({
       success: false,
+      msg: 'Server error during registration. Please try again.',
       error: 'Server error during registration'
     });
   }
@@ -145,11 +199,18 @@ const register = async (req, res) => {
 // Login user
 const login = async (req, res) => {
   try {
-    console.log('🔍 Auth login debugging:', {
+    // 🛡️ DevOps Guardian: Enhanced logging for login debugging
+    console.log('🔍 [LOGIN] Incoming request body:', {
       hasEmail: !!req.body.email,
       hasPassword: !!req.body.password,
-      email: req.body.email
+      email: req.body.email,
+      passwordLength: req.body.password ? req.body.password.length : 0,
+      timestamp: new Date().toISOString()
     });
+    console.log('🔍 [LOGIN] Full request body:', JSON.stringify({
+      email: req.body.email,
+      password: req.body.password ? `[${req.body.password.length} chars]` : null
+    }));
 
     const { email, password } = req.body;
 
@@ -180,52 +241,118 @@ const login = async (req, res) => {
 
     // Check for user - ensure email is normalized to lowercase and trimmed
     const normalizedEmail = email.toLowerCase().trim();
+    
+    console.log('🔍 [LOGIN] Looking up user with normalized email:', normalizedEmail);
+    
+    // 🛡️ DevOps Guardian: Verify database connection before querying
+    try {
+      // Test database connection
+      await db.raw('SELECT 1');
+      console.log('✅ [LOGIN] Database connection verified');
+    } catch (dbError) {
+      console.error('❌ [LOGIN] Database connection failed:', dbError.message);
+      logger.error({ error: dbError.message }, 'Database connection failed during login');
+      return res.status(500).json({
+        success: false,
+        msg: 'Database connection error. Please try again.',
+        error: 'Database connection failed'
+      });
+    }
+    
     const user = await db('users').where({ email: normalizedEmail }).first();
     
     if (!user) {
       logger.warn({ email: normalizedEmail }, 'Login failed: User not found');
-      console.log('🔍 Login attempt - User lookup:', {
+      console.log('❌ [LOGIN] User not found in database:', {
         providedEmail: email,
         normalizedEmail,
         userFound: false
       });
-      return res.status(400).json({
+      
+      // 🛡️ DevOps Guardian: Add CORS headers to error response
+      const origin = req.headers.origin;
+      if (origin && origin.includes('ispora.app')) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+        res.setHeader('Access-Control-Allow-Credentials', 'true');
+      }
+      
+      return res.status(401).json({
         success: false,
-        error: 'Invalid email or password. Please check your credentials or create a new account.',
+        msg: 'Invalid email or password',
+        error: 'Invalid email or password',
         code: 'INVALID_CREDENTIALS'
       });
     }
     
-    console.log('🔍 Login attempt - User found:', {
+    console.log('✅ [LOGIN] User found in database:', {
       userId: user.id,
       userEmail: user.email,
-      emailMatch: user.email === normalizedEmail
+      emailMatch: user.email === normalizedEmail,
+      hasPasswordHash: !!user.password_hash,
+      passwordHashLength: user.password_hash ? user.password_hash.length : 0
     });
 
-    // Check password
-    const isMatch = await bcrypt.compare(password, user.password_hash);
-    if (!isMatch) {
-      logger.warn({ email: normalizedEmail }, 'Login failed: Invalid password');
-      return res.status(400).json({
+    // 🛡️ DevOps Guardian: Verify password hash exists
+    if (!user.password_hash) {
+      console.error('❌ [LOGIN] User has no password hash:', { userId: user.id, email: user.email });
+      logger.error({ userId: user.id, email: user.email }, 'User has no password hash');
+      return res.status(500).json({
         success: false,
-        error: 'Invalid email or password. Please check your credentials.',
-        code: 'INVALID_CREDENTIALS'
+        msg: 'Account setup error. Please contact support.',
+        error: 'Password hash missing'
       });
     }
 
+    // Check password using bcrypt.compare
+    console.log('🔍 [LOGIN] Comparing password with bcrypt...');
+    const isMatch = await bcrypt.compare(password, user.password_hash);
+    console.log('🔍 [LOGIN] Password comparison result:', isMatch);
+    
+    if (!isMatch) {
+      logger.warn({ email: normalizedEmail }, 'Login failed: Invalid password');
+      console.log('❌ [LOGIN] Password does not match');
+      
+      // 🛡️ DevOps Guardian: Add CORS headers to error response
+      const origin = req.headers.origin;
+      if (origin && origin.includes('ispora.app')) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+        res.setHeader('Access-Control-Allow-Credentials', 'true');
+      }
+      
+      return res.status(401).json({
+        success: false,
+        msg: 'Invalid email or password',
+        error: 'Invalid email or password',
+        code: 'INVALID_CREDENTIALS'
+      });
+    }
+    
+    console.log('✅ [LOGIN] Password verified successfully');
+
     // Generate token with user info
     const token = generateToken(user.id, user.email);
+    console.log('✅ [LOGIN] JWT token generated:', {
+      userId: user.id,
+      tokenLength: token.length,
+      tokenPreview: token.substring(0, 20) + '...'
+    });
 
     // Update last login
     await db('users').where({ id: user.id }).update({ 
       last_login: new Date(), 
       updated_at: new Date() 
     });
+    console.log('✅ [LOGIN] Last login timestamp updated');
 
     // Remove password hash from response
     const { password_hash, ...userResponse } = user;
 
     logger.info({ userId: user.id, email }, 'User logged in successfully');
+    console.log('✅ [LOGIN] Login successful - returning response:', {
+      userId: user.id,
+      userEmail: user.email,
+      hasToken: !!token
+    });
 
     res.json({
       success: true,
@@ -235,9 +362,23 @@ const login = async (req, res) => {
     });
 
   } catch (error) {
-    logger.error({ error: error.message }, 'Login failed');
+    console.error('❌ [LOGIN] Unexpected error:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    });
+    logger.error({ error: error.message, stack: error.stack }, 'Login failed');
+    
+    // 🛡️ DevOps Guardian: Add CORS headers to error response
+    const origin = req.headers.origin;
+    if (origin && origin.includes('ispora.app')) {
+      res.setHeader('Access-Control-Allow-Origin', origin);
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
+    }
+    
     res.status(500).json({
       success: false,
+      msg: 'Server error during login. Please try again.',
       error: 'Server error during login'
     });
   }
