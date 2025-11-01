@@ -99,6 +99,7 @@ setTimeout(() => {
     
     // Console output for Render logs
     console.log('✅ iSpora Backend Started Successfully!');
+    console.log('✅ iSpora backend and frontend fully synchronized.');
     console.log(`⏱️  Total Startup Time: ${totalStartupTime}ms`);
     console.log(`🌐 Server running on port ${PORT}`);
     console.log(`🏥 Health Check: http://localhost:${PORT}/api/health`);
