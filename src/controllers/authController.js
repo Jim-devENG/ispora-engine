@@ -254,8 +254,34 @@ const getMe = async (req, res) => {
   }
 };
 
+// Logout user
+const logout = async (req, res) => {
+  try {
+    // Update last logout time if user is authenticated
+    if (req.user && req.user.id) {
+      await db('users').where({ id: req.user.id }).update({ 
+        updated_at: new Date() 
+      });
+      logger.info({ userId: req.user.id }, 'User logged out');
+    }
+    
+    res.json({
+      success: true,
+      message: 'Logout successful'
+    });
+  } catch (error) {
+    logger.error({ error: error.message }, 'Logout failed');
+    // Even if there's an error, logout should succeed client-side
+    res.json({
+      success: true,
+      message: 'Logout successful'
+    });
+  }
+};
+
 module.exports = {
   register,
   login,
-  getMe
+  getMe,
+  logout
 };
