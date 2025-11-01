@@ -8,6 +8,13 @@ const authenticateToken = async (req, res, next) => {
     const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
 
     if (!token) {
+      // 🛡️ DevOps Guardian: Add CORS headers to auth error response
+      const origin = req.headers.origin;
+      if (origin && origin.includes('ispora.app')) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+        res.setHeader('Access-Control-Allow-Credentials', 'true');
+      }
+      
       return res.status(401).json({
         success: false,
         error: 'Access token required',
@@ -18,10 +25,13 @@ const authenticateToken = async (req, res, next) => {
     // Verify JWT token
     const decoded = jwt.verify(token, config.jwt.secret);
     
-    // Attach user info to request
-    req.user = { id: decoded.id };
+    // 🛡️ DevOps Guardian: Attach user info to request with all available token data
+    req.user = { 
+      id: decoded.id,
+      email: decoded.email || null // Include email if available in token
+    };
     
-    logger.info({ userId: decoded.id }, 'Token verified successfully');
+    logger.info({ userId: decoded.id, email: decoded.email }, 'Token verified successfully');
     next();
   } catch (error) {
     logger.error({ error: error.message }, 'Token verification failed');

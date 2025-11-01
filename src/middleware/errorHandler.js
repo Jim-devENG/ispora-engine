@@ -28,6 +28,15 @@ const errorHandler = (error, req, res, next) => {
     environment: process.env.NODE_ENV
   }, '❌ Unhandled error occurred');
 
+  // Log to Sentry if available
+  if (typeof Sentry !== 'undefined' && Sentry.captureException) {
+    try {
+      Sentry.captureException(error);
+    } catch (sentryError) {
+      logger.warn('Failed to capture exception in Sentry:', sentryError);
+    }
+  }
+
   // Default error response
   let statusCode = 500;
   let message = 'Internal server error';
@@ -89,6 +98,43 @@ const errorHandler = (error, req, res, next) => {
       code: error.code
     }, '❌ Database connection error');
     
+  } else if (error.code === 'SQLITE_CONSTRAINT' || error.code === '23505' || error.code === '23503' || error.code === '23502') {
+    statusCode = 400;
+    code = 'CONSTRAINT_ERROR';
+    
+    // Specific constraint error messages
+    if (error.code === '23503') {
+      message = 'Foreign key constraint failed. User may not exist. Please log in again.';
+      code = 'USER_NOT_FOUND';
+    } else if (error.code === '23505') {
+      message = 'Duplicate entry. This item already exists.';
+      code = 'DUPLICATE_ENTRY';
+    } else if (error.code === '23502') {
+      message = 'Required field is missing. Please check your data.';
+      code = 'MISSING_REQUIRED_FIELD';
+    } else if (error.message.includes('UNIQUE constraint failed')) {
+      if (error.message.includes('email')) {
+        message = 'Email already exists. Please use a different email.';
+        code = 'EMAIL_EXISTS';
+      } else if (error.message.includes('username')) {
+        message = 'Username already exists. Please choose a different username.';
+        code = 'USERNAME_EXISTS';
+      } else if (error.message.includes('slug')) {
+        message = 'Project slug already exists. Please try another name.';
+        code = 'SLUG_EXISTS';
+      } else {
+        message = 'Duplicate entry. This item already exists.';
+      }
+    } else {
+      message = 'Database constraint error. Please check your data.';
+    }
+    
+    details = {
+      constraint: error.constraint,
+      code: error.code,
+      message: error.message
+    };
+    
   } else if (error.code === 'EADDRINUSE') {
     statusCode = 503;
     message = 'Service temporarily unavailable - port already in use';
@@ -124,6 +170,19 @@ const errorHandler = (error, req, res, next) => {
   // Add stack trace only in development
   if (process.env.NODE_ENV === 'development') {
     response.stack = error.stack;
+  }
+
+  // 🛡️ DevOps Guardian: Always add CORS headers to error responses
+  const origin = req.headers.origin;
+  if (origin && (
+    origin.includes('ispora.app') || 
+    origin.includes('localhost') ||
+    origin.includes('127.0.0.1')
+  )) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
   }
 
   // Log successful error response

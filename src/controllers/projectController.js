@@ -121,14 +121,38 @@ const createProject = async (req, res) => {
       projectId: projectId
     });
     
-    // Check if user exists before creating project
-    const userExists = await db('users').where('id', req.user.id).first();
+    // 🛡️ DevOps Guardian: Check if user exists before creating project
+    // First, try to get user by ID, then try email if ID lookup fails
+    let userExists = await db('users').where('id', req.user.id).first();
+    
+    // If user not found by ID, check if token has email and try that
+    if (!userExists && req.user.email) {
+      console.warn(`⚠️ User not found by ID (${req.user.id}), trying email lookup...`);
+      userExists = await db('users').where('email', req.user.email).first();
+    }
+    
     if (!userExists) {
-      console.error('❌ User not found in database:', req.user.id);
+      console.error('❌ User not found in database:', {
+        userId: req.user.id,
+        userEmail: req.user.email,
+        tokenPayload: req.user
+      });
+      
+      // 🛡️ DevOps Guardian: Add CORS headers to error response
+      const origin = req.headers.origin;
+      if (origin && origin.includes('ispora.app')) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+        res.setHeader('Access-Control-Allow-Credentials', 'true');
+      }
+      
       return res.status(400).json({
         success: false,
         error: 'User not found. Please log in again.',
-        code: 'USER_NOT_FOUND'
+        code: 'USER_NOT_FOUND',
+        debug: process.env.NODE_ENV === 'development' ? {
+          userIdFromToken: req.user.id,
+          emailFromToken: req.user.email
+        } : undefined
       });
     }
     
