@@ -953,7 +953,7 @@ function DashboardContent() {
         return {
           narrative: isOwnContent
             ? `You've launched an exciting new initiative that's now connecting communities across ${post.location}. This project is making a real difference and building bridges between diaspora professionals and local communities.`
-            : `${post.authorName} is building something impactful in ${post.category?.toLowerCase() || 'general'}, creating opportunities for diaspora professionals to make a difference. This initiative represents the kind of collaboration that strengthens our global network.`,
+            : `${safeAuthorName} is building something impactful in ${post.category?.toLowerCase() || 'general'}, creating opportunities for diaspora professionals to make a difference. This initiative represents the kind of collaboration that strengthens our global network.`,
           ctaText: isOwnContent ? 'Manage Your Project' : 'Join This Mission',
           impact: `Seeking ${post.metadata?.seekingSupport?.length || 0} types of support`,
           visual: 'bg-gradient-to-br from-blue-50 to-indigo-50 border-[#021ff6]/20',
@@ -961,7 +961,7 @@ function DashboardContent() {
 
       case 'opportunity':
         return {
-          narrative: `${post.authorName} has shared a ${post.metadata?.type || 'opportunity'} that could transform careers. This ${post.category?.toLowerCase() || 'general'} opportunity is exactly the kind that can accelerate professional growth and create lasting impact.`,
+          narrative: `${safeAuthorName} has shared a ${post.metadata?.type || 'opportunity'} that could transform careers. This ${post.category?.toLowerCase() || 'general'} opportunity is exactly the kind that can accelerate professional growth and create lasting impact.`,
           ctaText: post.urgent ? 'Apply Before Deadline' : 'Learn More',
           impact: post.deadline ? `Deadline: ${post.deadline}` : 'Open application',
           visual: 'bg-gradient-to-br from-green-50 to-emerald-50 border-green-200',
@@ -969,7 +969,7 @@ function DashboardContent() {
 
       case 'success_story':
         return {
-          narrative: `${post.authorName} has achieved a significant milestone! This success story represents the collective effort of our diaspora community working together to create lasting impact. These achievements inspire us all and show what's possible when we collaborate.`,
+          narrative: `${safeAuthorName} has achieved a significant milestone! This success story represents the collective effort of our diaspora community working together to create lasting impact. These achievements inspire us all and show what's possible when we collaborate.`,
           ctaText: 'Celebrate Success',
           impact: 'Community milestone reached',
           visual: 'bg-gradient-to-br from-yellow-50 to-amber-50 border-yellow-200',
@@ -985,7 +985,7 @@ function DashboardContent() {
 
       default:
         return {
-          narrative: `${post.authorName} is making moves in the ${post.category?.toLowerCase() || 'general'} space, contributing to our growing ecosystem of diaspora-driven impact. Every contribution matters in building our collective strength and reach.`,
+          narrative: `${safeAuthorName} is making moves in the ${post.category?.toLowerCase() || 'general'} space, contributing to our growing ecosystem of diaspora-driven impact. Every contribution matters in building our collective strength and reach.`,
           ctaText: 'Get Involved',
           impact: 'Community activity',
           visual: 'bg-gradient-to-br from-gray-50 to-slate-50 border-gray-200',
@@ -1086,7 +1086,7 @@ function DashboardContent() {
               title: post.title,
               category: post.category,
               description: post.description,
-              authorName: post.authorName,
+              authorName: post.authorName || post.author?.name || 'Unknown',
               location: post.location,
             });
           }
