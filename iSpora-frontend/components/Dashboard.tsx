@@ -899,10 +899,12 @@ function DashboardContent() {
     if (!searchQuery.trim()) return true;
 
     const query = searchQuery.toLowerCase();
+    // 🛡️ DevOps Guardian: Safely extract authorName for search
+    const authorName = post.authorName || post.author?.name || '';
     return (
       post.title?.toLowerCase().includes(query) ||
       post.description?.toLowerCase().includes(query) ||
-      post.authorName?.toLowerCase().includes(query) ||
+      authorName.toLowerCase().includes(query) ||
       post.category?.toLowerCase().includes(query) ||
       post.location?.toLowerCase().includes(query) ||
       post.type?.toLowerCase().includes(query)
