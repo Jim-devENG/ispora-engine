@@ -37,7 +37,14 @@ class ApiClientV2 {
       (response) => response,
       (error) => {
         if (error.response?.status === 401) {
-          console.log('🔐 Auth v2 - 401 Unauthorized - clearing token');
+          const errorCode = error.response?.data?.code;
+          const errorMessage = error.response?.data?.message || error.response?.data?.error || 'Session expired';
+          
+          console.log('🔐 Auth v2 - 401 Unauthorized:', { 
+            code: errorCode,
+            message: errorMessage,
+            error: error.response?.data 
+          });
           
           // Clear token and user data
           localStorage.removeItem('token');
@@ -47,11 +54,22 @@ class ApiClientV2 {
           if (typeof window !== 'undefined') {
             // Import toast dynamically to avoid circular dependencies
             import('sonner').then(({ toast }) => {
-              toast.error('Session expired. Please log in again.');
+              if (errorCode === 'USER_NOT_FOUND') {
+                toast.error('User not found. Please log in again.');
+              } else if (errorCode === 'TOKEN_EXPIRED') {
+                toast.error('Session expired. Please log in again.');
+              } else {
+                toast.error(errorMessage || 'Session expired. Please log in again.');
+              }
             });
             
-            // Redirect to login page
-            window.location.href = '/login';
+            // Don't redirect if we're already on login page
+            if (!window.location.pathname.includes('/login')) {
+              // Redirect to login page after a short delay
+              setTimeout(() => {
+                window.location.href = '/login';
+              }, 2000);
+            }
           }
         }
         return Promise.reject(error);

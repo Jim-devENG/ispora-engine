@@ -31,12 +31,28 @@ const createProject = async (req, res) => {
 
     if (!req.user || !req.user.id) {
       console.error('[ERROR] Missing authentication:', { hasUser: !!req.user, hasUserId: !!req.user?.id });
+      
+      // 🛡️ DevOps Guardian: Add CORS headers to error response
+      const origin = req.headers.origin;
+      if (origin && origin.includes('ispora.app')) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+        res.setHeader('Access-Control-Allow-Credentials', 'true');
+      }
+      
       return res.status(401).json({
         success: false,
         error: 'Authentication required',
         code: 'AUTHENTICATION_REQUIRED'
       });
     }
+    
+    // Log authentication info for debugging
+    console.log('[DEBUG] Project creation request:', {
+      userId: req.user.id,
+      userEmail: req.user.email,
+      hasToken: !!req.headers.authorization,
+      dbClient: dbConfig.client
+    });
     
     // 🛡️ DevOps Guardian: Development fallback for missing category
     if (!req.body.category) {
@@ -123,7 +139,34 @@ const createProject = async (req, res) => {
     
     // 🛡️ DevOps Guardian: Verify user exists in database before creating project
     // This should always succeed if the token is valid
-    const userExists = await db('users').where('id', req.user.id).first();
+    console.log('[DEBUG] Looking up user in database:', { userId: req.user.id });
+    
+    let userExists;
+    try {
+      userExists = await db('users').where('id', req.user.id).first();
+      
+      // If not found by ID and we have email, try email lookup
+      if (!userExists && req.user.email) {
+        console.log('[DEBUG] User not found by ID, trying email lookup:', { email: req.user.email });
+        userExists = await db('users').where('email', req.user.email).first();
+      }
+    } catch (dbError) {
+      console.error('[ERROR] Database error during user lookup:', dbError);
+      logger.error({ error: dbError.message, userId: req.user.id }, 'Database error during user lookup');
+      
+      // 🛡️ DevOps Guardian: Add CORS headers to error response
+      const origin = req.headers.origin;
+      if (origin && origin.includes('ispora.app')) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+        res.setHeader('Access-Control-Allow-Credentials', 'true');
+      }
+      
+      return res.status(500).json({
+        success: false,
+        error: 'Database error. Please try again.',
+        code: 'DATABASE_ERROR'
+      });
+    }
     
     if (!userExists) {
       console.error('❌ User not found in database:', {
@@ -136,6 +179,14 @@ const createProject = async (req, res) => {
         }
       });
       
+      // Debug: Check if there are any users at all
+      try {
+        const userCount = await db('users').count('* as count').first();
+        console.log('[DEBUG] Total users in database:', userCount?.count || 0);
+      } catch (countError) {
+        console.error('[ERROR] Failed to count users:', countError);
+      }
+      
       // 🛡️ DevOps Guardian: Add CORS headers to error response
       const origin = req.headers.origin;
       if (origin && origin.includes('ispora.app')) {
@@ -146,7 +197,8 @@ const createProject = async (req, res) => {
       return res.status(401).json({
         success: false,
         error: 'User not found. Please log in again.',
-        code: 'USER_NOT_FOUND'
+        code: 'USER_NOT_FOUND',
+        message: 'Your session may have expired. Please log out and log back in.'
       });
     }
     

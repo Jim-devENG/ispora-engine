@@ -51,11 +51,19 @@ const authenticateToken = async (req, res, next) => {
   } catch (error) {
     logger.error({ error: error.message }, 'Token verification failed');
     
+    // 🛡️ DevOps Guardian: Add CORS headers to error response
+    const origin = req.headers.origin;
+    if (origin && origin.includes('ispora.app')) {
+      res.setHeader('Access-Control-Allow-Origin', origin);
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
+    }
+    
     if (error.name === 'JsonWebTokenError') {
       return res.status(401).json({
         success: false,
         error: 'Invalid token',
-        code: 'INVALID_TOKEN'
+        code: 'INVALID_TOKEN',
+        message: 'Please log in again.'
       });
     }
     
@@ -63,14 +71,16 @@ const authenticateToken = async (req, res, next) => {
       return res.status(401).json({
         success: false,
         error: 'Token expired',
-        code: 'TOKEN_EXPIRED'
+        code: 'TOKEN_EXPIRED',
+        message: 'Your session has expired. Please log in again.'
       });
     }
 
     return res.status(500).json({
       success: false,
       error: 'Authentication error',
-      code: 'AUTH_ERROR'
+      code: 'AUTH_ERROR',
+      message: 'Please log in again.'
     });
   }
 };
