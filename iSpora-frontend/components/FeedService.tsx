@@ -22,8 +22,24 @@ const fetchFeedItems = async (page = 1, limit = 20) => {
     }
 
     const data = await response.json();
+    
+    // 🛡️ DevOps Guardian: Safely transform feed items to ensure consistent structure
+    const items = (data.success ? data.data : []).map((item: any) => ({
+      ...item,
+      // Ensure authorName exists from different possible structures
+      authorName: item.authorName || item.author?.name || 'Unknown User',
+      authorAvatar: item.authorAvatar || item.author?.avatar || null,
+      authorId: item.authorId || item.author?.id || null,
+      // Ensure other required fields have defaults
+      title: item.title || 'Untitled',
+      description: item.description || '',
+      likes: item.likes || 0,
+      comments: item.comments || 0,
+      shares: item.shares || 0,
+    }));
+    
     return {
-      items: data.success ? data.data : [],
+      items,
       realtime: data.realtime || {},
       pagination: data.pagination || {},
     };
