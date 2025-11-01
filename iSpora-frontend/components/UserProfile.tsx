@@ -423,7 +423,7 @@ export function UserProfile({ userId, onBack, onConnect, onMessage }: UserProfil
                     )}
                     <Badge className={roleInfo.color}>
                       <RoleIcon className="h-3 w-3 mr-1" />
-                      {(user?.role || '').charAt(0).toUpperCase() + (user?.role || '').slice(1)}
+                      {((user?.role || '').toString() || '').charAt(0).toUpperCase() + ((user?.role || '').toString() || '').slice(1)}
                     </Badge>
                   </div>
 
