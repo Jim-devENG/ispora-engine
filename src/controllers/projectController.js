@@ -121,38 +121,19 @@ const createProject = async (req, res) => {
       projectId: projectId
     });
     
-    // 🛡️ DevOps Guardian: Check if user exists before creating project
-    // First, try to get user by ID, then try email if ID lookup fails
-    let userExists = await db('users').where('id', req.user.id).first();
-    
-    // If user not found by ID, try to get user from token payload and check database
-    if (!userExists) {
-      console.warn(`⚠️ User not found by ID (${req.user.id}), checking all users...`);
-      
-      // Debug: List all users in database (only in development)
-      if (process.env.NODE_ENV === 'development') {
-        const allUsers = await db('users').select('id', 'email', 'first_name', 'last_name').limit(10);
-        console.log('📋 Users in database:', allUsers);
-      }
-      
-      // If token has email and user not found, check if email matches
-      if (req.user.email) {
-        console.warn(`⚠️ Trying email lookup: ${req.user.email}`);
-        userExists = await db('users').where('email', req.user.email).first();
-      }
-      
-      // Last resort: Check if there's any user at all
-      if (!userExists) {
-        const userCount = await db('users').count('* as count').first();
-        console.warn(`⚠️ No user found. Total users in database: ${userCount?.count || 0}`);
-      }
-    }
+    // 🛡️ DevOps Guardian: Verify user exists in database before creating project
+    // This should always succeed if the token is valid
+    const userExists = await db('users').where('id', req.user.id).first();
     
     if (!userExists) {
       console.error('❌ User not found in database:', {
         userId: req.user.id,
         userEmail: req.user.email,
-        tokenPayload: req.user
+        tokenPayload: req.user,
+        dbConfig: {
+          client: dbConfig.client,
+          database: dbConfig.connection?.database || dbConfig.connection?.filename
+        }
       });
       
       // 🛡️ DevOps Guardian: Add CORS headers to error response
@@ -162,18 +143,18 @@ const createProject = async (req, res) => {
         res.setHeader('Access-Control-Allow-Credentials', 'true');
       }
       
-      return res.status(400).json({
+      return res.status(401).json({
         success: false,
         error: 'User not found. Please log in again.',
-        code: 'USER_NOT_FOUND',
-        debug: process.env.NODE_ENV === 'development' ? {
-          userIdFromToken: req.user.id,
-          emailFromToken: req.user.email
-        } : undefined
+        code: 'USER_NOT_FOUND'
       });
     }
     
-    console.log('✅ User exists:', userExists.email);
+    console.log('✅ User verified:', {
+      id: userExists.id,
+      email: userExists.email,
+      name: `${userExists.first_name} ${userExists.last_name}`
+    });
     
     // 🛡️ DevOps Guardian: Insert with error handling for database constraints
     try {
@@ -227,7 +208,7 @@ const createProject = async (req, res) => {
             action: 'created',
             priority: priority
           }),
-      user_id: userExists.id, // Use the verified user from database
+      user_id: req.user.id, // Use user ID from authenticated token
       project_id: projectId,
       is_public: isPublic,
       created_at: new Date(),

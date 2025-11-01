@@ -25,13 +25,28 @@ const authenticateToken = async (req, res, next) => {
     // Verify JWT token
     const decoded = jwt.verify(token, config.jwt.secret);
     
-    // 🛡️ DevOps Guardian: Attach user info to request with all available token data
+    // Validate token has required user ID
+    if (!decoded.id) {
+      logger.error({ decoded }, 'Token missing user ID');
+      return res.status(401).json({
+        success: false,
+        error: 'Invalid token - missing user ID',
+        code: 'INVALID_TOKEN'
+      });
+    }
+    
+    // Attach user info to request - ID is required, email is optional
     req.user = { 
       id: decoded.id,
-      email: decoded.email || null // Include email if available in token
+      email: decoded.email || null
     };
     
-    logger.info({ userId: decoded.id, email: decoded.email }, 'Token verified successfully');
+    logger.info({ 
+      userId: decoded.id, 
+      email: decoded.email,
+      hasEmail: !!decoded.email 
+    }, '✅ Token verified successfully');
+    
     next();
   } catch (error) {
     logger.error({ error: error.message }, 'Token verification failed');
