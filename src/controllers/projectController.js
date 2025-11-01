@@ -14,18 +14,40 @@ const db = knex(dbConfig);
 // Create new project
 const createProject = async (req, res) => {
   try {
-    console.log('[iSpora] Incoming Project Payload:', req.body);
+    console.log('[iSpora] Incoming Project Payload:', JSON.stringify(req.body, null, 2));
 
-    // Validate required fields
-    if (!req.body.title || !req.body.description) {
+    // 🛡️ DevOps Guardian: Enhanced validation with detailed logging
+    const validationErrors = [];
+    
+    if (!req.body.title || typeof req.body.title !== 'string' || req.body.title.trim().length === 0) {
+      validationErrors.push('title (string, non-empty)');
+    }
+    
+    if (!req.body.description || typeof req.body.description !== 'string' || req.body.description.trim().length === 0) {
+      validationErrors.push('description (string, non-empty)');
+    }
+    
+    if (validationErrors.length > 0) {
       console.error('[ERROR] Missing required fields:', {
         hasTitle: !!req.body.title,
-        hasDescription: !!req.body.description
+        hasDescription: !!req.body.description,
+        titleType: typeof req.body.title,
+        descriptionType: typeof req.body.description,
+        errors: validationErrors
       });
+      
+      // 🛡️ DevOps Guardian: Add CORS headers to error response
+      const origin = req.headers.origin;
+      if (origin && origin.includes('ispora.app')) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+        res.setHeader('Access-Control-Allow-Credentials', 'true');
+      }
+      
       return res.status(400).json({
         success: false,
-        error: 'Missing required fields: title and description are required',
-        code: 'MISSING_REQUIRED_FIELDS'
+        error: `Missing required fields: ${validationErrors.join(', ')}`,
+        code: 'MISSING_REQUIRED_FIELDS',
+        missingFields: validationErrors
       });
     }
 

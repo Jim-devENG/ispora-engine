@@ -41,10 +41,18 @@ router.get('/:width/:height', (req, res) => {
     
     logger.info({ width: w, height: h }, 'Generated placeholder image');
     
+    // 🛡️ DevOps Guardian: Add proper CORS headers
+    const origin = req.headers.origin;
+    const corsOrigin = origin && (origin.includes('ispora.app') || origin.includes('localhost')) 
+      ? origin 
+      : '*';
+    
     res.set({
       'Content-Type': 'image/svg+xml',
       'Cache-Control': 'public, max-age=31536000', // Cache for 1 year
-      'Access-Control-Allow-Origin': '*'
+      'Access-Control-Allow-Origin': corsOrigin,
+      'Access-Control-Allow-Methods': 'GET, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type'
     });
     
     res.send(svg);

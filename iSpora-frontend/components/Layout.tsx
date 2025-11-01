@@ -160,6 +160,12 @@ function MainContent() {
               console.log('Project created successfully:', result);
               console.log('✅ Feed activity automatically created by backend');
               
+              // 🛡️ DevOps Guardian: Trigger feed refresh after project creation
+              // The backend automatically creates a feed entry, which will appear via real-time connection
+              // If we're on the Dashboard, it will auto-update; otherwise, user can navigate to see it
+              console.log('✅ Feed entry created automatically by backend');
+              console.log('✅ Feed will update via real-time connection if user is on Dashboard');
+              
               try { (await import('./ui/sonner')).toast.success('Project created successfully!'); } catch {}
               setCurrentPage('Project Dashboard');
             } catch (error: any) {

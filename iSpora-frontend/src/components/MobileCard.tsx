@@ -55,7 +55,7 @@ export function MobileCard({
             {avatar && (
               <Avatar className="h-10 w-10 flex-shrink-0">
                 <AvatarImage src={avatar} alt={title} />
-                <AvatarFallback>{(title || '').charAt(0)}</AvatarFallback>
+                <AvatarFallback>{((title || '').toString() || '').charAt(0)}</AvatarFallback>
               </Avatar>
             )}
             <div className="flex-1 min-w-0">
