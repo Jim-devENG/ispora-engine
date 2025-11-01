@@ -946,7 +946,10 @@ function DashboardContent() {
 
   // Get story narrative based on post type (shortened versions)
   const getStoryNarrative = (post: any) => {
-    const isOwnContent = post.authorId === CURRENT_USER_ID;
+    // 🛡️ DevOps Guardian: Safely extract author info from different data structures
+    const authorId = post.authorId || post.author?.id || null;
+    const safeAuthorName = post.authorName || post.author?.name || 'Someone';
+    const isOwnContent = authorId === CURRENT_USER_ID;
 
     switch (post.type) {
       case 'project':
@@ -1049,7 +1052,10 @@ function DashboardContent() {
 
   // Enhanced navigation logic for feed cards with specific targeting
   const handleFeedCardClick = (post: any) => {
-    const isOwnContent = post.authorId === CURRENT_USER_ID;
+    // 🛡️ DevOps Guardian: Safely extract author info from different data structures
+    const authorId = post.authorId || post.author?.id || null;
+    const authorName = post.authorName || post.author?.name || 'Unknown';
+    const isOwnContent = authorId === CURRENT_USER_ID;
 
     // Track user interaction
     trackActivity('feed_item_clicked', {
