@@ -20,7 +20,6 @@ import {
   Briefcase,
   Heart,
   Lightbulb,
-  Users2,
   Folder,
   Check,
   Zap,

@@ -156,8 +156,17 @@ class ApiClientV2 {
   }) {
     console.log('🔍 Auth v2 - Create project:', { title: projectData.title });
     const response = await this.post('/projects', projectData);
-    console.log('✅ Auth v2 - Project created:', { projectId: response.project?.id });
-    return response;
+    
+    // 🛡️ DevOps Guardian: Handle different response structures
+    const projectId = response.project?.id || response.data?.id || response.id;
+    console.log('✅ Auth v2 - Project created:', { projectId });
+    
+    // Return consistent structure
+    return {
+      ...response,
+      project: response.project || response.data || response,
+      projectId
+    };
   }
 
   async getProjects() {
