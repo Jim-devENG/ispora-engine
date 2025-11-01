@@ -38,38 +38,74 @@ const getFeed = async (req, res) => {
       query = query.where('feed_entries.category', category);
     }
 
-    // Get total count for pagination
-    const totalQuery = query.clone();
-    const totalCount = await totalQuery.count('* as count').first();
-
-    // Apply pagination
+    // Apply pagination first to get feed entries
     const feedEntries = await query.limit(limit).offset(offset);
 
+    // Get total count for pagination
+    // 🛡️ DevOps Guardian: Handle count query safely for different database types
+    let totalCount;
+    try {
+      // Create a separate count query without joins to avoid issues
+      let countQuery = db('feed_entries')
+        .where('feed_entries.is_public', true);
+      
+      if (type) {
+        countQuery = countQuery.where('feed_entries.type', type);
+      }
+      if (category) {
+        countQuery = countQuery.where('feed_entries.category', category);
+      }
+      
+      const countResult = await countQuery.count('* as count').first();
+      totalCount = { count: parseInt(countResult?.count || 0) };
+    } catch (countError) {
+      console.warn('⚠️ Count query failed, using feedEntries.length:', countError.message);
+      // Fallback: use feedEntries length (approximate)
+      totalCount = { count: feedEntries.length };
+    }
+
     // Parse JSON fields and format response
-    const formattedEntries = feedEntries.map(entry => ({
-      id: entry.id,
-      type: entry.type,
-      title: entry.title,
-      description: entry.description,
-      category: entry.category,
-      // 🛡️ DevOps Guardian: Parse metadata - handle both string and object formats
-      metadata: typeof entry.metadata === 'string' 
-        ? JSON.parse(entry.metadata || '{}')
-        : (entry.metadata || {}),
-      author: {
-        name: `${entry.first_name} ${entry.last_name}`,
-        email: entry.author_email
-      },
-      project: entry.project_title ? {
-        title: entry.project_title,
-        id: entry.project_id
-      } : null,
-      likes: entry.likes,
-      comments: entry.comments,
-      shares: entry.shares,
-      created_at: entry.created_at,
-      updated_at: entry.updated_at
-    }));
+    // 🛡️ DevOps Guardian: Safely parse each entry with error handling
+    const formattedEntries = feedEntries.map(entry => {
+      let metadata = {};
+      try {
+        // Handle metadata parsing - SQLite stores as string, PostgreSQL as JSON
+        if (entry.metadata) {
+          if (typeof entry.metadata === 'string') {
+            metadata = JSON.parse(entry.metadata || '{}');
+          } else {
+            metadata = entry.metadata;
+          }
+        }
+      } catch (parseError) {
+        console.warn('⚠️ Failed to parse metadata for entry:', entry.id, parseError.message);
+        metadata = {};
+      }
+      
+      return {
+        id: entry.id,
+        type: entry.type,
+        title: entry.title,
+        description: entry.description || null,
+        category: entry.category || null,
+        metadata: metadata,
+        author: {
+          name: entry.first_name && entry.last_name 
+            ? `${entry.first_name} ${entry.last_name}`.trim()
+            : entry.author_email || 'Unknown',
+          email: entry.author_email || null
+        },
+        project: entry.project_title ? {
+          title: entry.project_title,
+          id: entry.project_id
+        } : null,
+        likes: entry.likes || 0,
+        comments: entry.comments || 0,
+        shares: entry.shares || 0,
+        created_at: entry.created_at,
+        updated_at: entry.updated_at
+      };
+    });
 
     logger.info({ 
       count: feedEntries.length, 
@@ -89,10 +125,30 @@ const getFeed = async (req, res) => {
     });
 
   } catch (error) {
-    logger.error({ error: error.message }, 'Get feed failed');
+    logger.error({ 
+      error: error.message, 
+      stack: error.stack,
+      name: error.name 
+    }, 'Get feed failed');
+    
+    console.error('[ERROR] Feed retrieval error:', {
+      message: error.message,
+      stack: error.stack?.split('\n').slice(0, 5)
+    });
+    
+    // 🛡️ DevOps Guardian: Add CORS headers to error response
+    const origin = req.headers.origin;
+    if (origin && (origin.includes('ispora.app') || origin.includes('localhost'))) {
+      res.setHeader('Access-Control-Allow-Origin', origin);
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
+    }
+    
     res.status(500).json({
       success: false,
-      error: 'Server error fetching feed'
+      error: 'Server error fetching feed',
+      ...(process.env.NODE_ENV === 'development' && {
+        details: error.message
+      })
     });
   }
 };
