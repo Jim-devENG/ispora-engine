@@ -16,6 +16,9 @@ const getFeed = async (req, res) => {
     const { page = 1, limit = 20, type, category } = req.query;
     const offset = (page - 1) * limit;
 
+    console.log('[FEED] Getting feed entries:', { page, limit, type, category });
+
+    // 🛡️ DevOps Guardian: Build query with safe error handling for joins
     let query = db('feed_entries')
       .select(
         'feed_entries.*',
@@ -24,10 +27,17 @@ const getFeed = async (req, res) => {
         'users.email as author_email',
         'projects.title as project_title'
       )
-      .leftJoin('users', 'feed_entries.user_id', 'users.id')
-      .leftJoin('projects', 'feed_entries.project_id', 'projects.id')
       .where('feed_entries.is_public', true)
       .orderBy('feed_entries.created_at', 'desc');
+
+    // Try to add joins, but continue even if tables don't exist
+    try {
+      query = query.leftJoin('users', 'feed_entries.user_id', 'users.id');
+      query = query.leftJoin('projects', 'feed_entries.project_id', 'projects.id');
+    } catch (joinError) {
+      console.warn('⚠️ Join failed, continuing without joins:', joinError.message);
+      // Continue without joins if they fail
+    }
 
     // Apply filters
     if (type) {
@@ -39,7 +49,9 @@ const getFeed = async (req, res) => {
     }
 
     // Apply pagination first to get feed entries
+    console.log('[FEED] Executing query...');
     const feedEntries = await query.limit(limit).offset(offset);
+    console.log('[FEED] Retrieved', feedEntries.length, 'entries');
 
     // Get total count for pagination
     // 🛡️ DevOps Guardian: Handle count query safely for different database types
@@ -70,10 +82,15 @@ const getFeed = async (req, res) => {
       let metadata = {};
       try {
         // Handle metadata parsing - SQLite stores as string, PostgreSQL as JSON
-        if (entry.metadata) {
-          if (typeof entry.metadata === 'string') {
-            metadata = JSON.parse(entry.metadata || '{}');
-          } else {
+        if (entry.metadata !== null && entry.metadata !== undefined) {
+          if (typeof entry.metadata === 'string' && entry.metadata.trim() !== '') {
+            try {
+              metadata = JSON.parse(entry.metadata);
+            } catch (parseError) {
+              console.warn('⚠️ Failed to parse metadata string for entry:', entry.id);
+              metadata = {};
+            }
+          } else if (typeof entry.metadata === 'object') {
             metadata = entry.metadata;
           }
         }
@@ -82,26 +99,32 @@ const getFeed = async (req, res) => {
         metadata = {};
       }
       
+      // Build author name safely
+      let authorName = 'Unknown';
+      if (entry.first_name || entry.last_name) {
+        authorName = `${entry.first_name || ''} ${entry.last_name || ''}`.trim() || 'Unknown';
+      } else if (entry.author_email) {
+        authorName = entry.author_email;
+      }
+      
       return {
         id: entry.id,
-        type: entry.type,
-        title: entry.title,
+        type: entry.type || 'unknown',
+        title: entry.title || 'Untitled',
         description: entry.description || null,
         category: entry.category || null,
         metadata: metadata,
         author: {
-          name: entry.first_name && entry.last_name 
-            ? `${entry.first_name} ${entry.last_name}`.trim()
-            : entry.author_email || 'Unknown',
+          name: authorName,
           email: entry.author_email || null
         },
-        project: entry.project_title ? {
+        project: entry.project_title && entry.project_id ? {
           title: entry.project_title,
           id: entry.project_id
         } : null,
-        likes: entry.likes || 0,
-        comments: entry.comments || 0,
-        shares: entry.shares || 0,
+        likes: parseInt(entry.likes) || 0,
+        comments: parseInt(entry.comments) || 0,
+        shares: parseInt(entry.shares) || 0,
         created_at: entry.created_at,
         updated_at: entry.updated_at
       };
