@@ -9,6 +9,15 @@ const router = express.Router();
 // It bypasses rate limiting and provides minimal response for maximum reliability
 router.get('/healthz', (req, res) => {
   try {
+    // 🛡️ DevOps Guardian: Add CORS headers to health check
+    const origin = req.headers.origin;
+    if (origin && (origin.includes('ispora.app') || origin.includes('localhost'))) {
+      res.setHeader('Access-Control-Allow-Origin', origin);
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
+      res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+    }
+    
     // Minimal health check response - always 200 for Render
     const healthData = {
       status: 'ok',
@@ -28,6 +37,15 @@ router.get('/healthz', (req, res) => {
     
     res.status(200).json(healthData);
   } catch (error) {
+    // 🛡️ DevOps Guardian: Add CORS headers even on error
+    const origin = req.headers.origin;
+    if (origin && (origin.includes('ispora.app') || origin.includes('localhost'))) {
+      res.setHeader('Access-Control-Allow-Origin', origin);
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
+      res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+    }
+    
     // Even if there's an error, return 200 to prevent Render from marking as unhealthy
     logger.error({ error: error.message }, 'Healthz check failed but returning 200');
     res.status(200).json({
@@ -41,6 +59,15 @@ router.get('/healthz', (req, res) => {
 // 🏥 RENDER HEALTH RECOVERY: Enhanced health check endpoint with guaranteed 200 response
 router.get('/', (req, res) => {
   try {
+    // 🛡️ DevOps Guardian: Add CORS headers to health check
+    const origin = req.headers.origin;
+    if (origin && (origin.includes('ispora.app') || origin.includes('localhost'))) {
+      res.setHeader('Access-Control-Allow-Origin', origin);
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
+      res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+    }
+    
     const startTime = Date.now();
     const uptime = process.uptime();
     const memoryUsage = process.memoryUsage();
@@ -91,6 +118,15 @@ router.get('/', (req, res) => {
     // Always return 200 OK - never fail health checks
     res.status(200).json(healthData);
   } catch (error) {
+    // 🛡️ DevOps Guardian: Add CORS headers even on error
+    const origin = req.headers.origin;
+    if (origin && (origin.includes('ispora.app') || origin.includes('localhost'))) {
+      res.setHeader('Access-Control-Allow-Origin', origin);
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
+      res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+    }
+    
     // Even on error, return 200 OK to prevent Render from marking as unhealthy
     logger.error({ error: error.message }, 'Health check error but returning 200');
     
