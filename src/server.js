@@ -32,54 +32,129 @@ const checkEnvironmentVariables = () => {
 // Run environment check
 checkEnvironmentVariables();
 
-// 🛡️ DevOps Guardian: Safe Sentry initialization
-let Sentry = null;
-try {
-  if (process.env.SENTRY_DSN && process.env.SENTRY_DSN.trim() !== '') {
-    Sentry = require('@sentry/node');
-    Sentry.init({
-      dsn: process.env.SENTRY_DSN,
-      environment: process.env.NODE_ENV || 'development',
-      tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
-      beforeSend(event) {
-        // Filter out development errors
-        if (process.env.NODE_ENV === 'development') {
-          return null;
+// 🛡️ DevOps Guardian: Verify database setup before starting server
+const verifyDatabase = async () => {
+  try {
+    const knex = require('knex');
+    const knexConfig = require('./knexfile');
+    const dbConfig = process.env.NODE_ENV === 'production' 
+      ? (knexConfig.production || knexConfig.development)
+      : knexConfig.development;
+    
+    const db = knex(dbConfig);
+    
+    console.log('🔍 Verifying database setup...');
+    
+    // Test connection
+    await db.raw('SELECT 1');
+    console.log('✅ Database connection successful');
+    
+    // Check critical tables
+    const tables = ['users', 'projects', 'feed_entries'];
+    let allTablesExist = true;
+    
+    for (const tableName of tables) {
+      try {
+        if (dbConfig.client === 'sqlite3') {
+          const result = await db.raw(`SELECT name FROM sqlite_master WHERE type='table' AND name=?`, [tableName]);
+          if (result.length === 0) {
+            allTablesExist = false;
+            console.error(`❌ Table '${tableName}' does not exist`);
+          } else {
+            console.log(`✅ Table '${tableName}' exists`);
+          }
+        } else {
+          const result = await db.raw(`
+            SELECT EXISTS (
+              SELECT FROM information_schema.tables 
+              WHERE table_schema = 'public' 
+              AND table_name = ?
+            );
+          `, [tableName]);
+          if (!result.rows[0]?.exists) {
+            allTablesExist = false;
+            console.error(`❌ Table '${tableName}' does not exist`);
+          } else {
+            console.log(`✅ Table '${tableName}' exists`);
+          }
         }
-        return event;
+      } catch (error) {
+        allTablesExist = false;
+        console.error(`❌ Error checking table '${tableName}':`, error.message);
       }
-    });
-    logger.info('Sentry initialized successfully');
-  } else {
-    console.log("🧩 Sentry skipped: No DSN provided");
-    logger.warn('SENTRY_DSN not provided, skipping Sentry initialization');
+    }
+    
+    if (!allTablesExist) {
+      console.error('❌ Database tables are missing. Please run migrations: npm run migrate');
+      logger.error({ tables }, 'Missing database tables');
+      await db.destroy();
+      process.exit(1);
+    }
+    
+    console.log('✅ All critical tables exist');
+    await db.destroy();
+    
+  } catch (error) {
+    console.error('❌ Database verification failed:', error.message);
+    logger.error({ error: error.message }, 'Database verification failed');
+    process.exit(1);
   }
-} catch (error) {
-  console.log("🧩 Sentry initialization failed:", error.message);
-  logger.error({ error: error.message }, 'Failed to initialize Sentry');
-  Sentry = null; // Ensure Sentry is null if initialization fails
-}
+};
 
-const PORT = process.env.PORT || 5000;
-const server = http.createServer(app);
-
-// 🚀 RENDER STARTUP RECOVERY: Optimized server startup with comprehensive logging
-const STARTUP_DELAY = process.env.NODE_ENV === 'production' ? 2000 : 1000; // Reduced delay for faster startup
-const STARTUP_TIMESTAMP = Date.now();
-
-// Pre-startup logging
-console.log('🚀 iSpora Backend Starting...');
-console.log(`📅 Startup Time: ${new Date().toISOString()}`);
-console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-console.log(`🔧 Node Version: ${process.version}`);
-console.log(`📦 Port: ${PORT}`);
-console.log(`⏱️  Startup Delay: ${STARTUP_DELAY}ms`);
-
-// Start server with optimized delay
-setTimeout(() => {
-  const serverStartTime = Date.now();
+// 🛡️ DevOps Guardian: Verify database before starting server
+// Run database verification and wait for it before proceeding
+const startServer = async () => {
+  // Wait for database verification to complete
+  await verifyDatabase();
   
-  server.listen(PORT, () => {
+  // 🛡️ DevOps Guardian: Safe Sentry initialization
+  let Sentry = null;
+  try {
+    if (process.env.SENTRY_DSN && process.env.SENTRY_DSN.trim() !== '') {
+      Sentry = require('@sentry/node');
+      Sentry.init({
+        dsn: process.env.SENTRY_DSN,
+        environment: process.env.NODE_ENV || 'development',
+        tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
+        beforeSend(event) {
+          // Filter out development errors
+          if (process.env.NODE_ENV === 'development') {
+            return null;
+          }
+          return event;
+        }
+      });
+      logger.info('Sentry initialized successfully');
+    } else {
+      console.log("🧩 Sentry skipped: No DSN provided");
+      logger.warn('SENTRY_DSN not provided, skipping Sentry initialization');
+    }
+  } catch (error) {
+    console.log("🧩 Sentry initialization failed:", error.message);
+    logger.error({ error: error.message }, 'Failed to initialize Sentry');
+    Sentry = null; // Ensure Sentry is null if initialization fails
+  }
+
+  const PORT = process.env.PORT || 5000;
+  const server = http.createServer(app);
+
+  // 🚀 RENDER STARTUP RECOVERY: Optimized server startup with comprehensive logging
+  const STARTUP_DELAY = process.env.NODE_ENV === 'production' ? 2000 : 1000; // Reduced delay for faster startup
+  const STARTUP_TIMESTAMP = Date.now();
+
+  // Pre-startup logging
+  console.log('🚀 iSpora Backend Starting...');
+  console.log(`📅 Startup Time: ${new Date().toISOString()}`);
+  console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`🔧 Node Version: ${process.version}`);
+  console.log(`📦 Port: ${PORT}`);
+  console.log(`⏱️  Startup Delay: ${STARTUP_DELAY}ms`);
+
+  // Start server with optimized delay
+  setTimeout(() => {
+    const serverStartTime = Date.now();
+    
+    server.listen(PORT, () => {
     const totalStartupTime = serverStartTime - STARTUP_TIMESTAMP;
     
     // Comprehensive startup logging
@@ -132,6 +207,14 @@ setTimeout(() => {
     console.log('✅ iSpora Backend live with CORS enabled for https://ispora.app');
   });
 }, STARTUP_DELAY);
+};
+
+// Start the server (async function handles database verification)
+startServer().catch(error => {
+  console.error('❌ Fatal error starting server:', error);
+  logger.error({ error: error.message }, 'Fatal error starting server');
+  process.exit(1);
+});
 
 // Graceful shutdown
 const gracefulShutdown = (signal) => {
