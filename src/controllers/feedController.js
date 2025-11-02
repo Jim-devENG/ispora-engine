@@ -85,34 +85,37 @@ const getFeed = async (req, res) => {
         metadata = {};
       }
       
-      // Build author name safely
+      // Build author name safely - ensure no undefined values
       let authorName = 'Unknown';
       if (entry.first_name || entry.last_name) {
-        authorName = `${entry.first_name || ''} ${entry.last_name || ''}`.trim() || 'Unknown';
+        const firstName = entry.first_name || '';
+        const lastName = entry.last_name || '';
+        authorName = `${firstName} ${lastName}`.trim() || 'Unknown';
       } else if (entry.author_email) {
         authorName = entry.author_email;
       }
       
+      // Ensure all fields have valid values - no undefined that causes charAt errors
       return {
-        id: entry.id,
+        id: entry.id || '',
         type: entry.type || 'unknown',
         title: entry.title || 'Untitled',
-        description: entry.description || null,
-        category: entry.category || null,
-        metadata: metadata,
+        description: entry.description || '',
+        category: entry.category || '',
+        metadata: metadata || {},
         author: {
-          name: authorName,
-          email: entry.author_email || null
+          name: authorName || 'Unknown',
+          email: entry.author_email || ''
         },
-        project: entry.project_title && entry.project_id ? {
-          title: entry.project_title,
-          id: entry.project_id
+        project: (entry.project_title && entry.project_id) ? {
+          title: entry.project_title || '',
+          id: entry.project_id || ''
         } : null,
-        likes: parseInt(entry.likes) || 0,
-        comments: parseInt(entry.comments) || 0,
-        shares: parseInt(entry.shares) || 0,
-        created_at: entry.created_at,
-        updated_at: entry.updated_at
+        likes: parseInt(entry.likes, 10) || 0,
+        comments: parseInt(entry.comments, 10) || 0,
+        shares: parseInt(entry.shares, 10) || 0,
+        created_at: entry.created_at || new Date().toISOString(),
+        updated_at: entry.updated_at || new Date().toISOString()
       };
     });
 

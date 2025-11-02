@@ -1,7 +1,13 @@
+/**
+ * 🛡️ iSpora Backend - Main Express Application
+ * Production-grade Express.js server with proper middleware ordering and error handling
+ */
+
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const morgan = require('morgan'); // HTTP request logger for development
 const logger = require('./utils/logger');
 const errorHandler = require('./middleware/errorHandler');
 const requestLogger = require('./middleware/requestLogger');
@@ -15,34 +21,39 @@ const feedRoutes = require('./routes/feed');
 const taskRoutes = require('./routes/tasks');
 const placeholderRoutes = require('./routes/placeholder');
 const logsRoutes = require('./routes/logs');
+const sessionsRoutes = require('./routes/sessions'); // New sessions route
 
 const app = express();
 
-// Security middleware
+// ============================================================================
+// SECURITY MIDDLEWARE - Must be first
+// ============================================================================
+
+// Helmet for security headers
 app.use(helmet({
   contentSecurityPolicy: false, // Disable for API
   crossOriginEmbedderPolicy: false
 }));
 
-// 🌐 PRODUCTION CORS CONFIGURATION: Strictly allow only https://ispora.app and http://localhost:5173
-// NO WILDCARDS - NO UNSAFE DEFAULTS
+// ============================================================================
+// CORS CONFIGURATION - Allow no-origin requests for Render health checks
+// ============================================================================
+
 const allowedOrigins = [
   'https://ispora.app',
+  'https://www.ispora.app',
   'http://localhost:5173'
 ];
 
 const corsOptions = {
   origin: function (origin, callback) {
-    // Log all CORS requests for debugging
-    console.log(`[CORS] Request from origin: ${origin || 'no-origin'}`);
-    
-    // Reject requests with no origin (security)
+    // Allow requests with no origin (Render health checks, server-to-server calls)
     if (!origin) {
-      console.warn(`[CORS] ❌ Blocked: No origin provided`);
-      return callback(new Error('CORS: Origin required'));
+      console.log('[CORS] ✅ Allowed: No origin (Render health check or server-to-server)');
+      return callback(null, true);
     }
     
-    // Strictly check against allowed origins only
+    // Strictly check against allowed origins
     if (allowedOrigins.includes(origin)) {
       console.log(`[CORS] ✅ Allowed: ${origin}`);
       return callback(null, true);
@@ -71,12 +82,31 @@ const corsOptions = {
   maxAge: 86400 // Cache preflight requests for 24 hours
 };
 
+// Apply CORS middleware
 app.use(cors(corsOptions));
 
-// 🚦 RENDER RATE LIMIT RECOVERY: Optimized rate limiting for production stability
+// Global OPTIONS handler for preflight requests
+app.options('*', cors(corsOptions));
+
+// ============================================================================
+// REQUEST LOGGING - Development only
+// ============================================================================
+
+// Morgan for HTTP request logging (development only)
+if (process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+}
+
+// Custom request logger (always enabled)
+app.use(requestLogger);
+
+// ============================================================================
+// RATE LIMITING - Protect API from abuse
+// ============================================================================
+
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 200, // Increased limit for production stability
+  max: 200, // Maximum 200 requests per window
   message: {
     success: false,
     error: 'Too many requests from this IP, please try again later.',
@@ -84,17 +114,16 @@ const limiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
-  // 🏥 Comprehensive exclusions for health checks and Render
+  // Skip rate limiting for health checks and Render monitoring
   skip: (req) => {
     const path = req.path;
     const userAgent = req.headers['user-agent'] || '';
     const renderHealthCheck = req.headers['x-render-health-check'];
     
-    // Skip rate limiting for health check routes
+    // Skip for health check routes
     const healthPaths = [
       '/api/health',
       '/api/health/',
-      '/api/health/healthz',
       '/healthz',
       '/health'
     ];
@@ -119,16 +148,39 @@ const limiter = rateLimit({
     
     return false;
   },
-  // Add connection pooling and keep-alive support
   keyGenerator: (req) => {
-    // Use IP + User-Agent for better rate limiting
     return `${req.ip}-${req.headers['user-agent'] || 'unknown'}`;
   }
 });
 
 app.use('/api/', limiter);
 
-// 🔗 RENDER CONNECTION RECOVERY: Connection pooling and keep-alive optimization
+// ============================================================================
+// BODY PARSING - Must be before routes
+// ============================================================================
+
+// JSON body parser
+app.use(express.json({ 
+  limit: '10mb',
+  verify: (req, res, buf) => {
+    // Log large payloads for monitoring
+    if (buf.length > 1024 * 1024) { // 1MB
+      console.warn(`🚨 Large payload detected: ${buf.length} bytes from ${req.ip}`);
+    }
+  }
+}));
+
+// URL-encoded body parser
+app.use(express.urlencoded({ 
+  extended: true, 
+  limit: '10mb',
+  parameterLimit: 1000 // Prevent DoS via too many parameters
+}));
+
+// ============================================================================
+// CONNECTION OPTIMIZATION
+// ============================================================================
+
 app.use((req, res, next) => {
   // Enable keep-alive for better connection reuse
   res.setHeader('Connection', 'keep-alive');
@@ -144,48 +196,45 @@ app.use((req, res, next) => {
   next();
 });
 
-// Body parsing middleware with optimized limits
-app.use(express.json({ 
-  limit: '10mb',
-  verify: (req, res, buf) => {
-    // Log large payloads for monitoring
-    if (buf.length > 1024 * 1024) { // 1MB
-      console.warn(`🚨 Large payload detected: ${buf.length} bytes from ${req.ip}`);
-    }
-  }
-}));
-app.use(express.urlencoded({ 
-  extended: true, 
-  limit: '10mb',
-  parameterLimit: 1000 // Prevent DoS via too many parameters
-}));
-
-// Enhanced request logging with observability
-app.use(requestLogger);
+// ============================================================================
+// HEALTH CHECK ROUTES - Must be early for Render monitoring
+// ============================================================================
 
 // Health check caching (before health routes)
 app.use('/api/health', healthCache);
 
-// 🏥 RENDER HEALTH CHECK HOTFIX: Mount health routes
-// Mount at /api/health for detailed health checks
+// Mount health routes
 app.use('/api/health', healthRoutes);
-
-// Mount healthz at root level for Render health checks
 app.use('/healthz', healthRoutes);
 
-// 🌐 PRODUCTION CORS: Global OPTIONS handler for preflight requests
-app.options('*', cors(corsOptions));
+// ============================================================================
+// API ROUTES
+// ============================================================================
 
-// API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/feed', feedRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/placeholder', placeholderRoutes);
 app.use('/api/logs', logsRoutes);
+app.use('/api/sessions', sessionsRoutes); // Sessions route
 
-// 🚨 PRODUCTION 404 HANDLER: CORS-compliant error responses
+// ============================================================================
+// 404 HANDLER - Must be before error handler
+// ============================================================================
+
 app.use('*', (req, res) => {
+  // Add CORS headers to 404 responses
+  const origin = req.headers.origin;
+  if (!origin || allowedOrigins.includes(origin)) {
+    if (origin) {
+      res.setHeader('Access-Control-Allow-Origin', origin);
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
+    } else {
+      res.setHeader('Access-Control-Allow-Origin', '*');
+    }
+  }
+  
   res.status(404).json({
     success: false,
     error: 'Route not found',
@@ -195,7 +244,10 @@ app.use('*', (req, res) => {
   });
 });
 
-// Error handling middleware (must be last)
+// ============================================================================
+// ERROR HANDLER - Must be last
+// ============================================================================
+
 app.use(errorHandler);
 
 module.exports = app;

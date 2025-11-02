@@ -109,30 +109,41 @@ const startServer = async () => {
   // Wait for database verification to complete
   await verifyDatabase();
   
-  // 🛡️ DevOps Guardian: Safe Sentry initialization
+  // 🛡️ DevOps Guardian: Safe Sentry initialization with proper warning
   let Sentry = null;
   try {
-    if (process.env.SENTRY_DSN && process.env.SENTRY_DSN.trim() !== '') {
-      Sentry = require('@sentry/node');
-      Sentry.init({
-        dsn: process.env.SENTRY_DSN,
-        environment: process.env.NODE_ENV || 'development',
-        tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
-        beforeSend(event) {
-          // Filter out development errors
-          if (process.env.NODE_ENV === 'development') {
-            return null;
+    const sentryDsn = process.env.SENTRY_DSN;
+    
+    if (sentryDsn && sentryDsn.trim() !== '') {
+      try {
+        Sentry = require('@sentry/node');
+        Sentry.init({
+          dsn: sentryDsn,
+          environment: process.env.NODE_ENV || 'development',
+          tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
+          beforeSend(event) {
+            // Filter out development errors
+            if (process.env.NODE_ENV === 'development') {
+              return null;
+            }
+            return event;
           }
-          return event;
-        }
-      });
-      logger.info('Sentry initialized successfully');
+        });
+        console.log('✅ Sentry initialized successfully');
+        logger.info({ dsn: 'configured' }, 'Sentry initialized successfully');
+      } catch (sentryError) {
+        console.warn('⚠️ Sentry package not available:', sentryError.message);
+        logger.warn({ error: sentryError.message }, 'Sentry package not available');
+        Sentry = null;
+      }
     } else {
-      console.log("🧩 Sentry skipped: No DSN provided");
+      // Log clear warning if DSN is missing
+      console.warn('⚠️ Sentry not initialized: No valid DSN provided. Set SENTRY_DSN environment variable to enable error tracking.');
       logger.warn('SENTRY_DSN not provided, skipping Sentry initialization');
+      Sentry = null;
     }
   } catch (error) {
-    console.log("🧩 Sentry initialization failed:", error.message);
+    console.error('❌ Sentry initialization failed:', error.message);
     logger.error({ error: error.message }, 'Failed to initialize Sentry');
     Sentry = null; // Ensure Sentry is null if initialization fails
   }

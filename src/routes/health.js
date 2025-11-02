@@ -9,11 +9,18 @@ const router = express.Router();
 // It bypasses rate limiting and provides minimal response for maximum reliability
 router.get('/healthz', (req, res) => {
   try {
-    // 🛡️ DevOps Guardian: Add CORS headers to health check
+    // 🛡️ DevOps Guardian: Add CORS headers to health check - allow no origin
     const origin = req.headers.origin;
-    if (origin && (origin.includes('ispora.app') || origin.includes('localhost'))) {
-      res.setHeader('Access-Control-Allow-Origin', origin);
-      res.setHeader('Access-Control-Allow-Credentials', 'true');
+    const allowedOrigins = ['https://ispora.app', 'https://www.ispora.app', 'http://localhost:5173'];
+    
+    if (!origin || allowedOrigins.includes(origin)) {
+      if (origin && allowedOrigins.includes(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+        res.setHeader('Access-Control-Allow-Credentials', 'true');
+      } else if (!origin) {
+        // Allow no origin for Render health checks
+        res.setHeader('Access-Control-Allow-Origin', '*');
+      }
       res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
       res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
     }
@@ -21,9 +28,9 @@ router.get('/healthz', (req, res) => {
     // Minimal health check response - always 200 for Render
     const healthData = {
       status: 'ok',
+      env: process.env.NODE_ENV || 'development',
       timestamp: new Date().toISOString(),
-      uptime: process.uptime(),
-      environment: process.env.NODE_ENV || 'development'
+      uptime: process.uptime()
     };
 
     // Log health check (but don't spam logs)
@@ -50,6 +57,7 @@ router.get('/healthz', (req, res) => {
     logger.error({ error: error.message }, 'Healthz check failed but returning 200');
     res.status(200).json({
       status: 'ok',
+      env: process.env.NODE_ENV || 'development',
       timestamp: new Date().toISOString(),
       error: 'Health check had issues but service is running'
     });
@@ -59,11 +67,18 @@ router.get('/healthz', (req, res) => {
 // 🏥 RENDER HEALTH RECOVERY: Enhanced health check endpoint with guaranteed 200 response
 router.get('/', (req, res) => {
   try {
-    // 🛡️ DevOps Guardian: Add CORS headers to health check
+    // 🛡️ DevOps Guardian: Add CORS headers to health check - allow no origin
     const origin = req.headers.origin;
-    if (origin && (origin.includes('ispora.app') || origin.includes('localhost'))) {
-      res.setHeader('Access-Control-Allow-Origin', origin);
-      res.setHeader('Access-Control-Allow-Credentials', 'true');
+    const allowedOrigins = ['https://ispora.app', 'https://www.ispora.app', 'http://localhost:5173'];
+    
+    if (!origin || allowedOrigins.includes(origin)) {
+      if (origin && allowedOrigins.includes(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+        res.setHeader('Access-Control-Allow-Credentials', 'true');
+      } else if (!origin) {
+        // Allow no origin for Render health checks
+        res.setHeader('Access-Control-Allow-Origin', '*');
+      }
       res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
       res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
     }
@@ -75,10 +90,10 @@ router.get('/', (req, res) => {
     // Always return 200 OK for Render health checks
     const healthData = {
       status: 'ok',
+      env: process.env.NODE_ENV || 'development',
       message: 'Server healthy',
       timestamp: new Date().toISOString(),
       uptime: uptime,
-      environment: process.env.NODE_ENV || 'development',
       version: process.env.npm_package_version || '1.0.0',
       system: {
         platform: os.platform(),
@@ -132,9 +147,9 @@ router.get('/', (req, res) => {
     
     const errorResponse = {
       status: 'ok', // Always 'ok' for Render
+      env: process.env.NODE_ENV || 'development',
       timestamp: new Date().toISOString(),
       uptime: process.uptime(),
-      environment: process.env.NODE_ENV || 'development',
       error: 'Health check had issues but service is running',
       render: {
         healthCheckCount: req.headers['x-render-health-check'] ? 'true' : 'false',
