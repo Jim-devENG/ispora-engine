@@ -1,5 +1,5 @@
 const express = require('express');
-const { register, login, getMe, logout } = require('../controllers/authController');
+const { register, login, getMe, logout, refreshToken } = require('../controllers/authController');
 const { authenticateToken } = require('../middleware/auth');
 
 const router = express.Router();
@@ -10,6 +10,7 @@ router.post('/login', login);
 
 // Protected routes
 router.get('/me', authenticateToken, getMe);
-router.post('/logout', authenticateToken, logout); // Optional auth - logout still works if token is invalid
+router.post('/logout', authenticateToken, logout);
+router.post('/refresh', authenticateToken, refreshToken); // Token refresh endpoint
 
 module.exports = router;

@@ -1,6 +1,7 @@
 /**
  * 🔐 Authentication Middleware
  * Verifies JWT tokens and ensures user exists in database
+ * Returns clear error codes: TOKEN_EXPIRED, INVALID_TOKEN, USER_NOT_FOUND
  */
 
 const jwt = require('jsonwebtoken');
@@ -18,14 +19,14 @@ const db = knex(dbConfig);
 /**
  * Verify JWT token and ensure user exists in database
  * NO FALLBACKS - User must exist or request is rejected
+ * Clear error codes for frontend handling
  */
 const authenticateToken = async (req, res, next) => {
   try {
     // Extract token from Authorization header
     const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
-
-    if (!token) {
+    
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
       // Add CORS headers to error response
       const origin = req.headers.origin;
       const allowedOrigins = ['https://ispora.app', 'https://www.ispora.app', 'http://localhost:5173'];
@@ -42,9 +43,11 @@ const authenticateToken = async (req, res, next) => {
         message: 'Please log in again.'
       });
     }
+    
+    const token = authHeader.split(' ')[1]; // Extract token after "Bearer "
 
-    // Verify JWT token
-    const jwtSecret = process.env.JWT_SECRET || config.jwt?.secret;
+    // Verify JWT_SECRET is configured
+    const jwtSecret = process.env.JWT_SECRET;
     if (!jwtSecret) {
       logger.error('JWT_SECRET not configured');
       const origin = req.headers.origin;
@@ -58,11 +61,54 @@ const authenticateToken = async (req, res, next) => {
       return res.status(500).json({
         success: false,
         error: 'Server configuration error',
-        code: 'SERVER_ERROR'
+        code: 'SERVER_ERROR',
+        message: 'Server configuration error. Please contact support.'
       });
     }
     
-    const decoded = jwt.verify(token, jwtSecret);
+    // Verify JWT token - this will throw TokenExpiredError or JsonWebTokenError
+    let decoded;
+    try {
+      decoded = jwt.verify(token, jwtSecret);
+    } catch (jwtError) {
+      // Handle JWT verification errors explicitly
+      const origin = req.headers.origin;
+      const allowedOrigins = ['https://ispora.app', 'https://www.ispora.app', 'http://localhost:5173'];
+      
+      if (origin && allowedOrigins.includes(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+        res.setHeader('Access-Control-Allow-Credentials', 'true');
+      }
+      
+      if (jwtError.name === 'TokenExpiredError') {
+        logger.warn({ error: jwtError.message }, 'Token expired');
+        return res.status(401).json({
+          success: false,
+          error: 'Session expired',
+          code: 'TOKEN_EXPIRED',
+          message: 'Your session has expired. Please log in again.'
+        });
+      }
+      
+      if (jwtError.name === 'JsonWebTokenError') {
+        logger.warn({ error: jwtError.message }, 'Invalid token');
+        return res.status(401).json({
+          success: false,
+          error: 'Invalid token',
+          code: 'INVALID_TOKEN',
+          message: 'Please log in again.'
+        });
+      }
+      
+      // Generic JWT error
+      logger.error({ error: jwtError.message, name: jwtError.name }, 'Token verification failed');
+      return res.status(401).json({
+        success: false,
+        error: 'Authentication failed',
+        code: 'INVALID_TOKEN',
+        message: 'Please log in again.'
+      });
+    }
     
     // Validate token has required user ID
     if (!decoded.id) {
@@ -85,11 +131,11 @@ const authenticateToken = async (req, res, next) => {
     }
     
     // 🔑 CRITICAL: Verify user exists in database - NO FALLBACKS
-    // This is the root cause of "User not found" errors
+    // If token is valid but user doesn't exist, it's an expired/invalid session
     const user = await db('users').where('id', decoded.id).first();
     
     if (!user) {
-      logger.error({ userId: decoded.id, email: decoded.email }, 'User not found in database');
+      logger.error({ userId: decoded.id, email: decoded.email }, 'User not found in database - session expired');
       
       const origin = req.headers.origin;
       const allowedOrigins = ['https://ispora.app', 'https://www.ispora.app', 'http://localhost:5173'];
@@ -99,11 +145,12 @@ const authenticateToken = async (req, res, next) => {
         res.setHeader('Access-Control-Allow-Credentials', 'true');
       }
       
+      // Return "Session expired" instead of "User not found" to prevent confusion
       return res.status(401).json({
         success: false,
-        error: 'User not found. Please log in again.',
-        code: 'USER_NOT_FOUND',
-        message: 'Your session is invalid. Please log in again.'
+        error: 'Session expired',
+        code: 'TOKEN_EXPIRED',
+        message: 'Your session has expired. Please log in again.'
       });
     }
     
@@ -123,7 +170,7 @@ const authenticateToken = async (req, res, next) => {
     
     next();
   } catch (error) {
-    logger.error({ error: error.message, name: error.name }, 'Token verification failed');
+    logger.error({ error: error.message, name: error.name }, 'Unexpected error in token verification');
     
     // Add CORS headers to error response
     const origin = req.headers.origin;
@@ -134,24 +181,7 @@ const authenticateToken = async (req, res, next) => {
       res.setHeader('Access-Control-Allow-Credentials', 'true');
     }
     
-    if (error.name === 'JsonWebTokenError') {
-      return res.status(401).json({
-        success: false,
-        error: 'Invalid token',
-        code: 'INVALID_TOKEN',
-        message: 'Please log in again.'
-      });
-    }
-    
-    if (error.name === 'TokenExpiredError') {
-      return res.status(401).json({
-        success: false,
-        error: 'Token expired',
-        code: 'TOKEN_EXPIRED',
-        message: 'Your session has expired. Please log in again.'
-      });
-    }
-
+    // Generic authentication error
     return res.status(401).json({
       success: false,
       error: 'Authentication error',
@@ -161,6 +191,10 @@ const authenticateToken = async (req, res, next) => {
   }
 };
 
+// Alias for backward compatibility
+const verifyToken = authenticateToken;
+
 module.exports = {
-  authenticateToken
+  authenticateToken,
+  verifyToken // Export as alias
 };

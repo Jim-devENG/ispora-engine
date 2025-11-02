@@ -83,8 +83,8 @@ router.get('/:id', (req, res) => {
   }
 });
 
-// POST /api/tasks - Create new task
-router.post('/', (req, res) => {
+// POST /api/tasks - Create new task (protected)
+router.post('/', authenticateToken, (req, res) => {
   try {
     const { title, description, priority = 'medium', dueDate } = req.body;
     
@@ -123,8 +123,8 @@ router.post('/', (req, res) => {
   }
 });
 
-// PUT /api/tasks/:id - Update task
-router.put('/:id', (req, res) => {
+// PUT /api/tasks/:id - Update task (protected)
+router.put('/:id', authenticateToken, (req, res) => {
   try {
     const taskId = parseInt(req.params.id);
     const taskIndex = mockTasks.findIndex(t => t.id === taskId);
@@ -163,8 +163,8 @@ router.put('/:id', (req, res) => {
   }
 });
 
-// DELETE /api/tasks/:id - Delete task
-router.delete('/:id', (req, res) => {
+// DELETE /api/tasks/:id - Delete task (protected)
+router.delete('/:id', authenticateToken, (req, res) => {
   try {
     const taskId = parseInt(req.params.id);
     const taskIndex = mockTasks.findIndex(t => t.id === taskId);

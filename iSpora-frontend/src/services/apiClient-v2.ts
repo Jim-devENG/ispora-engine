@@ -54,9 +54,15 @@ class ApiClientV2 {
           if (typeof window !== 'undefined') {
             // Import toast dynamically to avoid circular dependencies
             import('sonner').then(({ toast }) => {
-              if (errorCode === 'USER_NOT_FOUND') {
-                toast.error('User not found. Please log in again.');
-              } else if (errorCode === 'TOKEN_EXPIRED') {
+              // Handle specific error codes with clear messages
+              if (errorCode === 'TOKEN_EXPIRED') {
+                toast.error('Session expired. Please log in again.');
+              } else if (errorCode === 'INVALID_TOKEN') {
+                toast.error('Invalid session. Please log in again.');
+              } else if (errorCode === 'NO_TOKEN') {
+                toast.error('Please log in to continue.');
+              } else if (errorCode === 'USER_NOT_FOUND' || errorCode === 'SESSION_EXPIRED') {
+                // Legacy codes - treat as session expired
                 toast.error('Session expired. Please log in again.');
               } else {
                 toast.error(errorMessage || 'Session expired. Please log in again.');

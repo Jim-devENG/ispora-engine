@@ -12,17 +12,29 @@ const dbConfig = process.env.NODE_ENV === 'production'
 
 const db = knex(dbConfig);
 
-// Generate JWT token
+/**
+ * Generate JWT token
+ * Uses process.env.JWT_SECRET (REQUIRED - no fallbacks)
+ * Includes user ID and email in payload
+ */
 const generateToken = (userId, email = null) => {
+  // Validate JWT_SECRET is configured
+  const jwtSecret = process.env.JWT_SECRET;
+  if (!jwtSecret) {
+    throw new Error('JWT_SECRET environment variable is required');
+  }
+  
   const payload = { id: userId };
-  // Include email in token if provided (for better user lookup)
+  // Include email in token if provided
   if (email) {
     payload.email = email;
   }
+  
+  // Use explicit JWT_SECRET (no fallbacks for security)
   return jwt.sign(
     payload,
-    process.env.JWT_SECRET || config.jwt?.secret || 'fallback-secret-change-in-production',
-    { expiresIn: process.env.JWT_EXPIRES_IN || config.jwt?.expiresIn || '7d' }
+    jwtSecret,
+    { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
   );
 };
 
@@ -437,9 +449,86 @@ const logout = async (req, res) => {
   }
 };
 
+/**
+ * Refresh JWT token
+ * Issues a new token before expiry to extend session
+ */
+const refreshToken = async (req, res) => {
+  try {
+    // User must be authenticated to refresh token
+    if (!req.user || !req.user.id) {
+      const origin = req.headers.origin;
+      const allowedOrigins = ['https://ispora.app', 'https://www.ispora.app', 'http://localhost:5173'];
+      
+      if (origin && allowedOrigins.includes(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+        res.setHeader('Access-Control-Allow-Credentials', 'true');
+      }
+      
+      return res.status(401).json({
+        success: false,
+        error: 'Authentication required',
+        code: 'NO_TOKEN',
+        message: 'Please log in again.'
+      });
+    }
+    
+    // Verify user still exists in database
+    const user = await db('users').where('id', req.user.id).first();
+    
+    if (!user) {
+      const origin = req.headers.origin;
+      const allowedOrigins = ['https://ispora.app', 'https://www.ispora.app', 'http://localhost:5173'];
+      
+      if (origin && allowedOrigins.includes(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+        res.setHeader('Access-Control-Allow-Credentials', 'true');
+      }
+      
+      return res.status(401).json({
+        success: false,
+        error: 'Session expired',
+        code: 'TOKEN_EXPIRED',
+        message: 'Your session has expired. Please log in again.'
+      });
+    }
+    
+    // Generate new token with same user info
+    const newToken = generateToken(user.id, user.email);
+    
+    logger.info({ userId: user.id }, 'Token refreshed successfully');
+    
+    res.json({
+      success: true,
+      message: 'Token refreshed successfully',
+      token: newToken,
+      expiresIn: process.env.JWT_EXPIRES_IN || '7d'
+    });
+    
+  } catch (error) {
+    logger.error({ error: error.message }, 'Token refresh failed');
+    
+    const origin = req.headers.origin;
+    const allowedOrigins = ['https://ispora.app', 'https://www.ispora.app', 'http://localhost:5173'];
+    
+    if (origin && allowedOrigins.includes(origin)) {
+      res.setHeader('Access-Control-Allow-Origin', origin);
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
+    }
+    
+    res.status(500).json({
+      success: false,
+      error: 'Token refresh failed',
+      code: 'REFRESH_ERROR',
+      message: 'Please log in again.'
+    });
+  }
+};
+
 module.exports = {
   register,
   login,
   getMe,
-  logout
+  logout,
+  refreshToken
 };
