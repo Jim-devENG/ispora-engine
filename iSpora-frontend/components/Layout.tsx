@@ -181,14 +181,9 @@ function MainContent() {
               console.log('🔄 [PROJECT CREATION] Triggering refreshes...');
               
               // Trigger feed refresh if Dashboard is mounted
-              try {
-                const { useFeedService } = await import('./FeedService');
-                // Note: We'll trigger refresh via a custom event that Dashboard listens to
-                window.dispatchEvent(new CustomEvent('refreshFeed'));
-                console.log('✅ [PROJECT CREATION] Feed refresh event dispatched');
-              } catch (feedError) {
-                console.warn('⚠️ [PROJECT CREATION] Feed refresh not available:', feedError);
-              }
+              // Dispatch custom event that Dashboard listens to
+              window.dispatchEvent(new CustomEvent('refreshFeed'));
+              console.log('✅ [PROJECT CREATION] Feed refresh event dispatched');
 
               // Trigger project list refresh if MyProjects is mounted
               try {
@@ -202,8 +197,13 @@ function MainContent() {
               
               // Show success message
               try {
-                const { toast } = await import('./ui/sonner');
-                toast.success('Project created successfully! It will appear in your feed and project list.');
+                // Dynamic import of toast from sonner
+                const sonnerModule = await import('sonner');
+                if (sonnerModule && sonnerModule.toast) {
+                  sonnerModule.toast.success('Project created successfully! It will appear in your feed and project list.');
+                } else {
+                  console.warn('⚠️ Toast not available in sonner module');
+                }
               } catch (toastError) {
                 console.warn('⚠️ Toast not available:', toastError);
               }
@@ -224,8 +224,13 @@ function MainContent() {
               const errorMessage = error.response?.data?.error || error.message || 'Failed to create project';
               
               try {
-                const { toast } = await import('./ui/sonner');
-                toast.error(`Failed to create project: ${errorMessage}`);
+                // Dynamic import of toast from sonner
+                const sonnerModule = await import('sonner');
+                if (sonnerModule && sonnerModule.toast) {
+                  sonnerModule.toast.error(`Failed to create project: ${errorMessage}`);
+                } else {
+                  console.error('Toast not available in sonner module');
+                }
               } catch (toastError) {
                 console.error('Failed to show error toast:', toastError);
               }
