@@ -17,8 +17,11 @@
     "test:watch": "jest --watch --runInBand",
     "test:coverage": "jest --coverage --runInBand",
     "test:guardian": "jest src/tests/devops-guardian.test.js --runInBand",
+    "test:pre-deploy": "node test-pre-deployment.js",
+    "test:diagnose": "node diagnose-database.js",
     "guard:check": "node src/scripts/deployment-guard.js",
-    "guard:pre-deploy": "npm run guard:check && npm run test:guardian",
+    "guard:pre-deploy": "npm run guard:check && npm run test:guardian && npm run test:pre-deploy",
+    "pre-deploy": "npm run migrate && npm run test:pre-deploy",
     "lint": "eslint src/",
     "lint:fix": "eslint src/ --fix"
   },
