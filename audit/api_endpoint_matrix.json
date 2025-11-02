@@ -1,0 +1,1047 @@
+{
+  "metadata": {
+    "auditDate": "2025-01-31",
+    "frontendUrl": "https://ispora.app",
+    "backendUrl": "https://ispora-backend.onrender.com",
+    "apiBaseUrl": "https://ispora-backend.onrender.com/api",
+    "totalEndpointsExpected": 60,
+    "totalEndpointsImplemented": 25,
+    "totalEndpointsMissing": 35
+  },
+  "authentication": {
+    "register": {
+      "method": "POST",
+      "path": "/api/auth/register",
+      "status": "implemented",
+      "protected": false,
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "requestBody": {
+        "email": "string (required, normalized to lowercase)",
+        "password": "string (required, min 6, max 128)",
+        "firstName": "string (required)",
+        "lastName": "string (required)",
+        "userType": "string (optional: 'student' | 'professional' | 'mentor', default: 'student')",
+        "username": "string (optional)"
+      },
+      "response": {
+        "success": true,
+        "message": "Registration successful",
+        "token": "string (JWT)",
+        "user": {
+          "id": "string (UUID)",
+          "email": "string",
+          "firstName": "string",
+          "lastName": "string",
+          "userType": "string",
+          "username": "string",
+          "...": "other user fields"
+        }
+      },
+      "usedIn": [
+        "components/LoginPage.tsx",
+        "src/services/authService.ts",
+        "src/services/apiClient-v2.ts"
+      ]
+    },
+    "login": {
+      "method": "POST",
+      "path": "/api/auth/login",
+      "status": "implemented",
+      "protected": false,
+      "requestBody": {
+        "email": "string (required, normalized to lowercase)",
+        "password": "string (required)"
+      },
+      "response": {
+        "success": true,
+        "message": "Login successful",
+        "token": "string (JWT)",
+        "user": "User object"
+      },
+      "usedIn": [
+        "components/LoginPage.tsx",
+        "src/services/authService.ts",
+        "src/services/apiClient-v2.ts"
+      ]
+    },
+    "me": {
+      "method": "GET",
+      "path": "/api/auth/me",
+      "status": "implemented",
+      "protected": true,
+      "headers": {
+        "Authorization": "Bearer <token>"
+      },
+      "response": {
+        "success": true,
+        "user": "User object"
+      },
+      "usedIn": [
+        "components/AuthContext.tsx",
+        "src/services/authService.ts",
+        "src/services/apiClient-v2.ts"
+      ]
+    },
+    "logout": {
+      "method": "POST",
+      "path": "/api/auth/logout",
+      "status": "implemented",
+      "protected": true,
+      "response": {
+        "success": true,
+        "message": "Logout successful"
+      },
+      "usedIn": [
+        "src/services/authService.ts",
+        "src/services/apiClient-v2.ts"
+      ]
+    },
+    "refresh": {
+      "method": "POST",
+      "path": "/api/auth/refresh",
+      "status": "implemented",
+      "protected": true,
+      "response": {
+        "success": true,
+        "message": "Token refreshed successfully",
+        "token": "string (new JWT)",
+        "expiresIn": "string (e.g., '7d')"
+      },
+      "usedIn": [
+        "src/services/apiClient-v2.ts"
+      ]
+    }
+  },
+  "projects": {
+    "create": {
+      "method": "POST",
+      "path": "/api/projects",
+      "status": "implemented",
+      "protected": true,
+      "requestBody": {
+        "title": "string (required)",
+        "description": "string",
+        "type": "string (mentorship | academic | career | community | collaboration)",
+        "category": "string (education | healthcare | technology | ...)",
+        "tags": "array<string>",
+        "objectives": "string (required - CRITICAL: sent as string, NOT array!)",
+        "teamMembers": "array<TeamMember>",
+        "diasporaPositions": "array<DiasporaPosition>",
+        "priority": "string (low | medium | high)",
+        "university": "string",
+        "mentorshipConnection": "boolean",
+        "isPublic": "boolean"
+      },
+      "response": {
+        "success": true,
+        "project": "Project object with creator info"
+      },
+      "usedIn": [
+        "components/CreateProject.tsx",
+        "components/Layout.tsx",
+        "src/services/apiClient-v2.ts"
+      ]
+    },
+    "list": {
+      "method": "GET",
+      "path": "/api/projects",
+      "status": "implemented",
+      "protected": false,
+      "queryParams": {
+        "mine": "boolean (optional: ?mine=true)",
+        "page": "number (optional)",
+        "limit": "number (optional)"
+      },
+      "response": {
+        "success": true,
+        "data": "array<Project>"
+      },
+      "usedIn": [
+        "components/MyProjects.tsx",
+        "components/Dashboard.tsx",
+        "src/services/apiClient-v2.ts"
+      ]
+    },
+    "get": {
+      "method": "GET",
+      "path": "/api/projects/:id",
+      "status": "implemented",
+      "protected": false,
+      "response": {
+        "success": true,
+        "project": "Project object"
+      },
+      "usedIn": [
+        "components/ProjectDetail.tsx",
+        "src/services/apiClient-v2.ts"
+      ]
+    },
+    "updates": {
+      "method": "GET",
+      "path": "/api/projects/updates",
+      "status": "not_implemented",
+      "protected": false,
+      "queryParams": {
+        "mine": "boolean (optional)"
+      },
+      "expectedResponse": {
+        "success": true,
+        "data": "array<ProjectUpdate>"
+      },
+      "usedIn": [
+        "components/MyProjects.tsx"
+      ]
+    }
+  },
+  "feed": {
+    "get": {
+      "method": "GET",
+      "path": "/api/feed",
+      "status": "implemented",
+      "protected": false,
+      "queryParams": {
+        "page": "number (default: 1)",
+        "limit": "number (default: 20)",
+        "realtime": "boolean (optional)"
+      },
+      "response": {
+        "success": true,
+        "data": "array<FeedEntry>",
+        "pagination": {
+          "page": "number",
+          "limit": "number",
+          "total": "number"
+        }
+      },
+      "usedIn": [
+        "components/FeedService.tsx",
+        "components/Dashboard.tsx"
+      ]
+    },
+    "stream": {
+      "method": "GET",
+      "path": "/api/feed/stream",
+      "status": "implemented",
+      "protected": false,
+      "connectionType": "Server-Sent Events (SSE)",
+      "queryParams": {
+        "token": "string (passed as query param - EventSource limitation)",
+        "devKey": "string (optional)"
+      },
+      "headers": {
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache, no-store, must-revalidate",
+        "Connection": "keep-alive",
+        "Access-Control-Allow-Origin": "https://ispora.app"
+      },
+      "messages": {
+        "connected": {
+          "type": "connected",
+          "message": "Connected to feed stream",
+          "timestamp": "ISO date"
+        },
+        "welcome": {
+          "type": "welcome",
+          "message": "Welcome to iSpora feed stream",
+          "timestamp": "ISO date"
+        },
+        "ping": {
+          "type": "ping",
+          "timestamp": "ISO date"
+        }
+      },
+      "heartbeat": "20 seconds",
+      "usedIn": [
+        "components/FeedService.tsx"
+      ]
+    },
+    "activity": {
+      "method": "POST",
+      "path": "/api/feed/activity",
+      "status": "implemented",
+      "protected": false,
+      "headers": {
+        "Authorization": "Bearer <token> (optional)",
+        "X-Dev-Key": "string (optional)",
+        "Content-Type": "application/json"
+      },
+      "requestBody": {
+        "type": "string (required)",
+        "title": "string",
+        "description": "string",
+        "category": "string",
+        "metadata": "object"
+      },
+      "response": {
+        "success": true,
+        "message": "Activity tracked successfully",
+        "data": "Activity object"
+      },
+      "usedIn": [
+        "components/FeedService.tsx",
+        "components/Dashboard.tsx"
+      ]
+    },
+    "sessions": {
+      "method": "GET",
+      "path": "/api/feed/sessions",
+      "status": "implemented",
+      "protected": false,
+      "response": {
+        "success": true,
+        "activeSessions": "array (currently empty stub)",
+        "total": "number"
+      },
+      "note": "Alias for /api/sessions",
+      "usedIn": [
+        "components/FeedService.tsx"
+      ]
+    }
+  },
+  "tasks": {
+    "list": {
+      "method": "GET",
+      "path": "/api/tasks",
+      "status": "implemented_mock_data",
+      "protected": false,
+      "response": {
+        "success": true,
+        "tasks": "array<Task>",
+        "total": "number"
+      },
+      "note": "Currently returns mock data, not database-integrated",
+      "usedIn": [
+        "components/workspace/TaskManager.tsx",
+        "src/services/apiClient.ts"
+      ]
+    },
+    "get": {
+      "method": "GET",
+      "path": "/api/tasks/:id",
+      "status": "implemented_mock_data",
+      "protected": false,
+      "response": {
+        "success": true,
+        "task": "Task object"
+      },
+      "usedIn": [
+        "src/services/apiClient.ts"
+      ]
+    },
+    "create": {
+      "method": "POST",
+      "path": "/api/tasks",
+      "status": "implemented_mock_data",
+      "protected": true,
+      "requestBody": {
+        "title": "string (required)",
+        "description": "string",
+        "priority": "string (low | medium | high, default: 'medium')",
+        "dueDate": "string (ISO date)"
+      },
+      "response": {
+        "success": true,
+        "task": "Task object"
+      },
+      "usedIn": [
+        "components/workspace/TaskManager.tsx",
+        "src/services/apiClient.ts"
+      ]
+    },
+    "update": {
+      "method": "PUT",
+      "path": "/api/tasks/:id",
+      "status": "implemented_mock_data",
+      "protected": true,
+      "requestBody": {
+        "title": "string",
+        "description": "string",
+        "priority": "string",
+        "dueDate": "string",
+        "status": "string (todo | in-progress | done)"
+      },
+      "response": {
+        "success": true,
+        "task": "Task object"
+      },
+      "usedIn": [
+        "components/workspace/TaskManager.tsx",
+        "src/services/apiClient.ts"
+      ]
+    },
+    "delete": {
+      "method": "DELETE",
+      "path": "/api/tasks/:id",
+      "status": "implemented_mock_data",
+      "protected": true,
+      "response": {
+        "success": true,
+        "message": "Task deleted successfully"
+      },
+      "usedIn": [
+        "components/workspace/TaskManager.tsx",
+        "src/services/apiClient.ts"
+      ]
+    }
+  },
+  "notifications": {
+    "list": {
+      "method": "GET",
+      "path": "/api/notifications",
+      "status": "not_implemented",
+      "protected": true,
+      "queryParams": {
+        "filter": "string (all | unread | action-required)"
+      },
+      "expectedResponse": {
+        "success": true,
+        "data": {
+          "notifications": "array<Notification>",
+          "stats": {
+            "total": "number",
+            "unread": "number",
+            "actionRequired": "number"
+          }
+        }
+      },
+      "usedIn": [
+        "components/NotificationsPage.tsx"
+      ]
+    },
+    "markRead": {
+      "method": "PUT",
+      "path": "/api/notifications/:id/read",
+      "status": "not_implemented",
+      "protected": true,
+      "response": {
+        "success": true
+      },
+      "usedIn": [
+        "components/NotificationsPage.tsx"
+      ]
+    },
+    "markAllRead": {
+      "method": "PUT",
+      "path": "/api/notifications/mark-all-read",
+      "status": "not_implemented",
+      "protected": true,
+      "response": {
+        "success": true
+      },
+      "usedIn": [
+        "components/NotificationsPage.tsx"
+      ]
+    },
+    "delete": {
+      "method": "DELETE",
+      "path": "/api/notifications/:id",
+      "status": "not_implemented",
+      "protected": true,
+      "response": {
+        "success": true
+      },
+      "usedIn": [
+        "components/NotificationsPage.tsx"
+      ]
+    }
+  },
+  "opportunities": {
+    "list": {
+      "method": "GET",
+      "path": "/api/opportunities",
+      "status": "not_implemented",
+      "protected": false,
+      "queryParams": {
+        "type": "string (job | scholarship | internship | volunteer | event)",
+        "q": "string (search query)",
+        "location": "string",
+        "remote": "boolean",
+        "experience": "string (entry | mid | senior)"
+      },
+      "expectedResponse": {
+        "success": true,
+        "data": "array<Opportunity>"
+      },
+      "usedIn": [
+        "components/OpportunitiesPage.tsx",
+        "components/BrowseOpportunities.tsx"
+      ]
+    }
+  },
+  "credits": {
+    "overview": {
+      "method": "GET",
+      "path": "/api/credits/overview",
+      "status": "not_implemented",
+      "protected": true,
+      "expectedResponse": {
+        "success": true,
+        "data": {
+          "user": "User object with credits",
+          "stats": {
+            "totalCredits": "number",
+            "creditsThisMonth": "number",
+            "rank": "number",
+            "nextMilestone": "number"
+          }
+        }
+      },
+      "usedIn": [
+        "components/CreditsPage.tsx"
+      ]
+    },
+    "badges": {
+      "method": "GET",
+      "path": "/api/credits/badges",
+      "status": "not_implemented",
+      "protected": true,
+      "expectedResponse": {
+        "success": true,
+        "data": "array<Badge>"
+      },
+      "usedIn": [
+        "components/CreditsPage.tsx"
+      ]
+    },
+    "leaderboard": {
+      "method": "GET",
+      "path": "/api/credits/leaderboard",
+      "status": "not_implemented",
+      "protected": true,
+      "queryParams": {
+        "timeframe": "string (week | month | year | all)"
+      },
+      "expectedResponse": {
+        "success": true,
+        "data": "array<LeaderboardEntry>"
+      },
+      "usedIn": [
+        "components/CreditsPage.tsx"
+      ]
+    },
+    "activities": {
+      "method": "GET",
+      "path": "/api/credits/activities",
+      "status": "not_implemented",
+      "protected": true,
+      "expectedResponse": {
+        "success": true,
+        "data": "array<CreditActivity>"
+      },
+      "usedIn": [
+        "components/CreditsPage.tsx"
+      ]
+    }
+  },
+  "network": {
+    "discovery": {
+      "method": "GET",
+      "path": "/api/network/discovery",
+      "status": "not_implemented",
+      "protected": true,
+      "expectedResponse": {
+        "success": true,
+        "data": "array<NetworkUser>"
+      },
+      "usedIn": [
+        "components/MyNetwork.tsx"
+      ]
+    },
+    "connections": {
+      "method": "GET",
+      "path": "/api/network/connections",
+      "status": "not_implemented",
+      "protected": true,
+      "expectedResponse": {
+        "success": true,
+        "data": "array<Connection>"
+      },
+      "usedIn": [
+        "components/MyNetwork.tsx"
+      ]
+    },
+    "connectionRequests": {
+      "method": "GET",
+      "path": "/api/network/connections/requests",
+      "status": "not_implemented",
+      "protected": true,
+      "expectedResponse": {
+        "success": true,
+        "data": "array<ConnectionRequest>"
+      },
+      "usedIn": [
+        "components/MyNetwork.tsx"
+      ]
+    },
+    "sendRequest": {
+      "method": "POST",
+      "path": "/api/network/connections/requests",
+      "status": "not_implemented",
+      "protected": true,
+      "requestBody": {
+        "userId": "string (required)",
+        "purpose": "string",
+        "message": "string"
+      },
+      "expectedResponse": {
+        "success": true,
+        "message": "Connection request sent successfully"
+      },
+      "usedIn": [
+        "components/MyNetwork.tsx"
+      ]
+    },
+    "acceptRequest": {
+      "method": "POST",
+      "path": "/api/network/connections/requests/:id/accept",
+      "status": "not_implemented",
+      "protected": true,
+      "expectedResponse": {
+        "success": true,
+        "message": "Connection request accepted"
+      },
+      "usedIn": [
+        "components/MyNetwork.tsx"
+      ]
+    },
+    "declineRequest": {
+      "method": "POST",
+      "path": "/api/network/connections/requests/:id/decline",
+      "status": "not_implemented",
+      "protected": true,
+      "expectedResponse": {
+        "success": true,
+        "message": "Connection request declined"
+      },
+      "usedIn": [
+        "components/MyNetwork.tsx"
+      ]
+    }
+  },
+  "admin": {
+    "users": {
+      "method": "GET",
+      "path": "/api/users",
+      "status": "not_implemented",
+      "protected": true,
+      "adminOnly": true,
+      "expectedResponse": {
+        "success": true,
+        "data": "array<User>"
+      },
+      "usedIn": [
+        "components/AdminDashboard.tsx"
+      ]
+    },
+    "stats": {
+      "method": "GET",
+      "path": "/api/admin/stats",
+      "status": "not_implemented",
+      "protected": true,
+      "adminOnly": true,
+      "expectedResponse": {
+        "success": true,
+        "data": {
+          "totalUsers": "number",
+          "activeUsers": "number",
+          "newUsersToday": "number",
+          "totalProjects": "number",
+          "totalOpportunities": "number",
+          "totalMentorships": "number",
+          "systemHealth": "string",
+          "uptime": "string",
+          "responseTime": "string",
+          "...": "other stats"
+        }
+      },
+      "usedIn": [
+        "components/AdminDashboard.tsx"
+      ]
+    },
+    "reports": {
+      "method": "GET",
+      "path": "/api/admin/reports",
+      "status": "not_implemented",
+      "protected": true,
+      "adminOnly": true,
+      "expectedResponse": {
+        "success": true,
+        "data": "array<Report>"
+      },
+      "usedIn": [
+        "components/AdminDashboard.tsx"
+      ]
+    },
+    "userAction": {
+      "method": "POST",
+      "path": "/api/admin/users/:id/:action",
+      "status": "not_implemented",
+      "protected": true,
+      "adminOnly": true,
+      "requestBody": {
+        "action": "string (ban | suspend | activate | ...)"
+      },
+      "expectedResponse": {
+        "success": true,
+        "message": "User action performed"
+      },
+      "usedIn": [
+        "components/AdminDashboard.tsx"
+      ]
+    },
+    "bulkUserAction": {
+      "method": "POST",
+      "path": "/api/admin/users/bulk/:action",
+      "status": "not_implemented",
+      "protected": true,
+      "adminOnly": true,
+      "requestBody": {
+        "userIds": "array<string>",
+        "action": "string"
+      },
+      "expectedResponse": {
+        "success": true,
+        "message": "Bulk action performed"
+      },
+      "usedIn": [
+        "components/AdminDashboard.tsx"
+      ]
+    },
+    "reportAction": {
+      "method": "POST",
+      "path": "/api/admin/reports/:id/:action",
+      "status": "not_implemented",
+      "protected": true,
+      "adminOnly": true,
+      "expectedResponse": {
+        "success": true,
+        "message": "Report action performed"
+      },
+      "usedIn": [
+        "components/AdminDashboard.tsx"
+      ]
+    }
+  },
+  "research": {
+    "sources": {
+      "method": "GET",
+      "path": "/api/research/sources",
+      "status": "not_implemented",
+      "protected": true,
+      "expectedResponse": {
+        "success": true,
+        "data": "array<ResearchSource>"
+      },
+      "usedIn": [
+        "components/workspace/ResearchTools.tsx"
+      ]
+    },
+    "createSource": {
+      "method": "POST",
+      "path": "/api/research/sources",
+      "status": "not_implemented",
+      "protected": true,
+      "requestBody": {
+        "title": "string (required)",
+        "authors": "array<string>",
+        "year": "number",
+        "type": "string (journal | conference | book | report | website | thesis)",
+        "url": "string",
+        "abstract": "string",
+        "keywords": "string",
+        "notes": "string",
+        "doi": "string"
+      },
+      "expectedResponse": {
+        "success": true,
+        "data": "ResearchSource object"
+      },
+      "usedIn": [
+        "components/workspace/ResearchTools.tsx"
+      ]
+    },
+    "notes": {
+      "method": "GET",
+      "path": "/api/research/notes",
+      "status": "not_implemented",
+      "protected": true,
+      "expectedResponse": {
+        "success": true,
+        "data": "array<ResearchNote>"
+      },
+      "usedIn": [
+        "components/workspace/ResearchTools.tsx"
+      ]
+    },
+    "createNote": {
+      "method": "POST",
+      "path": "/api/research/notes",
+      "status": "not_implemented",
+      "protected": true,
+      "requestBody": {
+        "title": "string (required)",
+        "content": "string",
+        "tags": "array<string>",
+        "category": "string (hypothesis | observation | methodology | insight | todo | question)"
+      },
+      "expectedResponse": {
+        "success": true,
+        "data": "ResearchNote object"
+      },
+      "usedIn": [
+        "components/workspace/ResearchTools.tsx"
+      ]
+    },
+    "datasets": {
+      "method": "GET",
+      "path": "/api/research/datasets",
+      "status": "not_implemented",
+      "protected": true,
+      "expectedResponse": {
+        "success": true,
+        "data": "array<Dataset>"
+      },
+      "usedIn": [
+        "components/workspace/ResearchTools.tsx"
+      ]
+    }
+  },
+  "live": {
+    "events": {
+      "method": "GET",
+      "path": "/api/live/events",
+      "status": "not_implemented",
+      "protected": true,
+      "expectedResponse": {
+        "success": true,
+        "data": "array<LiveEvent>"
+      },
+      "usedIn": [
+        "components/workspace/LiveSession.tsx"
+      ]
+    },
+    "eventChat": {
+      "method": "GET",
+      "path": "/api/live/events/:id/chat",
+      "status": "not_implemented",
+      "protected": true,
+      "expectedResponse": {
+        "success": true,
+        "data": "array<ChatMessage>"
+      },
+      "note": "Polled every 10 seconds",
+      "usedIn": [
+        "components/workspace/LiveSession.tsx"
+      ]
+    },
+    "sendChat": {
+      "method": "POST",
+      "path": "/api/live/events/:id/chat",
+      "status": "not_implemented",
+      "protected": true,
+      "requestBody": {
+        "content": "string (required)",
+        "type": "string (text | image | file)"
+      },
+      "expectedResponse": {
+        "success": true,
+        "data": "ChatMessage object"
+      },
+      "usedIn": [
+        "components/workspace/LiveSession.tsx"
+      ]
+    }
+  },
+  "learning": {
+    "recordings": {
+      "method": "GET",
+      "path": "/api/learning/recordings",
+      "status": "not_implemented",
+      "protected": true,
+      "expectedResponse": {
+        "success": true,
+        "data": "array<Recording>"
+      },
+      "usedIn": [
+        "components/workspace/LearningVault.tsx"
+      ]
+    },
+    "content": {
+      "method": "GET",
+      "path": "/api/learning/content",
+      "status": "not_implemented",
+      "protected": true,
+      "expectedResponse": {
+        "success": true,
+        "data": "array<LearningContent>"
+      },
+      "usedIn": [
+        "components/workspace/LearningVault.tsx"
+      ]
+    }
+  },
+  "deliverables": {
+    "list": {
+      "method": "GET",
+      "path": "/api/deliverables",
+      "status": "not_implemented",
+      "protected": true,
+      "expectedResponse": {
+        "success": true,
+        "data": "array<Deliverable>"
+      },
+      "note": "Auto-refresh every 30 seconds",
+      "usedIn": [
+        "components/workspace/DeliverableSubmissions.tsx"
+      ]
+    },
+    "submit": {
+      "method": "POST",
+      "path": "/api/deliverables",
+      "status": "not_implemented",
+      "protected": true,
+      "requestBody": {
+        "title": "string (required)",
+        "description": "string",
+        "file": "File object",
+        "projectId": "string"
+      },
+      "expectedResponse": {
+        "success": true,
+        "data": "Deliverable object"
+      },
+      "usedIn": [
+        "components/workspace/DeliverableSubmissions.tsx"
+      ]
+    }
+  },
+  "sessions": {
+    "list": {
+      "method": "GET",
+      "path": "/api/sessions",
+      "status": "implemented_stub",
+      "protected": false,
+      "response": {
+        "success": true,
+        "activeSessions": "[] (empty stub)",
+        "total": 0,
+        "timestamp": "ISO date"
+      },
+      "note": "Returns empty stub, not fully implemented",
+      "usedIn": [
+        "components/FeedService.tsx",
+        "components/workspace/SessionBoard.tsx"
+      ]
+    },
+    "update": {
+      "method": "PUT",
+      "path": "/api/sessions/:id",
+      "status": "not_implemented",
+      "protected": true,
+      "requestBody": {
+        "title": "string",
+        "description": "string",
+        "startTime": "ISO date",
+        "endTime": "ISO date",
+        "status": "string"
+      },
+      "expectedResponse": {
+        "success": true,
+        "data": "Session object"
+      },
+      "usedIn": [
+        "components/workspace/SessionBoard.tsx"
+      ]
+    },
+    "delete": {
+      "method": "DELETE",
+      "path": "/api/sessions/:id",
+      "status": "not_implemented",
+      "protected": true,
+      "expectedResponse": {
+        "success": true,
+        "message": "Session deleted successfully"
+      },
+      "usedIn": [
+        "components/workspace/SessionBoard.tsx"
+      ]
+    }
+  },
+  "system": {
+    "health": {
+      "method": "GET",
+      "path": "/api/health",
+      "status": "implemented",
+      "protected": false,
+      "response": {
+        "status": "ok",
+        "env": "string",
+        "timestamp": "ISO date"
+      },
+      "usedIn": [
+        "src/services/apiClient-v2.ts",
+        "src/services/DataPersistenceService.ts"
+      ]
+    },
+    "healthz": {
+      "method": "GET",
+      "path": "/healthz",
+      "status": "implemented",
+      "protected": false,
+      "note": "Render.com health check endpoint",
+      "response": {
+        "status": "ok",
+        "env": "string",
+        "timestamp": "ISO date",
+        "uptime": "number"
+      }
+    },
+    "ping": {
+      "method": "GET",
+      "path": "/api/ping",
+      "status": "implemented",
+      "protected": false,
+      "note": "Prevents Render.com cold starts",
+      "response": {
+        "status": "ok",
+        "timestamp": "ISO date",
+        "uptime": "number"
+      }
+    },
+    "placeholder": {
+      "method": "GET",
+      "path": "/api/placeholder/:width/:height",
+      "status": "implemented",
+      "protected": false,
+      "queryParams": {
+        "text": "string (optional)"
+      },
+      "response": "302 Redirect to https://placehold.co/${w}x${h}?text=${text}",
+      "usedIn": [
+        "components/UserProfileDropdown.tsx",
+        "components/CampaignDetail.tsx",
+        "components/AdminDashboard.tsx"
+      ]
+    },
+    "logs": {
+      "method": "POST",
+      "path": "/api/logs",
+      "status": "implemented",
+      "protected": false,
+      "note": "Client-side error logging",
+      "requestBody": {
+        "level": "string",
+        "message": "string",
+        "stack": "string",
+        "url": "string",
+        "userAgent": "string"
+      },
+      "usedIn": [
+        "src/components/MobileErrorBoundary.tsx"
+      ]
+    }
+  }
+}
+

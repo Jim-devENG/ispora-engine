@@ -1,0 +1,541 @@
+{
+  "metadata": {
+    "auditDate": "2025-01-31",
+    "source": "iSpora Frontend Components",
+    "totalModels": 25,
+    "note": "All data models inferred from frontend TypeScript interfaces and usage patterns"
+  },
+  "user": {
+    "interface": "User",
+    "fields": {
+      "id": "string (UUID, required)",
+      "email": "string (required, normalized to lowercase)",
+      "firstName": "string (required)",
+      "lastName": "string (required)",
+      "userType": "'student' | 'professional' | 'mentor' | 'admin'",
+      "username": "string (optional, auto-generated)",
+      "avatar": "string (optional, URL)",
+      "isOnline": "boolean (optional)",
+      "lastLogin": "string (optional, ISO date)"
+    },
+    "usedIn": [
+      "src/services/authService.ts",
+      "components/AuthContext.tsx",
+      "components/LoginPage.tsx",
+      "components/ProfilePage.tsx",
+      "components/UserProfile.tsx"
+    ]
+  },
+  "project": {
+    "interface": "Project",
+    "fields": {
+      "id": "string (UUID, required)",
+      "title": "string (required)",
+      "description": "string",
+      "type": "'mentorship' | 'academic' | 'career' | 'community' | 'collaboration'",
+      "category": "string (education | healthcare | technology | agriculture | ...)",
+      "tags": "array<string>",
+      "objectives": "string (CRITICAL: sent as string, not array!)",
+      "teamMembers": "array<TeamMember>",
+      "diasporaPositions": "array<DiasporaPosition>",
+      "priority": "'low' | 'medium' | 'high'",
+      "university": "string",
+      "mentorshipConnection": "boolean",
+      "isPublic": "boolean",
+      "creator": {
+        "id": "string",
+        "email": "string",
+        "name": "string",
+        "first_name": "string",
+        "last_name": "string"
+      },
+      "created_at": "string (ISO date)",
+      "updated_at": "string (ISO date)"
+    },
+    "relationships": {
+      "creator": "User (one-to-one)",
+      "teamMembers": "User (many-to-many)",
+      "diasporaPositions": "DiasporaPosition (one-to-many)"
+    },
+    "usedIn": [
+      "components/CreateProject.tsx",
+      "components/MyProjects.tsx",
+      "components/ProjectDetail.tsx",
+      "components/ProjectDashboard.tsx"
+    ]
+  },
+  "teamMember": {
+    "interface": "TeamMember",
+    "fields": {
+      "id": "string (optional, UUID)",
+      "name": "string (required)",
+      "email": "string (required)",
+      "role": "string (required)",
+      "avatar": "string (optional, URL)"
+    },
+    "usedIn": [
+      "components/CreateProject.tsx",
+      "components/ProjectDetail.tsx"
+    ]
+  },
+  "diasporaPosition": {
+    "interface": "DiasporaPosition",
+    "fields": {
+      "id": "string (optional, UUID)",
+      "title": "string (required)",
+      "description": "string (required)",
+      "responsibilities": "array<string>",
+      "requirements": "array<string>",
+      "commitment": "string (e.g., '5-8 hours/week')",
+      "category": "'leadership' | 'technical' | 'advisory' | 'mentorship' | 'support'",
+      "isActive": "boolean (optional, default: true)",
+      "currentContributors": "array<string> (optional, user IDs)"
+    },
+    "usedIn": [
+      "components/CreateProject.tsx",
+      "components/ProjectDetail.tsx"
+    ]
+  },
+  "feedEntry": {
+    "interface": "FeedEntry",
+    "fields": {
+      "id": "string (UUID, required)",
+      "type": "string (required, e.g., 'project_created', 'like', 'comment', 'share')",
+      "title": "string",
+      "description": "string",
+      "category": "string (e.g., 'general', 'project', 'achievement')",
+      "metadata": "object (JSON, flexible structure)",
+      "author": {
+        "name": "string",
+        "email": "string",
+        "id": "string (optional)"
+      } | null,
+      "authorName": "string (normalized from author.name)",
+      "authorAvatar": "string (optional, URL)",
+      "authorId": "string (optional)",
+      "project": {
+        "title": "string",
+        "id": "string"
+      } | null,
+      "likes": "number (default: 0)",
+      "comments": "number (default: 0)",
+      "shares": "number (default: 0)",
+      "created_at": "string (ISO date)",
+      "updated_at": "string (ISO date)"
+    },
+    "relationships": {
+      "author": "User (many-to-one)",
+      "project": "Project (many-to-one, nullable)"
+    },
+    "usedIn": [
+      "components/FeedService.tsx",
+      "components/Dashboard.tsx",
+      "components/LiveFeed.tsx"
+    ]
+  },
+  "task": {
+    "interface": "Task",
+    "fields": {
+      "id": "string (UUID, required)",
+      "title": "string (required)",
+      "description": "string",
+      "status": "'todo' | 'in-progress' | 'done'",
+      "priority": "'low' | 'medium' | 'high'",
+      "assignee": "string (user ID)",
+      "dueDate": "string (ISO date)",
+      "tags": "array<string>",
+      "completedDate": "Date | undefined",
+      "createdAt": "string (ISO date)",
+      "updatedAt": "string (ISO date)"
+    },
+    "relationships": {
+      "assignee": "User (many-to-one)",
+      "project": "Project (many-to-one, nullable)"
+    },
+    "usedIn": [
+      "components/workspace/TaskManager.tsx",
+      "components/ProjectDetail.tsx"
+    ]
+  },
+  "notification": {
+    "interface": "Notification",
+    "fields": {
+      "id": "string (UUID, required)",
+      "type": "string (required, e.g., 'project_update', 'connection_request', 'mention')",
+      "title": "string (required)",
+      "message": "string (required)",
+      "read": "boolean (default: false)",
+      "actionRequired": "boolean (default: false)",
+      "actionUrl": "string (optional)",
+      "created_at": "string (ISO date)"
+    },
+    "relationships": {
+      "user": "User (many-to-one)"
+    },
+    "usedIn": [
+      "components/NotificationsPage.tsx",
+      "components/SessionNotifications.tsx"
+    ]
+  },
+  "opportunity": {
+    "interface": "Opportunity",
+    "fields": {
+      "id": "string (UUID, required)",
+      "title": "string (required)",
+      "type": "'job' | 'scholarship' | 'internship' | 'volunteer' | 'event'",
+      "category": "string",
+      "description": "string (required)",
+      "organization": "string (required)",
+      "location": {
+        "city": "string",
+        "country": "string",
+        "remote": "boolean"
+      },
+      "amount": {
+        "currency": "string (e.g., 'USD', 'EUR')",
+        "value": "number"
+      } | null,
+      "deadline": "string (ISO date)",
+      "requirements": "array<string>",
+      "tags": "array<string>",
+      "created_at": "string (ISO date)"
+    },
+    "usedIn": [
+      "components/OpportunitiesPage.tsx",
+      "components/BrowseOpportunities.tsx",
+      "components/FeaturedOpportunitiesWidget.tsx"
+    ]
+  },
+  "creditStats": {
+    "interface": "CreditStats",
+    "fields": {
+      "totalCredits": "number",
+      "creditsThisMonth": "number",
+      "rank": "number",
+      "nextMilestone": "number",
+      "level": "number"
+    },
+    "usedIn": [
+      "components/CreditsPage.tsx"
+    ]
+  },
+  "badge": {
+    "interface": "Badge",
+    "fields": {
+      "id": "string (UUID, required)",
+      "name": "string (required)",
+      "description": "string",
+      "icon": "string (icon name)",
+      "bgColor": "string (CSS color)",
+      "borderColor": "string (CSS color)",
+      "textColor": "string (CSS color)",
+      "color": "string (CSS color)",
+      "earnedAt": "string (ISO date, optional)"
+    },
+    "relationships": {
+      "user": "User (many-to-many)"
+    },
+    "usedIn": [
+      "components/CreditsPage.tsx"
+    ]
+  },
+  "leaderboardEntry": {
+    "interface": "LeaderboardEntry",
+    "fields": {
+      "rank": "number (required)",
+      "userId": "string (UUID)",
+      "userName": "string",
+      "userAvatar": "string (optional, URL)",
+      "totalCredits": "number",
+      "change": "number (positive or negative)"
+    },
+    "usedIn": [
+      "components/CreditsPage.tsx"
+    ]
+  },
+  "creditActivity": {
+    "interface": "CreditActivity",
+    "fields": {
+      "id": "string (UUID, required)",
+      "type": "string (e.g., 'project_created', 'task_completed', 'connection_made')",
+      "description": "string",
+      "credits": "number",
+      "timestamp": "string (ISO date)"
+    },
+    "usedIn": [
+      "components/CreditsPage.tsx"
+    ]
+  },
+  "networkUser": {
+    "interface": "NetworkUser",
+    "fields": {
+      "id": "string (UUID, required)",
+      "name": "string (required)",
+      "email": "string",
+      "avatar": "string (optional, URL)",
+      "university": "string",
+      "location": "string",
+      "expertise": "array<string>",
+      "role": "string",
+      "bio": "string",
+      "isConnected": "boolean (default: false)",
+      "connectionStatus": "'none' | 'pending' | 'connected'"
+    },
+    "usedIn": [
+      "components/MyNetwork.tsx",
+      "components/UserProfileModal.tsx"
+    ]
+  },
+  "connectionRequest": {
+    "interface": "ConnectionRequest",
+    "fields": {
+      "id": "string (UUID, required)",
+      "fromUserId": "string (UUID, required)",
+      "toUserId": "string (UUID, required)",
+      "purpose": "string",
+      "message": "string",
+      "status": "'pending' | 'accepted' | 'declined'",
+      "created_at": "string (ISO date)"
+    },
+    "relationships": {
+      "fromUser": "User (many-to-one)",
+      "toUser": "User (many-to-one)"
+    },
+    "usedIn": [
+      "components/MyNetwork.tsx"
+    ]
+  },
+  "connection": {
+    "interface": "Connection",
+    "fields": {
+      "id": "string (UUID, required)",
+      "userId1": "string (UUID, required)",
+      "userId2": "string (UUID, required)",
+      "connectedAt": "string (ISO date)"
+    },
+    "relationships": {
+      "user1": "User (many-to-one)",
+      "user2": "User (many-to-one)"
+    },
+    "usedIn": [
+      "components/MyNetwork.tsx"
+    ]
+  },
+  "adminStats": {
+    "interface": "AdminStats",
+    "fields": {
+      "totalUsers": "number",
+      "activeUsers": "number",
+      "newUsersToday": "number",
+      "totalProjects": "number",
+      "totalOpportunities": "number",
+      "totalMentorships": "number",
+      "systemHealth": "string",
+      "uptime": "string",
+      "responseTime": "string",
+      "storageUsed": "string",
+      "bandwidthUsed": "string",
+      "cpuUsage": "string",
+      "memoryUsage": "string",
+      "diskUsage": "string",
+      "networkLatency": "string",
+      "errorRate": "string",
+      "requestsPerMinute": "number",
+      "activeConnections": "number"
+    },
+    "usedIn": [
+      "components/AdminDashboard.tsx"
+    ]
+  },
+  "report": {
+    "interface": "Report",
+    "fields": {
+      "id": "string (UUID, required)",
+      "type": "string (e.g., 'user', 'content', 'spam')",
+      "reason": "string",
+      "reportedBy": "string (user ID)",
+      "reportedItemId": "string",
+      "reportedItemType": "string",
+      "status": "'pending' | 'reviewed' | 'resolved' | 'dismissed'",
+      "created_at": "string (ISO date)"
+    },
+    "usedIn": [
+      "components/AdminDashboard.tsx"
+    ]
+  },
+  "researchSource": {
+    "interface": "ResearchSource",
+    "fields": {
+      "id": "string (UUID, required)",
+      "title": "string (required)",
+      "authors": "array<string>",
+      "year": "number",
+      "type": "'journal' | 'conference' | 'book' | 'report' | 'website' | 'thesis'",
+      "url": "string (optional, URL)",
+      "abstract": "string",
+      "keywords": "string",
+      "notes": "string",
+      "doi": "string (optional)",
+      "created_at": "string (ISO date)"
+    },
+    "relationships": {
+      "project": "Project (many-to-one, nullable)"
+    },
+    "usedIn": [
+      "components/workspace/ResearchTools.tsx"
+    ]
+  },
+  "researchNote": {
+    "interface": "ResearchNote",
+    "fields": {
+      "id": "string (UUID, required)",
+      "title": "string (required)",
+      "content": "string",
+      "tags": "array<string>",
+      "category": "'hypothesis' | 'observation' | 'methodology' | 'insight' | 'todo' | 'question'",
+      "created_at": "string (ISO date)"
+    },
+    "relationships": {
+      "project": "Project (many-to-one, nullable)",
+      "source": "ResearchSource (many-to-one, nullable)"
+    },
+    "usedIn": [
+      "components/workspace/ResearchTools.tsx"
+    ]
+  },
+  "dataset": {
+    "interface": "Dataset",
+    "fields": {
+      "id": "string (UUID, required)",
+      "name": "string (required)",
+      "description": "string",
+      "type": "string",
+      "url": "string (optional, URL)",
+      "created_at": "string (ISO date)"
+    },
+    "usedIn": [
+      "components/workspace/ResearchTools.tsx"
+    ]
+  },
+  "liveEvent": {
+    "interface": "LiveEvent",
+    "fields": {
+      "id": "string (UUID, required)",
+      "title": "string (required)",
+      "description": "string",
+      "type": "string",
+      "startTime": "string (ISO date)",
+      "endTime": "string (ISO date)",
+      "created_at": "string (ISO date)"
+    },
+    "usedIn": [
+      "components/workspace/LiveSession.tsx"
+    ]
+  },
+  "chatMessage": {
+    "interface": "ChatMessage",
+    "fields": {
+      "id": "string (UUID, required)",
+      "sender": "string (sender name)",
+      "message": "string (required)",
+      "timestamp": "string (formatted time)",
+      "type": "'text' | 'image' | 'file'",
+      "eventId": "string (UUID, optional)"
+    },
+    "relationships": {
+      "event": "LiveEvent (many-to-one, nullable)"
+    },
+    "usedIn": [
+      "components/workspace/LiveSession.tsx"
+    ]
+  },
+  "recording": {
+    "interface": "Recording",
+    "fields": {
+      "id": "string (UUID, required)",
+      "title": "string (required)",
+      "description": "string",
+      "url": "string (required, URL)",
+      "duration": "number (seconds)",
+      "created_at": "string (ISO date)",
+      "lastAccessed": "Date (optional)"
+    },
+    "usedIn": [
+      "components/workspace/LearningVault.tsx"
+    ]
+  },
+  "learningContent": {
+    "interface": "LearningContent",
+    "fields": {
+      "id": "string (UUID, required)",
+      "title": "string (required)",
+      "description": "string",
+      "type": "string",
+      "url": "string (required, URL)",
+      "created_at": "string (ISO date)"
+    },
+    "usedIn": [
+      "components/workspace/LearningVault.tsx"
+    ]
+  },
+  "deliverable": {
+    "interface": "Deliverable",
+    "fields": {
+      "id": "string (UUID, required)",
+      "title": "string (required)",
+      "description": "string",
+      "status": "'pending' | 'submitted' | 'reviewed' | 'approved' | 'rejected'",
+      "submittedDate": "Date",
+      "fileName": "string",
+      "fileSize": "number (bytes)",
+      "feedback": "string (optional)",
+      "projectId": "string (UUID, optional)"
+    },
+    "relationships": {
+      "project": "Project (many-to-one, nullable)",
+      "submitter": "User (many-to-one)"
+    },
+    "usedIn": [
+      "components/workspace/DeliverableSubmissions.tsx"
+    ]
+  },
+  "session": {
+    "interface": "Session",
+    "fields": {
+      "id": "string (UUID, required)",
+      "title": "string (required)",
+      "description": "string",
+      "userId": "string (UUID, required)",
+      "sessionData": "object (JSON)",
+      "startTime": "string (ISO date, optional)",
+      "endTime": "string (ISO date, optional)",
+      "created_at": "string (ISO date)",
+      "updated_at": "string (ISO date)"
+    },
+    "relationships": {
+      "user": "User (many-to-one)"
+    },
+    "usedIn": [
+      "components/FeedService.tsx",
+      "components/workspace/SessionBoard.tsx"
+    ]
+  },
+  "projectUpdate": {
+    "interface": "ProjectUpdate",
+    "fields": {
+      "id": "string (UUID, required)",
+      "projectId": "string (UUID, required)",
+      "title": "string (required)",
+      "description": "string",
+      "type": "string (e.g., 'milestone', 'update', 'announcement')",
+      "timestamp": "string (ISO date)"
+    },
+    "relationships": {
+      "project": "Project (many-to-one)"
+    },
+    "usedIn": [
+      "components/MyProjects.tsx"
+    ]
+  }
+}
+
