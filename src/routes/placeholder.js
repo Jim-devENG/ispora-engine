@@ -3,127 +3,95 @@ const logger = require('../utils/logger');
 
 const router = express.Router();
 
-// GET /api/placeholder/:width/:height - Generate placeholder image
+// GET /api/placeholder/:width/:height - Redirect to placehold.co (NO FALLBACKS)
 router.get('/:width/:height', (req, res) => {
-  try {
-    const { width, height } = req.params;
-    const { redirect, text } = req.query;
-    
-    // Validate dimensions - support both :w/:h format and :width/:height
-    const w = parseInt(width);
-    const h = parseInt(height);
-    
-    if (isNaN(w) || isNaN(h) || w < 1 || h < 1 || w > 2000 || h > 2000) {
-      // 🛡️ DevOps Guardian: Add CORS headers to error response
-      const origin = req.headers.origin;
-      const corsOrigin = origin && (origin.includes('ispora.app') || origin.includes('localhost')) 
-        ? origin 
-        : '*';
-      res.setHeader('Access-Control-Allow-Origin', corsOrigin);
-      res.setHeader('Access-Control-Allow-Credentials', 'true');
-      
-      return res.status(400).json({
-        success: false,
-        error: 'Invalid dimensions. Width and height must be numbers between 1 and 2000'
-      });
-    }
-    
-    // If redirect=true, redirect to placehold.co (more reliable than via.placeholder.com)
-    if (redirect === 'true') {
-      const placeholderText = text ? encodeURIComponent(text) : '+';
-      const placeholderUrl = `https://placehold.co/${w}x${h}?text=${placeholderText}`;
-      logger.info({ width: w, height: h, url: placeholderUrl }, 'Redirecting to placehold.co');
-      
-      // 🛡️ DevOps Guardian: Add CORS headers for redirect
-      const origin = req.headers.origin;
-      const corsOrigin = origin && (origin.includes('ispora.app') || origin.includes('localhost')) 
-        ? origin 
-        : '*';
-      res.setHeader('Access-Control-Allow-Origin', corsOrigin);
-      res.setHeader('Access-Control-Allow-Credentials', 'true');
-      
-      return res.redirect(placeholderUrl);
-    }
-    
-    // Generate SVG placeholder
-    const svg = `
-      <svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
-        <rect width="100%" height="100%" fill="#f3f4f6"/>
-        <rect width="100%" height="100%" fill="none" stroke="#d1d5db" stroke-width="2" stroke-dasharray="5,5"/>
-        <text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" 
-              font-family="Arial, sans-serif" font-size="14" fill="#6b7280">
-          ${w} × ${h}
-        </text>
-      </svg>
-    `.trim();
-    
-    logger.info({ width: w, height: h }, 'Generated placeholder image');
-    
-    // 🛡️ DevOps Guardian: Add proper CORS headers
-    const origin = req.headers.origin;
-    const corsOrigin = origin && (origin.includes('ispora.app') || origin.includes('localhost')) 
-      ? origin 
-      : '*';
-    
-    res.set({
-      'Content-Type': 'image/svg+xml',
-      'Cache-Control': 'public, max-age=31536000', // Cache for 1 year
-      'Access-Control-Allow-Origin': corsOrigin,
-      'Access-Control-Allow-Methods': 'GET, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type'
-    });
-    
-    res.send(svg);
-  } catch (error) {
-    logger.error({ error: error.message }, 'Error generating placeholder');
-    res.status(500).json({
+  // 🛡️ DevOps Guardian: Strict origin validation - NO WILDCARDS
+  const origin = req.headers.origin;
+  const allowedOrigins = ['https://ispora.app', 'http://localhost:5173'];
+  
+  if (origin && !allowedOrigins.includes(origin)) {
+    console.error(`[PLACEHOLDER] ❌ CORS blocked: ${origin}`);
+    return res.status(403).json({
       success: false,
-      error: 'Failed to generate placeholder image'
+      error: 'CORS: Origin not allowed',
+      allowedOrigins
     });
   }
+  
+  // Set CORS headers for allowed origin
+  if (origin && allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+  }
+  
+  const { width, height } = req.params;
+  const { text } = req.query;
+  
+  // Validate dimensions - explicit validation, throw on error
+  const w = parseInt(width, 10);
+  const h = parseInt(height, 10);
+  
+  if (isNaN(w) || isNaN(h) || w < 1 || h < 1 || w > 2000 || h > 2000) {
+    console.error(`[PLACEHOLDER] ❌ Invalid dimensions: ${width}x${height}`);
+    return res.status(400).json({
+      success: false,
+      error: 'Invalid dimensions. Width and height must be numbers between 1 and 2000',
+      received: { width, height }
+    });
+  }
+  
+  // Direct redirect to placehold.co - NO FALLBACKS, NO TRY/CATCH SWALLOWING ERRORS
+  const placeholderText = text ? encodeURIComponent(text) : '+';
+  const placeholderUrl = `https://placehold.co/${w}x${h}?text=${placeholderText}`;
+  
+  console.log(`[PLACEHOLDER] ✅ Redirecting to: ${placeholderUrl}`);
+  logger.info({ width: w, height: h, url: placeholderUrl }, 'Placeholder redirect');
+  
+  // Direct redirect - no error handling needed, Express handles it
+  res.redirect(302, placeholderUrl);
 });
 
-// GET /api/placeholder/:size - Generate square placeholder
+// GET /api/placeholder/:size - Redirect to square placeholder (NO FALLBACKS)
 router.get('/:size', (req, res) => {
-  try {
-    const { size } = req.params;
-    const s = parseInt(size);
-    
-    if (isNaN(s) || s < 1 || s > 2000) {
-      return res.status(400).json({
-        success: false,
-        error: 'Invalid size. Size must be a number between 1 and 2000'
-      });
-    }
-    
-    // Generate square SVG placeholder
-    const svg = `
-      <svg width="${s}" height="${s}" xmlns="http://www.w3.org/2000/svg">
-        <rect width="100%" height="100%" fill="#f3f4f6"/>
-        <rect width="100%" height="100%" fill="none" stroke="#d1d5db" stroke-width="2" stroke-dasharray="5,5"/>
-        <text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" 
-              font-family="Arial, sans-serif" font-size="14" fill="#6b7280">
-          ${s} × ${s}
-        </text>
-      </svg>
-    `.trim();
-    
-    logger.info({ size: s }, 'Generated square placeholder image');
-    
-    res.set({
-      'Content-Type': 'image/svg+xml',
-      'Cache-Control': 'public, max-age=31536000',
-      'Access-Control-Allow-Origin': '*'
-    });
-    
-    res.send(svg);
-  } catch (error) {
-    logger.error({ error: error.message }, 'Error generating square placeholder');
-    res.status(500).json({
+  // 🛡️ DevOps Guardian: Strict origin validation
+  const origin = req.headers.origin;
+  const allowedOrigins = ['https://ispora.app', 'http://localhost:5173'];
+  
+  if (origin && !allowedOrigins.includes(origin)) {
+    console.error(`[PLACEHOLDER] ❌ CORS blocked: ${origin}`);
+    return res.status(403).json({
       success: false,
-      error: 'Failed to generate placeholder image'
+      error: 'CORS: Origin not allowed',
+      allowedOrigins
     });
   }
+  
+  // Set CORS headers
+  if (origin && allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+  }
+  
+  const { size } = req.params;
+  const s = parseInt(size, 10);
+  
+  // Explicit validation - throw on error
+  if (isNaN(s) || s < 1 || s > 2000) {
+    console.error(`[PLACEHOLDER] ❌ Invalid size: ${size}`);
+    return res.status(400).json({
+      success: false,
+      error: 'Invalid size. Size must be a number between 1 and 2000',
+      received: { size }
+    });
+  }
+  
+  // Direct redirect to placehold.co for square placeholder - NO FALLBACKS
+  const placeholderUrl = `https://placehold.co/${s}x${s}?text=+`;
+  
+  console.log(`[PLACEHOLDER] ✅ Redirecting to: ${placeholderUrl}`);
+  logger.info({ size: s, url: placeholderUrl }, 'Square placeholder redirect');
+  
+  res.redirect(302, placeholderUrl);
 });
 
 module.exports = router;

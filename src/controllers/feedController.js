@@ -18,8 +18,9 @@ const getFeed = async (req, res) => {
 
     console.log('[FEED] Getting feed entries:', { page, limit, type, category });
 
-    // 🛡️ DevOps Guardian: Build query with safe error handling for joins
-    let query = db('feed_entries')
+    // 🛡️ DevOps Guardian: Build query with explicit joins - NO SILENT FAILURES
+    // If joins fail, the query will fail and we'll handle it explicitly
+    const query = db('feed_entries')
       .select(
         'feed_entries.*',
         'users.first_name',
@@ -27,17 +28,10 @@ const getFeed = async (req, res) => {
         'users.email as author_email',
         'projects.title as project_title'
       )
+      .leftJoin('users', 'feed_entries.user_id', 'users.id')
+      .leftJoin('projects', 'feed_entries.project_id', 'projects.id')
       .where('feed_entries.is_public', true)
       .orderBy('feed_entries.created_at', 'desc');
-
-    // Try to add joins, but continue even if tables don't exist
-    try {
-      query = query.leftJoin('users', 'feed_entries.user_id', 'users.id');
-      query = query.leftJoin('projects', 'feed_entries.project_id', 'projects.id');
-    } catch (joinError) {
-      console.warn('⚠️ Join failed, continuing without joins:', joinError.message);
-      // Continue without joins if they fail
-    }
 
     // Apply filters
     if (type) {
@@ -53,28 +47,20 @@ const getFeed = async (req, res) => {
     const feedEntries = await query.limit(limit).offset(offset);
     console.log('[FEED] Retrieved', feedEntries.length, 'entries');
 
-    // Get total count for pagination
-    // 🛡️ DevOps Guardian: Handle count query safely for different database types
-    let totalCount;
-    try {
-      // Create a separate count query without joins to avoid issues
-      let countQuery = db('feed_entries')
-        .where('feed_entries.is_public', true);
-      
-      if (type) {
-        countQuery = countQuery.where('feed_entries.type', type);
-      }
-      if (category) {
-        countQuery = countQuery.where('feed_entries.category', category);
-      }
-      
-      const countResult = await countQuery.count('* as count').first();
-      totalCount = { count: parseInt(countResult?.count || 0) };
-    } catch (countError) {
-      console.warn('⚠️ Count query failed, using feedEntries.length:', countError.message);
-      // Fallback: use feedEntries length (approximate)
-      totalCount = { count: feedEntries.length };
+    // Get total count for pagination - NO FALLBACKS, explicit error handling
+    // Create a separate count query without joins to avoid issues
+    let countQuery = db('feed_entries')
+      .where('feed_entries.is_public', true);
+    
+    if (type) {
+      countQuery = countQuery.where('feed_entries.type', type);
     }
+    if (category) {
+      countQuery = countQuery.where('feed_entries.category', category);
+    }
+    
+    const countResult = await countQuery.count('* as count').first();
+    const totalCount = { count: parseInt(countResult?.count || 0, 10) };
 
     // Parse JSON fields and format response
     // 🛡️ DevOps Guardian: Safely parse each entry with error handling
@@ -181,20 +167,24 @@ const trackActivity = async (req, res) => {
   try {
     console.log('[DEBUG] Incoming feed activity payload:', req.body);
 
-    // 🛡️ DevOps Guardian: Make activity tracking more lenient - generate defaults if missing
-    const activityType = req.body.type || req.body.activity || 'unknown_activity';
-    const activityTitle = req.body.title || 
-      activityType.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) ||
-      'Activity';
+    // 🛡️ DevOps Guardian: Explicit validation - NO FALLBACKS, throw error if invalid
+    const activityType = req.body.type || req.body.activity;
+    const activityTitle = req.body.title;
 
-    // Validate that we have at least something
-    if (!activityType || activityType === 'unknown_activity') {
-      console.warn('[WARNING] Activity tracking called without valid type:', req.body);
-      // Don't fail - just log and return success to avoid frontend errors
-      return res.status(200).json({
-        success: true,
-        message: 'Activity tracked (no-op)',
-        data: { skipped: true, reason: 'Missing activity type' }
+    // Validate required fields - throw explicit error
+    if (!activityType) {
+      console.error('[ACTIVITY] ❌ Missing required field: type');
+      console.error('[ACTIVITY] Request body:', req.body);
+      const origin = req.headers.origin;
+      const allowedOrigins = ['https://ispora.app', 'http://localhost:5173'];
+      if (origin && allowedOrigins.includes(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+        res.setHeader('Access-Control-Allow-Credentials', 'true');
+      }
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required field: type or activity',
+        received: req.body
       });
     }
 

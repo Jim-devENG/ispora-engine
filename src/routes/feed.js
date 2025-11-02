@@ -16,31 +16,31 @@ router.post('/activity', (req, res, next) => {
   next();
 }, trackActivity);
 
-// 🌐 SSE stream endpoint with proper CORS and headers
+// 🌐 SSE stream endpoint with proper CORS, headers, and explicit error handling
 router.get('/stream', (req, res) => {
-  // 🛡️ DevOps Guardian: Determine allowed origin based on request
+  // 🛡️ DevOps Guardian: Strictly validate origin - NO DEFAULTS
   const origin = req.headers.origin;
-  const allowedOrigins = [
-    'https://ispora.app',
-    'https://www.ispora.app',
-    'http://localhost:3000',
-    'http://localhost:3001',
-    'http://localhost:5173',
-    'http://127.0.0.1:3000',
-    'http://127.0.0.1:3001',
-    'http://127.0.0.1:5173'
-  ];
+  const allowedOrigins = ['https://ispora.app', 'http://localhost:5173'];
   
-  const allowedOrigin = origin && allowedOrigins.includes(origin) 
-    ? origin 
-    : 'https://ispora.app'; // Default to production domain
+  if (!origin || !allowedOrigins.includes(origin)) {
+    console.error(`[SSE] ❌ CORS blocked: ${origin || 'no-origin'}`);
+    console.error(`[SSE] Allowed origins: ${allowedOrigins.join(', ')}`);
+    res.status(403).json({
+      success: false,
+      error: 'CORS: Origin not allowed for SSE stream',
+      allowedOrigins
+    });
+    return;
+  }
   
-  // Set SSE headers with proper CORS
+  console.log(`[SSE] ✅ Connection established from: ${origin}`);
+  
+  // Set SSE headers with proper CORS - explicit, no defaults
   res.writeHead(200, {
     'Content-Type': 'text/event-stream',
     'Cache-Control': 'no-cache, no-store, must-revalidate',
     'Connection': 'keep-alive',
-    'Access-Control-Allow-Origin': allowedOrigin,
+    'Access-Control-Allow-Origin': origin, // Use validated origin only
     'Access-Control-Allow-Credentials': 'true',
     'Access-Control-Allow-Headers': 'Cache-Control, Content-Type, Authorization',
     'Access-Control-Allow-Methods': 'GET, OPTIONS',
@@ -49,27 +49,46 @@ router.get('/stream', (req, res) => {
   
   // Flush headers immediately
   res.flushHeaders();
+  console.log('[SSE] Headers flushed, connection ready');
+  
+  // Declare heartbeat variable for cleanup
+  let heartbeat = null;
   
   // Send initial connection message
-  const connectedMessage = JSON.stringify({
-    type: 'connected',
-    message: 'Connected to feed stream',
-    timestamp: new Date().toISOString()
-  });
-  res.write(`data: ${connectedMessage}\n\n`);
+  try {
+    const connectedMessage = JSON.stringify({
+      type: 'connected',
+      message: 'Connected to feed stream',
+      timestamp: new Date().toISOString()
+    });
+    res.write(`data: ${connectedMessage}\n\n`);
+    res.flush && res.flush();
+    console.log('[SSE] Connection message sent');
+  } catch (error) {
+    console.error('[SSE] ❌ Error sending connection message:', error.message);
+    if (heartbeat) clearInterval(heartbeat);
+    return;
+  }
   
   // Send a welcome message after a short delay
   setTimeout(() => {
-    const welcomeMessage = JSON.stringify({
-      type: 'welcome',
-      message: 'Welcome to iSpora feed stream',
-      timestamp: new Date().toISOString()
-    });
-    res.write(`data: ${welcomeMessage}\n\n`);
+    try {
+      const welcomeMessage = JSON.stringify({
+        type: 'welcome',
+        message: 'Welcome to iSpora feed stream',
+        timestamp: new Date().toISOString()
+      });
+      res.write(`data: ${welcomeMessage}\n\n`);
+      res.flush && res.flush();
+      console.log('[SSE] Welcome message sent');
+    } catch (error) {
+      console.error('[SSE] ❌ Error sending welcome message:', error.message);
+      if (heartbeat) clearInterval(heartbeat);
+    }
   }, 1000);
   
-  // Send heartbeat every 30 seconds to keep connection alive
-  const heartbeat = setInterval(() => {
+  // Send heartbeat every 20 seconds (as requested) to keep connection alive (Render may idle)
+  heartbeat = setInterval(() => {
     const pingMessage = JSON.stringify({
       type: 'ping',
       timestamp: new Date().toISOString()
@@ -81,22 +100,33 @@ router.get('/stream', (req, res) => {
       if (typeof res.flush === 'function') {
         res.flush();
       }
+      console.log('[SSE] Ping sent');
     } catch (error) {
-      // Client disconnected, clear interval
+      // Explicit error handling - log and clear
+      console.error('[SSE] ❌ Error sending ping:', error.message);
       clearInterval(heartbeat);
-      logger.info('SSE client disconnected during heartbeat');
+      logger.error({ error: error.message }, 'SSE heartbeat failed');
     }
-  }, 30000);
+  }, 20000); // 20 seconds as requested
   
-  // Handle client disconnect
+  // Handle client disconnect - explicit logging
   req.on('close', () => {
+    console.log('[SSE] Client disconnected');
     clearInterval(heartbeat);
     logger.info('SSE client disconnected');
   });
   
   req.on('error', (error) => {
+    console.error('[SSE] ❌ Connection error:', error.message);
     clearInterval(heartbeat);
     logger.error({ error: error.message }, 'SSE connection error');
+  });
+  
+  // Handle response errors
+  res.on('error', (error) => {
+    console.error('[SSE] ❌ Response error:', error.message);
+    clearInterval(heartbeat);
+    logger.error({ error: error.message }, 'SSE response error');
   });
 });
 

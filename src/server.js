@@ -186,9 +186,10 @@ const startServer = async () => {
     
     // Log CORS configuration
     console.log('🌐 CORS Configuration:');
-    console.log(`   - Allowed Origins: https://ispora.app, https://www.ispora.app, localhost:3000`);
+    console.log(`   - Allowed Origins: https://ispora.app, http://localhost:5173 (STRICT - NO WILDCARDS)`);
     console.log(`   - Credentials: enabled`);
     console.log(`   - Methods: GET, POST, PUT, DELETE, OPTIONS, PATCH`);
+    console.log(`   - Preflight: Global OPTIONS handler enabled`);
     
     // Log rate limiting configuration
     console.log('🚦 Rate Limiting:');

@@ -24,33 +24,33 @@ app.use(helmet({
   crossOriginEmbedderPolicy: false
 }));
 
-// 🌐 PRODUCTION CORS CONFIGURATION: Optimized for https://ispora.app
+// 🌐 PRODUCTION CORS CONFIGURATION: Strictly allow only https://ispora.app and http://localhost:5173
+// NO WILDCARDS - NO UNSAFE DEFAULTS
 const allowedOrigins = [
   'https://ispora.app',
-  'https://www.ispora.app',
-  'http://localhost:3000',
-  'http://localhost:3001',
-  'http://localhost:5173', // Vite default port
-  'http://127.0.0.1:3000',
-  'http://127.0.0.1:3001',
-  'http://127.0.0.1:5173'  // Vite default port (IP format)
+  'http://localhost:5173'
 ];
 
 const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (mobile apps, Postman, etc.)
-    if (!origin) return callback(null, true);
+    // Log all CORS requests for debugging
+    console.log(`[CORS] Request from origin: ${origin || 'no-origin'}`);
     
-    // 🛡️ DevOps Guardian: Enhanced CORS with better logging
+    // Reject requests with no origin (security)
+    if (!origin) {
+      console.warn(`[CORS] ❌ Blocked: No origin provided`);
+      return callback(new Error('CORS: Origin required'));
+    }
+    
+    // Strictly check against allowed origins only
     if (allowedOrigins.includes(origin)) {
-      callback(null, true);
+      console.log(`[CORS] ✅ Allowed: ${origin}`);
+      return callback(null, true);
     } else {
-      // Log blocked origins for debugging
-      console.warn(`🚨 CORS blocked origin: ${origin}`);
-      console.warn(`📋 Allowed origins: ${allowedOrigins.join(', ')}`);
-      // Still allow the request but log it (or deny based on your security needs)
-      // For production, you might want to deny unknown origins
-      callback(null, true); // Temporarily allow for debugging - change to callback(new Error()) in strict production
+      // Explicitly reject unknown origins
+      console.error(`[CORS] ❌ Blocked: ${origin} not in allowed list`);
+      console.error(`[CORS] Allowed origins: ${allowedOrigins.join(', ')}`);
+      return callback(new Error(`CORS: Origin ${origin} not allowed`));
     }
   },
   credentials: true,
