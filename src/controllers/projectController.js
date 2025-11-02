@@ -159,75 +159,12 @@ const createProject = async (req, res) => {
       projectId: projectId
     });
     
-    // 🛡️ DevOps Guardian: Verify user exists in database before creating project
-    // This should always succeed if the token is valid
-    console.log('[DEBUG] Looking up user in database:', { userId: req.user.id });
-    
-    let userExists;
-    try {
-      userExists = await db('users').where('id', req.user.id).first();
-      
-      // If not found by ID and we have email, try email lookup
-      if (!userExists && req.user.email) {
-        console.log('[DEBUG] User not found by ID, trying email lookup:', { email: req.user.email });
-        userExists = await db('users').where('email', req.user.email).first();
-      }
-    } catch (dbError) {
-      console.error('[ERROR] Database error during user lookup:', dbError);
-      logger.error({ error: dbError.message, userId: req.user.id }, 'Database error during user lookup');
-      
-      // 🛡️ DevOps Guardian: Add CORS headers to error response
-      const origin = req.headers.origin;
-      if (origin && origin.includes('ispora.app')) {
-        res.setHeader('Access-Control-Allow-Origin', origin);
-        res.setHeader('Access-Control-Allow-Credentials', 'true');
-      }
-      
-      return res.status(500).json({
-        success: false,
-        error: 'Database error. Please try again.',
-        code: 'DATABASE_ERROR'
-      });
-    }
-    
-    if (!userExists) {
-      console.error('❌ User not found in database:', {
-        userId: req.user.id,
-        userEmail: req.user.email,
-        tokenPayload: req.user,
-        dbConfig: {
-          client: dbConfig.client,
-          database: dbConfig.connection?.database || dbConfig.connection?.filename
-        }
-      });
-      
-      // Debug: Check if there are any users at all
-      try {
-        const userCount = await db('users').count('* as count').first();
-        console.log('[DEBUG] Total users in database:', userCount?.count || 0);
-      } catch (countError) {
-        console.error('[ERROR] Failed to count users:', countError);
-      }
-      
-      // 🛡️ DevOps Guardian: Add CORS headers to error response
-      const origin = req.headers.origin;
-      if (origin && origin.includes('ispora.app')) {
-        res.setHeader('Access-Control-Allow-Origin', origin);
-        res.setHeader('Access-Control-Allow-Credentials', 'true');
-      }
-      
-      return res.status(401).json({
-        success: false,
-        error: 'User not found. Please log in again.',
-        code: 'USER_NOT_FOUND',
-        message: 'Your session may have expired. Please log out and log back in.'
-      });
-    }
-    
-    console.log('✅ User verified:', {
-      id: userExists.id,
-      email: userExists.email,
-      name: `${userExists.first_name} ${userExists.last_name}`
+    // 🔑 User verification is already done in auth middleware
+    // req.user is guaranteed to exist and be valid at this point
+    // If we reach here, the user exists in the database (verified by authenticateToken)
+    console.log('[DEBUG] User authenticated:', { 
+      userId: req.user.id,
+      userEmail: req.user.email
     });
     
     // 🛡️ DevOps Guardian: Insert with error handling for database constraints
@@ -323,10 +260,10 @@ const createProject = async (req, res) => {
       objectives: objectivesString, // Return as string to match frontend expectations
       creator: {
         id: req.user.id,
-        email: userExists.email || null,
-        name: `${userExists.first_name || ''} ${userExists.last_name || ''}`.trim() || userExists.email || 'Unknown',
-        first_name: userExists.first_name || null,
-        last_name: userExists.last_name || null
+        email: req.user.email || null,
+        name: `${req.user.firstName || ''} ${req.user.lastName || ''}`.trim() || req.user.email || 'Unknown',
+        first_name: req.user.firstName || null,
+        last_name: req.user.lastName || null
       },
       // Include created_at for sorting
       created_at: projectData.created_at,

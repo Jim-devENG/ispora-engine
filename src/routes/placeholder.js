@@ -5,23 +5,27 @@ const router = express.Router();
 
 // GET /api/placeholder/:width/:height - Redirect to placehold.co (NO FALLBACKS)
 router.get('/:width/:height', (req, res) => {
-  // 🛡️ DevOps Guardian: Strict origin validation - NO WILDCARDS
+  // 🛡️ DevOps Guardian: Allow no-origin requests (for image tags, etc.)
   const origin = req.headers.origin;
-  const allowedOrigins = ['https://ispora.app', 'http://localhost:5173'];
+  const allowedOrigins = ['https://ispora.app', 'https://www.ispora.app', 'http://localhost:5173'];
   
-  if (origin && !allowedOrigins.includes(origin)) {
+  // Set CORS headers - allow no-origin for image requests
+  if (!origin || allowedOrigins.includes(origin)) {
+    if (origin && allowedOrigins.includes(origin)) {
+      res.setHeader('Access-Control-Allow-Origin', origin);
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
+    } else if (!origin) {
+      // Allow no-origin for direct image requests
+      res.setHeader('Access-Control-Allow-Origin', '*');
+    }
+  } else {
+    // Block unknown origins
     console.error(`[PLACEHOLDER] ❌ CORS blocked: ${origin}`);
     return res.status(403).json({
       success: false,
       error: 'CORS: Origin not allowed',
       allowedOrigins
     });
-  }
-  
-  // Set CORS headers for allowed origin
-  if (origin && allowedOrigins.includes(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
   }
   
   const { width, height } = req.params;
@@ -53,23 +57,27 @@ router.get('/:width/:height', (req, res) => {
 
 // GET /api/placeholder/:size - Redirect to square placeholder (NO FALLBACKS)
 router.get('/:size', (req, res) => {
-  // 🛡️ DevOps Guardian: Strict origin validation
+  // 🛡️ DevOps Guardian: Allow no-origin requests (for image tags, etc.)
   const origin = req.headers.origin;
-  const allowedOrigins = ['https://ispora.app', 'http://localhost:5173'];
+  const allowedOrigins = ['https://ispora.app', 'https://www.ispora.app', 'http://localhost:5173'];
   
-  if (origin && !allowedOrigins.includes(origin)) {
+  // Set CORS headers - allow no-origin for image requests
+  if (!origin || allowedOrigins.includes(origin)) {
+    if (origin && allowedOrigins.includes(origin)) {
+      res.setHeader('Access-Control-Allow-Origin', origin);
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
+    } else if (!origin) {
+      // Allow no-origin for direct image requests
+      res.setHeader('Access-Control-Allow-Origin', '*');
+    }
+  } else {
+    // Block unknown origins
     console.error(`[PLACEHOLDER] ❌ CORS blocked: ${origin}`);
     return res.status(403).json({
       success: false,
       error: 'CORS: Origin not allowed',
       allowedOrigins
     });
-  }
-  
-  // Set CORS headers
-  if (origin && allowedOrigins.includes(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
   }
   
   const { size } = req.params;
