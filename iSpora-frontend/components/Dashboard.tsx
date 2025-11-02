@@ -894,6 +894,25 @@ function DashboardContent() {
     getLiveSessions 
   } = useFeedService();
 
+  // 🛡️ DevOps Guardian: Listen for refresh events after project creation
+  useEffect(() => {
+    const handleRefreshFeed = async () => {
+      console.log('🔄 [DASHBOARD] Feed refresh event received');
+      try {
+        await refreshFeed();
+        console.log('✅ [DASHBOARD] Feed refreshed successfully');
+      } catch (error) {
+        console.error('❌ [DASHBOARD] Failed to refresh feed:', error);
+      }
+    };
+    
+    window.addEventListener('refreshFeed', handleRefreshFeed);
+    
+    return () => {
+      window.removeEventListener('refreshFeed', handleRefreshFeed);
+    };
+  }, [refreshFeed]);
+
   // Filter feed items based on search query
   const filteredFeedItems = feedItems.filter((post) => {
     if (!searchQuery.trim()) return true;

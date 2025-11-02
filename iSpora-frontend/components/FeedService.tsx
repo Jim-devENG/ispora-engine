@@ -717,23 +717,49 @@ export function useFeedService() {
   useEffect(() => {
     // Load real-time data from API
     const loadFeedData = async () => {
+      console.log('📥 [FEED SERVICE] Loading feed data on mount...', {
+        timestamp: new Date().toISOString()
+      });
+      
       setLoading(true);
+      const startTime = Date.now();
+      
       try {
+        console.log('📤 [FEED SERVICE] Fetching feed items from API on mount...');
         const result = await fetchFeedItems(1, 50);
+        const duration = Date.now() - startTime;
+        
         if (result.items.length > 0) {
+          console.log('✅ [FEED SERVICE] Feed items loaded successfully on mount:', {
+            count: result.items.length,
+            duration: `${duration}ms`,
+            timestamp: new Date().toISOString()
+          });
+          
           // Use real data from backend
           setFeedItems(result.items);
           setRealtimeData(result.realtime || {});
         } else {
+          console.log('⚠️ [FEED SERVICE] No feed items on mount', {
+            duration: `${duration}ms`,
+            timestamp: new Date().toISOString()
+          });
           // If no real data, show empty feed
           setFeedItems([]);
         }
       } catch (error) {
-        console.error('Failed to load feed data:', error);
+        const duration = Date.now() - startTime;
+        console.error('❌ [FEED SERVICE] Failed to load feed data on mount:', {
+          error: error instanceof Error ? error.message : String(error),
+          duration: `${duration}ms`,
+          stack: error instanceof Error ? error.stack?.split('\n').slice(0, 5) : undefined,
+          timestamp: new Date().toISOString()
+        });
         // On error, show empty feed instead of mock data
         setFeedItems([]);
       } finally {
         setLoading(false);
+        console.log('✅ [FEED SERVICE] Feed data load completed');
       }
     };
 
@@ -763,20 +789,46 @@ export function useFeedService() {
   }, []);
 
   const refreshFeed = async (options?: Parameters<typeof feedService.getFeedItems>[0]) => {
+    console.log('🔄 [FEED SERVICE] Starting feed refresh...', {
+      timestamp: new Date().toISOString()
+    });
+    
     setLoading(true);
+    const startTime = Date.now();
+    
     try {
+      console.log('📤 [FEED SERVICE] Fetching feed items from API...');
       const result = await fetchFeedItems(1, 50);
+      const duration = Date.now() - startTime;
+      
       if (result.items.length > 0) {
+        console.log('✅ [FEED SERVICE] Feed items fetched successfully:', {
+          count: result.items.length,
+          duration: `${duration}ms`,
+          timestamp: new Date().toISOString()
+        });
+        
         setFeedItems(result.items);
         setRealtimeData(result.realtime || {});
       } else {
+        console.log('⚠️ [FEED SERVICE] No feed items returned', {
+          duration: `${duration}ms`,
+          timestamp: new Date().toISOString()
+        });
         setFeedItems([]);
       }
     } catch (error) {
-      console.error('Failed to refresh feed:', error);
+      const duration = Date.now() - startTime;
+      console.error('❌ [FEED SERVICE] Failed to refresh feed:', {
+        error: error instanceof Error ? error.message : String(error),
+        duration: `${duration}ms`,
+        stack: error instanceof Error ? error.stack?.split('\n').slice(0, 5) : undefined,
+        timestamp: new Date().toISOString()
+      });
       setFeedItems([]);
     } finally {
       setLoading(false);
+      console.log('✅ [FEED SERVICE] Feed refresh completed');
     }
   };
 

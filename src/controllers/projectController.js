@@ -319,7 +319,7 @@ const createProject = async (req, res) => {
       title 
     }, '✅ Project created successfully');
 
-    // Format response to match frontend expectations
+    // 🛡️ DevOps Guardian: Format response to match frontend expectations with complete creator info
     const formattedProject = {
       ...projectData,
       tags: JSON.parse(projectData.tags),
@@ -328,9 +328,14 @@ const createProject = async (req, res) => {
       objectives: objectivesString, // Return as string to match frontend expectations
       creator: {
         id: req.user.id,
-        email: userExists.email,
-        name: `${userExists.first_name || ''} ${userExists.last_name || ''}`.trim()
-      }
+        email: userExists.email || null,
+        name: `${userExists.first_name || ''} ${userExists.last_name || ''}`.trim() || userExists.email || 'Unknown',
+        first_name: userExists.first_name || null,
+        last_name: userExists.last_name || null
+      },
+      // Include created_at for sorting
+      created_at: projectData.created_at,
+      updated_at: projectData.updated_at
     };
 
     res.status(201).json({

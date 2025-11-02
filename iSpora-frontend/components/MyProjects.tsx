@@ -474,49 +474,120 @@ export function MyProjects() {
     toast.info('New update functionality coming soon!');
   };
 
-  // Load real projects and updates
+  // 🛡️ DevOps Guardian: Load real projects and updates with refresh capability
+  const loadProjects = async (signal?: AbortSignal) => {
+    console.log('📥 [MY PROJECTS] Loading projects...', {
+      timestamp: new Date().toISOString()
+    });
+    
+    setLoading(true);
+    setError(null);
+    
+    const startTime = Date.now();
+    try {
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      const devKey = localStorage.getItem('devKey');
+      const token = localStorage.getItem('token');
+      if (devKey) headers['X-Dev-Key'] = devKey;
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      console.log('📤 [MY PROJECTS] Fetching projects from API...', {
+        url: `${API_BASE_URL}/projects`,
+        hasToken: !!token,
+        timestamp: new Date().toISOString()
+      });
+
+      const [projRes, updRes] = await Promise.all([
+        fetch(`${API_BASE_URL}/projects?mine=true`, { headers, signal }),
+        fetch(`${API_BASE_URL}/projects/updates?mine=true`, {
+          headers,
+          signal,
+        }),
+      ]);
+
+      const duration = Date.now() - startTime;
+      console.log('📥 [MY PROJECTS] API responses received:', {
+        projectsStatus: projRes.status,
+        updatesStatus: updRes.status,
+        duration: `${duration}ms`,
+        timestamp: new Date().toISOString()
+      });
+
+      if (!projRes.ok) {
+        throw new Error(`Projects fetch failed: ${projRes.status} ${projRes.statusText}`);
+      }
+
+      const projJson = await projRes.json();
+      const updJson = updRes.ok ? await updRes.json() : { data: [] };
+
+      console.log('✅ [MY PROJECTS] Projects loaded successfully:', {
+        projectsCount: Array.isArray(projJson.data) ? projJson.data.length : Array.isArray(projJson) ? projJson.length : 0,
+        updatesCount: Array.isArray(updJson.data) ? updJson.data.length : Array.isArray(updJson) ? updJson.length : 0,
+        timestamp: new Date().toISOString()
+      });
+
+      const projectsArray = Array.isArray(projJson.data) 
+        ? projJson.data 
+        : Array.isArray(projJson) 
+          ? projJson 
+          : [];
+      
+      const updatesArray = Array.isArray(updJson.data) 
+        ? updJson.data 
+        : Array.isArray(updJson) 
+          ? updJson 
+          : [];
+
+      setProjects(projectsArray);
+      setUpdates(updatesArray);
+      
+      console.log('✅ [MY PROJECTS] State updated:', {
+        projectsSet: projectsArray.length,
+        updatesSet: updatesArray.length
+      });
+    } catch (e: any) {
+      const duration = Date.now() - startTime;
+      console.error('❌ [MY PROJECTS] Failed to load projects:', {
+        error: e.message,
+        status: e.status,
+        duration: `${duration}ms`,
+        stack: e.stack?.split('\n').slice(0, 5),
+        timestamp: new Date().toISOString()
+      });
+      
+      setError('Failed to load projects: ' + (e.message || 'Unknown error'));
+      setProjects([]);
+      setUpdates([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     const controller = new AbortController();
-    const load = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-        const devKey = localStorage.getItem('devKey');
-        const token = localStorage.getItem('token');
-        if (devKey) headers['X-Dev-Key'] = devKey;
-        if (token) headers['Authorization'] = `Bearer ${token}`;
-
-        const [projRes, updRes] = await Promise.all([
-          fetch(`${API_BASE_URL}/projects?mine=true`, { headers, signal: controller.signal }),
-          fetch(`${API_BASE_URL}/projects/updates?mine=true`, {
-            headers,
-            signal: controller.signal,
-          }),
-        ]);
-
-        const projJson = await projRes.json();
-        const updJson = await updRes.json();
-
-        setProjects(
-          Array.isArray(projJson.data) ? projJson.data : Array.isArray(projJson) ? projJson : [],
-        );
-        setUpdates(
-          Array.isArray(updJson.data) ? updJson.data : Array.isArray(updJson) ? updJson : [],
-        );
-      } catch (e: any) {
-        setError('Failed to load projects');
-        setProjects([]);
-        setUpdates([]);
-      } finally {
-        setLoading(false);
+    
+    // Initial load
+    loadProjects(controller.signal);
+    
+    // Auto-refresh every 30 seconds
+    const interval = setInterval(() => {
+      if (!loading) {
+        loadProjects(controller.signal);
       }
+    }, 30000);
+    
+    // Listen for refresh events
+    const handleRefresh = () => {
+      console.log('🔄 [MY PROJECTS] Refresh event received');
+      loadProjects(controller.signal);
     };
-    load();
-    const interval = setInterval(load, 30000);
+    
+    window.addEventListener('refreshProjects', handleRefresh);
+    
     return () => {
       controller.abort();
       clearInterval(interval);
+      window.removeEventListener('refreshProjects', handleRefresh);
     };
   }, []);
 

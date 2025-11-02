@@ -134,6 +134,13 @@ function MainContent() {
         <CreateProject
           onBack={() => setCurrentPage('Project Dashboard')}
           onSave={async (projectData) => {
+            console.log('🚀 [PROJECT CREATION] Starting project creation...', {
+              title: projectData.title,
+              category: projectData.category,
+              type: projectData.projectType,
+              timestamp: new Date().toISOString()
+            });
+
             try {
               // Map frontend fields to backend expectations
               const payload = {
@@ -151,27 +158,79 @@ function MainContent() {
                 isPublic: projectData.isPublic !== undefined ? projectData.isPublic : true,
               };
 
-              console.log('Creating project with payload:', payload);
+              console.log('📤 [PROJECT CREATION] Sending payload to backend:', {
+                payload,
+                timestamp: new Date().toISOString()
+              });
 
               // Use the Auth v2 API client for automatic token injection
               const { apiClientV2 } = await import('../src/services/apiClient-v2');
+              
+              const startTime = Date.now();
               const result = await apiClientV2.createProject(payload);
+              const duration = Date.now() - startTime;
 
-              console.log('Project created successfully:', result);
-              console.log('✅ Feed activity automatically created by backend');
+              console.log('✅ [PROJECT CREATION] Project created successfully:', {
+                projectId: result.projectId || result.project?.id || result.data?.id,
+                project: result.project || result.data,
+                duration: `${duration}ms`,
+                timestamp: new Date().toISOString()
+              });
+
+              // 🛡️ DevOps Guardian: Refresh both project list and feed after creation
+              console.log('🔄 [PROJECT CREATION] Triggering refreshes...');
               
-              // 🛡️ DevOps Guardian: Trigger feed refresh after project creation
-              // The backend automatically creates a feed entry, which will appear via real-time connection
-              // If we're on the Dashboard, it will auto-update; otherwise, user can navigate to see it
-              console.log('✅ Feed entry created automatically by backend');
-              console.log('✅ Feed will update via real-time connection if user is on Dashboard');
+              // Trigger feed refresh if Dashboard is mounted
+              try {
+                const { useFeedService } = await import('./FeedService');
+                // Note: We'll trigger refresh via a custom event that Dashboard listens to
+                window.dispatchEvent(new CustomEvent('refreshFeed'));
+                console.log('✅ [PROJECT CREATION] Feed refresh event dispatched');
+              } catch (feedError) {
+                console.warn('⚠️ [PROJECT CREATION] Feed refresh not available:', feedError);
+              }
+
+              // Trigger project list refresh if MyProjects is mounted
+              try {
+                window.dispatchEvent(new CustomEvent('refreshProjects'));
+                console.log('✅ [PROJECT CREATION] Project list refresh event dispatched');
+              } catch (projectError) {
+                console.warn('⚠️ [PROJECT CREATION] Project list refresh not available:', projectError);
+              }
+
+              console.log('✅ [PROJECT CREATION] Feed activity automatically created by backend');
               
-              try { (await import('./ui/sonner')).toast.success('Project created successfully!'); } catch {}
+              // Show success message
+              try {
+                const { toast } = await import('./ui/sonner');
+                toast.success('Project created successfully! It will appear in your feed and project list.');
+              } catch (toastError) {
+                console.warn('⚠️ Toast not available:', toastError);
+              }
+              
+              // Navigate to Project Dashboard
               setCurrentPage('Project Dashboard');
+              
+              console.log('✅ [PROJECT CREATION] Flow completed successfully');
             } catch (error: any) {
-              console.error('Error creating project:', error);
+              console.error('❌ [PROJECT CREATION] Error creating project:', {
+                error: error.message,
+                response: error.response?.data,
+                status: error.response?.status,
+                stack: error.stack?.split('\n').slice(0, 5),
+                timestamp: new Date().toISOString()
+              });
+              
               const errorMessage = error.response?.data?.error || error.message || 'Failed to create project';
-              try { (await import('./ui/sonner')).toast.error(`Failed to create project: ${errorMessage}`); } catch {}
+              
+              try {
+                const { toast } = await import('./ui/sonner');
+                toast.error(`Failed to create project: ${errorMessage}`);
+              } catch (toastError) {
+                console.error('Failed to show error toast:', toastError);
+              }
+              
+              throw error; // Re-throw to prevent navigation on error
             }
           }}
         />
