@@ -269,19 +269,14 @@ const createProject = async (req, res) => {
       title: `New Project: ${title}`,
       description: description,
       category: category,
-      // 🛡️ DevOps Guardian: Handle metadata for both SQLite (text) and PostgreSQL (json)
-      // SQLite stores JSON as text, PostgreSQL has native JSON support
-      metadata: (process.env.NODE_ENV === 'production' && dbConfig.client === 'pg')
-        ? JSON.stringify({
-            project_id: projectId,
-            action: 'created',
-            priority: priority
-          })
-        : JSON.stringify({
-            project_id: projectId,
-            action: 'created',
-            priority: priority
-          }),
+      // 🛡️ DevOps Guardian: Always store metadata as JSON string for consistency
+      // Both SQLite (TEXT) and PostgreSQL (TEXT/JSON) can handle JSON strings
+      // PostgreSQL will auto-convert TEXT to JSON if column is JSON type
+      metadata: JSON.stringify({
+        project_id: projectId,
+        action: 'created',
+        priority: priority
+      }),
       user_id: req.user.id, // Use user ID from authenticated token
       project_id: projectId,
       is_public: isPublic,

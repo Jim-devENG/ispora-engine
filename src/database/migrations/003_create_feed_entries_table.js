@@ -5,7 +5,10 @@ exports.up = function(knex) {
     table.string('title').notNullable();
     table.text('description');
     table.string('category');
-    table.json('metadata'); // Flexible JSON for different entry types
+    // 🛡️ DevOps Guardian: Use TEXT for SQLite compatibility, works with PostgreSQL JSON too
+    // SQLite doesn't support JSON type natively, so we use TEXT and parse it
+    // PostgreSQL can store JSON in TEXT or JSON type
+    table.text('metadata'); // Store as TEXT (SQLite) or JSONB (PostgreSQL via migration adjustment)
     table.string('user_id').notNullable();
     table.string('project_id'); // Optional reference to project
     table.boolean('is_public').defaultTo(true);
