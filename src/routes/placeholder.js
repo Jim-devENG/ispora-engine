@@ -7,23 +7,41 @@ const router = express.Router();
 router.get('/:width/:height', (req, res) => {
   try {
     const { width, height } = req.params;
-    const { redirect } = req.query;
+    const { redirect, text } = req.query;
     
-    // Validate dimensions
+    // Validate dimensions - support both :w/:h format and :width/:height
     const w = parseInt(width);
     const h = parseInt(height);
     
     if (isNaN(w) || isNaN(h) || w < 1 || h < 1 || w > 2000 || h > 2000) {
+      // 🛡️ DevOps Guardian: Add CORS headers to error response
+      const origin = req.headers.origin;
+      const corsOrigin = origin && (origin.includes('ispora.app') || origin.includes('localhost')) 
+        ? origin 
+        : '*';
+      res.setHeader('Access-Control-Allow-Origin', corsOrigin);
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
+      
       return res.status(400).json({
         success: false,
         error: 'Invalid dimensions. Width and height must be numbers between 1 and 2000'
       });
     }
     
-    // If redirect=true, redirect to via.placeholder.com
+    // If redirect=true, redirect to placehold.co (more reliable than via.placeholder.com)
     if (redirect === 'true') {
-      const placeholderUrl = `https://via.placeholder.com/${w}x${h}`;
-      logger.info({ width: w, height: h, url: placeholderUrl }, 'Redirecting to via.placeholder.com');
+      const placeholderText = text ? encodeURIComponent(text) : '+';
+      const placeholderUrl = `https://placehold.co/${w}x${h}?text=${placeholderText}`;
+      logger.info({ width: w, height: h, url: placeholderUrl }, 'Redirecting to placehold.co');
+      
+      // 🛡️ DevOps Guardian: Add CORS headers for redirect
+      const origin = req.headers.origin;
+      const corsOrigin = origin && (origin.includes('ispora.app') || origin.includes('localhost')) 
+        ? origin 
+        : '*';
+      res.setHeader('Access-Control-Allow-Origin', corsOrigin);
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
+      
       return res.redirect(placeholderUrl);
     }
     
