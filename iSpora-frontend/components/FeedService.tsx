@@ -64,7 +64,13 @@ const createRealtimeConnection = (onUpdate: (update: any) => void) => {
   eventSource.onmessage = (event) => {
     try {
       const update = JSON.parse(event.data);
-      onUpdate(update);
+      // 🛡️ DevOps Guardian: Silently handle welcome/connection messages to prevent console spam
+      if (update.type === 'connected' || update.type === 'welcome' || update.type === 'message') {
+        // These are expected and don't need logging
+        onUpdate(update);
+      } else {
+        onUpdate(update);
+      }
     } catch (error) {
       console.error('Failed to parse realtime update:', error);
     }
@@ -338,7 +344,11 @@ export class FeedService {
         console.warn('⚠️ Realtime feed error:', update.message || update.error);
         break;
       default:
-        console.warn('🔍 Unhandled realtime event:', update.type, update);
+        // 🛡️ DevOps Guardian: Silently handle unknown realtime updates to prevent console spam
+        // These are often welcome messages, connection confirmations, etc. that don't need user attention
+        if (update.type !== 'connected' && update.type !== 'welcome' && update.type !== 'message') {
+          console.debug('🔍 Realtime event:', update.type, update);
+        }
     }
     this.notifySubscribers();
   }

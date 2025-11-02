@@ -115,7 +115,7 @@ export function UserProfileDropdown({ isCollapsed = false }: UserProfileDropdown
           <div className="p-5 bg-gradient-to-br from-gray-50 to-white border-b border-gray-100">
             <div className="flex items-center space-x-3">
               <Avatar className="h-10 w-10 ring-2 ring-[#021ff6]/10">
-                <AvatarImage src={user?.avatar || '/api/placeholder/40/40'} />
+                <AvatarImage src={user?.avatar || `${import.meta.env.VITE_API_URL || 'https://ispora-backend.onrender.com'}/api/placeholder/40/40`} />
                 <AvatarFallback className="bg-[#021ff6] text-white font-semibold">
                   {userInitials}
                 </AvatarFallback>
@@ -215,7 +215,7 @@ export function UserProfileDropdown({ isCollapsed = false }: UserProfileDropdown
       <DropdownMenuTrigger asChild>
         <button className="flex items-center space-x-3 p-3 w-full hover:bg-[#021ff6]/10 rounded-xl transition-all duration-200 group transform hover:scale-[1.01] active:scale-[0.99] border border-transparent hover:border-[#021ff6]/10">
           <Avatar className="h-9 w-9 transition-all duration-200 group-hover:scale-105 ring-2 ring-transparent group-hover:ring-[#021ff6]/20">
-            <AvatarImage src={user?.avatar || '/api/placeholder/40/40'} />
+            <AvatarImage src={user?.avatar || `${import.meta.env.VITE_API_URL || 'https://ispora-backend.onrender.com'}/api/placeholder/40/40`} />
             <AvatarFallback className="bg-[#021ff6] text-white text-sm font-semibold transition-all duration-200">
               {userInitials}
             </AvatarFallback>
@@ -241,7 +241,7 @@ export function UserProfileDropdown({ isCollapsed = false }: UserProfileDropdown
         <div className="p-5 bg-gradient-to-br from-gray-50 to-white border-b border-gray-100">
           <div className="flex items-center space-x-3">
             <Avatar className="h-10 w-10 ring-2 ring-[#021ff6]/10">
-              <AvatarImage src={user?.avatar || '/api/placeholder/40/40'} />
+              <AvatarImage src={user?.avatar || `${import.meta.env.VITE_API_URL || 'https://ispora-backend.onrender.com'}/api/placeholder/40/40`} />
               <AvatarFallback className="bg-[#021ff6] text-white font-semibold">
                 {userInitials}
               </AvatarFallback>

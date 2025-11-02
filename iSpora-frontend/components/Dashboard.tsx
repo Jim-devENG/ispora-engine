@@ -1035,8 +1035,14 @@ function DashboardContent() {
     trackActivity('post_commented', { postId, commentCount: newCount, timestamp: new Date().toISOString() });
   };
 
-  // Enhanced refresh handler with loading state
+  // Enhanced refresh handler with loading state and loop prevention
   const handleRefresh = async () => {
+    // 🛡️ DevOps Guardian: Prevent refresh loop - don't refresh if already refreshing
+    if (isRefreshing) {
+      console.debug('Refresh already in progress, skipping duplicate request');
+      return;
+    }
+    
     setIsRefreshing(true);
     try {
       await refreshFeed();
@@ -1044,8 +1050,11 @@ function DashboardContent() {
       setDisplayedPosts(6);
       toast.success('Feed refreshed!');
       trackActivity('feed_refreshed', { timestamp: new Date().toISOString() });
+    } catch (error) {
+      console.error('Failed to refresh feed:', error);
+      toast.error('Failed to refresh feed. Please try again.');
     } finally {
-      // Add minimum delay for UX
+      // Add minimum delay for UX and prevent rapid refreshes
       setTimeout(() => {
         setIsRefreshing(false);
       }, 1000);
@@ -1501,6 +1510,10 @@ function DashboardContent() {
                     const authorAvatar = post.authorAvatar || post.author?.avatar || null;
                     const authorId = post.authorId || post.author?.id || null;
                     
+                    // 🛡️ DevOps Guardian: Extra safety for charAt - ensure we have a valid string
+                    const safeAuthorName = (authorName || 'U').toString().trim() || 'U';
+                    const authorInitial = safeAuthorName.charAt(0).toUpperCase() || 'U';
+                    
                     const story = getStoryNarrative(post);
                     const isOwnContent = authorId === CURRENT_USER_ID;
                     const isLiked = likedPosts.has(post.id);
@@ -1531,7 +1544,7 @@ function DashboardContent() {
                             <Avatar className="h-12 w-12 ring-2 ring-white shadow-md">
                               <AvatarImage src={authorAvatar || undefined} alt={authorName} />
                               <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold">
-                                {((authorName || 'U').toString() || 'U').charAt(0)}
+                                {authorInitial}
                               </AvatarFallback>
                             </Avatar>
 
