@@ -192,15 +192,18 @@ const startServer = async () => {
     console.log(`🌐 Server running on port ${PORT}`);
     console.log(`🏥 Health Check: http://localhost:${PORT}/api/health`);
     console.log(`🏥 Render Health: http://localhost:${PORT}/healthz`);
+    console.log(`🔔 Ping Endpoint: http://localhost:${PORT}/api/ping (prevents cold starts)`);
     console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
     console.log(`📊 Memory Usage: ${Math.round(process.memoryUsage().heapUsed / 1024 / 1024)}MB`);
     
     // Log CORS configuration
     console.log('🌐 CORS Configuration:');
-    console.log(`   - Allowed Origins: https://ispora.app, http://localhost:5173 (STRICT - NO WILDCARDS)`);
+    console.log(`   ✅ CORS enabled for https://ispora.app`);
+    console.log(`   - Allowed Origins: https://ispora.app, https://www.ispora.app, http://localhost:5173`);
     console.log(`   - Credentials: enabled`);
     console.log(`   - Methods: GET, POST, PUT, DELETE, OPTIONS, PATCH`);
     console.log(`   - Preflight: Global OPTIONS handler enabled`);
+    console.log(`   ✅ iSpora backend running and CORS enabled for ispora.app`);
     
     // Log rate limiting configuration
     console.log('🚦 Rate Limiting:');

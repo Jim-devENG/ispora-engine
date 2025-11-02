@@ -22,6 +22,7 @@ const taskRoutes = require('./routes/tasks');
 const placeholderRoutes = require('./routes/placeholder');
 const logsRoutes = require('./routes/logs');
 const sessionsRoutes = require('./routes/sessions'); // New sessions route
+const pingRoutes = require('./routes/ping'); // Ping endpoint to prevent cold starts
 
 const app = express();
 
@@ -218,6 +219,7 @@ app.use('/api/tasks', taskRoutes);
 app.use('/api/placeholder', placeholderRoutes);
 app.use('/api/logs', logsRoutes);
 app.use('/api/sessions', sessionsRoutes); // Sessions route
+app.use('/api/ping', pingRoutes); // Ping endpoint to prevent cold starts
 
 // ============================================================================
 // 404 HANDLER - Must be before error handler

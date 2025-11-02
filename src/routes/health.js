@@ -64,7 +64,7 @@ router.get('/healthz', (req, res) => {
   }
 });
 
-// 🏥 RENDER HEALTH RECOVERY: Enhanced health check endpoint with guaranteed 200 response
+// 🏥 Simple /api/health endpoint - Returns { status: "ok" }
 router.get('/', (req, res) => {
   try {
     // 🛡️ DevOps Guardian: Add CORS headers to health check - allow no origin
@@ -87,31 +87,11 @@ router.get('/', (req, res) => {
     const uptime = process.uptime();
     const memoryUsage = process.memoryUsage();
     
-    // Always return 200 OK for Render health checks
+    // Simple health check response - { status: "ok" } format
     const healthData = {
       status: 'ok',
       env: process.env.NODE_ENV || 'development',
-      message: 'Server healthy',
-      timestamp: new Date().toISOString(),
-      uptime: uptime,
-      version: process.env.npm_package_version || '1.0.0',
-      system: {
-        platform: os.platform(),
-        arch: os.arch(),
-        nodeVersion: process.version,
-        memory: {
-          used: Math.round(memoryUsage.heapUsed / 1024 / 1024),
-          total: Math.round(memoryUsage.heapTotal / 1024 / 1024),
-          external: Math.round(memoryUsage.external / 1024 / 1024)
-        },
-        loadAverage: os.loadavg(),
-        uptime: os.uptime()
-      },
-      render: {
-        healthCheckCount: req.headers['x-render-health-check'] ? 'true' : 'false',
-        userAgent: req.headers['user-agent'] || 'unknown',
-        responseTime: Date.now() - startTime
-      }
+      timestamp: new Date().toISOString()
     };
 
     // Set response headers for Render compatibility
@@ -148,13 +128,7 @@ router.get('/', (req, res) => {
     const errorResponse = {
       status: 'ok', // Always 'ok' for Render
       env: process.env.NODE_ENV || 'development',
-      timestamp: new Date().toISOString(),
-      uptime: process.uptime(),
-      error: 'Health check had issues but service is running',
-      render: {
-        healthCheckCount: req.headers['x-render-health-check'] ? 'true' : 'false',
-        userAgent: req.headers['user-agent'] || 'unknown'
-      }
+      timestamp: new Date().toISOString()
     };
     
     res.setHeader('Content-Type', 'application/json');
