@@ -103,6 +103,8 @@ const verifyDatabase = async () => {
 
 // 🛡️ DevOps Guardian: Verify database before starting server
 // Run database verification and wait for it before proceeding
+let server = null; // Declare server at module scope for gracefulShutdown
+
 const startServer = async () => {
   // Wait for database verification to complete
   await verifyDatabase();
@@ -136,7 +138,7 @@ const startServer = async () => {
   }
 
   const PORT = process.env.PORT || 5000;
-  const server = http.createServer(app);
+  server = http.createServer(app); // Assign to module-scoped variable
 
   // 🚀 RENDER STARTUP RECOVERY: Optimized server startup with comprehensive logging
   const STARTUP_DELAY = process.env.NODE_ENV === 'production' ? 2000 : 1000; // Reduced delay for faster startup
