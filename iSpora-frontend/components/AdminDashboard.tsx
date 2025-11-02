@@ -714,7 +714,7 @@ export function AdminDashboard() {
                           }}
                         />
                         <img
-                          src={user.avatar || `${import.meta.env.VITE_API_URL || 'https://ispora-backend.onrender.com'}/api/placeholder/40/40`}
+                          src={user.avatar || `${import.meta.env.VITE_API_URL?.replace(/\/api\/?$/, '') || 'https://ispora-backend.onrender.com'}/api/placeholder/40/40`}
                           alt={user.name}
                           className="h-10 w-10 rounded-full"
                         />

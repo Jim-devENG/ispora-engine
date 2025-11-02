@@ -158,13 +158,19 @@ const fetchLiveSessions = async () => {
     });
 
     if (!response.ok) {
+      // 🛡️ DevOps Guardian: Silently handle 404s for optional endpoints
+      if (response.status === 404) {
+        console.debug('Sessions endpoint not available (404)');
+        return { live: [], upcoming: [], activeUsers: 0 };
+      }
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
     const data = await response.json();
     return data.success ? data.data : { live: [], upcoming: [], activeUsers: 0 };
   } catch (error) {
-    console.error('Failed to fetch live sessions:', error);
+    // 🛡️ DevOps Guardian: Silently handle optional endpoint failures
+    console.debug('Failed to fetch live sessions (optional endpoint):', error);
     return { live: [], upcoming: [], activeUsers: 0 };
   }
 };
@@ -303,7 +309,7 @@ export class FeedService {
     switch (update.type) {
       case 'connection':
       case 'connected':
-        console.info('🔗 Realtime feed connection active');
+        // 🛡️ DevOps Guardian: Silently handle connection confirmations to prevent console spam
         this.realtimeData = {
           ...this.realtimeData,
           isConnected: true,
@@ -311,7 +317,7 @@ export class FeedService {
         };
         break;
       case 'welcome':
-        console.info('👋 Realtime feed welcome message received');
+        // 🛡️ DevOps Guardian: Silently handle welcome messages to prevent console spam
         this.realtimeData = {
           ...this.realtimeData,
           isConnected: true,
@@ -346,7 +352,11 @@ export class FeedService {
       default:
         // 🛡️ DevOps Guardian: Silently handle unknown realtime updates to prevent console spam
         // These are often welcome messages, connection confirmations, etc. that don't need user attention
-        if (update.type !== 'connected' && update.type !== 'welcome' && update.type !== 'message') {
+        // Only log truly unexpected types that might indicate an issue
+        if (update.type !== 'connected' && 
+            update.type !== 'welcome' && 
+            update.type !== 'message' && 
+            update.type !== 'connection') {
           console.debug('🔍 Realtime event:', update.type, update);
         }
     }

@@ -89,7 +89,7 @@ export function UserProfileDropdown({ isCollapsed = false }: UserProfileDropdown
               <div className="flex justify-center">
                 <button className="relative h-8 w-8 p-0 hover:bg-[#021ff6]/10 rounded-full transition-all duration-200 transform hover:scale-110 active:scale-95">
                   <Avatar className="h-7 w-7 transition-all duration-200 ring-2 ring-transparent hover:ring-[#021ff6]/20">
-                    <AvatarImage src={`${import.meta.env.VITE_API_URL || 'https://ispora-backend.onrender.com'}/api/placeholder/40/40`} onError={(e) => { e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjRjBGMEYwIi8+Cjx0ZXh0IHg9IjIwIiB5PSIyMCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjE0IiBmaWxsPSIjNjY2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+NDB4NDA8L3RleHQ+Cjwvc3ZnPgo='; }} />
+                    <AvatarImage src={user?.avatar || `${import.meta.env.VITE_API_URL?.replace(/\/api\/?$/, '') || 'https://ispora-backend.onrender.com'}/api/placeholder/40/40`} onError={(e) => { e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjRjBGMEYwIi8+Cjx0ZXh0IHg9IjIwIiB5PSIyMCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjE0IiBmaWxsPSIjNjY2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+NDB4NDA8L3RleHQ+Cjwvc3ZnPgo='; }} />
                     <AvatarFallback className="bg-[#021ff6] text-white text-xs font-medium transition-all duration-200">
                       JD
                     </AvatarFallback>
@@ -115,7 +115,7 @@ export function UserProfileDropdown({ isCollapsed = false }: UserProfileDropdown
           <div className="p-5 bg-gradient-to-br from-gray-50 to-white border-b border-gray-100">
             <div className="flex items-center space-x-3">
               <Avatar className="h-10 w-10 ring-2 ring-[#021ff6]/10">
-                <AvatarImage src={user?.avatar || `${import.meta.env.VITE_API_URL || 'https://ispora-backend.onrender.com'}/api/placeholder/40/40`} />
+                <AvatarImage src={user?.avatar || `${import.meta.env.VITE_API_URL?.replace(/\/api\/?$/, '') || 'https://ispora-backend.onrender.com'}/api/placeholder/40/40`} />
                 <AvatarFallback className="bg-[#021ff6] text-white font-semibold">
                   {userInitials}
                 </AvatarFallback>
