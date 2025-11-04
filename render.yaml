@@ -15,6 +15,9 @@ services:
         fromDatabase:
           name: ispora-postgres
           property: connectionString
+      - key: MONGO_URI
+        sync: false
+        comment: "MongoDB Atlas connection string for Phase 1/2/3 features"
       - key: SENTRY_DSN
         sync: false
     healthCheckPath: /api/health

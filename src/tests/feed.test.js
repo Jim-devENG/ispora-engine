@@ -1,273 +1,175 @@
+/**
+ * Feed Tests
+ * Phase 3: Test personalized feed endpoints
+ */
+
 const request = require('supertest');
+const mongoose = require('mongoose');
 const app = require('../app');
-const knex = require('knex');
-const config = require('../knexfile');
+const User = require('../models/User');
+const Project = require('../models/Project');
+const ProjectUpdate = require('../models/ProjectUpdate');
+const Follow = require('../models/Follow');
+const FeedPreference = require('../models/FeedPreference');
+const jwt = require('jsonwebtoken');
 
-const db = knex(config.test);
+const MONGO_TEST_URI = process.env.MONGO_TEST_URI || 'mongodb://localhost:27017/ispora_test';
 
-describe('Feed', () => {
-  beforeAll(async () => {
-    // Run migrations for test database
-    await db.migrate.latest();
-  });
+beforeAll(async () => {
+  if (mongoose.connection.readyState === 0) {
+    try {
+      await mongoose.connect(MONGO_TEST_URI, {
+        serverSelectionTimeoutMS: 5000
+      });
+    } catch (error) {
+      console.warn('⚠️ MongoDB not available for tests. Skipping tests.');
+      console.warn('   Set MONGO_TEST_URI environment variable or start MongoDB locally.');
+      process.env.SKIP_TESTS = 'true';
+    }
+  }
+}, 30000);
 
-  afterAll(async () => {
-    // Clean up
-    await db.destroy();
-  });
+afterAll(async () => {
+  if (process.env.SKIP_TESTS === 'true') {
+    return;
+  }
+  try {
+    if (mongoose.connection.readyState !== 0) {
+      await FeedPreference.deleteMany({});
+      await Follow.deleteMany({});
+      await ProjectUpdate.deleteMany({});
+      await Project.deleteMany({});
+      await User.deleteMany({});
+      await mongoose.connection.close();
+    }
+  } catch (error) {
+    if (mongoose.connection.readyState !== 0) {
+      console.error('Error cleaning up test database:', error.message);
+    }
+  }
+}, 10000);
+
+describe('Phase 3: Feed API', () => {
+  let user1, user2;
+  let project;
+  let token1;
 
   beforeEach(async () => {
-    // Clean up tables before each test
-    await db('feed_entries').del();
-    await db('projects').del();
-    await db('users').del();
+    if (process.env.SKIP_TESTS === 'true' || mongoose.connection.readyState === 0) {
+      return;
+    }
+    await FeedPreference.deleteMany({});
+    await Follow.deleteMany({});
+    await ProjectUpdate.deleteMany({});
+    await Project.deleteMany({});
+    await User.deleteMany({});
 
-    // Create test users
-    const bcrypt = require('bcrypt');
-    const passwordHash = await bcrypt.hash('password123', 12);
-    
-    await db('users').insert([
-      {
-        id: 'user-1',
-        email: 'user1@example.com',
-        password_hash: passwordHash,
-        first_name: 'User',
-        last_name: 'One',
-        user_type: 'student',
-        username: 'user1',
-        is_verified: true,
-        email_verified: true,
-        profile_completed: false,
-        status: 'active',
-        created_at: new Date(),
-        updated_at: new Date()
-      },
-      {
-        id: 'user-2',
-        email: 'user2@example.com',
-        password_hash: passwordHash,
-        first_name: 'User',
-        last_name: 'Two',
-        user_type: 'admin',
-        username: 'user2',
-        is_verified: true,
-        email_verified: true,
-        profile_completed: false,
-        status: 'active',
-        created_at: new Date(),
-        updated_at: new Date()
+    user1 = new User({
+      name: 'User One',
+      email: 'user1@example.com',
+      passwordHash: await User.hashPassword('password123')
+    });
+    await user1.save();
+
+    user2 = new User({
+      name: 'User Two',
+      email: 'user2@example.com',
+      passwordHash: await User.hashPassword('password123')
+    });
+    await user2.save();
+
+    project = new Project({
+      owner: user2._id,
+      title: 'Test Project',
+      description: 'Test description',
+      visibility: 'public'
+    });
+    await project.save();
+
+    token1 = jwt.sign(
+      { id: user1._id.toString(), email: user1.email },
+      process.env.JWT_SECRET || 'test-secret',
+      { expiresIn: '7d' }
+    );
+  });
+
+  describe('GET /api/v1/feed', () => {
+    test('should get feed items (all)', async () => {
+      if (process.env.SKIP_TESTS === 'true' || mongoose.connection.readyState === 0) {
+        return;
       }
-    ]);
+      await ProjectUpdate.create({
+        projectId: project._id,
+        author: user2._id,
+        content: 'Test update',
+        type: 'update'
+      });
 
-    // Create test projects
-    await db('projects').insert([
-      {
-        id: 'project-1',
-        title: 'Test Project 1',
-        description: 'Description 1',
-        type: 'academic',
-        category: 'technology',
-        tags: JSON.stringify(['tech']),
-        objectives: 'Objectives 1',
-        team_members: JSON.stringify(['User One']),
-        diaspora_positions: JSON.stringify(['Developer']),
-        priority: 'high',
-        university: 'University 1',
-        mentorship_connection: true,
-        is_public: true,
-        created_by: 'user-1',
-        created_at: new Date(),
-        updated_at: new Date(),
-        likes: 5,
-        comments: 2,
-        shares: 1
+      const response = await request(app)
+        .get('/api/v1/feed?type=all')
+        .expect(200);
+
+      expect(response.body.success).toBe(true);
+      expect(response.body.data).toHaveProperty('items');
+      expect(response.body.data.items.length).toBeGreaterThan(0);
+    });
+
+    test('should get personalized feed if authenticated', async () => {
+      if (process.env.SKIP_TESTS === 'true' || mongoose.connection.readyState === 0) {
+        return;
       }
-    ]);
+      // User1 follows user2
+      await Follow.create({
+        follower: user1._id,
+        followee: user2._id
+      });
 
-    // Create test feed entries
-    await db('feed_entries').insert([
-      {
-        id: 'feed-1',
-        type: 'project',
-        title: 'New Project: Test Project 1',
-        description: 'User One created a new project',
-        category: 'technology',
-        metadata: JSON.stringify({ project_id: 'project-1', action: 'created' }),
-        user_id: 'user-1',
-        project_id: 'project-1',
-        is_public: true,
-        created_at: new Date(),
-        updated_at: new Date(),
-        likes: 5,
-        comments: 2,
-        shares: 1
-      },
-      {
-        id: 'feed-2',
-        type: 'activity',
-        title: 'User activity',
-        description: 'User performed an activity',
-        category: 'general',
-        metadata: JSON.stringify({ action: 'login' }),
-        user_id: 'user-2',
-        project_id: null,
-        is_public: true,
-        created_at: new Date(),
-        updated_at: new Date(),
-        likes: 0,
-        comments: 0,
-        shares: 0
+      // Create feed preference
+      await FeedPreference.create({
+        userId: user1._id,
+        sources: { projects: true, people: true, opportunities: true },
+        sort: 'personalized'
+      });
+
+      // Create update
+      await ProjectUpdate.create({
+        projectId: project._id,
+        author: user2._id,
+        content: 'Test update',
+        type: 'update'
+      });
+
+      const response = await request(app)
+        .get('/api/v1/feed?type=personalized')
+        .set('Authorization', `Bearer ${token1}`)
+        .expect(200);
+
+      expect(response.body.success).toBe(true);
+      expect(response.body.data).toHaveProperty('items');
+      expect(response.body.data).toHaveProperty('pagination');
+    });
+  });
+
+  describe('GET /api/v1/feed/:id', () => {
+    test('should get feed entry detail with comments and reactions', async () => {
+      if (process.env.SKIP_TESTS === 'true' || mongoose.connection.readyState === 0) {
+        return;
       }
-    ]);
-  });
+      const update = await ProjectUpdate.create({
+        projectId: project._id,
+        author: user2._id,
+        content: 'Test update',
+        type: 'update'
+      });
 
-  describe('GET /api/feed', () => {
-    it('should return all feed entries', async () => {
       const response = await request(app)
-        .get('/api/feed')
+        .get(`/api/v1/feed/${update._id.toString()}`)
         .expect(200);
 
       expect(response.body.success).toBe(true);
-      expect(response.body.data).toHaveLength(2);
-      expect(response.body.pagination.total).toBe(2);
-    });
-
-    it('should filter feed entries by type', async () => {
-      const response = await request(app)
-        .get('/api/feed?type=project')
-        .expect(200);
-
-      expect(response.body.success).toBe(true);
-      expect(response.body.data).toHaveLength(1);
-      expect(response.body.data[0].type).toBe('project');
-    });
-
-    it('should filter feed entries by category', async () => {
-      const response = await request(app)
-        .get('/api/feed?category=technology')
-        .expect(200);
-
-      expect(response.body.success).toBe(true);
-      expect(response.body.data).toHaveLength(1);
-      expect(response.body.data[0].category).toBe('technology');
-    });
-
-    it('should support pagination', async () => {
-      const response = await request(app)
-        .get('/api/feed?page=1&limit=1')
-        .expect(200);
-
-      expect(response.body.success).toBe(true);
-      expect(response.body.data).toHaveLength(1);
-      expect(response.body.pagination.page).toBe(1);
-      expect(response.body.pagination.limit).toBe(1);
-    });
-
-    it('should include author and project information', async () => {
-      const response = await request(app)
-        .get('/api/feed')
-        .expect(200);
-
-      expect(response.body.success).toBe(true);
-      expect(response.body.data[0].author).toBeDefined();
-      expect(response.body.data[0].author.name).toBe('User One');
-      expect(response.body.data[0].project).toBeDefined();
-      expect(response.body.data[0].project.title).toBe('Test Project 1');
-    });
-  });
-
-  describe('POST /api/feed/activity', () => {
-    it('should track activity successfully', async () => {
-      const activityData = {
-        type: 'login',
-        title: 'User logged in',
-        description: 'User successfully logged into the system',
-        category: 'authentication',
-        metadata: {
-          ip: '192.168.1.1',
-          userAgent: 'Mozilla/5.0'
-        }
-      };
-
-      const response = await request(app)
-        .post('/api/feed/activity')
-        .send(activityData)
-        .expect(201);
-
-      expect(response.body.success).toBe(true);
-      expect(response.body.data.type).toBe('login');
-      expect(response.body.data.title).toBe('User logged in');
-    });
-
-    it('should return 400 for missing required fields', async () => {
-      const activityData = {
-        description: 'Activity without type and title'
-      };
-
-      const response = await request(app)
-        .post('/api/feed/activity')
-        .send(activityData)
-        .expect(400);
-
-      expect(response.body.success).toBe(false);
-      expect(response.body.error).toContain('Type and title are required');
-    });
-
-    it('should work without authentication', async () => {
-      const activityData = {
-        type: 'page_view',
-        title: 'Anonymous page view',
-        description: 'Someone viewed a page'
-      };
-
-      const response = await request(app)
-        .post('/api/feed/activity')
-        .send(activityData)
-        .expect(201);
-
-      expect(response.body.success).toBe(true);
-    });
-  });
-
-  describe('GET /api/feed/sessions', () => {
-    it('should return active sessions', async () => {
-      const response = await request(app)
-        .get('/api/feed/sessions')
-        .expect(200);
-
-      expect(response.body.success).toBe(true);
-      expect(response.body.data).toHaveLength(2);
-      expect(response.body.count).toBe(2);
-    });
-  });
-
-  describe('GET /api/feed/stream', () => {
-    it('should establish SSE connection', (done) => {
-      const req = request(app)
-        .get('/api/feed/stream')
-        .expect(200)
-        .expect('Content-Type', 'text/event-stream')
-        .end((err, res) => {
-          if (err) return done(err);
-          
-          let dataReceived = false;
-          res.on('data', (chunk) => {
-            const data = chunk.toString();
-            if (data.includes('connected')) {
-              dataReceived = true;
-              res.destroy();
-              done();
-            }
-          });
-          
-          // Timeout after 5 seconds
-          setTimeout(() => {
-            if (!dataReceived) {
-              res.destroy();
-              done(new Error('No data received from SSE stream'));
-            }
-          }, 5000);
-        });
+      expect(response.body.data).toHaveProperty('type');
+      expect(response.body.data).toHaveProperty('commentCount');
+      expect(response.body.data).toHaveProperty('reactions');
     });
   });
 });

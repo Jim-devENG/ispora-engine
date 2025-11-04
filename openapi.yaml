@@ -1,0 +1,3013 @@
+openapi: 3.0.0
+info:
+  title: iSpora API
+  version: 1.0.0
+  description: iSpora Backend API - Phase 1 & Phase 2 Implementation
+servers:
+  - url: https://ispora-backend.onrender.com/api/v1
+    description: Production server
+  - url: http://localhost:5000/api/v1
+    description: Development server
+
+paths:
+  /auth/register:
+    post:
+      summary: Register a new user
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - email
+                - password
+              properties:
+                name:
+                  type: string
+                  example: John Doe
+                email:
+                  type: string
+                  format: email
+                  example: john@example.com
+                password:
+                  type: string
+                  format: password
+                  minLength: 6
+                  example: password123
+                firstName:
+                  type: string
+                  example: John
+                lastName:
+                  type: string
+                  example: Doe
+                userType:
+                  type: string
+                  enum: [student, professional, mentor, admin]
+                  default: student
+                username:
+                  type: string
+                  example: johndoe
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Registration successful
+                  token:
+                    type: string
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+                  data:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                      user:
+                        $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '409':
+          $ref: '#/components/responses/DuplicateError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /auth/login:
+    post:
+      summary: Login user
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: john@example.com
+                password:
+                  type: string
+                  format: password
+                  example: password123
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Login successful
+                  token:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                      user:
+                        $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /projects:
+    post:
+      summary: Create a new project
+      description: |
+        **Phase 1 Critical Fix:** Objectives normalization.
+        Frontend sends `objectives` as string, but we normalize to array for storage.
+        - String with newlines: "Objective 1\nObjective 2\nObjective 3" → ["Objective 1", "Objective 2", "Objective 3"]
+        - String with commas: "Objective 1, Objective 2, Objective 3" → ["Objective 1", "Objective 2", "Objective 3"]
+        - Array: ["Objective 1", "Objective 2"] → ["Objective 1", "Objective 2"]
+        - Empty/null: "" or null → []
+      tags:
+        - Projects
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectCreate'
+            examples:
+              objectivesString:
+                summary: Objectives as string (newline-separated)
+                value:
+                  title: My Project
+                  description: Project description
+                  objectives: "Objective 1\nObjective 2\nObjective 3"
+                  type: academic
+                  category: Education
+              objectivesArray:
+                summary: Objectives as array
+                value:
+                  title: My Project
+                  description: Project description
+                  objectives: ["Objective 1", "Objective 2", "Objective 3"]
+                  type: academic
+                  category: Education
+              objectivesComma:
+                summary: Objectives as string (comma-separated)
+                value:
+                  title: My Project
+                  description: Project description
+                  objectives: "Objective 1, Objective 2, Objective 3"
+                  type: academic
+                  category: Education
+      responses:
+        '201':
+          description: Project created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Project created successfully
+                  data:
+                    $ref: '#/components/schemas/Project'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+    get:
+      summary: Get all projects
+      description: Returns paginated list of public projects
+      tags:
+        - Projects
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+          description: Page number
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+          description: Items per page
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [mentorship, academic, career, community, collaboration]
+          description: Filter by project type
+        - name: category
+          in: query
+          schema:
+            type: string
+          description: Filter by category
+      responses:
+        '200':
+          description: Projects retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Project'
+                  meta:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                      limit:
+                        type: integer
+                      total:
+                        type: integer
+                      totalPages:
+                        type: integer
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /projects/{id}:
+    get:
+      summary: Get project by ID
+      tags:
+        - Projects
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Project ID
+      responses:
+        '200':
+          description: Project retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Project'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /projects/updates:
+    get:
+      summary: Get project updates
+      description: |
+        **Phase 1 Critical Fix:** Returns updates for user's projects when `mine=true`.
+        Protected route - requires authentication.
+        - `mine=true`: Returns updates only for projects owned by authenticated user
+        - `mine=false` or omitted: Returns all public project updates (if implemented)
+      tags:
+        - Projects
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: mine
+          in: query
+          schema:
+            type: boolean
+            default: false
+          description: If true, return only updates for user's projects
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+          description: Page number
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+          description: Items per page
+      responses:
+        '200':
+          description: Project updates retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ProjectUpdate'
+                  meta:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                      limit:
+                        type: integer
+                      total:
+                        type: integer
+                      totalPages:
+                        type: integer
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /tasks:
+    post:
+      summary: Create a new task
+      description: |
+        **Phase 1 Critical Fix:** Tasks integrated with MongoDB.
+        Creates a task for a project. Only project owner can create tasks.
+      tags:
+        - Tasks
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+                - projectId
+              properties:
+                title:
+                  type: string
+                  example: Complete project documentation
+                description:
+                  type: string
+                  example: Write comprehensive documentation for the project
+                projectId:
+                  type: string
+                  example: 507f1f77bcf86cd799439011
+                assignee:
+                  type: string
+                  description: User ID of assignee (optional)
+                  example: 507f1f77bcf86cd799439012
+                status:
+                  type: string
+                  enum: [todo, doing, done]
+                  default: todo
+                  example: todo
+                priority:
+                  type: string
+                  enum: [low, medium, high]
+                  default: medium
+                  example: high
+                dueDate:
+                  type: string
+                  format: date-time
+                  example: 2024-12-31T23:59:59Z
+                tags:
+                  type: array
+                  items:
+                    type: string
+                  example: [documentation, priority]
+      responses:
+        '201':
+          description: Task created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Task created successfully
+                  data:
+                    $ref: '#/components/schemas/Task'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /tasks/project/{projectId}:
+    get:
+      summary: Get tasks for a project
+      description: |
+        Returns tasks for a project. Public/protected based on project visibility.
+        - Public projects: No authentication required
+        - Private projects: Requires authentication and ownership
+      tags:
+        - Tasks
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Project ID
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+          description: Page number
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+          description: Items per page
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [todo, doing, done]
+          description: Filter by task status
+        - name: assignee
+          in: query
+          schema:
+            type: string
+          description: Filter by assignee ID
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Tasks retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Task'
+                  meta:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                      limit:
+                        type: integer
+                      total:
+                        type: integer
+                      totalPages:
+                        type: integer
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /tasks/{id}/status:
+    patch:
+      summary: Update task status
+      description: Updates task status. Only project owner can update tasks.
+      tags:
+        - Tasks
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Task ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - status
+              properties:
+                status:
+                  type: string
+                  enum: [todo, doing, done]
+                  example: done
+      responses:
+        '200':
+          description: Task status updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Task status updated successfully
+                  data:
+                    $ref: '#/components/schemas/Task'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /notifications:
+    get:
+      summary: Get notifications for authenticated user
+      description: |
+        **Phase 2:** Returns notifications for authenticated user with pagination and filtering.
+        Supports filtering by read status and type.
+      tags:
+        - Notifications
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+          description: Page number
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+          description: Items per page
+        - name: read
+          in: query
+          schema:
+            type: boolean
+          description: Filter by read status
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [project_update, task_assigned, task_completed, task_due_soon, opportunity_posted, mention, comment, system]
+          description: Filter by notification type
+      responses:
+        '200':
+          description: Notifications retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Notification'
+                  meta:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                      limit:
+                        type: integer
+                      total:
+                        type: integer
+                      totalPages:
+                        type: integer
+                      unreadCount:
+                        type: integer
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /notifications/stream:
+    get:
+      summary: SSE stream for real-time notifications
+      description: |
+        **Phase 2:** Server-Sent Events (SSE) stream for real-time notifications.
+        Returns text/event-stream with notification events as they occur.
+        Includes heartbeat (ping) every 20 seconds to keep connection alive.
+      tags:
+        - Notifications
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: SSE stream established
+          content:
+            text/event-stream:
+              schema:
+                type: string
+                example: "data: {\"type\":\"connected\",\"message\":\"Connected to notifications stream\",\"userId\":\"...\",\"timestamp\":\"...\"}\n\n"
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+
+  /notifications/{id}:
+    get:
+      summary: Get notification by ID
+      tags:
+        - Notifications
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Notification ID
+      responses:
+        '200':
+          description: Notification retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Notification'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /notifications/{id}/read:
+    patch:
+      summary: Mark notification as read
+      tags:
+        - Notifications
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Notification ID
+      responses:
+        '200':
+          description: Notification marked as read
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Notification marked as read
+                  data:
+                    $ref: '#/components/schemas/Notification'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /notifications/read-all:
+    patch:
+      summary: Mark all notifications as read
+      tags:
+        - Notifications
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: All notifications marked as read
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: All notifications marked as read
+                  data:
+                    type: object
+                    properties:
+                      success:
+                        type: boolean
+                      updatedCount:
+                        type: integer
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /notifications/{id}:
+    delete:
+      summary: Delete notification
+      tags:
+        - Notifications
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Notification ID
+      responses:
+        '200':
+          description: Notification deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Notification deleted successfully
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /notifications/preferences:
+    get:
+      summary: Get user's notification preferences
+      description: |
+        **Phase 2.1:** Returns user's notification preferences.
+        If preferences don't exist, creates default preferences.
+      tags:
+        - Notifications
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Preferences retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/NotificationPreference'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+    put:
+      summary: Update user's notification preferences
+      description: |
+        **Phase 2.1:** Updates user's notification preferences.
+        Partial updates supported - only provided fields are updated.
+      tags:
+        - Notifications
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                preferences:
+                  $ref: '#/components/schemas/NotificationPreferenceUpdate'
+      responses:
+        '200':
+          description: Preferences updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Notification preferences updated successfully
+                  data:
+                    $ref: '#/components/schemas/NotificationPreference'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /notifications/mute:
+    post:
+      summary: Mute notifications until a specific date
+      description: |
+        **Phase 2.1:** Mutes all notifications until the specified date.
+        After the date, notifications resume according to preferences.
+      tags:
+        - Notifications
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - until
+              properties:
+                until:
+                  type: string
+                  format: date-time
+                  example: 2025-02-07T23:59:59Z
+                  description: ISO date string until which to mute notifications
+      responses:
+        '200':
+          description: Notifications muted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Notifications muted until 2025-02-07T23:59:59Z
+                  data:
+                    $ref: '#/components/schemas/NotificationPreference'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /opportunities:
+    get:
+      summary: Get all opportunities (public)
+      description: |
+        **Phase 2:** Returns paginated list of public opportunities.
+        Admin can see all opportunities including inactive ones.
+      tags:
+        - Opportunities
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+          description: Page number
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+          description: Items per page
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [job, scholarship, internship, event, workshop, grant, other]
+          description: Filter by opportunity type
+        - name: category
+          in: query
+          schema:
+            type: string
+          description: Filter by category
+        - name: featured
+          in: query
+          schema:
+            type: boolean
+          description: Filter featured opportunities
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Search in title, description, organization
+      responses:
+        '200':
+          description: Opportunities retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Opportunity'
+                  meta:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                      limit:
+                        type: integer
+                      total:
+                        type: integer
+                      totalPages:
+                        type: integer
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+    post:
+      summary: Create a new opportunity (admin only)
+      description: |
+        **Phase 2:** Creates a new opportunity. Admin only.
+        Featured opportunities automatically notify all users.
+      tags:
+        - Opportunities
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OpportunityCreate'
+      responses:
+        '201':
+          description: Opportunity created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Opportunity created successfully
+                  data:
+                    $ref: '#/components/schemas/Opportunity'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /opportunities/{id}:
+    get:
+      summary: Get opportunity by ID (public)
+      tags:
+        - Opportunities
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Opportunity ID
+      responses:
+        '200':
+          description: Opportunity retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Opportunity'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+    put:
+      summary: Update opportunity (admin only)
+      tags:
+        - Opportunities
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Opportunity ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                type:
+                  type: string
+                  enum: [job, scholarship, internship, event, workshop, grant, other]
+                category:
+                  type: string
+                organization:
+                  type: string
+                location:
+                  type: string
+                workMode:
+                  type: string
+                  enum: [remote, hybrid, onsite]
+                compensation:
+                  type: string
+                deadline:
+                  type: string
+                  format: date-time
+                applicationLink:
+                  type: string
+                  format: uri
+                contactEmail:
+                  type: string
+                  format: email
+                tags:
+                  type: array
+                  items:
+                    type: string
+                featured:
+                  type: boolean
+                status:
+                  type: string
+                  enum: [active, expired, closed]
+                visibility:
+                  type: string
+                  enum: [public, private]
+      responses:
+        '200':
+          description: Opportunity updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Opportunity updated successfully
+                  data:
+                    $ref: '#/components/schemas/Opportunity'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+    delete:
+      summary: Delete opportunity (admin only)
+      tags:
+        - Opportunities
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Opportunity ID
+      responses:
+        '200':
+          description: Opportunity deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Opportunity deleted successfully
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /opportunities/{id}/engagement:
+    post:
+      summary: Record opportunity engagement (view/apply/bookmark/share)
+      description: |
+        **Phase 2.1:** Records user engagement with an opportunity.
+        - `view`: Anonymous allowed, increments metrics only
+        - `apply`: Requires authentication, creates engagement record
+        - `bookmark`: Requires authentication, creates engagement record
+        - `share`: Anonymous allowed (if authenticated, records userId)
+      tags:
+        - Opportunities
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Opportunity ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - type
+              properties:
+                type:
+                  type: string
+                  enum: [view, apply, bookmark, share]
+                  example: view
+                meta:
+                  type: object
+                  additionalProperties: true
+                  example:
+                    shareTo: twitter
+      responses:
+        '200':
+          description: Engagement recorded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Engagement recorded successfully
+                  data:
+                    type: object
+                    properties:
+                      engagement:
+                        $ref: '#/components/schemas/OpportunityEngagement'
+                        nullable: true
+                      metrics:
+                        $ref: '#/components/schemas/OpportunityMetrics'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /opportunities/{id}/metrics:
+    get:
+      summary: Get opportunity metrics (public)
+      description: |
+        **Phase 2.1:** Returns engagement metrics for an opportunity.
+        Public endpoint - no authentication required.
+      tags:
+        - Opportunities
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Opportunity ID
+      responses:
+        '200':
+          description: Metrics retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/OpportunityMetrics'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /opportunities/{id}/bookmark:
+    delete:
+      summary: Remove bookmark (unbookmark)
+      description: |
+        **Phase 2.1:** Removes a bookmark for an opportunity.
+        Requires authentication.
+      tags:
+        - Opportunities
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Opportunity ID
+      responses:
+        '200':
+          description: Bookmark removed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Bookmark removed successfully
+                  data:
+                    $ref: '#/components/schemas/OpportunityMetrics'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /admin/opportunities/trending:
+    get:
+      summary: Get trending opportunities (admin only)
+      description: |
+        **Phase 2.1:** Returns top opportunities sorted by engagement metrics.
+        Admin only endpoint.
+      tags:
+        - Admin
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+            maximum: 100
+          description: Number of trending opportunities to return
+        - name: days
+          in: query
+          schema:
+            type: integer
+            default: 7
+            minimum: 1
+          description: Number of days to look back for trending
+      responses:
+        '200':
+          description: Trending opportunities retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        opportunity:
+                          $ref: '#/components/schemas/Opportunity'
+                        metrics:
+                          $ref: '#/components/schemas/OpportunityMetrics'
+                        score:
+                          type: integer
+                          description: Calculated trending score (applies * 10 + views)
+                  meta:
+                    type: object
+                    properties:
+                      limit:
+                        type: integer
+                      days:
+                        type: integer
+                      total:
+                        type: integer
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /admin/opportunities/{id}/analytics:
+    get:
+      summary: Get opportunity analytics (admin only)
+      description: |
+        **Phase 2.1:** Returns detailed analytics for an opportunity.
+        Admin only endpoint.
+      tags:
+        - Admin
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Opportunity ID
+      responses:
+        '200':
+          description: Analytics retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      opportunity:
+                        $ref: '#/components/schemas/Opportunity'
+                      metrics:
+                        $ref: '#/components/schemas/OpportunityMetrics'
+                      breakdown:
+                        type: object
+                        properties:
+                          views:
+                            type: integer
+                          applies:
+                            type: integer
+                          bookmarks:
+                            type: integer
+                          shares:
+                            type: integer
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  # ============================================================================
+  # Phase 3: Social & Collaboration Core
+  # ============================================================================
+
+  /profile/me:
+    get:
+      summary: Get authenticated user's profile
+      tags:
+        - Profile
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Profile'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /profile/{userIdOrHandle}:
+    get:
+      summary: Get public profile by user ID or handle
+      tags:
+        - Profile
+      parameters:
+        - name: userIdOrHandle
+          in: path
+          required: true
+          schema:
+            type: string
+          description: User ID or handle (username/email)
+      responses:
+        '200':
+          description: Profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Profile'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /profile:
+    put:
+      summary: Update authenticated user's profile
+      tags:
+        - Profile
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProfileUpdate'
+      responses:
+        '200':
+          description: Profile updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Profile updated successfully
+                  data:
+                    $ref: '#/components/schemas/Profile'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /profile/search:
+    get:
+      summary: Search profiles
+      tags:
+        - Profile
+      parameters:
+        - name: q
+          in: query
+          schema:
+            type: string
+          description: Search query
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+          description: Page number
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+          description: Items per page
+      responses:
+        '200':
+          description: Profiles retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      profiles:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Profile'
+                      pagination:
+                        $ref: '#/components/schemas/Pagination'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /follow:
+    post:
+      summary: Follow a user
+      tags:
+        - Follow
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - followeeId
+              properties:
+                followeeId:
+                  type: string
+                  example: 507f1f77bcf86cd799439011
+      responses:
+        '201':
+          description: Followed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Followed successfully
+                  data:
+                    $ref: '#/components/schemas/Follow'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '409':
+          description: Already following
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  code:
+                    type: string
+                    example: DUPLICATE_FOLLOW
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /follow/{followeeId}:
+    delete:
+      summary: Unfollow a user
+      tags:
+        - Follow
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: followeeId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Unfollowed successfully
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /follow/{userId}/followers:
+    get:
+      summary: Get followers of a user
+      tags:
+        - Follow
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Followers retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      followers:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                            user:
+                              $ref: '#/components/schemas/User'
+                            createdAt:
+                              type: string
+                              format: date-time
+                      pagination:
+                        $ref: '#/components/schemas/Pagination'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /follow/{userId}/following:
+    get:
+      summary: Get users that a user is following
+      tags:
+        - Follow
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Following list retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      following:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                            user:
+                              $ref: '#/components/schemas/User'
+                            createdAt:
+                              type: string
+                              format: date-time
+                      pagination:
+                        $ref: '#/components/schemas/Pagination'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /comments:
+    post:
+      summary: Create a comment
+      tags:
+        - Comments
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - parentType
+                - parentId
+                - content
+              properties:
+                parentType:
+                  type: string
+                  enum: [project, update, post, task]
+                parentId:
+                  type: string
+                content:
+                  type: string
+                  maxLength: 5000
+      responses:
+        '201':
+          description: Comment created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Comment created successfully
+                  data:
+                    $ref: '#/components/schemas/Comment'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    get:
+      summary: List comments for a parent
+      tags:
+        - Comments
+      parameters:
+        - name: parentType
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [project, update, post, task]
+        - name: parentId
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Comments retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      comments:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Comment'
+                      pagination:
+                        $ref: '#/components/schemas/Pagination'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /comments/{id}:
+    patch:
+      summary: Update or soft delete a comment
+      tags:
+        - Comments
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+                deleted:
+                  type: boolean
+      responses:
+        '200':
+          description: Comment updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Comment updated successfully
+                  data:
+                    $ref: '#/components/schemas/Comment'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /reactions:
+    post:
+      summary: Add or update a reaction
+      tags:
+        - Reactions
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - targetType
+                - targetId
+                - reactionType
+              properties:
+                targetType:
+                  type: string
+                  enum: [project, update, post, comment, task]
+                targetId:
+                  type: string
+                reactionType:
+                  type: string
+                  enum: [like, love, celebrate, insightful, support]
+      responses:
+        '201':
+          description: Reaction added successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Reaction added successfully
+                  data:
+                    $ref: '#/components/schemas/Reaction'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    delete:
+      summary: Remove a reaction
+      tags:
+        - Reactions
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - targetType
+                - targetId
+              properties:
+                targetType:
+                  type: string
+                  enum: [project, update, post, comment, task]
+                targetId:
+                  type: string
+      responses:
+        '200':
+          description: Reaction removed successfully
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    get:
+      summary: Get reactions for a target
+      tags:
+        - Reactions
+      parameters:
+        - name: targetType
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [project, update, post, comment, task]
+        - name: targetId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Reactions retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      counts:
+                        type: object
+                        additionalProperties:
+                          type: integer
+                      total:
+                        type: integer
+                      viewerReaction:
+                        type: object
+                        nullable: true
+                        properties:
+                          reactionType:
+                            type: string
+                          createdAt:
+                            type: string
+                            format: date-time
+                      reactions:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Reaction'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /feed:
+    get:
+      summary: Get feed items
+      tags:
+        - Feed
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [all, personalized, following]
+            default: all
+          description: Feed type
+      responses:
+        '200':
+          description: Feed retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/FeedItem'
+                      pagination:
+                        $ref: '#/components/schemas/Pagination'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /feed/{id}:
+    get:
+      summary: Get single feed entry detail with comments and reactions
+      tags:
+        - Feed
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Feed entry retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/FeedItem'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 507f1f77bcf86cd799439011
+        name:
+          type: string
+          example: John Doe
+        email:
+          type: string
+          format: email
+          example: john@example.com
+        firstName:
+          type: string
+          example: John
+        lastName:
+          type: string
+          example: Doe
+        userType:
+          type: string
+          enum: [student, professional, mentor, admin]
+          example: student
+        username:
+          type: string
+          example: johndoe
+        avatar:
+          type: string
+          format: uri
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+
+    ProjectCreate:
+      type: object
+      required:
+        - title
+      properties:
+        title:
+          type: string
+          example: My Project
+        description:
+          type: string
+          example: Project description
+        objectives:
+          oneOf:
+            - type: string
+              description: String with newlines or commas (will be normalized to array)
+              example: "Objective 1\nObjective 2\nObjective 3"
+            - type: array
+              items:
+                type: string
+              example: ["Objective 1", "Objective 2", "Objective 3"]
+        type:
+          type: string
+          enum: [mentorship, academic, career, community, collaboration]
+          default: academic
+          example: academic
+        category:
+          type: string
+          default: Uncategorized
+          example: Education
+        tags:
+          type: array
+          items:
+            type: string
+          example: [education, research]
+        teamMembers:
+          type: array
+          items:
+            type: object
+          example: []
+        diasporaPositions:
+          type: array
+          items:
+            type: object
+          example: []
+        priority:
+          type: string
+          enum: [low, medium, high]
+          default: medium
+        university:
+          type: string
+        mentorshipConnection:
+          type: boolean
+          default: false
+        isPublic:
+          type: boolean
+          default: true
+        visibility:
+          type: string
+          enum: [public, private]
+          default: public
+
+    Project:
+      allOf:
+        - $ref: '#/components/schemas/ProjectCreate'
+        - type: object
+          properties:
+            id:
+              type: string
+              example: 507f1f77bcf86cd799439011
+            objectives:
+              type: array
+              items:
+                type: string
+              description: Always returned as array (canonical format)
+              example: ["Objective 1", "Objective 2", "Objective 3"]
+            owner:
+              type: string
+              example: 507f1f77bcf86cd799439012
+            creator:
+              type: object
+              properties:
+                id:
+                  type: string
+                email:
+                  type: string
+                name:
+                  type: string
+                first_name:
+                  type: string
+                last_name:
+                  type: string
+            createdAt:
+              type: string
+              format: date-time
+            updatedAt:
+              type: string
+              format: date-time
+
+    ProjectUpdate:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 507f1f77bcf86cd799439011
+        projectId:
+          type: string
+          example: 507f1f77bcf86cd799439012
+        project:
+          type: object
+          properties:
+            id:
+              type: string
+            title:
+              type: string
+        author:
+          type: object
+          properties:
+            id:
+              type: string
+            email:
+              type: string
+            name:
+              type: string
+            first_name:
+              type: string
+            last_name:
+              type: string
+        content:
+          type: string
+          example: Project milestone completed
+        type:
+          type: string
+          enum: [milestone, update, announcement, progress, general]
+          default: update
+        title:
+          type: string
+          nullable: true
+        timestamp:
+          type: string
+          format: date-time
+          description: Alias for createdAt
+
+    Task:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 507f1f77bcf86cd799439011
+        title:
+          type: string
+          example: Complete project documentation
+        description:
+          type: string
+          nullable: true
+        projectId:
+          type: string
+          example: 507f1f77bcf86cd799439012
+        assignee:
+          type: object
+          nullable: true
+          properties:
+            id:
+              type: string
+            email:
+              type: string
+            name:
+              type: string
+            first_name:
+              type: string
+            last_name:
+              type: string
+        status:
+          type: string
+          enum: [todo, doing, done]
+          default: todo
+        priority:
+          type: string
+          enum: [low, medium, high]
+          default: medium
+        dueDate:
+          type: string
+          format: date-time
+          nullable: true
+        tags:
+          type: array
+          items:
+            type: string
+        completedDate:
+          type: string
+          format: date-time
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    Notification:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 507f1f77bcf86cd799439011
+        userId:
+          type: string
+          example: 507f1f77bcf86cd799439012
+        type:
+          type: string
+          enum: [project_update, task_assigned, task_completed, task_due_soon, opportunity_posted, mention, comment, system]
+          example: task_assigned
+        title:
+          type: string
+          example: New task assigned: Complete project documentation
+        message:
+          type: string
+          example: John Doe assigned you a task in My Project
+        relatedId:
+          type: string
+          nullable: true
+          example: 507f1f77bcf86cd799439013
+        relatedType:
+          type: string
+          enum: [Project, Task, Opportunity, ProjectUpdate, null]
+          nullable: true
+          example: Task
+        metadata:
+          type: object
+          additionalProperties: true
+          example:
+            taskId: "507f1f77bcf86cd799439013"
+            projectId: "507f1f77bcf86cd799439014"
+            projectTitle: "My Project"
+        read:
+          type: boolean
+          default: false
+          example: false
+        readAt:
+          type: string
+          format: date-time
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+
+    OpportunityCreate:
+      type: object
+      required:
+        - title
+        - description
+        - type
+      properties:
+        title:
+          type: string
+          example: Software Engineer Position
+        description:
+          type: string
+          example: Join our amazing team
+        type:
+          type: string
+          enum: [job, scholarship, internship, event, workshop, grant, other]
+          example: job
+        category:
+          type: string
+          default: Uncategorized
+          example: Technology
+        organization:
+          type: string
+          example: Tech Corp
+        location:
+          type: string
+          example: Remote
+        workMode:
+          type: string
+          enum: [remote, hybrid, onsite]
+          example: remote
+        compensation:
+          type: string
+          example: $100k - $150k
+        deadline:
+          type: string
+          format: date-time
+          example: 2025-12-31T23:59:59Z
+        applicationLink:
+          type: string
+          format: uri
+          example: https://example.com/apply
+        contactEmail:
+          type: string
+          format: email
+          example: careers@example.com
+        tags:
+          type: array
+          items:
+            type: string
+          example: [software, engineering, remote]
+        featured:
+          type: boolean
+          default: false
+          example: false
+        status:
+          type: string
+          enum: [active, expired, closed]
+          default: active
+        visibility:
+          type: string
+          enum: [public, private]
+          default: public
+
+    Opportunity:
+      allOf:
+        - $ref: '#/components/schemas/OpportunityCreate'
+        - type: object
+          properties:
+            id:
+              type: string
+              example: 507f1f77bcf86cd799439011
+            createdBy:
+              type: string
+              example: 507f1f77bcf86cd799439012
+            creator:
+              type: object
+              properties:
+                id:
+                  type: string
+                email:
+                  type: string
+                name:
+                  type: string
+                first_name:
+                  type: string
+                last_name:
+                  type: string
+            views:
+              type: integer
+              default: 0
+              example: 42
+            createdAt:
+              type: string
+              format: date-time
+            updatedAt:
+              type: string
+              format: date-time
+
+    NotificationPreference:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 507f1f77bcf86cd799439011
+        userId:
+          type: string
+          example: 507f1f77bcf86cd799439012
+        preferences:
+          type: object
+          properties:
+            categories:
+              type: object
+              properties:
+                project:
+                  type: boolean
+                  default: true
+                task:
+                  type: boolean
+                  default: true
+                opportunity:
+                  type: boolean
+                  default: true
+                system:
+                  type: boolean
+                  default: true
+            delivery:
+              type: object
+              properties:
+                realtime:
+                  type: boolean
+                  default: true
+                email:
+                  type: boolean
+                  default: false
+        mutedUntil:
+          type: string
+          format: date-time
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    NotificationPreferenceUpdate:
+      type: object
+      properties:
+        preferences:
+          type: object
+          properties:
+            categories:
+              type: object
+              properties:
+                project:
+                  type: boolean
+                task:
+                  type: boolean
+                opportunity:
+                  type: boolean
+                system:
+                  type: boolean
+            delivery:
+              type: object
+              properties:
+                realtime:
+                  type: boolean
+                email:
+                  type: boolean
+        mutedUntil:
+          type: string
+          format: date-time
+          nullable: true
+
+    OpportunityEngagement:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 507f1f77bcf86cd799439011
+        opportunityId:
+          type: string
+          example: 507f1f77bcf86cd799439012
+        userId:
+          type: string
+          nullable: true
+          example: 507f1f77bcf86cd799439013
+        type:
+          type: string
+          enum: [view, apply, bookmark, share]
+          example: view
+        meta:
+          type: object
+          additionalProperties: true
+          example:
+            shareTo: twitter
+        createdAt:
+          type: string
+          format: date-time
+
+    OpportunityMetrics:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 507f1f77bcf86cd799439011
+        opportunityId:
+          type: string
+          example: 507f1f77bcf86cd799439012
+        views:
+          type: integer
+          default: 0
+          example: 42
+        applies:
+          type: integer
+          default: 0
+          example: 5
+        bookmarks:
+          type: integer
+          default: 0
+          example: 12
+        shares:
+          type: integer
+          default: 0
+          example: 3
+        lastUpdated:
+          type: string
+          format: date-time
+
+    Profile:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 507f1f77bcf86cd799439011
+        userId:
+          type: string
+          example: 507f1f77bcf86cd799439012
+        displayName:
+          type: string
+          example: John Doe
+        bio:
+          type: string
+          example: Software developer passionate about community impact
+        title:
+          type: string
+          example: Senior Software Engineer
+        location:
+          type: string
+          example: New York, NY
+        skills:
+          type: array
+          items:
+            type: string
+          example: [JavaScript, React, Node.js]
+        socials:
+          type: object
+          properties:
+            twitter:
+              type: string
+            linkedin:
+              type: string
+            website:
+              type: string
+        avatarUrl:
+          type: string
+        coverUrl:
+          type: string
+        visibility:
+          type: string
+          enum: [public, private]
+          default: public
+        completed:
+          type: boolean
+          default: false
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    ProfileUpdate:
+      type: object
+      properties:
+        displayName:
+          type: string
+        bio:
+          type: string
+        title:
+          type: string
+        location:
+          type: string
+        skills:
+          type: array
+          items:
+            type: string
+        socials:
+          type: object
+          properties:
+            twitter:
+              type: string
+            linkedin:
+              type: string
+            website:
+              type: string
+        avatarUrl:
+          type: string
+        coverUrl:
+          type: string
+        visibility:
+          type: string
+          enum: [public, private]
+
+    Follow:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 507f1f77bcf86cd799439011
+        follower:
+          type: string
+          example: 507f1f77bcf86cd799439012
+        followee:
+          type: string
+          example: 507f1f77bcf86cd799439013
+        createdAt:
+          type: string
+          format: date-time
+
+    Comment:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 507f1f77bcf86cd799439011
+        author:
+          $ref: '#/components/schemas/User'
+        parentType:
+          type: string
+          enum: [project, update, post, task]
+        parentId:
+          type: string
+        content:
+          type: string
+          example: This is a great project!
+        deleted:
+          type: boolean
+          default: false
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    Reaction:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 507f1f77bcf86cd799439011
+        userId:
+          type: string
+          example: 507f1f77bcf86cd799439012
+        targetType:
+          type: string
+          enum: [project, update, post, comment, task]
+        targetId:
+          type: string
+        reactionType:
+          type: string
+          enum: [like, love, celebrate, insightful, support]
+          example: like
+        createdAt:
+          type: string
+          format: date-time
+
+    FeedItem:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [update, opportunity, project]
+        id:
+          type: string
+        author:
+          $ref: '#/components/schemas/User'
+        project:
+          type: object
+          nullable: true
+          properties:
+            id:
+              type: string
+            title:
+              type: string
+        content:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        commentCount:
+          type: integer
+        reactions:
+          type: object
+          additionalProperties:
+            type: integer
+        totalReactions:
+          type: integer
+        viewerReaction:
+          type: object
+          nullable: true
+          properties:
+            reactionType:
+              type: string
+            createdAt:
+              type: string
+              format: date-time
+
+    FeedPreference:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        sources:
+          type: object
+          properties:
+            projects:
+              type: boolean
+              default: true
+            people:
+              type: boolean
+              default: true
+            opportunities:
+              type: boolean
+              default: true
+        sort:
+          type: string
+          enum: [recent, personalized]
+          default: recent
+        topics:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+          example: 1
+        limit:
+          type: integer
+          example: 20
+        total:
+          type: integer
+          example: 100
+        pages:
+          type: integer
+          example: 5
+
+  responses:
+    ValidationError:
+      description: Validation error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: false
+              error:
+                type: string
+                example: Validation error
+              code:
+                type: string
+                example: INVALID_PAYLOAD
+              message:
+                type: string
+                example: Title is required
+
+    UnauthorizedError:
+      description: Authentication required or token invalid
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: false
+              error:
+                type: string
+                example: Session expired
+              code:
+                type: string
+                enum: [NO_TOKEN, TOKEN_EXPIRED, INVALID_TOKEN]
+                example: TOKEN_EXPIRED
+              message:
+                type: string
+                example: Your session has expired. Please log in again.
+
+    ForbiddenError:
+      description: Permission denied
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: false
+              error:
+                type: string
+                example: Permission denied
+              code:
+                type: string
+                example: FORBIDDEN
+              message:
+                type: string
+                example: You do not have permission to perform this action
+
+    NotFoundError:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: false
+              error:
+                type: string
+                example: Project not found
+              code:
+                type: string
+                example: NOT_FOUND
+              message:
+                type: string
+                example: The requested project could not be found
+
+    DuplicateError:
+      description: Duplicate resource
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: false
+              error:
+                type: string
+                example: User already exists
+              code:
+                type: string
+                example: DUPLICATE_USER
+              message:
+                type: string
+                example: An account with this email already exists
+
+    ServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: false
+              error:
+                type: string
+                example: Server error
+              code:
+                type: string
+                example: SERVER_ERROR
+              message:
+                type: string
+                example: Failed to process request. Please try again later.
+

@@ -1,0 +1,157 @@
+%% iSpora Data Flow Diagram
+%% MermaidJS diagram showing data flow from frontend through API to database
+
+graph TB
+    subgraph "Frontend Layer"
+        FE1[Dashboard.tsx]
+        FE2[CreateProject.tsx]
+        FE3[MyProjects.tsx]
+        FE4[TaskManager.tsx]
+        FE5[NotificationsPage.tsx]
+        FE6[FeedService.tsx]
+        FE7[AuthContext.tsx]
+    end
+
+    subgraph "API Gateway Layer"
+        API1[Express.js Server]
+        API2[CORS Middleware]
+        API3[Auth Middleware]
+        API4[Rate Limiter]
+    end
+
+    subgraph "Route Layer"
+        R1["/api/v1/auth"]
+        R2["/api/v1/projects"]
+        R3["/api/v1/tasks"]
+        R4["/api/v1/projects/updates"]
+        R5["/api/feed"]
+        R6["/api/feed/stream"]
+        R7["/api/v1/notifications"]
+    end
+
+    subgraph "Controller Layer"
+        C1[AuthController]
+        C2[ProjectsController]
+        C3[TasksController]
+        C4[FeedController]
+        C5[NotificationsController]
+    end
+
+    subgraph "Middleware Layer"
+        M1[verifyToken]
+        M2[objectivesNormalizer]
+        M3[projectOwnerValidator]
+    end
+
+    subgraph "Database Layer - MongoDB"
+        DB1[(User Collection)]
+        DB2[(Project Collection)]
+        DB3[(Task Collection)]
+        DB4[(ProjectUpdate Collection)]
+        DB5[(Notification Collection)]
+    end
+
+    subgraph "Database Layer - SQLite/PostgreSQL"
+        DB6[(feed_entries)]
+        DB7[(sessions)]
+    end
+
+    subgraph "Real-time Layer"
+        RT1[SSE Stream]
+        RT2[EventSource]
+        RT3[WebSocket Server]
+    end
+
+    %% Authentication Flow
+    FE7 -->|POST /api/v1/auth/login| R1
+    R1 --> C1
+    C1 -->|findByEmail| DB1
+    DB1 -->|user + passwordHash| C1
+    C1 -->|generateToken| FE7
+    FE7 -->|store token| FE7
+
+    %% Project Creation Flow
+    FE2 -->|POST /api/v1/projects<br/>objectives: string| R2
+    R2 --> API3
+    API3 -->|verifyToken| M1
+    M1 -->|req.user| C2
+    C2 -->|normalize objectives<br/>string → array| M2
+    M2 -->|objectives: array| C2
+    C2 -->|create project| DB2
+    DB2 -->|project document| C2
+    C2 -->|create feed entry| DB6
+    DB6 -->|feed entry| C2
+    C2 -->|response| FE2
+    FE2 -->|dispatch refreshFeed event| FE1
+    FE2 -->|dispatch refreshProjects event| FE3
+
+    %% Project Updates Flow
+    FE3 -->|GET /api/v1/projects/updates?mine=true| R4
+    R4 --> API3
+    API3 --> M1
+    M1 --> C2
+    C2 -->|find user projects| DB2
+    DB2 -->|projectIds| C2
+    C2 -->|find updates for projects| DB4
+    DB4 -->|updates[]| C2
+    C2 -->|response| FE3
+
+    %% Task Creation Flow
+    FE4 -->|POST /api/v1/tasks| R3
+    R3 --> API3
+    API3 --> M1
+    M1 --> C3
+    C3 -->|validate project ownership| M3
+    M3 -->|check owner| DB2
+    DB2 -->|project| M3
+    M3 -->|authorized| C3
+    C3 -->|create task| DB3
+    DB3 -->|task document| C3
+    C3 -->|response| FE4
+
+    %% Feed Flow
+    FE6 -->|GET /api/feed| R5
+    R5 --> C4
+    C4 -->|query feed entries| DB6
+    DB6 -->|feedEntry[]| C4
+    C4 -->|response| FE6
+    FE6 -->|display feed| FE1
+
+    %% Real-time Feed Flow
+    FE6 -->|GET /api/feed/stream?token=xxx<br/>EventSource| R6
+    R6 -->|SSE connection| RT1
+    RT1 -->|connected message| FE6
+    RT1 -->|welcome message| FE6
+    RT1 -->|ping every 20s| FE6
+    RT1 -->|query feed| DB6
+    DB6 -->|feedEntry[]| RT1
+    RT1 -->|message events| FE6
+    FE6 -->|handleRealtimeUpdate| FE1
+
+    %% Notifications Flow (Phase 2)
+    FE5 -.->|GET /api/v1/notifications<br/>Phase 2| R7
+    R7 -.-> C5
+    C5 -.->|query notifications| DB5
+    DB5 -.->|notification[]| C5
+    C5 -.->|response| FE5
+    FE5 -.->|display notifications| FE5
+
+    %% Styling
+    classDef frontend fill:#e1f5ff,stroke:#01579b,stroke-width:2px
+    classDef api fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    classDef route fill:#fff3e0,stroke:#e65100,stroke-width:2px
+    classDef controller fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px
+    classDef middleware fill:#fff9c4,stroke:#f57f17,stroke-width:2px
+    classDef db fill:#ffebee,stroke:#b71c1c,stroke-width:2px
+    classDef realtime fill:#fce4ec,stroke:#880e4f,stroke-width:2px
+    classDef future fill:#f5f5f5,stroke:#616161,stroke-width:2px,stroke-dasharray: 5 5
+
+    class FE1,FE2,FE3,FE4,FE5,FE6,FE7 frontend
+    class API1,API2,API3,API4 api
+    class R1,R2,R3,R4,R5,R6,R7 route
+    class C1,C2,C3,C4,C5 controller
+    class M1,M2,M3 middleware
+    class DB1,DB2,DB3,DB4,DB5,DB6,DB7 db
+    class RT1,RT2,RT3 realtime
+    class R7,C5,DB5 future
+

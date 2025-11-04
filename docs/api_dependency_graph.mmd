@@ -1,0 +1,175 @@
+%% iSpora API Dependency Graph
+%% MermaidJS diagram showing all API endpoints grouped by domain
+
+graph LR
+    subgraph "Authentication Domain"
+        A1[POST /api/v1/auth/register ✅]
+        A2[POST /api/v1/auth/login ✅]
+        A3[GET /api/auth/me ✅]
+        A4[POST /api/auth/logout ✅]
+        A5[POST /api/auth/refresh ✅]
+    end
+
+    subgraph "Projects Domain"
+        P1[POST /api/v1/projects ✅]
+        P2[GET /api/v1/projects ✅]
+        P3[GET /api/v1/projects/:id ✅]
+        P4[GET /api/v1/projects/updates?mine=true ✅]
+        P5[POST /api/projects ⚠️ Legacy]
+        P6[GET /api/projects ⚠️ Legacy]
+    end
+
+    subgraph "Tasks Domain"
+        T1[POST /api/v1/tasks ✅]
+        T2[GET /api/v1/tasks/project/:projectId ✅]
+        T3[PATCH /api/v1/tasks/:id/status ✅]
+        T4[GET /api/tasks ⚠️ Mock Data]
+    end
+
+    subgraph "Feed Domain"
+        F1[GET /api/feed ✅]
+        F2[GET /api/feed/stream ✅ SSE]
+        F3[POST /api/feed/activity ✅]
+        F4[GET /api/feed/sessions ✅]
+    end
+
+    subgraph "Notifications Domain"
+        N1[GET /api/v1/notifications ❌]
+        N2[PUT /api/v1/notifications/:id/read ❌]
+        N3[PUT /api/v1/notifications/mark-all-read ❌]
+        N4[DELETE /api/v1/notifications/:id ❌]
+    end
+
+    subgraph "Opportunities Domain"
+        O1[GET /api/v1/opportunities?type=...&q=... ❌]
+    end
+
+    subgraph "Credits Domain"
+        C1[GET /api/v1/credits/overview ❌]
+        C2[GET /api/v1/credits/badges ❌]
+        C3[GET /api/v1/credits/leaderboard ❌]
+        C4[GET /api/v1/credits/activities ❌]
+    end
+
+    subgraph "Network Domain"
+        NW1[GET /api/v1/network/discovery ❌]
+        NW2[GET /api/v1/network/connections ❌]
+        NW3[GET /api/v1/network/connections/requests ❌]
+        NW4[POST /api/v1/network/connections/requests ❌]
+        NW5[POST /api/v1/network/connections/requests/:id/accept ❌]
+        NW6[POST /api/v1/network/connections/requests/:id/decline ❌]
+    end
+
+    subgraph "Workspace Domain"
+        W1[GET /api/v1/research/sources ❌]
+        W2[POST /api/v1/research/sources ❌]
+        W3[GET /api/v1/research/notes ❌]
+        W4[POST /api/v1/research/notes ❌]
+        W5[GET /api/v1/research/datasets ❌]
+        W6[GET /api/v1/live/events ❌]
+        W7[GET /api/v1/live/events/:id/chat ❌]
+        W8[POST /api/v1/live/events/:id/chat ❌]
+        W9[GET /api/v1/learning/recordings ❌]
+        W10[GET /api/v1/learning/content ❌]
+        W11[GET /api/v1/deliverables ❌]
+        W12[POST /api/v1/deliverables ❌]
+    end
+
+    subgraph "Admin Domain"
+        AD1[GET /api/v1/users ❌]
+        AD2[GET /api/v1/admin/stats ❌]
+        AD3[GET /api/v1/admin/reports ❌]
+        AD4[POST /api/v1/admin/users/:id/:action ❌]
+        AD5[POST /api/v1/admin/users/bulk/:action ❌]
+        AD6[POST /api/v1/admin/reports/:id/:action ❌]
+    end
+
+    subgraph "System Domain"
+        S1[GET /api/health ✅]
+        S2[GET /healthz ✅]
+        S3[GET /api/ping ✅]
+        S4[GET /api/placeholder/:w/:h ✅]
+        S5[GET /api/sessions ✅ Stub]
+        S6[POST /api/logs ✅]
+    end
+
+    subgraph "Database Dependencies"
+        DB1[(MongoDB<br/>Phase 1+)]
+        DB2[(SQLite/PostgreSQL<br/>Legacy)]
+    end
+
+    %% Phase 1 Endpoints (MongoDB)
+    A1 --> DB1
+    A2 --> DB1
+    P1 --> DB1
+    P2 --> DB1
+    P3 --> DB1
+    P4 --> DB1
+    T1 --> DB1
+    T2 --> DB1
+    T3 --> DB1
+
+    %% Legacy Endpoints (SQLite/PostgreSQL)
+    P5 --> DB2
+    P6 --> DB2
+    T4 --> DB2
+    F1 --> DB2
+    F2 --> DB2
+    F3 --> DB2
+    F4 --> DB2
+    S5 --> DB2
+
+    %% Phase 2 Endpoints (Future - MongoDB)
+    N1 -.-> DB1
+    N2 -.-> DB1
+    N3 -.-> DB1
+    N4 -.-> DB1
+    O1 -.-> DB1
+
+    %% Phase 3 Endpoints (Future - MongoDB)
+    C1 -.-> DB1
+    C2 -.-> DB1
+    C3 -.-> DB1
+    C4 -.-> DB1
+    NW1 -.-> DB1
+    NW2 -.-> DB1
+    NW3 -.-> DB1
+    NW4 -.-> DB1
+    NW5 -.-> DB1
+    NW6 -.-> DB1
+
+    %% Phase 4 Endpoints (Future - MongoDB)
+    W1 -.-> DB1
+    W2 -.-> DB1
+    W3 -.-> DB1
+    W4 -.-> DB1
+    W5 -.-> DB1
+    W6 -.-> DB1
+    W7 -.-> DB1
+    W8 -.-> DB1
+    W9 -.-> DB1
+    W10 -.-> DB1
+    W11 -.-> DB1
+    W12 -.-> DB1
+
+    %% Phase 6 Endpoints (Future - MongoDB)
+    AD1 -.-> DB1
+    AD2 -.-> DB1
+    AD3 -.-> DB1
+    AD4 -.-> DB1
+    AD5 -.-> DB1
+    AD6 -.-> DB1
+
+    %% Styling
+    classDef implemented fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px
+    classDef partial fill:#fff9c4,stroke:#f57f17,stroke-width:2px
+    classDef missing fill:#ffcdd2,stroke:#c62828,stroke-width:2px
+    classDef database fill:#e1bee7,stroke:#6a1b9a,stroke-width:2px
+    classDef future fill:#f5f5f5,stroke:#616161,stroke-width:1px,stroke-dasharray: 3 3
+
+    class A1,A2,A3,A4,A5,P1,P2,P3,P4,T1,T2,T3,F1,F2,F3,F4,S1,S2,S3,S4,S6 implemented
+    class P5,P6,T4,S5 partial
+    class N1,N2,N3,N4,O1,C1,C2,C3,C4,NW1,NW2,NW3,NW4,NW5,NW6,W1,W2,W3,W4,W5,W6,W7,W8,W9,W10,W11,W12,AD1,AD2,AD3,AD4,AD5,AD6 missing
+    class DB1,DB2 database
+    class N1,N2,N3,N4,O1,C1,C2,C3,C4,NW1,NW2,NW3,NW4,NW5,NW6,W1,W2,W3,W4,W5,W6,W7,W8,W9,W10,W11,W12,AD1,AD2,AD3,AD4,AD5,AD6 future
+

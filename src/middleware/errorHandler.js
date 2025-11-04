@@ -45,6 +45,7 @@ const errorHandler = (error, req, res, next) => {
 
   // Handle specific error types with detailed responses
   if (error instanceof ValidationError) {
+    // Joi ValidationError (from utils/validation.js)
     statusCode = 400;
     message = error.message;
     code = 'VALIDATION_ERROR';
@@ -62,6 +63,20 @@ const errorHandler = (error, req, res, next) => {
         body: req.body
       }
     }, '❌ Validation error');
+    
+  } else if (error.name === 'ValidationError' && error.errors) {
+    // Mongoose ValidationError (from Mongoose models)
+    statusCode = 400;
+    code = 'VALIDATION_ERROR';
+    const messages = Object.values(error.errors).map(err => err.message);
+    message = messages.join(', ');
+    details = messages;
+    
+    logger.warn({
+      validationError: error.message,
+      details: messages,
+      model: error.model?.modelName
+    }, '❌ Mongoose validation error');
     
   } else if (error.name === 'UnauthorizedError' || error.message?.includes('jwt')) {
     statusCode = 401;
@@ -144,6 +159,39 @@ const errorHandler = (error, req, res, next) => {
     statusCode = error.statusCode;
     message = error.message;
     code = error.code || 'CUSTOM_ERROR';
+  } else if (error.name === 'MongoError' || error.name === 'MongoServerError') {
+    // Handle MongoDB errors
+    statusCode = 500;
+    code = 'DATABASE_ERROR';
+    
+    if (error.code === 11000) {
+      // Duplicate key error
+      statusCode = 409;
+      code = 'DUPLICATE_ENTRY';
+      const field = Object.keys(error.keyPattern || {})[0] || 'field';
+      message = `${field} already exists. Please use a different ${field}.`;
+    } else if (error.code === 2) {
+      message = 'Database query error. Please check your request.';
+    } else {
+      message = 'Database error. Please try again later.';
+    }
+    
+    logger.error({
+      mongoError: error.message,
+      code: error.code,
+      keyPattern: error.keyPattern
+    }, '❌ MongoDB error');
+  } else if (error.name === 'CastError') {
+    // Handle invalid ObjectId
+    statusCode = 400;
+    code = 'INVALID_ID';
+    message = `Invalid ${error.path || 'ID'}. Please check your request.`;
+    
+    logger.warn({
+      castError: error.message,
+      path: error.path,
+      value: error.value
+    }, '❌ Cast error (invalid ID)');
   }
 
   // Don't expose internal errors in production

@@ -4,6 +4,9 @@ const app = require('./app');
 const config = require('./config');
 const logger = require('./utils/logger');
 
+// Phase 1: MongoDB connection
+const { connectDB } = require('./config/database');
+
 // 🛡️ Environment Safety Check
 const checkEnvironmentVariables = () => {
   const requiredVars = ['JWT_SECRET'];
@@ -106,8 +109,26 @@ const verifyDatabase = async () => {
 let server = null; // Declare server at module scope for gracefulShutdown
 
 const startServer = async () => {
-  // Wait for database verification to complete
+  // Wait for database verification to complete (Knex.js/SQLite/PostgreSQL)
   await verifyDatabase();
+  
+  // Phase 1: Connect to MongoDB (Mongoose)
+  // MongoDB connection is optional - allows both systems to run in parallel
+  if (process.env.MONGO_URI || process.env.MONGODB_URI) {
+    try {
+      console.log('🔗 Connecting to MongoDB for Phase 1 features...');
+      await connectDB();
+      console.log('✅ MongoDB connected successfully');
+    } catch (mongoError) {
+      console.warn('⚠️ MongoDB connection failed - Phase 1 routes will not be available:', mongoError.message);
+      logger.warn({ error: mongoError.message }, 'MongoDB connection failed - Phase 1 routes unavailable');
+      // Continue without MongoDB - existing Knex.js routes will still work
+    }
+  } else {
+    console.log('ℹ️  MongoDB not configured - Phase 1 Mongoose routes will not be available');
+    console.log('   To enable Phase 1 features, set MONGO_URI or MONGODB_URI environment variable');
+    logger.info('MongoDB not configured - Phase 1 routes unavailable');
+  }
   
   // 🛡️ DevOps Guardian: Safe Sentry initialization with proper warning
   let Sentry = null;

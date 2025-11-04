@@ -24,6 +24,11 @@ const logsRoutes = require('./routes/logs');
 const sessionsRoutes = require('./routes/sessions'); // New sessions route
 const pingRoutes = require('./routes/ping'); // Ping endpoint to prevent cold starts
 
+// Phase 1: Mongoose routes
+const authMongooseRoutes = require('./routes/authMongoose');
+const projectMongooseRoutes = require('./routes/projectsMongoose');
+const taskMongooseRoutes = require('./routes/tasksMongoose');
+
 const app = express();
 
 // ============================================================================
@@ -220,6 +225,43 @@ app.use('/api/placeholder', placeholderRoutes);
 app.use('/api/logs', logsRoutes);
 app.use('/api/sessions', sessionsRoutes); // Sessions route
 app.use('/api/ping', pingRoutes); // Ping endpoint to prevent cold starts
+
+// Phase 1: Mongoose routes (MongoDB-based implementation)
+// These routes handle Phase 1 critical fixes:
+// - Objectives normalization (string → array)
+// - GET /api/projects/updates?mine=true
+// - Tasks integrated with MongoDB
+// Note: MongoDB connection check is handled within routes via middleware
+app.use('/api/v1/auth', authMongooseRoutes);
+app.use('/api/v1/projects', projectMongooseRoutes);
+app.use('/api/v1/tasks', taskMongooseRoutes);
+
+// Phase 1.5: Health check for Phase 1 routes
+const healthV1Routes = require('./routes/healthV1');
+app.use('/api/v1/health', healthV1Routes);
+
+// Phase 2: Notifications & Opportunities routes
+const notificationsMongooseRoutes = require('./routes/notificationsMongoose');
+const opportunitiesMongooseRoutes = require('./routes/opportunitiesMongoose');
+app.use('/api/v1/notifications', notificationsMongooseRoutes);
+app.use('/api/v1/opportunities', opportunitiesMongooseRoutes);
+
+// Phase 2.1: Admin Insights routes
+const adminInsightsMongooseRoutes = require('./routes/adminInsightsMongoose');
+app.use('/api/v1/admin', adminInsightsMongooseRoutes);
+
+// Phase 3: Social & Collaboration routes
+// Note: MongoDB connection check is handled within routes via middleware
+const profileRoutes = require('./routes/profile');
+const followRoutes = require('./routes/follow');
+const commentsRoutes = require('./routes/comments');
+const reactionsRoutes = require('./routes/reactions');
+const feedRoutesV1 = require('./routes/feed');
+app.use('/api/v1/profile', profileRoutes);
+app.use('/api/v1/follow', followRoutes);
+app.use('/api/v1/comments', commentsRoutes);
+app.use('/api/v1/reactions', reactionsRoutes);
+app.use('/api/v1/feed', feedRoutesV1);
 
 // ============================================================================
 // 404 HANDLER - Must be before error handler

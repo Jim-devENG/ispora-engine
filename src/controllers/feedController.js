@@ -1,316 +1,193 @@
-const knex = require('knex');
-const config = require('../knexfile');
+/**
+ * Feed Controller
+ * Phase 3: Personalized feed endpoints
+ */
+
+const feedPersonalizationService = require('../services/feedPersonalizationService');
+const ProjectUpdate = require('../models/ProjectUpdate');
+const Project = require('../models/Project');
+const Comment = require('../models/Comment');
+const Reaction = require('../models/Reaction');
 const logger = require('../utils/logger');
-const { validatePayload, sanitizePayload, ValidationError } = require('../utils/validation');
 
-// 🛡️ DevOps Guardian: Use environment-appropriate database config
-const dbConfig = process.env.NODE_ENV === 'production' 
-  ? (config.production || config.development)
-  : config.development;
-
-const db = knex(dbConfig);
-
-// Get feed entries
+/**
+ * GET /api/v1/feed?page=&limit=&type=all|personalized|following
+ * Get feed items
+ */
 const getFeed = async (req, res) => {
   try {
-    const { page = 1, limit = 20, type, category } = req.query;
-    const offset = (page - 1) * limit;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const type = req.query.type || 'all';
 
-    console.log('[FEED] Getting feed entries:', { page, limit, type, category });
-
-    // 🛡️ DevOps Guardian: Build query with explicit joins - NO SILENT FAILURES
-    // If joins fail, the query will fail and we'll handle it explicitly
-    const query = db('feed_entries')
-      .select(
-        'feed_entries.*',
-        'users.first_name',
-        'users.last_name',
-        'users.email as author_email',
-        'projects.title as project_title'
-      )
-      .leftJoin('users', 'feed_entries.user_id', 'users.id')
-      .leftJoin('projects', 'feed_entries.project_id', 'projects.id')
-      .where('feed_entries.is_public', true)
-      .orderBy('feed_entries.created_at', 'desc');
-
-    // Apply filters
-    if (type) {
-      query = query.where('feed_entries.type', type);
+    // If personalized and user is authenticated, use personalization service
+    if (type === 'personalized' && req.user) {
+      const result = await feedPersonalizationService.getFeedForUser(req.user._id.toString(), {
+        page,
+        limit
+      });
+      return res.status(200).json({ success: true, data: result });
     }
 
-    if (category) {
-      query = query.where('feed_entries.category', category);
+    // Otherwise, return recent items (all or following)
+    let query = {};
+    let populateFields = ['author', 'name email firstName lastName username avatar'];
+
+    if (type === 'following' && req.user) {
+      // Get users the current user follows
+      const Follow = require('../models/Follow');
+      const following = await Follow.find({ follower: req.user._id })
+        .select('followee')
+        .lean();
+      const followeeIds = following.map(f => f.followee);
+
+      // Get projects owned by followed users
+      const followedProjects = await Project.find({ owner: { $in: followeeIds } })
+        .select('_id')
+        .lean();
+      const projectIds = followedProjects.map(p => p._id);
+
+      query.projectId = { $in: projectIds };
     }
 
-    // Apply pagination first to get feed entries
-    console.log('[FEED] Executing query...');
-    const feedEntries = await query.limit(limit).offset(offset);
-    console.log('[FEED] Retrieved', feedEntries.length, 'entries');
+    const updates = await ProjectUpdate.find(query)
+      .populate('author', 'name email firstName lastName username avatar')
+      .populate('projectId', 'title owner')
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .lean();
 
-    // Get total count for pagination - NO FALLBACKS, explicit error handling
-    // Create a separate count query without joins to avoid issues
-    let countQuery = db('feed_entries')
-      .where('feed_entries.is_public', true);
-    
-    if (type) {
-      countQuery = countQuery.where('feed_entries.type', type);
-    }
-    if (category) {
-      countQuery = countQuery.where('feed_entries.category', category);
-    }
-    
-    const countResult = await countQuery.count('* as count').first();
-    const totalCount = { count: parseInt(countResult?.count || 0, 10) };
+    const total = await ProjectUpdate.countDocuments(query);
 
-    // Parse JSON fields and format response
-    // 🛡️ DevOps Guardian: Safely parse each entry with error handling
-    const formattedEntries = feedEntries.map(entry => {
-      let metadata = {};
-      try {
-        // Handle metadata parsing - SQLite stores as string, PostgreSQL as JSON
-        if (entry.metadata !== null && entry.metadata !== undefined) {
-          if (typeof entry.metadata === 'string' && entry.metadata.trim() !== '') {
-            try {
-              metadata = JSON.parse(entry.metadata);
-            } catch (parseError) {
-              console.warn('⚠️ Failed to parse metadata string for entry:', entry.id);
-              metadata = {};
-            }
-          } else if (typeof entry.metadata === 'object') {
-            metadata = entry.metadata;
-          }
-        }
-      } catch (parseError) {
-        console.warn('⚠️ Failed to parse metadata for entry:', entry.id, parseError.message);
-        metadata = {};
-      }
-      
-      // Build author name safely - ensure no undefined values
-      let authorName = 'Unknown';
-      if (entry.first_name || entry.last_name) {
-        const firstName = entry.first_name || '';
-        const lastName = entry.last_name || '';
-        authorName = `${firstName} ${lastName}`.trim() || 'Unknown';
-      } else if (entry.author_email) {
-        authorName = entry.author_email;
-      }
-      
-      // Ensure all fields have valid values - no undefined that causes charAt errors
-      return {
-        id: entry.id || '',
-        type: entry.type || 'unknown',
-        title: entry.title || 'Untitled',
-        description: entry.description || '',
-        category: entry.category || '',
-        metadata: metadata || {},
-        author: {
-          name: authorName || 'Unknown',
-          email: entry.author_email || ''
-        },
-        project: (entry.project_title && entry.project_id) ? {
-          title: entry.project_title || '',
-          id: entry.project_id || ''
-        } : null,
-        likes: parseInt(entry.likes, 10) || 0,
-        comments: parseInt(entry.comments, 10) || 0,
-        shares: parseInt(entry.shares, 10) || 0,
-        created_at: entry.created_at || new Date().toISOString(),
-        updated_at: entry.updated_at || new Date().toISOString()
-      };
-    });
+    const items = updates.map(update => ({
+      type: 'update',
+      id: update._id.toString(),
+      author: update.author,
+      project: update.projectId,
+      content: update.content,
+      title: update.title,
+      createdAt: update.createdAt
+    }));
 
-    logger.info({ 
-      count: feedEntries.length, 
-      page, 
-      limit 
-    }, 'Feed entries retrieved successfully');
-
-    res.json({
+    res.status(200).json({
       success: true,
-      data: formattedEntries,
-      pagination: {
-        page: parseInt(page),
-        limit: parseInt(limit),
-        total: totalCount.count,
-        pages: Math.ceil(totalCount.count / limit)
+      data: {
+        items,
+        pagination: {
+          page,
+          limit,
+          total,
+          pages: Math.ceil(total / limit)
+        }
       }
     });
-
   } catch (error) {
-    logger.error({ 
-      error: error.message, 
-      stack: error.stack,
-      name: error.name 
-    }, 'Get feed failed');
-    
-    console.error('[ERROR] Feed retrieval error:', {
-      message: error.message,
-      stack: error.stack?.split('\n').slice(0, 5)
-    });
-    
-    // 🛡️ DevOps Guardian: Add CORS headers to error response
-    const origin = req.headers.origin;
-    if (origin && (origin.includes('ispora.app') || origin.includes('localhost'))) {
-      res.setHeader('Access-Control-Allow-Origin', origin);
-      res.setHeader('Access-Control-Allow-Credentials', 'true');
-    }
-    
+    logger.error({ error: error.message, query: req.query, userId: req.user?._id }, 'Failed to get feed');
     res.status(500).json({
       success: false,
-      error: 'Server error fetching feed',
-      ...(process.env.NODE_ENV === 'development' && {
-        details: error.message
-      })
+      error: 'Server error',
+      code: 'SERVER_ERROR',
+      message: 'Failed to retrieve feed.'
     });
   }
 };
 
-// 🌐 BACKEND FEED FIX: Enhanced activity tracking with better validation
-const trackActivity = async (req, res) => {
+/**
+ * GET /api/v1/feed/:id
+ * Get single feed entry detail with comments and reactions summary
+ */
+const getFeedEntry = async (req, res) => {
   try {
-    console.log('[DEBUG] Incoming feed activity payload:', req.body);
+    const { id } = req.params;
+    const viewerId = req.user ? req.user._id.toString() : null;
 
-    // 🛡️ DevOps Guardian: Explicit validation - NO FALLBACKS, throw error if invalid
-    const activityType = req.body.type || req.body.activity;
-    const activityTitle = req.body.title;
+    // Try to find as ProjectUpdate first
+    let feedItem = await ProjectUpdate.findById(id)
+      .populate('author', 'name email firstName lastName username avatar')
+      .populate('projectId', 'title owner description visibility')
+      .lean();
 
-    // Validate required fields - throw explicit error
-    if (!activityType) {
-      console.error('[ACTIVITY] ❌ Missing required field: type');
-      console.error('[ACTIVITY] Request body:', req.body);
-      const origin = req.headers.origin;
-      const allowedOrigins = ['https://ispora.app', 'http://localhost:5173'];
-      if (origin && allowedOrigins.includes(origin)) {
-        res.setHeader('Access-Control-Allow-Origin', origin);
-        res.setHeader('Access-Control-Allow-Credentials', 'true');
-      }
-      return res.status(400).json({
-        success: false,
-        error: 'Missing required field: type or activity',
-        received: req.body
+    if (feedItem) {
+      // Get comments count
+      const commentCount = await Comment.countDocuments({
+        parentType: 'update',
+        parentId: id,
+        deleted: false
+      });
+
+      // Get reactions
+      const reactionService = require('../services/reactionService');
+      const reactions = await reactionService.getReactions('update', id, viewerId);
+
+      return res.status(200).json({
+        success: true,
+        data: {
+          type: 'update',
+          id: feedItem._id.toString(),
+          author: feedItem.author,
+          project: feedItem.projectId,
+          content: feedItem.content,
+          title: feedItem.title,
+          createdAt: feedItem.createdAt,
+          commentCount,
+          reactions: reactions.counts,
+          totalReactions: reactions.total,
+          viewerReaction: reactions.viewerReaction
+        }
       });
     }
 
-    // Log successful validation
-    console.log('✅ Feed activity validation passed:', {
-      type: activityType,
-      title: activityTitle,
-      hasDescription: !!req.body.description,
-      hasCategory: !!req.body.category,
-      hasMetadata: !!req.body.metadata
-    });
+    // Try to find as Project
+    const project = await Project.findById(id)
+      .populate('owner', 'name email firstName lastName username avatar')
+      .lean();
 
-    // Get user ID - try to get from authenticated user first, fallback to demo user
-    const userId = req.user?.id || '00000000-0000-0000-0000-000000000001';
+    if (project) {
+      const commentCount = await Comment.countDocuments({
+        parentType: 'project',
+        parentId: id,
+        deleted: false
+      });
 
-    // Create simple activity entry
-    const activityId = require('uuid').v4();
-    const activityData = {
-      id: activityId,
-      type: activityType,
-      title: activityTitle,
-      description: req.body.description || '',
-      category: req.body.category || 'general',
-      metadata: JSON.stringify(req.body.metadata || {}),
-      user_id: userId,
-      project_id: req.body.projectId || null,
-      is_public: true,
-      created_at: new Date(),
-      updated_at: new Date(),
-      likes: 0,
-      comments: 0,
-      shares: 0
-    };
+      const reactionService = require('../services/reactionService');
+      const reactions = await reactionService.getReactions('project', id, viewerId);
 
-    // Insert activity data
-    await db('feed_entries').insert(activityData);
-
-    console.log("✅ Activity tracked successfully:", activityId);
-
-    // 🛡️ DevOps Guardian: Add CORS headers
-    const origin = req.headers.origin;
-    if (origin && (origin.includes('ispora.app') || origin.includes('localhost'))) {
-      res.setHeader('Access-Control-Allow-Origin', origin);
-      res.setHeader('Access-Control-Allow-Credentials', 'true');
+      return res.status(200).json({
+        success: true,
+        data: {
+          type: 'project',
+          id: project._id.toString(),
+          author: project.owner,
+          title: project.title,
+          description: project.description,
+          createdAt: project.createdAt,
+          commentCount,
+          reactions: reactions.counts,
+          totalReactions: reactions.total,
+          viewerReaction: reactions.viewerReaction
+        }
+      });
     }
 
-    res.status(201).json({
-      success: true,
-      message: 'Activity tracked successfully',
-      data: {
-        id: activityId,
-        type: activityType,
-        title: activityTitle,
-        created_at: activityData.created_at
-      }
-    });
-
-  } catch (error) {
-    console.error('[ERROR] Activity tracking failed:', error);
-    console.error('[ERROR] Error details:', {
-      message: error.message,
-      stack: error.stack,
-      name: error.name,
-      code: error.code
-    });
-
-    // 🛡️ DevOps Guardian: Add CORS headers to error response
-    const origin = req.headers.origin;
-    if (origin && (origin.includes('ispora.app') || origin.includes('localhost'))) {
-      res.setHeader('Access-Control-Allow-Origin', origin);
-      res.setHeader('Access-Control-Allow-Credentials', 'true');
-    }
-
-    // Return 200 instead of 500 to avoid breaking frontend - just log the error
-    res.status(200).json({
+    return res.status(404).json({
       success: false,
-      error: error.message || 'Server error tracking activity',
-      skipped: true
+      error: 'Feed entry not found',
+      code: 'NOT_FOUND',
+      message: 'The requested feed entry could not be found.'
     });
-  }
-};
-
-// Get active sessions (stub)
-const getSessions = async (req, res) => {
-  try {
-    // This is a stub implementation
-    // In a real application, you would track active user sessions
-    const sessions = [
-      {
-        id: 'session-1',
-        user: 'Demo User',
-        activity: 'Viewing projects',
-        last_seen: new Date().toISOString(),
-        location: 'New York, NY'
-      },
-      {
-        id: 'session-2',
-        user: 'Admin User',
-        activity: 'Managing content',
-        last_seen: new Date(Date.now() - 300000).toISOString(), // 5 minutes ago
-        location: 'San Francisco, CA'
-      }
-    ];
-
-    logger.info({ count: sessions.length }, 'Active sessions retrieved');
-
-    res.json({
-      success: true,
-      data: sessions,
-      count: sessions.length
-    });
-
   } catch (error) {
-    logger.error({ error: error.message }, 'Get sessions failed');
+    logger.error({ error: error.message, feedId: req.params.id }, 'Failed to get feed entry');
     res.status(500).json({
       success: false,
-      error: 'Server error fetching sessions'
+      error: 'Server error',
+      code: 'SERVER_ERROR',
+      message: 'Failed to retrieve feed entry.'
     });
   }
 };
 
 module.exports = {
   getFeed,
-  trackActivity,
-  getSessions
+  getFeedEntry
 };

@@ -1,0 +1,613 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "date": "2025-01-31",
+    "description": "iSpora Component Dependency Matrix - Complete dependency graph"
+  },
+  "components": {
+    "frontend": {
+      "Layout.tsx": {
+        "consumes": [
+          "AuthContext",
+          "NavigationContext",
+          "CreateProject",
+          "FeedService",
+          "MyProjects"
+        ],
+        "produces": [
+          "refreshFeed events",
+          "refreshProjects events",
+          "toast notifications"
+        ],
+        "apiCalls": [
+          "POST /api/v1/projects",
+          "GET /api/v1/projects",
+          "GET /api/feed"
+        ],
+        "status": "✅ Implemented",
+        "dependencies": [
+          "react",
+          "react-router-dom",
+          "sonner",
+          "apiClient-v2"
+        ]
+      },
+      "Dashboard.tsx": {
+        "consumes": [
+          "FeedService",
+          "FeedEntry[]",
+          "refreshFeed events"
+        ],
+        "produces": [
+          "Feed display",
+          "Statistics cards"
+        ],
+        "apiCalls": [
+          "GET /api/feed?page=1&limit=20",
+          "GET /api/feed/stream (SSE)",
+          "POST /api/feed/activity"
+        ],
+        "status": "✅ Implemented",
+        "dependencies": [
+          "FeedService",
+          "LiveFeed",
+          "ImpactOverviewCards"
+        ]
+      },
+      "CreateProject.tsx": {
+        "consumes": [
+          "User (from AuthContext)",
+          "Form data"
+        ],
+        "produces": [
+          "Project creation request",
+          "onSave callback"
+        ],
+        "apiCalls": [
+          "POST /api/v1/projects (objectives as string)"
+        ],
+        "status": "✅ Implemented",
+        "dependencies": [
+          "apiClient-v2",
+          "AuthContext",
+          "Form validation"
+        ],
+        "criticalNote": "Sends objectives as STRING, not array"
+      },
+      "MyProjects.tsx": {
+        "consumes": [
+          "User (from AuthContext)",
+          "refreshProjects events"
+        ],
+        "produces": [
+          "Projects list",
+          "Project updates display"
+        ],
+        "apiCalls": [
+          "GET /api/v1/projects?mine=true",
+          "GET /api/v1/projects/updates?mine=true ✅"
+        ],
+        "status": "✅ Implemented (updates endpoint - Phase 1)",
+        "dependencies": [
+          "apiClient-v2",
+          "AuthContext"
+        ]
+      },
+      "TaskManager.tsx": {
+        "consumes": [
+          "ProjectId",
+          "Tasks[]"
+        ],
+        "produces": [
+          "Task CRUD operations"
+        ],
+        "apiCalls": [
+          "GET /api/v1/tasks/project/:projectId ✅",
+          "POST /api/v1/tasks ✅",
+          "PATCH /api/v1/tasks/:id/status ✅"
+        ],
+        "status": "✅ Implemented (Phase 1)",
+        "dependencies": [
+          "apiClient-v2",
+          "AuthContext"
+        ]
+      },
+      "NotificationsPage.tsx": {
+        "consumes": [
+          "Notification[]"
+        ],
+        "produces": [
+          "Notifications display",
+          "Read/unread actions"
+        ],
+        "apiCalls": [
+          "GET /api/v1/notifications?filter=... ❌",
+          "PUT /api/v1/notifications/:id/read ❌",
+          "PUT /api/v1/notifications/mark-all-read ❌",
+          "DELETE /api/v1/notifications/:id ❌"
+        ],
+        "status": "❌ Not Implemented (Phase 2)",
+        "dependencies": [
+          "apiClient-v2",
+          "AuthContext",
+          "Notification system (SSE)"
+        ]
+      },
+      "OpportunitiesPage.tsx": {
+        "consumes": [
+          "Opportunity[]",
+          "Filters (type, location, remote, experience)"
+        ],
+        "produces": [
+          "Opportunities list",
+          "Filtered results"
+        ],
+        "apiCalls": [
+          "GET /api/v1/opportunities?type=...&q=...&location=... ❌"
+        ],
+        "status": "❌ Not Implemented (Phase 2)",
+        "dependencies": [
+          "apiClient-v2",
+          "Search/filter logic"
+        ]
+      },
+      "CreditsPage.tsx": {
+        "consumes": [
+          "CreditStats",
+          "Badge[]",
+          "LeaderboardEntry[]",
+          "CreditActivity[]"
+        ],
+        "produces": [
+          "Credits dashboard",
+          "Badges display",
+          "Leaderboard"
+        ],
+        "apiCalls": [
+          "GET /api/v1/credits/overview ❌",
+          "GET /api/v1/credits/badges ❌",
+          "GET /api/v1/credits/leaderboard?timeframe=... ❌",
+          "GET /api/v1/credits/activities ❌"
+        ],
+        "status": "❌ Not Implemented (Phase 3)",
+        "dependencies": [
+          "apiClient-v2",
+          "AuthContext",
+          "Chart library (optional)"
+        ]
+      },
+      "MyNetwork.tsx": {
+        "consumes": [
+          "NetworkUser[]",
+          "Connection[]",
+          "ConnectionRequest[]"
+        ],
+        "produces": [
+          "Network discovery",
+          "Connection management"
+        ],
+        "apiCalls": [
+          "GET /api/v1/network/discovery ❌",
+          "GET /api/v1/network/connections ❌",
+          "GET /api/v1/network/connections/requests ❌",
+          "POST /api/v1/network/connections/requests ❌",
+          "POST /api/v1/network/connections/requests/:id/accept ❌",
+          "POST /api/v1/network/connections/requests/:id/decline ❌"
+        ],
+        "status": "❌ Not Implemented (Phase 3)",
+        "dependencies": [
+          "apiClient-v2",
+          "AuthContext",
+          "User profile data"
+        ]
+      },
+      "AdminDashboard.tsx": {
+        "consumes": [
+          "AdminStats",
+          "User[]",
+          "Report[]"
+        ],
+        "produces": [
+          "Admin dashboard",
+          "User management",
+          "System statistics"
+        ],
+        "apiCalls": [
+          "GET /api/v1/users ❌",
+          "GET /api/v1/admin/stats ❌",
+          "GET /api/v1/admin/reports ❌",
+          "POST /api/v1/admin/users/:id/:action ❌",
+          "POST /api/v1/admin/users/bulk/:action ❌",
+          "POST /api/v1/admin/reports/:id/:action ❌"
+        ],
+        "status": "❌ Not Implemented (Phase 6)",
+        "dependencies": [
+          "apiClient-v2",
+          "AuthContext",
+          "Admin role check"
+        ]
+      },
+      "FeedService.tsx": {
+        "consumes": [
+          "User token",
+          "FeedEntry[]"
+        ],
+        "produces": [
+          "SSE connection",
+          "Feed updates",
+          "Activity tracking"
+        ],
+        "apiCalls": [
+          "GET /api/feed?page=1&limit=20 ✅",
+          "GET /api/feed/stream?token=xxx (SSE) ✅",
+          "POST /api/feed/activity ✅",
+          "GET /api/feed/sessions ✅"
+        ],
+        "status": "✅ Implemented",
+        "dependencies": [
+          "EventSource",
+          "apiClient-v2",
+          "AuthContext"
+        ]
+      }
+    },
+    "backend": {
+      "routes": {
+        "authMongoose.js": {
+          "consumes": [
+            "User credentials (email, password)",
+            "Registration data"
+          ],
+          "produces": [
+            "JWT tokens",
+            "User data"
+          ],
+          "apiCalls": [
+            "POST /api/v1/auth/register",
+            "POST /api/v1/auth/login"
+          ],
+          "status": "✅ Implemented (Phase 1)",
+          "dependencies": [
+            "User model",
+            "bcryptjs",
+            "jsonwebtoken"
+          ]
+        },
+        "projectsMongoose.js": {
+          "consumes": [
+            "Project data (objectives as string)",
+            "User token"
+          ],
+          "produces": [
+            "Project objects",
+            "Project updates"
+          ],
+          "apiCalls": [
+            "POST /api/v1/projects",
+            "GET /api/v1/projects",
+            "GET /api/v1/projects/:id",
+            "GET /api/v1/projects/updates?mine=true"
+          ],
+          "status": "✅ Implemented (Phase 1)",
+          "dependencies": [
+            "Project model",
+            "ProjectUpdate model",
+            "authMongoose middleware",
+            "objectives normalization logic"
+          ],
+          "criticalNote": "Normalizes objectives: string → array"
+        },
+        "tasksMongoose.js": {
+          "consumes": [
+            "Task data",
+            "ProjectId",
+            "User token"
+          ],
+          "produces": [
+            "Task objects",
+            "Task status updates"
+          ],
+          "apiCalls": [
+            "POST /api/v1/tasks",
+            "GET /api/v1/tasks/project/:projectId",
+            "PATCH /api/v1/tasks/:id/status"
+          ],
+          "status": "✅ Implemented (Phase 1)",
+          "dependencies": [
+            "Task model",
+            "Project model",
+            "authMongoose middleware",
+            "Project ownership validation"
+          ]
+        },
+        "feed.js": {
+          "consumes": [
+            "Feed query params",
+            "SSE connection"
+          ],
+          "produces": [
+            "FeedEntry[]",
+            "SSE stream (connected, welcome, ping, message)"
+          ],
+          "apiCalls": [
+            "GET /api/feed?page=1&limit=20",
+            "GET /api/feed/stream (SSE)"
+          ],
+          "status": "✅ Implemented (Legacy)",
+          "dependencies": [
+            "SQLite/PostgreSQL (feed_entries)",
+            "SSE middleware",
+            "Feed controller"
+          ]
+        }
+      },
+      "models": {
+        "User.js": {
+          "consumes": [
+            "Email, password, name",
+            "Registration data"
+          ],
+          "produces": [
+            "User documents",
+            "Password hashes",
+            "JWT payloads"
+          ],
+          "status": "✅ Implemented (Phase 1)",
+          "dependencies": [
+            "mongoose",
+            "bcryptjs"
+          ],
+          "schema": "MongoDB collection: users"
+        },
+        "Project.js": {
+          "consumes": [
+            "Project data (objectives as string/array)",
+            "Owner ID"
+          ],
+          "produces": [
+            "Project documents (objectives as array)",
+            "Creator references"
+          ],
+          "status": "✅ Implemented (Phase 1)",
+          "dependencies": [
+            "mongoose",
+            "User model (owner reference)",
+            "pre-save hook (objectives normalization)"
+          ],
+          "schema": "MongoDB collection: projects",
+          "criticalNote": "Pre-save hook normalizes objectives to array"
+        },
+        "ProjectUpdate.js": {
+          "consumes": [
+            "Update content",
+            "ProjectId",
+            "Author ID"
+          ],
+          "produces": [
+            "ProjectUpdate documents"
+          ],
+          "status": "✅ Implemented (Phase 1)",
+          "dependencies": [
+            "mongoose",
+            "Project model",
+            "User model"
+          ],
+          "schema": "MongoDB collection: projectupdates"
+        },
+        "Task.js": {
+          "consumes": [
+            "Task data",
+            "ProjectId",
+            "Assignee ID (optional)"
+          ],
+          "produces": [
+            "Task documents",
+            "Status updates",
+            "CompletedDate"
+          ],
+          "status": "✅ Implemented (Phase 1)",
+          "dependencies": [
+            "mongoose",
+            "Project model",
+            "User model (assignee)"
+          ],
+          "schema": "MongoDB collection: tasks"
+        }
+      },
+      "middleware": {
+        "authMongoose.js": {
+          "consumes": [
+            "Authorization header (Bearer token)",
+            "JWT token"
+          ],
+          "produces": [
+            "req.user (Mongoose document)",
+            "req.userData (formatted user)"
+          ],
+          "status": "✅ Implemented (Phase 1)",
+          "dependencies": [
+            "jsonwebtoken",
+            "User model",
+            "JWT_SECRET env var"
+          ],
+          "errorCodes": [
+            "NO_TOKEN",
+            "TOKEN_EXPIRED",
+            "INVALID_TOKEN",
+            "AUTH_ERROR"
+          ]
+        }
+      }
+    },
+    "databases": {
+      "MongoDB": {
+        "collections": [
+          "users",
+          "projects",
+          "projectupdates",
+          "tasks"
+        ],
+        "futureCollections": [
+          "notifications",
+          "opportunities",
+          "credits",
+          "badges",
+          "creditactivities",
+          "leaderboardentries",
+          "networkusers",
+          "connections",
+          "connectionrequests",
+          "researchsources",
+          "researchnotes",
+          "datasets",
+          "liveevents",
+          "chatmessages",
+          "recordings",
+          "learningcontent",
+          "deliverables",
+          "reports",
+          "adminstats"
+        ],
+        "status": "✅ Connected (Phase 1)",
+        "connection": "MONGO_URI env var",
+        "library": "mongoose"
+      },
+      "PostgreSQL/SQLite": {
+        "tables": [
+          "users",
+          "projects",
+          "feed_entries",
+          "sessions"
+        ],
+        "status": "✅ Connected (Legacy)",
+        "connection": "DATABASE_URL env var",
+        "library": "knex.js"
+      }
+    },
+    "externalServices": {
+      "Render.com": {
+        "consumes": [
+          "GitHub repository",
+          "Environment variables"
+        ],
+        "produces": [
+          "Backend hosting",
+          "Health checks",
+          "Auto-deploy"
+        ],
+        "status": "✅ Active",
+        "url": "https://ispora-backend.onrender.com"
+      },
+      "Namecheap": {
+        "consumes": [
+          "Frontend build artifacts",
+          "GitHub Actions deploy"
+        ],
+        "produces": [
+          "Frontend hosting",
+          "Static file serving"
+        ],
+        "status": "✅ Active",
+        "url": "https://ispora.app"
+      },
+      "Sentry": {
+        "consumes": [
+          "Error events",
+          "Exception traces"
+        ],
+        "produces": [
+          "Error tracking",
+          "Performance monitoring"
+        ],
+        "status": "⚠️ Optional (configured but not required)",
+        "requires": "SENTRY_DSN env var"
+      }
+    }
+  },
+  "dependencyGraph": {
+    "frontendToBackend": {
+      "CreateProject.tsx": [
+        "POST /api/v1/projects (projectsMongoose.js)"
+      ],
+      "MyProjects.tsx": [
+        "GET /api/v1/projects?mine=true (projectsMongoose.js)",
+        "GET /api/v1/projects/updates?mine=true (projectsMongoose.js)"
+      ],
+      "Dashboard.tsx": [
+        "GET /api/feed (feed.js)",
+        "GET /api/feed/stream (feed.js - SSE)",
+        "POST /api/feed/activity (feed.js)"
+      ],
+      "TaskManager.tsx": [
+        "GET /api/v1/tasks/project/:projectId (tasksMongoose.js)",
+        "POST /api/v1/tasks (tasksMongoose.js)",
+        "PATCH /api/v1/tasks/:id/status (tasksMongoose.js)"
+      ],
+      "NotificationsPage.tsx": [
+        "GET /api/v1/notifications (notifications.js - Phase 2) ❌",
+        "PUT /api/v1/notifications/:id/read (notifications.js - Phase 2) ❌"
+      ],
+      "OpportunitiesPage.tsx": [
+        "GET /api/v1/opportunities (opportunities.js - Phase 2) ❌"
+      ],
+      "CreditsPage.tsx": [
+        "GET /api/v1/credits/overview (credits.js - Phase 3) ❌",
+        "GET /api/v1/credits/badges (credits.js - Phase 3) ❌",
+        "GET /api/v1/credits/leaderboard (credits.js - Phase 3) ❌"
+      ],
+      "MyNetwork.tsx": [
+        "GET /api/v1/network/discovery (network.js - Phase 3) ❌",
+        "POST /api/v1/network/connections/requests (network.js - Phase 3) ❌"
+      ],
+      "AdminDashboard.tsx": [
+        "GET /api/v1/admin/stats (admin.js - Phase 6) ❌",
+        "GET /api/v1/admin/users (admin.js - Phase 6) ❌"
+      ]
+    },
+    "backendToDatabase": {
+      "projectsMongoose.js": [
+        "Project.create() (MongoDB)",
+        "Project.find() (MongoDB)",
+        "ProjectUpdate.find() (MongoDB)"
+      ],
+      "tasksMongoose.js": [
+        "Task.create() (MongoDB)",
+        "Task.find() (MongoDB)",
+        "Task.findByIdAndUpdate() (MongoDB)"
+      ],
+      "feed.js": [
+        "db('feed_entries').select() (SQLite/PostgreSQL)",
+        "db('feed_entries').insert() (SQLite/PostgreSQL)"
+      ]
+    },
+    "dataFlow": {
+      "Project Creation": [
+        "Frontend (CreateProject.tsx)",
+        "→ POST /api/v1/projects",
+        "→ projectsMongoose.js (createProject)",
+        "→ Objectives Normalization (string → array)",
+        "→ Project.create() (MongoDB)",
+        "→ Response (project object)",
+        "→ Frontend (refreshFeed + refreshProjects events)"
+      ],
+      "Feed Updates (SSE)": [
+        "Frontend (FeedService.tsx)",
+        "→ GET /api/feed/stream?token=xxx (EventSource)",
+        "→ feed.js (SSE stream)",
+        "→ db('feed_entries').select() (SQLite/PostgreSQL)",
+        "→ Stream messages (connected, welcome, ping, message)",
+        "→ Frontend (handleRealtimeUpdate)"
+      ],
+      "Task Management": [
+        "Frontend (TaskManager.tsx)",
+        "→ POST /api/v1/tasks",
+        "→ tasksMongoose.js (createTask)",
+        "→ Project ownership validation",
+        "→ Task.create() (MongoDB)",
+        "→ Response (task object)",
+        "→ Frontend (task list update)"
+      ]
+    }
+  }
+}
+
