@@ -26,7 +26,12 @@ jobs:
         run: npm run -s lint || npm run -s lint --if-present || echo "Linting skipped - no config found"
 
       - name: Typecheck frontend (root)
-        run: npm run -s typecheck || npx tsc -p tsconfig.json --noEmit || echo "Typecheck skipped"
+        run: |
+          if [ -f tsconfig.json ] && grep -q '"typescript"' package.json; then
+            npx tsc -p tsconfig.json --noEmit
+          else
+            echo "Typecheck skipped (no tsconfig or no typescript dep)"
+          fi
 
       - name: Build frontend (root)
         run: npm run -s build
@@ -36,10 +41,10 @@ jobs:
 
       - name: Typecheck backend (ts if present)
         run: |
-          if [ -f tsconfig.json ]; then
+          if [ -f tsconfig.json ] && grep -q '"typescript"' package.json; then
             npx tsc -p tsconfig.json --noEmit
           else
-            echo "No TS config in backend"
+            echo "No TS config/typescript in backend, skipping typecheck"
           fi
 
       - name: Build backend
