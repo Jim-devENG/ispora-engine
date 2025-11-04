@@ -4,11 +4,16 @@ on:
   push:
     branches: [ main, backend-rebuild/* ]
     paths:
-      - 'iSpora-backend/**'
+      - 'src/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'render.yaml'
   pull_request:
     branches: [ main ]
     paths:
-      - 'iSpora-backend/**'
+      - 'src/**'
+      - 'package.json'
+      - 'package-lock.json'
 
 jobs:
   test:
@@ -27,33 +32,28 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
-        cache-dependency-path: iSpora-backend/package-lock.json
+        cache-dependency-path: package-lock.json
         
     - name: Install dependencies
-      working-directory: ./iSpora-backend
       run: npm ci
       
     - name: Run database migrations
-      working-directory: ./iSpora-backend
       run: npm run migrate
       env:
         NODE_ENV: test
         
     - name: Run database seeds
-      working-directory: ./iSpora-backend
       run: npm run seed
       env:
         NODE_ENV: test
         
     - name: Run tests
-      working-directory: ./iSpora-backend
       run: npm test
       env:
         NODE_ENV: test
         JWT_SECRET: test-secret-key
         
     - name: Run linting
-      working-directory: ./iSpora-backend
       run: npm run lint
       
     - name: Upload coverage reports
@@ -77,18 +77,15 @@ jobs:
       with:
         node-version: '22.16.0'
         cache: 'npm'
-        cache-dependency-path: iSpora-backend/package-lock.json
+        cache-dependency-path: package-lock.json
         
     - name: Install dependencies
-      working-directory: ./iSpora-backend
       run: npm ci --only=production
       
     - name: Build check
-      working-directory: ./iSpora-backend
       run: node -c src/server.js
       
     - name: Health check
-      working-directory: ./iSpora-backend
       run: |
         npm start &
         sleep 5
