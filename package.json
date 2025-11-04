@@ -8,6 +8,7 @@
     "npm": ">=8.0.0"
   },
   "scripts": {
+    "build": "echo \"No backend build step. Skipping.\"",
     "test:mongodb": "node scripts/test-mongodb.js",
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
