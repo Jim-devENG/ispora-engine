@@ -37,15 +37,15 @@ jobs:
     - name: Install dependencies
       run: npm ci
       
-    - name: Run database migrations
+    - name: Run database migrations (development DB)
       run: npm run migrate
       env:
-        NODE_ENV: test
+        NODE_ENV: development
         
-    - name: Run database seeds
+    - name: Run database seeds (development DB)
       run: npm run seed
       env:
-        NODE_ENV: test
+        NODE_ENV: development
         
     - name: Run tests
       run: npm test
