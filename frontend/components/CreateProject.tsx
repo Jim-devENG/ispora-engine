@@ -449,15 +449,31 @@ export function CreateProject({ onBack, onSave }: CreateProjectProps) {
         }))
       };
       
-      // Try Supabase first, fallback to legacy API
+      // Try Supabase first
       let createdProject;
       try {
         const { createProject } = await import('../src/utils/supabaseMutations');
         createdProject = await createProject(projectData);
-      } catch (supabaseError) {
-        console.warn('Supabase mutation failed, trying legacy API:', supabaseError);
-        // Fallback to legacy API during migration
-        createdProject = await projectAPI.createProject(projectData);
+      } catch (supabaseError: any) {
+        console.error('Supabase project creation failed:', supabaseError);
+        
+        // Provide helpful error messages
+        let errorMessage = 'Failed to create project. ';
+        
+        if (supabaseError?.message?.includes('Not authenticated')) {
+          errorMessage += 'Please log in to create a project.';
+        } else if (supabaseError?.message?.includes('Unexpected token')) {
+          errorMessage += 'Supabase configuration error. Please check your Supabase URL and API key in environment variables.';
+        } else if (supabaseError?.code === 'PGRST116' || supabaseError?.message?.includes('permission denied')) {
+          errorMessage += 'Permission denied. Please check your Supabase Row Level Security (RLS) policies.';
+        } else if (supabaseError?.message) {
+          errorMessage += supabaseError.message;
+        } else {
+          errorMessage += 'Please check your Supabase configuration and try again.';
+        }
+        
+        toast.error(errorMessage);
+        throw new Error(errorMessage);
       }
       
       toast.success(isDraft ? 'Project draft saved successfully!' : 'Project created successfully!');
