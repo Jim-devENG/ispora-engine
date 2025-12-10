@@ -4,6 +4,16 @@
 
 import { supabase } from './supabaseClient';
 import { getCurrentUser } from './auth';
+import type { User } from '@supabase/supabase-js';
+
+// Helper to get authenticated user (throws if not authenticated)
+async function requireAuth(): Promise<User> {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session || !session.user) {
+    throw new Error('Not authenticated. Please log in.');
+  }
+  return session.user;
+}
 
 // Helper to validate UUID format (basic check)
 function isValidUUID(id: string | undefined | null): boolean {
@@ -32,10 +42,7 @@ function validateProjectId(projectId: string | undefined | null): string {
  * Create a new project
  */
 export async function createProject(projectData: any) {
-  const { user, error: authError } = await getCurrentUser();
-  if (authError || !user) {
-    throw new Error(authError?.message || 'Not authenticated. Please log in to create a project.');
-  }
+  const user = await requireAuth();
 
   // Map frontend format to Supabase schema
   const { data, error } = await supabase
@@ -100,10 +107,7 @@ export async function createProject(projectData: any) {
  * Update a project
  */
 export async function updateProject(projectId: string, updates: any) {
-  const { user, error: authError } = await getCurrentUser();
-  if (authError || !user) {
-    throw new Error(authError?.message || 'Not authenticated');
-  }
+  const user = await requireAuth();
 
   // Map frontend format to Supabase schema
   const updateData: any = {
@@ -164,10 +168,7 @@ export async function updateProject(projectId: string, updates: any) {
  * Join a project
  */
 export async function joinProject(projectId: string, data: { role: string; area: string }) {
-  const { user, error: authError } = await getCurrentUser();
-  if (authError || !user) {
-    throw new Error(authError?.message || 'Not authenticated');
-  }
+  const user = await requireAuth();
 
   // Get current project to update team members
   const { data: project, error: projectError } = await supabase
@@ -227,10 +228,7 @@ export async function joinProject(projectId: string, data: { role: string; area:
  * Create a task
  */
 export async function createTask(projectId: string, taskData: any) {
-  const { user, error: authError } = await getCurrentUser();
-  if (authError || !user) {
-    throw new Error(authError?.message || 'Not authenticated');
-  }
+  const user = await requireAuth();
 
   const { data, error } = await supabase
     .from('tasks')
@@ -276,10 +274,7 @@ export async function createTask(projectId: string, taskData: any) {
  * Update a task
  */
 export async function updateTask(projectId: string, taskId: string, updates: any) {
-  const { user, error: authError } = await getCurrentUser();
-  if (authError || !user) {
-    throw new Error(authError?.message || 'Not authenticated');
-  }
+  const user = await requireAuth();
 
   const updateData: any = {
     updated_at: new Date().toISOString(),
@@ -332,10 +327,7 @@ export async function updateTask(projectId: string, taskId: string, updates: any
  * Delete a task
  */
 export async function deleteTask(projectId: string, taskId: string) {
-  const { user, error: authError } = await getCurrentUser();
-  if (authError || !user) {
-    throw new Error(authError?.message || 'Not authenticated');
-  }
+  const user = await requireAuth();
 
   const validProjectId = validateProjectId(projectId);
   const { error } = await supabase
@@ -360,10 +352,7 @@ export async function deleteTask(projectId: string, taskId: string) {
  * Create a session
  */
 export async function createSession(projectId: string, sessionData: any) {
-  const { user, error: authError } = await getCurrentUser();
-  if (authError || !user) {
-    throw new Error(authError?.message || 'Not authenticated');
-  }
+  const user = await requireAuth();
 
   const { data, error } = await supabase
     .from('sessions')
@@ -420,10 +409,7 @@ export async function createSession(projectId: string, sessionData: any) {
  * Update a session
  */
 export async function updateSession(projectId: string, sessionId: string, updates: any) {
-  const { user, error: authError } = await getCurrentUser();
-  if (authError || !user) {
-    throw new Error(authError?.message || 'Not authenticated');
-  }
+  const user = await requireAuth();
 
   const updateData: any = {
     updated_at: new Date().toISOString(),
@@ -484,10 +470,7 @@ export async function updateSession(projectId: string, sessionId: string, update
  * Delete a session
  */
 export async function deleteSession(projectId: string, sessionId: string) {
-  const { user, error: authError } = await getCurrentUser();
-  if (authError || !user) {
-    throw new Error(authError?.message || 'Not authenticated');
-  }
+  const user = await requireAuth();
 
   const validProjectId = validateProjectId(projectId);
   const { error } = await supabase
@@ -512,10 +495,7 @@ export async function deleteSession(projectId: string, sessionId: string) {
  * Create a message
  */
 export async function createMessage(projectId: string, messageData: any) {
-  const { user, error: authError } = await getCurrentUser();
-  if (authError || !user) {
-    throw new Error(authError?.message || 'Not authenticated');
-  }
+  const user = await requireAuth();
 
   const { data, error } = await supabase
     .from('messages')
@@ -569,10 +549,7 @@ export async function createMessage(projectId: string, messageData: any) {
  * Create a voice note
  */
 export async function createVoiceNote(projectId: string, noteData: any) {
-  const { user, error: authError } = await getCurrentUser();
-  if (authError || !user) {
-    throw new Error(authError?.message || 'Not authenticated');
-  }
+  const user = await requireAuth();
 
   const { data, error } = await supabase
     .from('voice_notes')
@@ -615,10 +592,7 @@ export async function createVoiceNote(projectId: string, noteData: any) {
  * Create a stakeholder
  */
 export async function createStakeholder(projectId: string, stakeholderData: any) {
-  const { user, error: authError } = await getCurrentUser();
-  if (authError || !user) {
-    throw new Error(authError?.message || 'Not authenticated');
-  }
+  const user = await requireAuth();
 
   const { data, error } = await supabase
     .from('stakeholders')
@@ -664,10 +638,7 @@ export async function createStakeholder(projectId: string, stakeholderData: any)
  * Update a stakeholder
  */
 export async function updateStakeholder(projectId: string, stakeholderId: string, updates: any) {
-  const { user, error: authError } = await getCurrentUser();
-  if (authError || !user) {
-    throw new Error(authError?.message || 'Not authenticated');
-  }
+  const user = await requireAuth();
 
   const updateData: any = {
     updated_at: new Date().toISOString(),
@@ -723,10 +694,7 @@ export async function updateStakeholder(projectId: string, stakeholderId: string
  * Create an impact story
  */
 export async function createImpactStory(projectId: string, storyData: any) {
-  const { user, error: authError } = await getCurrentUser();
-  if (authError || !user) {
-    throw new Error(authError?.message || 'Not authenticated');
-  }
+  const user = await requireAuth();
 
   const { data, error } = await supabase
     .from('impact_stories')
@@ -782,10 +750,7 @@ export async function createImpactStory(projectId: string, storyData: any) {
  * Create a community event
  */
 export async function createCommunityEvent(projectId: string, eventData: any) {
-  const { user, error: authError } = await getCurrentUser();
-  if (authError || !user) {
-    throw new Error(authError?.message || 'Not authenticated');
-  }
+  const user = await requireAuth();
 
   const { data, error } = await supabase
     .from('community_events')
@@ -837,10 +802,7 @@ export async function createCommunityEvent(projectId: string, eventData: any) {
  * Create an idea
  */
 export async function createIdea(projectId: string, ideaData: any) {
-  const { user, error: authError } = await getCurrentUser();
-  if (authError || !user) {
-    throw new Error(authError?.message || 'Not authenticated');
-  }
+  const user = await requireAuth();
 
   const { data, error } = await supabase
     .from('ideas')
@@ -898,10 +860,7 @@ export async function createIdea(projectId: string, ideaData: any) {
  * Update an idea
  */
 export async function updateIdea(projectId: string, ideaId: string, updates: any) {
-  const { user, error: authError } = await getCurrentUser();
-  if (authError || !user) {
-    throw new Error(authError?.message || 'Not authenticated');
-  }
+  const user = await requireAuth();
 
   const updateData: any = {
     updated_at: new Date().toISOString(),
@@ -962,10 +921,7 @@ export async function updateIdea(projectId: string, ideaId: string, updates: any
  * Create a co-creation room
  */
 export async function createCoCreationRoom(projectId: string, roomData: any) {
-  const { user, error: authError } = await getCurrentUser();
-  if (authError || !user) {
-    throw new Error(authError?.message || 'Not authenticated');
-  }
+  const user = await requireAuth();
 
   const { data, error } = await supabase
     .from('co_creation_rooms')
@@ -1005,10 +961,7 @@ export async function createCoCreationRoom(projectId: string, roomData: any) {
  * Create a research source
  */
 export async function createResearchSource(projectId: string, sourceData: any) {
-  const { user, error: authError } = await getCurrentUser();
-  if (authError || !user) {
-    throw new Error(authError?.message || 'Not authenticated');
-  }
+  const user = await requireAuth();
 
   const { data, error } = await supabase
     .from('research_sources')
@@ -1060,10 +1013,7 @@ export async function createResearchSource(projectId: string, sourceData: any) {
  * Update a research source
  */
 export async function updateResearchSource(projectId: string, sourceId: string, updates: any) {
-  const { user, error: authError } = await getCurrentUser();
-  if (authError || !user) {
-    throw new Error(authError?.message || 'Not authenticated');
-  }
+  const user = await requireAuth();
 
   const updateData: any = {
     updated_at: new Date().toISOString(),
@@ -1119,10 +1069,7 @@ export async function updateResearchSource(projectId: string, sourceId: string, 
  * Delete a research source
  */
 export async function deleteResearchSource(projectId: string, sourceId: string) {
-  const { user, error: authError } = await getCurrentUser();
-  if (authError || !user) {
-    throw new Error(authError?.message || 'Not authenticated');
-  }
+  const user = await requireAuth();
 
   const { error } = await supabase
     .from('research_sources')
@@ -1146,10 +1093,7 @@ export async function deleteResearchSource(projectId: string, sourceId: string) 
  * Create a research note
  */
 export async function createResearchNote(projectId: string, noteData: any) {
-  const { user, error: authError } = await getCurrentUser();
-  if (authError || !user) {
-    throw new Error(authError?.message || 'Not authenticated');
-  }
+  const user = await requireAuth();
 
   const { data, error } = await supabase
     .from('research_notes')
@@ -1191,10 +1135,7 @@ export async function createResearchNote(projectId: string, noteData: any) {
  * Update a research note
  */
 export async function updateResearchNote(projectId: string, noteId: string, updates: any) {
-  const { user, error: authError } = await getCurrentUser();
-  if (authError || !user) {
-    throw new Error(authError?.message || 'Not authenticated');
-  }
+  const user = await requireAuth();
 
   const updateData: any = {
     updated_at: new Date().toISOString(),

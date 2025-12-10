@@ -460,8 +460,12 @@ export function CreateProject({ onBack, onSave }: CreateProjectProps) {
         // Provide helpful error messages
         let errorMessage = 'Failed to create project. ';
         
-        if (supabaseError?.message?.includes('Not authenticated')) {
-          errorMessage += 'Please log in to create a project.';
+        if (supabaseError?.message?.includes('Not authenticated') || supabaseError?.message?.includes('Auth session missing')) {
+          errorMessage += 'Please log in to create a project. You will be redirected to the login page.';
+          // Redirect to login after a short delay
+          setTimeout(() => {
+            window.location.reload();
+          }, 2000);
         } else if (supabaseError?.message?.includes('Unexpected token')) {
           errorMessage += 'Supabase configuration error. Please check your Supabase URL and API key in environment variables.';
         } else if (supabaseError?.code === 'PGRST116' || supabaseError?.message?.includes('permission denied')) {

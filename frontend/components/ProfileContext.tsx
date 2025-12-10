@@ -374,15 +374,17 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const loadProfile = async () => {
       try {
-        // Get current Supabase user
-        const { user, error: userError } = await getCurrentUser();
+        // Check for session first (more reliable than getUser)
+        const { data: { session } } = await supabase.auth.getSession();
         
-        if (userError || !user) {
+        if (!session || !session.user) {
           // Not authenticated - reset to default profile
           setProfile(defaultProfile);
           setOriginalProfile(defaultProfile);
           return;
         }
+
+        const user = session.user;
 
         // Load profile from Supabase profiles table
         const { data: profileData, error: profileError } = await supabase

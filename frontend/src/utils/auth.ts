@@ -49,7 +49,8 @@ export async function register(data: RegisterData): Promise<{ user: User | null;
     }
 
     // Create profile in profiles table
-    // Note: Supabase triggers can handle this automatically, but we'll do it explicitly for now
+    // Note: The trigger (002_create_profile_trigger.sql) should create this automatically
+    // But we'll try to create it explicitly, and ignore 409 conflicts (profile already exists)
     const { error: profileError } = await supabase
       .from('profiles')
       .insert({
@@ -85,8 +86,13 @@ export async function register(data: RegisterData): Promise<{ user: User | null;
       });
 
     if (profileError) {
-      console.error('Error creating profile:', profileError);
-      // Don't fail registration if profile creation fails - user can update it later
+      // 409 Conflict means profile already exists (created by trigger) - this is fine
+      if (profileError.code === '23505' || profileError.message?.includes('duplicate') || profileError.message?.includes('409')) {
+        console.log('Profile already exists (created by trigger) - this is expected');
+      } else {
+        console.error('Error creating profile:', profileError);
+        // Don't fail registration if profile creation fails - user can update it later
+      }
     }
 
     return { user: authData.user, error: null };
@@ -137,10 +143,24 @@ export async function getSession() {
 
 /**
  * Get current user
+ * Returns null user if no session exists (doesn't throw error)
  */
 export async function getCurrentUser() {
-  const { data: { user }, error } = await supabase.auth.getUser();
-  return { user, error };
+  try {
+    // First check if we have a session
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    
+    if (sessionError || !session) {
+      return { user: null, error: null }; // No session, but not an error
+    }
+
+    // If we have a session, get the user
+    const { data: { user }, error } = await supabase.auth.getUser();
+    return { user, error };
+  } catch (error: any) {
+    // Handle any unexpected errors gracefully
+    return { user: null, error: error };
+  }
 }
 
 /**

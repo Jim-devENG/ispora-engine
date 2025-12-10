@@ -560,7 +560,7 @@ INSERT INTO projects (
   'research',
   'research',
   'Test University',
-  '<YOUR_USER_ID>',  -- Replace with your user UUID
+  'test@example.com',  -- Replace with your user UUID
   'Test User',
   true,
   'research'

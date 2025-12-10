@@ -37,12 +37,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const checkSession = async () => {
     try {
-      const { user: currentUser, error } = await getCurrentUser();
-      if (error) {
-        console.error('Error checking session:', error);
+      // Use getSession instead of getUser for initial check (less strict)
+      const { data: { session }, error } = await supabase.auth.getSession();
+      
+      if (error || !session) {
         setUser(null);
       } else {
-        setUser(currentUser);
+        setUser(session.user);
       }
     } catch (error) {
       console.error('Error checking session:', error);
