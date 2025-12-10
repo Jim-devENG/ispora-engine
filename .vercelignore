@@ -1,0 +1,8 @@
+# Ignore backend and other non-frontend files
+backend/
+node_modules/
+*.md
+!README.md
+supabase/
+dist/
+
