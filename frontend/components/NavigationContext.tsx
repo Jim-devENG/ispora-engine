@@ -40,7 +40,9 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
     if (params) {
       setNavigationParams(params);
     }
-    console.log(`Navigating to ${item}`, params);
+    if (import.meta.env.DEV) {
+      console.log(`Navigating to ${item}`, params);
+    }
   };
 
   const navigateToCampaign = (campaign: any) => {
@@ -114,7 +116,7 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
     // Store additional navigation options in context
     setNavigationOptions(options || {});
     
-    if (import.meta.env.DEV) {
+    if (import.meta.env.DEV && projectId) {
       console.log(`Navigating to workroom for project: ${projectId}`, options);
     }
   };

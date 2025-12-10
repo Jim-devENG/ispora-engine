@@ -189,7 +189,7 @@ const mockProjects: Project[] = [
 const mockUpdates: Update[] = [
   {
     id: "1",
-    projectId: "1",
+    projectId: "", // Will be set dynamically from actual project
     type: "milestone",
     title: "Completed Module 3: Bias in AI Systems",
     content: "Successfully completed the third module of our AI Ethics curriculum focusing on identifying and mitigating bias in AI systems. 45 mentor-mentee pairs participated in intensive workshops.",

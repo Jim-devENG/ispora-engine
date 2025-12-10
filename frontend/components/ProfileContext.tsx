@@ -1,8 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '../src/utils/supabaseClient';
 import { getCurrentUser, onAuthStateChange } from '../src/utils/auth';
-// Legacy API import - will be removed after full migration
-import { userAPI } from '../src/utils/api';
 
 // Extended profile interface that matches MyNetwork user structure
 export interface UserProfile {
@@ -353,20 +351,15 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
         localStorage.setItem('userProfile', JSON.stringify(mappedProfile));
       }
     } catch (error) {
-      console.error('Error saving profile:', error);
-      // Fallback: try legacy API
-      try {
-        const updated = await userAPI.updateProfile(profile);
-        setProfile(updated);
-        setOriginalProfile(updated);
-        setIsEditing(false);
-        localStorage.setItem('userProfile', JSON.stringify(updated));
-      } catch (legacyError) {
-        console.error('Legacy API also failed:', legacyError);
-        // Final fallback: just save to localStorage
-        setOriginalProfile(profile);
-        setIsEditing(false);
-        localStorage.setItem('userProfile', JSON.stringify(profile));
+      console.error('Error saving profile to Supabase:', error);
+      // Fallback: save to localStorage only
+      // TODO: REMOVE_AFTER_SUPABASE_MIGRATION - Remove localStorage fallback once Supabase is fully stable
+      setOriginalProfile(profile);
+      setIsEditing(false);
+      localStorage.setItem('userProfile', JSON.stringify(profile));
+      // Show error toast to user
+      if (error instanceof Error) {
+        console.error('Supabase profile update failed:', error.message);
       }
     }
   };

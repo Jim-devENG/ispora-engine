@@ -501,8 +501,7 @@ export function ProjectWorkspace({
     }
   };
 
-  // TODO (Supabase migration): Re-enable Supabase-based queries AFTER backend Workroom is 100% stable.
-  // Load project from backend API on mount
+  // Load project from Supabase on mount
   React.useEffect(() => {
     const loadProject = async () => {
       setIsLoadingProject(true);
@@ -510,8 +509,11 @@ export function ProjectWorkspace({
         const projectId = initialProjectId || contextSelectedProject?.id;
         
         if (!projectId) {
-          console.error('No project ID provided to ProjectWorkspace');
+          console.warn('No project ID provided to ProjectWorkspace. Redirecting to Project Dashboard.');
           setIsLoadingProject(false);
+          // Redirect to Project Dashboard if no project selected
+          const { useNavigation } = await import('./NavigationContext');
+          // This will be handled by the parent component
           return;
         }
 
@@ -522,9 +524,9 @@ export function ProjectWorkspace({
           return;
         }
 
-        // Load project from backend API
-        const { projectAPI } = await import('../src/utils/api');
-        const project = await projectAPI.getProject(projectId);
+        // Load project from Supabase
+        const { getProject } = await import('../src/utils/supabaseQueries');
+        const project = await getProject(projectId);
         
         if (!project) {
           console.error(`Project ${projectId} not found`);
@@ -532,14 +534,14 @@ export function ProjectWorkspace({
           return;
         }
 
-        // Transform backend project to ProjectWorkspace format
+        // Transform Supabase project to ProjectWorkspace format
         const transformedProject: Project = {
           id: project.id,
           title: project.title,
-          type: (project.type || project.category || 'research') as Project['type'],
+          type: (project.projectType || project.category || 'research') as Project['type'],
           description: project.description || '',
           status: project.status === 'active' ? 'active' : project.status === 'closed' ? 'completed' : 'planning',
-          members: (project.team || project.members || []).map((m: any) => ({
+          members: (project.teamMembers || project.team || []).map((m: any) => ({
             id: m.id || m.userId || '',
             name: m.name || m.userName || '',
             avatar: m.avatar || m.avatarUrl,
