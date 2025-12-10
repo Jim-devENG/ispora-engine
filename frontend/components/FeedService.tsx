@@ -1286,9 +1286,12 @@ export function useFeedService() {
       
       // Cleanup Supabase Realtime channels
       if (realtimeChannels.length > 0) {
-        const { unsubscribeAll } = await import('../src/utils/supabaseRealtime');
-        unsubscribeAll(realtimeChannels);
-        realtimeChannels = [];
+        import('../src/utils/supabaseRealtime').then(({ unsubscribeAll }) => {
+          unsubscribeAll(realtimeChannels);
+          realtimeChannels = [];
+        }).catch(() => {
+          // Ignore errors during cleanup
+        });
       }
     };
   }, [feedService]);
