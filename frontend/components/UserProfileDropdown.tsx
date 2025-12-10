@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { useNavigation } from "./NavigationContext";
 import { useAuth } from "./AuthContext";
+import { useProfile } from "./ProfileContext";
 
 interface UserProfileDropdownProps {
   isCollapsed?: boolean;
@@ -30,6 +31,15 @@ interface UserProfileDropdownProps {
 export function UserProfileDropdown({ isCollapsed = false }: UserProfileDropdownProps) {
   const { navigate } = useNavigation();
   const { logout, user } = useAuth();
+  const { profile } = useProfile();
+
+  // Get user display info from profile or auth user
+  const displayName = profile?.name || `${profile?.firstName || ''} ${profile?.lastName || ''}`.trim() || user?.email?.split('@')[0] || 'User';
+  const displayEmail = profile?.email || user?.email || '';
+  const initials = profile?.firstName && profile?.lastName 
+    ? `${profile.firstName[0]}${profile.lastName[0]}`.toUpperCase()
+    : displayName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || 'U';
+  const avatarUrl = profile?.avatar || user?.user_metadata?.avatar_url;
 
   const handleMenuAction = async (action: string) => {
     switch (action) {
@@ -72,8 +82,8 @@ export function UserProfileDropdown({ isCollapsed = false }: UserProfileDropdown
               <div className="flex justify-center">
                 <button className="relative h-8 w-8 p-0 hover:bg-[#021ff6]/10 rounded-full transition-all duration-200 transform hover:scale-110 active:scale-95">
                   <Avatar className="h-7 w-7 transition-all duration-200 ring-2 ring-transparent hover:ring-[#021ff6]/20">
-                    <AvatarImage src="/api/placeholder/40/40" />
-                    <AvatarFallback className="bg-[#021ff6] text-white text-xs font-medium transition-all duration-200">JD</AvatarFallback>
+                    <AvatarImage src={avatarUrl} />
+                    <AvatarFallback className="bg-[#021ff6] text-white text-xs font-medium transition-all duration-200">{initials}</AvatarFallback>
                   </Avatar>
                   <ChevronDown className="absolute -bottom-0.5 -right-0.5 h-3 w-3 text-gray-600 bg-white rounded-full p-0.5 border border-gray-200 shadow-sm" />
                 </button>
@@ -81,7 +91,7 @@ export function UserProfileDropdown({ isCollapsed = false }: UserProfileDropdown
             </DropdownMenuTrigger>
           </TooltipTrigger>
           <TooltipContent side="right" className="font-medium">
-            <span className="text-xs">John Doe • john.doe@aspora.co</span>
+            <span className="text-xs">{displayName} • {displayEmail}</span>
           </TooltipContent>
         </Tooltip>
         <DropdownMenuContent 
@@ -94,12 +104,12 @@ export function UserProfileDropdown({ isCollapsed = false }: UserProfileDropdown
           <div className="p-5 bg-gradient-to-br from-gray-50 to-white border-b border-gray-100">
             <div className="flex items-center space-x-3">
               <Avatar className="h-10 w-10 ring-2 ring-[#021ff6]/10">
-                <AvatarImage src="/api/placeholder/40/40" />
-                <AvatarFallback className="bg-[#021ff6] text-white font-semibold">JD</AvatarFallback>
+                <AvatarImage src={avatarUrl} />
+                <AvatarFallback className="bg-[#021ff6] text-white font-semibold">{initials}</AvatarFallback>
               </Avatar>
               <div>
-                <p className="font-semibold text-gray-900 text-sm">John Doe</p>
-                <p className="text-xs text-gray-500">john.doe@aspora.co</p>
+                <p className="font-semibold text-gray-900 text-sm">{displayName}</p>
+                <p className="text-xs text-gray-500">{displayEmail}</p>
               </div>
             </div>
           </div>
@@ -178,12 +188,12 @@ export function UserProfileDropdown({ isCollapsed = false }: UserProfileDropdown
       <DropdownMenuTrigger asChild>
         <button className="flex items-center space-x-3 p-3 w-full hover:bg-[#021ff6]/10 rounded-xl transition-all duration-200 group transform hover:scale-[1.01] active:scale-[0.99] border border-transparent hover:border-[#021ff6]/10">
           <Avatar className="h-9 w-9 transition-all duration-200 group-hover:scale-105 ring-2 ring-transparent group-hover:ring-[#021ff6]/20">
-            <AvatarImage src="/api/placeholder/40/40" />
-            <AvatarFallback className="bg-[#021ff6] text-white text-sm font-semibold transition-all duration-200">JD</AvatarFallback>
+            <AvatarImage src={avatarUrl} />
+            <AvatarFallback className="bg-[#021ff6] text-white text-sm font-semibold transition-all duration-200">{initials}</AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0 text-left">
-            <p className="text-sm font-semibold text-gray-800 group-hover:text-[#021ff6] truncate transition-all duration-200">John Doe</p>
-            <p className="text-xs text-gray-500 truncate transition-all duration-200">john.doe@aspora.co</p>
+            <p className="text-sm font-semibold text-gray-800 group-hover:text-[#021ff6] truncate transition-all duration-200">{displayName}</p>
+            <p className="text-xs text-gray-500 truncate transition-all duration-200">{displayEmail}</p>
           </div>
           <ChevronDown className="h-4 w-4 text-gray-400 group-hover:text-[#021ff6] transition-all duration-200 transform group-hover:rotate-180" />
         </button>

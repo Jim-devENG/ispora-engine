@@ -112,6 +112,15 @@ export async function login(data: LoginData): Promise<{ user: User | null; error
     });
 
     if (error) {
+      // Handle email confirmation error specifically
+      if (error.message?.toLowerCase().includes('email not confirmed') || 
+          error.message?.toLowerCase().includes('email_not_confirmed') ||
+          error.message?.toLowerCase().includes('not confirmed')) {
+        return { 
+          user: null, 
+          error: new Error('Please confirm your email address before logging in. Check your inbox for the confirmation email, or disable email confirmation in Supabase settings for development.') 
+        };
+      }
       return { user: null, error };
     }
 
