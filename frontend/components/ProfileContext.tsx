@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '../src/utils/supabaseClient';
 import { getCurrentUser, onAuthStateChange } from '../src/utils/auth';
+import { useAuth } from './AuthContext';
 
 // Extended profile interface that matches MyNetwork user structure
 export interface UserProfile {
@@ -377,17 +378,9 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
         const { user, error: userError } = await getCurrentUser();
         
         if (userError || !user) {
-          // Not authenticated with Supabase - use localStorage fallback only
-          const savedProfile = localStorage.getItem('userProfile');
-          if (savedProfile) {
-            try {
-              const parsedProfile = JSON.parse(savedProfile);
-              setProfile(parsedProfile);
-              setOriginalProfile(parsedProfile);
-            } catch (parseError) {
-              console.error('Error loading saved profile:', parseError);
-            }
-          }
+          // Not authenticated - reset to default profile
+          setProfile(defaultProfile);
+          setOriginalProfile(defaultProfile);
           return;
         }
 
@@ -492,7 +485,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
     loadProfile();
 
     // Listen to auth state changes
-    const { data: { subscription } } = onAuthStateChange((user) => {
+    const subscription = onAuthStateChange((user) => {
       if (user) {
         // User logged in - reload profile
         loadProfile();

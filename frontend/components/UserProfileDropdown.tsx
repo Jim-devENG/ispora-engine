@@ -21,6 +21,7 @@ import {
   ChevronDown
 } from "lucide-react";
 import { useNavigation } from "./NavigationContext";
+import { useAuth } from "./AuthContext";
 
 interface UserProfileDropdownProps {
   isCollapsed?: boolean;
@@ -28,8 +29,9 @@ interface UserProfileDropdownProps {
 
 export function UserProfileDropdown({ isCollapsed = false }: UserProfileDropdownProps) {
   const { navigate } = useNavigation();
+  const { logout, user } = useAuth();
 
-  const handleMenuAction = (action: string) => {
+  const handleMenuAction = async (action: string) => {
     switch (action) {
       case 'profile':
         navigate('Profile');
@@ -50,12 +52,9 @@ export function UserProfileDropdown({ isCollapsed = false }: UserProfileDropdown
         navigate('Help & Support');
         break;
       case 'logout':
-        // Handle logout - in a real app this would clear auth tokens, etc.
-        console.log('Logging out...');
-        // You could redirect to login page or show a confirmation dialog
         if (confirm('Are you sure you want to log out?')) {
-          // Perform logout logic here
-          window.location.reload(); // Simple reload for demo
+          await logout();
+          // AuthContext will handle the redirect
         }
         break;
       default:
