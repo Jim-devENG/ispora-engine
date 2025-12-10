@@ -283,7 +283,7 @@ interface ProjectMemberModalProps {
 }
 
 export function ProjectMemberModal({ 
-  projectId = "1", 
+  projectId, 
   trigger,
   open,
   onOpenChange,

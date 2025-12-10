@@ -5,6 +5,25 @@
 import { supabase } from './supabaseClient';
 import type { Database } from '../types/supabase';
 
+// Helper to validate UUID format (basic check)
+function isValidUUID(id: string | undefined | null): boolean {
+  if (!id) return false;
+  // UUID v4 format: xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(id);
+}
+
+// Helper to validate projectId before querying
+function validateProjectId(projectId: string | undefined | null): string {
+  if (!projectId) {
+    throw new Error('Project ID is required');
+  }
+  if (!isValidUUID(projectId)) {
+    throw new Error(`Invalid project ID format: ${projectId}. Expected UUID.`);
+  }
+  return projectId;
+}
+
 // ============================================================================
 // PROJECTS
 // ============================================================================
@@ -246,10 +265,11 @@ export async function getFeedStats() {
  * Get tasks for a project
  */
 export async function getProjectTasks(projectId: string) {
+  const validProjectId = validateProjectId(projectId);
   const { data, error } = await supabase
     .from('tasks')
     .select('*')
-    .eq('project_id', projectId)
+    .eq('project_id', validProjectId)
     .order('created_at', { ascending: false });
 
   if (error) {
@@ -285,10 +305,11 @@ export async function getProjectTasks(projectId: string) {
  * Get sessions for a project
  */
 export async function getProjectSessions(projectId: string) {
+  const validProjectId = validateProjectId(projectId);
   const { data, error } = await supabase
     .from('sessions')
     .select('*')
-    .eq('project_id', projectId)
+    .eq('project_id', validProjectId)
     .order('scheduled_date', { ascending: true });
 
   if (error) {
@@ -329,10 +350,11 @@ export async function getProjectSessions(projectId: string) {
  * Get messages for a project
  */
 export async function getProjectMessages(projectId: string) {
+  const validProjectId = validateProjectId(projectId);
   const { data, error } = await supabase
     .from('messages')
     .select('*')
-    .eq('project_id', projectId)
+    .eq('project_id', validProjectId)
     .order('timestamp', { ascending: false });
 
   if (error) {
@@ -369,10 +391,11 @@ export async function getProjectMessages(projectId: string) {
  * Get voice notes for a project
  */
 export async function getProjectVoiceNotes(projectId: string) {
+  const validProjectId = validateProjectId(projectId);
   const { data, error } = await supabase
     .from('voice_notes')
     .select('*')
-    .eq('project_id', projectId)
+    .eq('project_id', validProjectId)
     .order('timestamp', { ascending: false });
 
   if (error) {
@@ -403,10 +426,11 @@ export async function getProjectVoiceNotes(projectId: string) {
  * Get learning content for a project
  */
 export async function getProjectLearningContent(projectId: string) {
+  const validProjectId = validateProjectId(projectId);
   const { data, error } = await supabase
     .from('learning_content')
     .select('*')
-    .eq('project_id', projectId)
+    .eq('project_id', validProjectId)
     .order('upload_date', { ascending: false });
 
   if (error) {
@@ -445,10 +469,11 @@ export async function getProjectLearningContent(projectId: string) {
  * Get deliverables for a project
  */
 export async function getProjectDeliverables(projectId: string) {
+  const validProjectId = validateProjectId(projectId);
   const { data, error } = await supabase
     .from('deliverables')
     .select('*')
-    .eq('project_id', projectId)
+    .eq('project_id', validProjectId)
     .order('submitted_date', { ascending: false });
 
   if (error) {
@@ -483,10 +508,11 @@ export async function getProjectDeliverables(projectId: string) {
  * Get milestones for a project
  */
 export async function getProjectMilestones(projectId: string) {
+  const validProjectId = validateProjectId(projectId);
   const { data, error } = await supabase
     .from('milestones')
     .select('*')
-    .eq('project_id', projectId)
+    .eq('project_id', validProjectId)
     .order('due_date', { ascending: true });
 
   if (error) {
@@ -517,10 +543,11 @@ export async function getProjectMilestones(projectId: string) {
  * Get research sources for a project
  */
 export async function getProjectResearchSources(projectId: string) {
+  const validProjectId = validateProjectId(projectId);
   const { data, error } = await supabase
     .from('research_sources')
     .select('*')
-    .eq('project_id', projectId)
+    .eq('project_id', validProjectId)
     .order('added_date', { ascending: false });
 
   if (error) {
@@ -554,10 +581,11 @@ export async function getProjectResearchSources(projectId: string) {
  * Get research notes for a project
  */
 export async function getProjectResearchNotes(projectId: string) {
+  const validProjectId = validateProjectId(projectId);
   const { data, error } = await supabase
     .from('research_notes')
     .select('*')
-    .eq('project_id', projectId)
+    .eq('project_id', validProjectId)
     .order('created_date', { ascending: false });
 
   if (error) {
@@ -586,10 +614,11 @@ export async function getProjectResearchNotes(projectId: string) {
  * Get data sets for a project
  */
 export async function getProjectDataSets(projectId: string) {
+  const validProjectId = validateProjectId(projectId);
   const { data, error } = await supabase
     .from('data_sets')
     .select('*')
-    .eq('project_id', projectId)
+    .eq('project_id', validProjectId)
     .order('uploaded_date', { ascending: false });
 
   if (error) {
@@ -623,10 +652,11 @@ export async function getProjectDataSets(projectId: string) {
  * Get stakeholders for a project
  */
 export async function getProjectStakeholders(projectId: string) {
+  const validProjectId = validateProjectId(projectId);
   const { data, error } = await supabase
     .from('stakeholders')
     .select('*')
-    .eq('project_id', projectId)
+    .eq('project_id', validProjectId)
     .order('created_at', { ascending: false });
 
   if (error) {
@@ -657,10 +687,11 @@ export async function getProjectStakeholders(projectId: string) {
  * Get impact stories for a project
  */
 export async function getProjectImpactStories(projectId: string) {
+  const validProjectId = validateProjectId(projectId);
   const { data, error } = await supabase
     .from('impact_stories')
     .select('*')
-    .eq('project_id', projectId)
+    .eq('project_id', validProjectId)
     .order('date', { ascending: false });
 
   if (error) {
@@ -694,10 +725,11 @@ export async function getProjectImpactStories(projectId: string) {
  * Get community events for a project
  */
 export async function getProjectCommunityEvents(projectId: string) {
+  const validProjectId = validateProjectId(projectId);
   const { data, error } = await supabase
     .from('community_events')
     .select('*')
-    .eq('project_id', projectId)
+    .eq('project_id', validProjectId)
     .order('date', { ascending: true });
 
   if (error) {
@@ -739,7 +771,8 @@ export async function getProjectIdeas(projectId?: string) {
     .order('created_at', { ascending: false });
 
   if (projectId) {
-    query = query.eq('project_id', projectId);
+    const validProjectId = validateProjectId(projectId);
+    query = query.eq('project_id', validProjectId);
   }
 
   const { data, error } = await query;
@@ -784,7 +817,8 @@ export async function getProjectCoCreationRooms(projectId?: string) {
     .order('created_at', { ascending: false });
 
   if (projectId) {
-    query = query.eq('project_id', projectId);
+    const validProjectId = validateProjectId(projectId);
+    query = query.eq('project_id', validProjectId);
   }
 
   const { data, error } = await query;
@@ -816,10 +850,11 @@ export async function getProjectCoCreationRooms(projectId?: string) {
  * Get recordings for a project
  */
 export async function getProjectRecordings(projectId: string) {
+  const validProjectId = validateProjectId(projectId);
   const { data, error } = await supabase
     .from('recordings')
     .select('*')
-    .eq('project_id', projectId)
+    .eq('project_id', validProjectId)
     .order('timestamp', { ascending: false });
 
   if (error) {
@@ -849,10 +884,11 @@ export async function getProjectRecordings(projectId: string) {
  * Get live sessions for a project
  */
 export async function getProjectLiveSessions(projectId: string) {
+  const validProjectId = validateProjectId(projectId);
   const { data, error } = await supabase
     .from('live_sessions')
     .select('*')
-    .eq('project_id', projectId)
+    .eq('project_id', validProjectId)
     .order('created_at', { ascending: false });
 
   if (error) {
@@ -887,10 +923,11 @@ export async function getProjectLiveSessions(projectId: string) {
  * Get certificates for a project
  */
 export async function getProjectCertificates(projectId: string) {
+  const validProjectId = validateProjectId(projectId);
   const { data, error } = await supabase
     .from('certificates')
     .select('*')
-    .eq('project_id', projectId)
+    .eq('project_id', validProjectId)
     .order('created_at', { ascending: false });
 
   if (error) {

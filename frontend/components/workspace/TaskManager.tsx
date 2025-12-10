@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { workspaceAPI } from "../../src/utils/api";
 import { toast } from "sonner";
+import { unsubscribeAll } from "../../src/utils/supabaseRealtime";
 import {
   CheckSquare,
   Plus,
@@ -775,7 +776,6 @@ export function TaskManager({ mentee, projectMembers: propProjectMembers, projec
       
       return () => {
         if (realtimeChannels.length > 0) {
-          const { unsubscribeAll } = require('../../src/utils/supabaseRealtime');
           unsubscribeAll(realtimeChannels);
         }
       };

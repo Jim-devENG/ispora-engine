@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { workspaceAPI } from "../../src/utils/api";
 import { toast } from "sonner";
+import { unsubscribeAll } from "../../src/utils/supabaseRealtime";
 import {
   MessageCircle,
   Mic,
@@ -323,8 +324,10 @@ export function VoiceChat({ mentee, projectId }: VoiceChatProps) {
           const { getProjectMessages } = await import('../../src/utils/supabaseQueries');
           messagesData = await getProjectMessages(projectId);
         } catch (supabaseError) {
-          console.warn('Supabase query failed, trying legacy API:', supabaseError);
-          // Fallback to legacy API during migration
+          // TODO: REMOVE_AFTER_SUPABASE_MIGRATION - Fallback to legacy API
+          if (import.meta.env.DEV) {
+            console.warn('Supabase query failed, trying legacy API:', supabaseError);
+          }
           messagesData = await workspaceAPI.getMessages(projectId);
         }
         
@@ -440,7 +443,6 @@ export function VoiceChat({ mentee, projectId }: VoiceChatProps) {
       
       return () => {
         if (realtimeChannels.length > 0) {
-          const { unsubscribeAll } = require('../../src/utils/supabaseRealtime');
           unsubscribeAll(realtimeChannels);
         }
       };

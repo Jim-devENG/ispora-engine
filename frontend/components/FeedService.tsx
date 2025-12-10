@@ -690,8 +690,11 @@ export class FeedService {
         const { getProjects } = await import('../src/utils/supabaseQueries');
         apiProjects = await getProjects();
       } catch (supabaseError) {
-        console.warn('Supabase query failed, trying legacy API:', supabaseError);
-        // Fallback to legacy API during migration
+        // TODO: REMOVE_AFTER_SUPABASE_MIGRATION - Fallback to legacy API
+        // Only log in development to reduce console noise
+        if (import.meta.env.DEV) {
+          console.warn('Supabase query failed, trying legacy API:', supabaseError);
+        }
         apiProjects = await projectAPI.getProjects();
       }
       
@@ -1025,12 +1028,15 @@ export class FeedService {
         const { getFeedItems } = await import('../src/utils/supabaseQueries');
         apiFeedItems = await getFeedItems({ limit: 100 });
         // Only log if there are items or if it's the first fetch
-        if (apiFeedItems.length > 0) {
+        // Only log in development to reduce console noise
+        if (import.meta.env.DEV && apiFeedItems.length > 0) {
           console.log(`Fetched ${apiFeedItems.length} feed items from Supabase`);
         }
       } catch (supabaseError) {
-        console.warn('Supabase query failed, trying legacy API:', supabaseError);
-        // Fallback to legacy API during migration
+        // TODO: REMOVE_AFTER_SUPABASE_MIGRATION - Fallback to legacy API
+        if (import.meta.env.DEV) {
+          console.warn('Supabase query failed, trying legacy API:', supabaseError);
+        }
         const feedResponse = await feedAPI.getFeed({ limit: 100 });
         apiFeedItems = feedResponse.items || [];
         if (apiFeedItems.length > 0) {
@@ -1248,9 +1254,14 @@ export function useFeedService() {
         });
         
         realtimeChannels.push(feedChannel);
-        console.log('Supabase Realtime connected for feed updates');
+        if (import.meta.env.DEV) {
+          console.log('Supabase Realtime connected for feed updates');
+        }
       } catch (error) {
-        console.warn('Supabase Realtime connection failed, using polling fallback:', error);
+        // TODO: REMOVE_AFTER_SUPABASE_MIGRATION - Fallback to polling
+        if (import.meta.env.DEV) {
+          console.warn('Supabase Realtime connection failed, using polling fallback:', error);
+        }
         // Fallback to polling if Realtime fails
         if (pollingIntervalRef.current) {
           clearInterval(pollingIntervalRef.current);

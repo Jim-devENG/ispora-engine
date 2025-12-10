@@ -5,6 +5,25 @@
 import { supabase } from './supabaseClient';
 import { getCurrentUser } from './auth';
 
+// Helper to validate UUID format (basic check)
+function isValidUUID(id: string | undefined | null): boolean {
+  if (!id) return false;
+  // UUID v4 format: xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(id);
+}
+
+// Helper to validate projectId before mutating
+function validateProjectId(projectId: string | undefined | null): string {
+  if (!projectId) {
+    throw new Error('Project ID is required');
+  }
+  if (!isValidUUID(projectId)) {
+    throw new Error(`Invalid project ID format: ${projectId}. Expected UUID.`);
+  }
+  return projectId;
+}
+
 // ============================================================================
 // PROJECTS
 // ============================================================================
@@ -279,11 +298,12 @@ export async function updateTask(projectId: string, taskId: string, updates: any
   if (updates.comments !== undefined) updateData.comments = updates.comments;
   if (updates.attachments !== undefined) updateData.attachments = updates.attachments;
 
+  const validProjectId = validateProjectId(projectId);
   const { data, error } = await supabase
     .from('tasks')
     .update(updateData)
     .eq('id', taskId)
-    .eq('project_id', projectId)
+    .eq('project_id', validProjectId)
     .select()
     .single();
 
@@ -317,11 +337,12 @@ export async function deleteTask(projectId: string, taskId: string) {
     throw new Error('Not authenticated');
   }
 
+  const validProjectId = validateProjectId(projectId);
   const { error } = await supabase
     .from('tasks')
     .delete()
     .eq('id', taskId)
-    .eq('project_id', projectId);
+    .eq('project_id', validProjectId);
 
   if (error) {
     console.error('Error deleting task:', error);
@@ -424,11 +445,12 @@ export async function updateSession(projectId: string, sessionId: string, update
   if (updates.tags !== undefined) updateData.tags = updates.tags;
   if (updates.maxParticipants !== undefined) updateData.max_participants = updates.maxParticipants;
 
+  const validProjectId = validateProjectId(projectId);
   const { data, error } = await supabase
     .from('sessions')
     .update(updateData)
     .eq('id', sessionId)
-    .eq('project_id', projectId)
+    .eq('project_id', validProjectId)
     .select()
     .single();
 
@@ -467,11 +489,12 @@ export async function deleteSession(projectId: string, sessionId: string) {
     throw new Error('Not authenticated');
   }
 
+  const validProjectId = validateProjectId(projectId);
   const { error } = await supabase
     .from('sessions')
     .delete()
     .eq('id', sessionId)
-    .eq('project_id', projectId);
+    .eq('project_id', validProjectId);
 
   if (error) {
     console.error('Error deleting session:', error);
@@ -662,11 +685,12 @@ export async function updateStakeholder(projectId: string, stakeholderId: string
   if (updates.lastContact !== undefined) updateData.last_contact = updates.lastContact;
   if (updates.avatar !== undefined) updateData.avatar = updates.avatar;
 
+  const validProjectId = validateProjectId(projectId);
   const { data, error } = await supabase
     .from('stakeholders')
     .update(updateData)
     .eq('id', stakeholderId)
-    .eq('project_id', projectId)
+    .eq('project_id', validProjectId)
     .select()
     .single();
 
@@ -894,11 +918,12 @@ export async function updateIdea(projectId: string, ideaId: string, updates: any
   if (updates.effort !== undefined) updateData.effort = updates.effort;
   if (updates.isBookmarked !== undefined) updateData.is_bookmarked = updates.isBookmarked;
 
+  const validProjectId = validateProjectId(projectId);
   const { data, error } = await supabase
     .from('ideas')
     .update(updateData)
     .eq('id', ideaId)
-    .eq('project_id', projectId)
+    .eq('project_id', validProjectId)
     .select()
     .single();
 
@@ -1057,11 +1082,12 @@ export async function updateResearchSource(projectId: string, sourceId: string, 
   if (updates.citations !== undefined) updateData.citations = updates.citations;
   if (updates.doi !== undefined) updateData.doi = updates.doi;
 
+  const validProjectId = validateProjectId(projectId);
   const { data, error } = await supabase
     .from('research_sources')
     .update(updateData)
     .eq('id', sourceId)
-    .eq('project_id', projectId)
+    .eq('project_id', validProjectId)
     .select()
     .single();
 

@@ -384,8 +384,8 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
         const { user, error: userError } = await getCurrentUser();
         
         if (userError || !user) {
-          // Not authenticated - try legacy API or localStorage
-          console.log('Not authenticated with Supabase, trying legacy API...');
+          // TODO: REMOVE_AFTER_SUPABASE_MIGRATION - Not authenticated - try legacy API or localStorage
+          // Silently fallback - no console log to reduce noise
           try {
             const apiProfile = await userAPI.getProfile();
             setProfile(apiProfile);

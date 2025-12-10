@@ -125,7 +125,7 @@ function MainContent() {
       );
     case 'Project Detail':
       return <ProjectDetail 
-        projectId="1" 
+        projectId={selectedProject?.id || ""} 
         onBack={() => setCurrentPage('Project Dashboard')}
         onJoinProject={handleJoinProject}
       />;
