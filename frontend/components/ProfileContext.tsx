@@ -253,8 +253,8 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
       }
 
       // Update profile in Supabase
-      const { data: updatedProfile, error: updateError } = await supabase
-        .from('profiles')
+      const result = await (supabase
+        .from('profiles') as any)
         .update({
           first_name: profile.firstName,
           last_name: profile.lastName,
@@ -297,7 +297,9 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
         })
         .eq('id', user.id)
         .select()
-        .single();
+        .single() as any;
+
+      const { data: updatedProfile, error: updateError } = result;
 
       if (updateError) {
         throw updateError;
@@ -305,45 +307,46 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
 
       // Map back to UserProfile format
       if (updatedProfile) {
+        const profileData = updatedProfile;
         const mappedProfile: UserProfile = {
-          id: updatedProfile.id,
-          firstName: updatedProfile.first_name,
-          lastName: updatedProfile.last_name,
-          name: updatedProfile.name,
-          email: updatedProfile.email,
-          phone: updatedProfile.phone || '',
-          bio: updatedProfile.bio || '',
-          location: updatedProfile.location || '',
-          company: updatedProfile.company || '',
-          position: updatedProfile.position || '',
-          title: updatedProfile.title || updatedProfile.position || '',
-          website: updatedProfile.website || '',
-          linkedIn: updatedProfile.linkedin || '',
-          twitter: updatedProfile.twitter,
-          avatar: updatedProfile.avatar,
-          university: updatedProfile.university || '',
-          graduationYear: updatedProfile.graduation_year || '',
-          program: updatedProfile.program || '',
-          skills: updatedProfile.skills || [],
-          expertise: updatedProfile.expertise || [],
-          role: updatedProfile.role as UserProfile['role'],
-          experience: updatedProfile.experience || 0,
-          isVerified: updatedProfile.is_verified || false,
-          isOnline: updatedProfile.is_online || false,
-          lastActive: updatedProfile.last_active || new Date().toISOString(),
-          interests: updatedProfile.interests || [],
-          mutualConnections: updatedProfile.mutual_connections || 0,
-          responseRate: updatedProfile.response_rate || 0,
-          isDiaspora: updatedProfile.is_diaspora || false,
-          diasporaLocation: updatedProfile.diaspora_location,
-          homeCountry: updatedProfile.home_country,
-          availability: updatedProfile.availability as UserProfile['availability'],
-          openTo: updatedProfile.open_to || [],
-          socialLinks: updatedProfile.social_links as UserProfile['socialLinks'],
-          achievements: updatedProfile.achievements as UserProfile['achievements'],
-          universities: updatedProfile.universities as UserProfile['universities'],
-          privacy: updatedProfile.privacy as UserProfile['privacy'],
-          preferences: updatedProfile.preferences as UserProfile['preferences'],
+          id: profileData.id,
+            firstName: profile.first_name,
+            lastName: profile.last_name,
+            name: profile.name,
+            email: profile.email,
+            phone: profile.phone || '',
+            bio: profile.bio || '',
+            location: profile.location || '',
+            company: profile.company || '',
+            position: profile.position || '',
+            title: profile.title || profile.position || '',
+            website: profile.website || '',
+            linkedIn: profile.linkedin || '',
+            twitter: profile.twitter,
+            avatar: profile.avatar,
+            university: profile.university || '',
+            graduationYear: profile.graduation_year || '',
+            program: profile.program || '',
+            skills: profile.skills || [],
+            expertise: profile.expertise || [],
+            role: profile.role as UserProfile['role'],
+            experience: profile.experience || 0,
+            isVerified: profile.is_verified || false,
+            isOnline: profile.is_online || false,
+            lastActive: profile.last_active || new Date().toISOString(),
+            interests: profile.interests || [],
+            mutualConnections: profile.mutual_connections || 0,
+            responseRate: profile.response_rate || 0,
+            isDiaspora: profile.is_diaspora || false,
+            diasporaLocation: profile.diaspora_location,
+            homeCountry: profile.home_country,
+            availability: profile.availability as UserProfile['availability'],
+            openTo: profile.open_to || [],
+            socialLinks: profile.social_links as UserProfile['socialLinks'],
+            achievements: profile.achievements as UserProfile['achievements'],
+            universities: profile.universities as UserProfile['universities'],
+            privacy: profile.privacy as UserProfile['privacy'],
+            preferences: profile.preferences as UserProfile['preferences'],
         };
 
         setProfile(mappedProfile);
@@ -387,8 +390,8 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
         const user = session.user;
 
         // Load profile from Supabase profiles table
-        const { data: profileData, error: profileError } = await supabase
-          .from('profiles')
+        const { data: profileData, error: profileError } = await (supabase
+          .from('profiles') as any)
           .select('*')
           .eq('id', user.id)
           .single();
@@ -411,8 +414,9 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
 
         if (profileData) {
           // Map Supabase profile to UserProfile interface
+          const profile = profileData as any;
           const mappedProfile: UserProfile = {
-            id: profileData.id,
+            id: profile.id,
             firstName: profileData.first_name,
             lastName: profileData.last_name,
             name: profileData.name,
@@ -487,8 +491,8 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
     loadProfile();
 
     // Listen to auth state changes
-    const subscription = onAuthStateChange((user) => {
-      if (user) {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
         // User logged in - reload profile
         loadProfile();
       } else {
