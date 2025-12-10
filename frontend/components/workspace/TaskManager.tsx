@@ -173,17 +173,16 @@ function TaskCard({ task, onEdit, onDelete, onStatusChange, projectId, onComment
         comments: [...existingComments, newCommentObj]
       });
       
-      const comment = newCommentObj;
-      
-      const newCommentObj: Comment = {
-        id: comment.id,
-        author: comment.author,
-        authorAvatar: comment.authorAvatar,
-        content: comment.content,
-        timestamp: new Date(comment.timestamp),
+      // Convert to Comment type for the callback
+      const comment: Comment = {
+        id: newCommentObj.id,
+        author: newCommentObj.author,
+        authorAvatar: newCommentObj.authorAvatar,
+        content: newCommentObj.content,
+        timestamp: new Date(newCommentObj.timestamp),
       };
       
-      onCommentAdded(task.id, newCommentObj);
+      onCommentAdded(task.id, comment);
       setNewComment("");
     } catch (err: any) {
       console.error('Failed to add comment:', err);
