@@ -65,6 +65,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (loggedInUser) {
         setUser(loggedInUser);
+        // Wait a bit for session to be fully established
+        await new Promise(resolve => setTimeout(resolve, 100));
         toast.success('Logged in successfully!');
         return { success: true };
       }
@@ -99,6 +101,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (newUser) {
         setUser(newUser);
+        // Wait a bit for session to be fully established and profile to be created
+        await new Promise(resolve => setTimeout(resolve, 500));
         toast.success('Account created successfully!');
         return { success: true };
       }
