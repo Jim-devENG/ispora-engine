@@ -321,16 +321,8 @@ export function VoiceChat({ mentee, projectId }: VoiceChatProps) {
         // Fetch messages
         // Fetch messages from Supabase
         let messagesData: any[] = [];
-        try {
           const { getProjectMessages } = await import('../../src/utils/supabaseQueries');
           messagesData = await getProjectMessages(projectId);
-        } catch (supabaseError) {
-          // TODO: REMOVE_AFTER_SUPABASE_MIGRATION - Fallback to legacy API
-          if (import.meta.env.DEV) {
-            console.warn('Supabase query failed, trying legacy API:', supabaseError);
-          }
-          messagesData = await workspaceAPI.getMessages(projectId);
-        }
         
         const transformedMessages: Message[] = (Array.isArray(messagesData) ? messagesData : []).map((m: any) => ({
           id: m.id,
@@ -347,11 +339,11 @@ export function VoiceChat({ mentee, projectId }: VoiceChatProps) {
         }));
         setMessages(transformedMessages);
 
-        // TODO (Supabase migration): Re-enable Supabase-based queries AFTER backend Workroom is 100% stable.
-        // Fetch voice notes from backend API
+        // Fetch voice notes from Supabase
         let voiceNotesData: any[] = [];
         try {
-          voiceNotesData = await workspaceAPI.getVoiceNotes(projectId);
+          const { getProjectVoiceNotes } = await import('../../src/utils/supabaseQueries');
+          voiceNotesData = await getProjectVoiceNotes(projectId);
         } catch (error) {
           console.error('Failed to fetch voice notes:', error);
         }
@@ -397,16 +389,11 @@ export function VoiceChat({ mentee, projectId }: VoiceChatProps) {
 
       // Try Supabase first
       let created;
-      try {
         const { createMessage } = await import('../../src/utils/supabaseMutations');
-        created = await createMessage(projectId, messageData);
-      } catch (supabaseError) {
-        console.warn('Supabase mutation failed, trying legacy API:', supabaseError);
-        created = await workspaceAPI.sendMessage(projectId, {
+        const created = await createMessage(projectId, {
           recipientId: mentee.id,
-          message: newMessage.trim(),
+          content: newMessage.trim(),
         });
-      }
       
       const newMessageObj: Message = {
         id: created.id,
@@ -468,9 +455,9 @@ export function VoiceChat({ mentee, projectId }: VoiceChatProps) {
         transcript: undefined, // TODO: Add transcription if available
       };
 
-      // TODO (Supabase migration): Re-enable Supabase mutations AFTER backend Workroom is 100% stable.
-      // Use backend API
-      const created = await workspaceAPI.createVoiceNote(projectId, voiceNoteData);
+      // Create voice note using Supabase
+      const { createVoiceNote } = await import('../../src/utils/supabaseMutations');
+      const created = await createVoiceNote(projectId, voiceNoteData);
       
       const newVoiceNote: VoiceNote = {
         id: created.id,
@@ -532,11 +519,11 @@ export function VoiceChat({ mentee, projectId }: VoiceChatProps) {
         fileUrl: fileUrl,
       };
 
-      // TODO (Supabase migration): Re-enable Supabase mutations AFTER backend Workroom is 100% stable.
-      // Use backend API
-      const created = await workspaceAPI.sendMessage(projectId, {
+      // Send file message using Supabase
+      const { createMessage } = await import('../../src/utils/supabaseMutations');
+      const created = await createMessage(projectId, {
         recipientId: mentee.id,
-        message: file.name,
+        content: file.name,
         type: 'file',
         fileName: file.name,
         fileSize: file.size,

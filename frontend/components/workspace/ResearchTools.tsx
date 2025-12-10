@@ -183,14 +183,9 @@ export function ResearchTools({ mentee, projectType = 'academic', projectId }: R
             getProjectResearchNotes(projectId).catch(() => []),
             getProjectDataSets(projectId).catch(() => []),
           ]);
-        } catch (supabaseError) {
-          console.warn('Supabase queries failed, trying legacy API:', supabaseError);
-          // Fallback to legacy API during migration
-          [sources, notes, datasets] = await Promise.all([
-            workspaceAPI.getResearchSources(projectId).catch(() => []),
-            workspaceAPI.getResearchNotes(projectId).catch(() => []),
-            workspaceAPI.getDataSets(projectId).catch(() => []),
-          ]);
+        } catch (error) {
+          console.error('Failed to fetch research data:', error);
+          setError(error instanceof Error ? error.message : 'Failed to load research data');
         }
 
         // Transform sources
@@ -328,9 +323,9 @@ export function ResearchTools({ mentee, projectType = 'academic', projectId }: R
       try {
         const { createResearchSource } = await import('../../src/utils/supabaseMutations');
         created = await createResearchSource(projectId, sourceData);
-      } catch (supabaseError) {
-        console.warn('Supabase mutation failed, trying legacy API:', supabaseError);
-        created = await workspaceAPI.createResearchSource(projectId, sourceData);
+      } catch (error) {
+        console.error('Failed to create research source:', error);
+        throw error;
       }
       
       const newSourceObj: ResearchSource = {
@@ -391,9 +386,9 @@ export function ResearchTools({ mentee, projectType = 'academic', projectId }: R
       try {
         const { createResearchNote } = await import('../../src/utils/supabaseMutations');
         created = await createResearchNote(projectId, noteData);
-      } catch (supabaseError) {
-        console.warn('Supabase mutation failed, trying legacy API:', supabaseError);
-        created = await workspaceAPI.createResearchNote(projectId, noteData);
+      } catch (error) {
+        console.error('Failed to create research note:', error);
+        throw error;
       }
       
       const newNoteObj: ResearchNote = {
@@ -431,18 +426,11 @@ export function ResearchTools({ mentee, projectType = 'academic', projectId }: R
     if (!source) return;
 
     try {
-      // Try Supabase first
-      try {
-        const { updateResearchSource } = await import('../../src/utils/supabaseMutations');
-        await updateResearchSource(projectId, sourceId, {
-          favorite: !source.favorite,
-        });
-      } catch (supabaseError) {
-        console.warn('Supabase mutation failed, trying legacy API:', supabaseError);
-        await workspaceAPI.updateResearchSource(projectId, sourceId, {
-          favorite: !source.favorite,
-        });
-      }
+      // Update research source using Supabase
+      const { updateResearchSource } = await import('../../src/utils/supabaseMutations');
+      await updateResearchSource(projectId, sourceId, {
+        favorite: !source.favorite,
+      });
       
       setResearchSources(prev => 
         prev.map(s => 

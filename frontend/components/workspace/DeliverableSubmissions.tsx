@@ -62,10 +62,10 @@ export function DeliverableSubmissions({ mentee, projectId }: DeliverableSubmiss
         setError(null);
         // Fetch deliverables from Supabase
         let data: any[] = [];
-        // TODO (Supabase migration): Re-enable Supabase-based queries AFTER backend Workroom is 100% stable.
-        // Fetch deliverables from backend API
+        // Fetch deliverables from Supabase
         try {
-          data = await workspaceAPI.getDeliverables(projectId);
+          const { getProjectDeliverables } = await import('../../src/utils/supabaseQueries');
+          data = await getProjectDeliverables(projectId);
         } catch (error) {
           console.error('Failed to fetch deliverables:', error);
           setError(error instanceof Error ? error.message : 'Failed to load deliverables');
@@ -199,7 +199,8 @@ export function DeliverableSubmissions({ mentee, projectId }: DeliverableSubmiss
                                 return;
                               }
                               try {
-                                await workspaceAPI.updateDeliverable(projectId, submission.id, {
+                                const { updateDeliverable } = await import('../../src/utils/supabaseMutations');
+                                await updateDeliverable(projectId, submission.id, {
                                   status: 'needs-revision',
                                   feedback: 'Please make the requested changes and resubmit.',
                                 });
@@ -226,7 +227,8 @@ export function DeliverableSubmissions({ mentee, projectId }: DeliverableSubmiss
                                 return;
                               }
                               try {
-                                await workspaceAPI.updateDeliverable(projectId, submission.id, {
+                                const { updateDeliverable } = await import('../../src/utils/supabaseMutations');
+                                await updateDeliverable(projectId, submission.id, {
                                   status: 'approved',
                                   feedback: 'Great work! This submission meets all requirements.',
                                 });

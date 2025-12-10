@@ -167,14 +167,9 @@ export function CommunityTools({ mentee, projectType = 'community', projectId }:
             getProjectImpactStories(projectId).catch(() => []),
             getProjectCommunityEvents(projectId).catch(() => []),
           ]);
-        } catch (supabaseError) {
-          console.warn('Supabase queries failed, trying legacy API:', supabaseError);
-          // Fallback to legacy API during migration
-          [stakeholdersData, storiesData, eventsData] = await Promise.all([
-            workspaceAPI.getStakeholders(projectId).catch(() => []),
-            workspaceAPI.getImpactStories(projectId).catch(() => []),
-            workspaceAPI.getCommunityEvents(projectId).catch(() => []),
-          ]);
+        } catch (error) {
+          console.error('Failed to fetch community data:', error);
+          setError(error instanceof Error ? error.message : 'Failed to load community data');
         }
 
         // Transform stakeholders
@@ -335,9 +330,9 @@ export function CommunityTools({ mentee, projectType = 'community', projectId }:
       try {
         const { createStakeholder } = await import('../../src/utils/supabaseMutations');
         created = await createStakeholder(projectId, stakeholderData);
-      } catch (supabaseError) {
-        console.warn('Supabase mutation failed, trying legacy API:', supabaseError);
-        created = await workspaceAPI.createStakeholder(projectId, stakeholderData);
+      } catch (error) {
+        console.error('Failed to create stakeholder:', error);
+        throw error;
       }
       
       const newStakeholderObj: Stakeholder = {
@@ -413,9 +408,9 @@ export function CommunityTools({ mentee, projectType = 'community', projectId }:
       try {
         const { createImpactStory } = await import('../../src/utils/supabaseMutations');
         created = await createImpactStory(projectId, storyData);
-      } catch (supabaseError) {
-        console.warn('Supabase mutation failed, trying legacy API:', supabaseError);
-        created = await workspaceAPI.createImpactStory(projectId, storyData);
+      } catch (error) {
+        console.error('Failed to create impact story:', error);
+        throw error;
       }
       
       const newStoryObj: ImpactStory = {

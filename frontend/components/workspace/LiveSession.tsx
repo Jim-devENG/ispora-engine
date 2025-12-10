@@ -257,10 +257,10 @@ function ChatSidebar({
         setIsLoading(true);
         // Fetch messages from Supabase
         let data: any[] = [];
-        // TODO (Supabase migration): Re-enable Supabase-based queries AFTER backend Workroom is 100% stable.
-        // Fetch messages from backend API
+        // Fetch messages from Supabase
         try {
-          data = await workspaceAPI.getMessages(projectId);
+          const { getProjectMessages } = await import('../../src/utils/supabaseQueries');
+          data = await getProjectMessages(projectId);
         } catch (error) {
           console.error('Failed to fetch messages:', error);
         }
@@ -307,7 +307,11 @@ function ChatSidebar({
         type: 'text',
       };
       
-      await workspaceAPI.sendMessage(projectId, messageData);
+      const { createMessage } = await import('../../src/utils/supabaseMutations');
+      await createMessage(projectId, {
+        content: newMessage,
+        type: 'text',
+      });
       
       // Optimistically add message to UI
       const tempMessage: ChatMessage = {
@@ -324,10 +328,10 @@ function ChatSidebar({
       setTimeout(async () => {
         try {
           let data: any[] = [];
-          // TODO (Supabase migration): Re-enable Supabase-based queries AFTER backend Workroom is 100% stable.
-          // Fetch messages from backend API
+          // Fetch messages from Supabase
           try {
-            data = await workspaceAPI.getMessages(projectId);
+            const { getProjectMessages } = await import('../../src/utils/supabaseQueries');
+            data = await getProjectMessages(projectId);
           } catch (error) {
             console.error('Failed to fetch messages:', error);
           }
@@ -539,11 +543,11 @@ export function LiveSession({
 
       try {
         setIsLoading(true);
-        // TODO (Supabase migration): Re-enable Supabase-based queries AFTER backend Workroom is 100% stable.
-        // Fetch live sessions from backend API
+        // Fetch live sessions from Supabase
         let sessions: any[] = [];
         try {
-          sessions = await workspaceAPI.getLiveSessions(projectId);
+          const { getProjectLiveSessions } = await import('../../src/utils/supabaseQueries');
+          sessions = await getProjectLiveSessions(projectId);
         } catch (error) {
           console.error('Failed to fetch live sessions:', error);
         }
@@ -570,19 +574,20 @@ export function LiveSession({
           setParticipants(transformedParticipants);
         }
 
-        // Also fetch project members as potential participants
-        // Note: getMembers is not yet migrated to Supabase, using legacy API
+        // Also fetch project members as potential participants from Supabase
         try {
-          const members = await workspaceAPI.getMembers(projectId);
+          const { getProject } = await import('../../src/utils/supabaseQueries');
+          const project = await getProject(projectId);
+          const members = project?.teamMembers || project?.team || [];
           const memberParticipants: Participant[] = members.map((m: any) => ({
-            id: m.userId || m.id,
+            id: m.id || m.userId,
             name: m.name || m.userName,
-            avatar: m.avatar,
+            avatar: m.avatar || m.avatarUrl,
             isMuted: false,
             hasVideo: false,
-            isCurrentUser: m.userId === currentUserId,
+            isCurrentUser: (m.id || m.userId) === currentUserId,
             role: m.role || 'participant',
-            isOnline: true,
+            isOnline: m.isOnline !== false,
           }));
           
           // Merge with session participants, avoiding duplicates
@@ -612,17 +617,18 @@ export function LiveSession({
     try {
       let session = currentLiveSession;
       
-      // Create or update session
+      // Create or update session using Supabase
+      const { createLiveSession, updateLiveSession } = await import('../../src/utils/supabaseMutations');
       if (!session) {
-        session = await workspaceAPI.createLiveSession(projectId, {
-          title: sessionTitle,
-          description: sessionDescription,
+        session = await createLiveSession(projectId, {
+          sessionTitle,
+          sessionDescription,
           status: 'active',
           startTime: new Date().toISOString(),
         });
         setCurrentLiveSession(session);
       } else {
-        session = await workspaceAPI.updateLiveSession(projectId, session.id, {
+        session = await updateLiveSession(projectId, session.id, {
           status: 'active',
           startTime: new Date().toISOString(),
         });
@@ -646,7 +652,8 @@ export function LiveSession({
     }
 
     try {
-      await workspaceAPI.updateLiveSession(projectId, currentLiveSession.id, {
+      const { updateLiveSession } = await import('../../src/utils/supabaseMutations');
+      await updateLiveSession(projectId, currentLiveSession.id, {
         status: 'ended',
         endTime: new Date().toISOString(),
       });

@@ -149,9 +149,31 @@ function TaskCard({ task, onEdit, onDelete, onStatusChange, projectId, onComment
 
     setIsAddingComment(true);
     try {
-      const comment = await workspaceAPI.addTaskComment(projectId, task.id, {
-        content: newComment.trim()
+      // Add comment to task using Supabase
+      const { updateTask } = await import('../../src/utils/supabaseMutations');
+      const { getCurrentUser } = await import('../../src/utils/supabaseClient');
+      const user = await getCurrentUser();
+      
+      // Get current task to append comment
+      const { getProjectTasks } = await import('../../src/utils/supabaseQueries');
+      const tasks = await getProjectTasks(projectId);
+      const currentTask = tasks.find(t => t.id === task.id);
+      const existingComments = currentTask?.comments || [];
+      
+      const newCommentObj = {
+        id: crypto.randomUUID(),
+        author: user?.email || 'Unknown',
+        authorAvatar: user?.user_metadata?.avatar_url,
+        content: newComment.trim(),
+        timestamp: new Date().toISOString(),
+      };
+      
+      // Update task with new comment
+      await updateTask(projectId, task.id, {
+        comments: [...existingComments, newCommentObj]
       });
+      
+      const comment = newCommentObj;
       
       const newCommentObj: Comment = {
         id: comment.id,
@@ -625,11 +647,11 @@ export function TaskManager({ mentee, projectMembers: propProjectMembers, projec
         setIsLoading(true);
         setError(null);
 
-        // TODO (Supabase migration): Re-enable Supabase-based queries AFTER backend Workroom is 100% stable.
-        // Fetch tasks from backend API
+        // Fetch tasks from Supabase
         let tasksData: any[] = [];
         try {
-          tasksData = await workspaceAPI.getTasks(projectId);
+          const { getProjectTasks } = await import('../../src/utils/supabaseQueries');
+          tasksData = await getProjectTasks(projectId);
         } catch (error) {
           console.error('Failed to fetch tasks:', error);
           setError(error instanceof Error ? error.message : 'Failed to load tasks');
@@ -659,7 +681,10 @@ export function TaskManager({ mentee, projectMembers: propProjectMembers, projec
 
         // Fetch members if not provided as prop
         if (!propProjectMembers) {
-          const membersData = await workspaceAPI.getMembers(projectId);
+          // Get project to extract team members
+          const { getProject } = await import('../../src/utils/supabaseQueries');
+          const project = await getProject(projectId);
+          const membersData = project?.teamMembers || project?.team || [];
           setProjectMembers(membersData);
         }
       } catch (err: any) {
@@ -732,9 +757,9 @@ export function TaskManager({ mentee, projectMembers: propProjectMembers, projec
     }
 
     try {
-      // TODO (Supabase migration): Re-enable Supabase mutations AFTER backend Workroom is 100% stable.
-      // Use backend API
-      await workspaceAPI.deleteTask(projectId, taskId);
+      // Delete task using Supabase
+      const { deleteTask } = await import('../../src/utils/supabaseMutations');
+      await deleteTask(projectId, taskId);
       
       setTasks(prev => prev.filter(t => t.id !== taskId));
       toast.success('Task deleted successfully');
@@ -761,9 +786,9 @@ export function TaskManager({ mentee, projectMembers: propProjectMembers, projec
         updates.completedDate = undefined;
       }
 
-      // TODO (Supabase migration): Re-enable Supabase mutations AFTER backend Workroom is 100% stable.
-      // Use backend API
-      const updated = await workspaceAPI.updateTask(projectId, taskId, updates);
+      // Update task using Supabase
+      const { updateTask } = await import('../../src/utils/supabaseMutations');
+      const updated = await updateTask(projectId, taskId, updates);
       
       setTasks(prev => prev.map(task => 
         task.id === taskId 
@@ -799,9 +824,9 @@ export function TaskManager({ mentee, projectMembers: propProjectMembers, projec
       };
 
       if (editingTask) {
-        // TODO (Supabase migration): Re-enable Supabase mutations AFTER backend Workroom is 100% stable.
-        // Use backend API
-        const updated = await workspaceAPI.updateTask(projectId, editingTask.id, taskPayload);
+          // Update task using Supabase
+          const { updateTask } = await import('../../src/utils/supabaseMutations');
+          const updated = await updateTask(projectId, editingTask.id, taskPayload);
         
         setTasks(prev => prev.map(task => {
           if (task.id === editingTask.id) {
@@ -817,9 +842,9 @@ export function TaskManager({ mentee, projectMembers: propProjectMembers, projec
         }));
         toast.success('Task updated successfully');
       } else {
-        // TODO (Supabase migration): Re-enable Supabase mutations AFTER backend Workroom is 100% stable.
-        // Use backend API
-        const created = await workspaceAPI.createTask(projectId, taskPayload);
+        // Create task using Supabase
+        const { createTask } = await import('../../src/utils/supabaseMutations');
+        const created = await createTask(projectId, taskPayload);
         
         const newTask: Task = {
           ...created,

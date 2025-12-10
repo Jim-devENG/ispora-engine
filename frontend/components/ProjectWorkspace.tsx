@@ -449,24 +449,23 @@ export function ProjectWorkspace({
     }
 
     try {
-      // TODO (Supabase migration): Re-enable Supabase-based queries AFTER backend Workroom is 100% stable.
-      // Load project from backend API
-      const { projectAPI } = await import('../src/utils/api');
-      const project = await projectAPI.getProject(projectId);
+      // Load project from Supabase
+      const { getProject } = await import('../src/utils/supabaseQueries');
+      const project = await getProject(projectId);
       
       if (!project) {
         console.error(`Project ${projectId} not found`);
         return;
       }
 
-      // Transform backend project to ProjectWorkspace format
+      // Transform Supabase project to ProjectWorkspace format
       const transformedProject: Project = {
         id: project.id,
         title: project.title,
-        type: (project.type || project.category || 'research') as Project['type'],
+        type: (project.projectType || project.category || 'research') as Project['type'],
         description: project.description || '',
         status: project.status === 'active' ? 'active' : project.status === 'closed' ? 'completed' : 'planning',
-        members: (project.team || project.members || []).map((m: any) => ({
+        members: (project.teamMembers || project.team || []).map((m: any) => ({
           id: m.id || m.userId || '',
           name: m.name || m.userName || '',
           avatar: m.avatar || m.avatarUrl,
@@ -487,7 +486,7 @@ export function ProjectWorkspace({
         })),
         mentorMode: 'group',
         startDate: project.startDate || project.createdAt,
-        endDate: project.deadline || project.endDate,
+        endDate: project.deadline,
         progress: project.progress || 0,
       };
 
@@ -580,22 +579,21 @@ export function ProjectWorkspace({
     loadProject();
   }, [initialProjectId, contextSelectedProject?.id]);
 
-  // TODO (Supabase migration): Re-enable Supabase-based queries AFTER backend Workroom is 100% stable.
-  // Load available projects for selector from backend API
+  // Load available projects for selector from Supabase
   React.useEffect(() => {
     const loadAvailableProjects = async () => {
       try {
-        const { projectAPI } = await import('../src/utils/api');
-        const projects = await projectAPI.getProjects();
+        const { getProjects } = await import('../src/utils/supabaseQueries');
+        const projects = await getProjects();
         
         // Transform to ProjectWorkspace format
         const transformedProjects: Project[] = projects.map((p: any) => ({
           id: p.id,
           title: p.title,
-          type: (p.type || p.category || 'research') as Project['type'],
+          type: (p.projectType || p.category || 'research') as Project['type'],
           description: p.description || '',
           status: p.status === 'active' ? 'active' : p.status === 'closed' ? 'completed' : 'planning',
-          members: (p.team || p.members || []).map((m: any) => ({
+          members: (p.teamMembers || p.team || []).map((m: any) => ({
             id: m.id || m.userId || '',
             name: m.name || m.userName || '',
             avatar: m.avatar || m.avatarUrl,
@@ -616,7 +614,7 @@ export function ProjectWorkspace({
           })),
           mentorMode: 'group',
           startDate: p.startDate || p.createdAt,
-          endDate: p.deadline || p.endDate,
+          endDate: p.deadline,
           progress: p.progress || 0,
         }));
         

@@ -837,11 +837,11 @@ export function SessionBoard({ mentee, projectId }: SessionBoardProps) {
       try {
         setIsLoading(true);
         setError(null);
-        // TODO (Supabase migration): Re-enable Supabase-based queries AFTER backend Workroom is 100% stable.
-        // Fetch sessions from backend API
+        // Fetch sessions from Supabase
         let data: any[] = [];
         try {
-          data = await workspaceAPI.getSessions(projectId);
+          const { getProjectSessions } = await import('../../src/utils/supabaseQueries');
+          data = await getProjectSessions(projectId);
         } catch (error) {
           console.error('Failed to fetch sessions:', error);
           setError(error instanceof Error ? error.message : 'Failed to load sessions');
@@ -923,15 +923,9 @@ export function SessionBoard({ mentee, projectId }: SessionBoardProps) {
       };
 
       if (editingSession) {
-        // Update existing session - try Supabase first
-        let updated;
-        try {
-          const { updateSession } = await import('../../src/utils/supabaseMutations');
-          updated = await updateSession(projectId, editingSession.id, sessionData);
-        } catch (supabaseError) {
-          console.warn('Supabase mutation failed, trying legacy API:', supabaseError);
-          updated = await workspaceAPI.updateSession(projectId, editingSession.id, sessionData);
-        }
+        // Update existing session using Supabase
+        const { updateSession } = await import('../../src/utils/supabaseMutations');
+        const updated = await updateSession(projectId, editingSession.id, sessionData);
         
         setSessions(prev => prev.map(s => {
           if (s.id === editingSession.id) {
@@ -945,15 +939,9 @@ export function SessionBoard({ mentee, projectId }: SessionBoardProps) {
         }));
         toast.success('Session updated successfully');
       } else {
-        // Create new session - try Supabase first
-        let created;
-        try {
-          const { createSession } = await import('../../src/utils/supabaseMutations');
-          created = await createSession(projectId, sessionData);
-        } catch (supabaseError) {
-          console.warn('Supabase mutation failed, trying legacy API:', supabaseError);
-          created = await workspaceAPI.createSession(projectId, sessionData);
-        }
+        // Create new session using Supabase
+        const { createSession } = await import('../../src/utils/supabaseMutations');
+        const created = await createSession(projectId, sessionData);
         
         const newSession: Session = {
           ...created,
@@ -998,14 +986,9 @@ export function SessionBoard({ mentee, projectId }: SessionBoardProps) {
     }
 
     try {
-      // Try Supabase first
-      try {
-        const { deleteSession } = await import('../../src/utils/supabaseMutations');
-        await deleteSession(projectId, sessionId);
-      } catch (supabaseError) {
-        console.warn('Supabase mutation failed, trying legacy API:', supabaseError);
-        await workspaceAPI.deleteSession(projectId, sessionId);
-      }
+      // Delete session using Supabase
+      const { deleteSession } = await import('../../src/utils/supabaseMutations');
+      await deleteSession(projectId, sessionId);
       
       setSessions(prev => prev.filter(s => s.id !== sessionId));
       toast.success('Session deleted successfully');

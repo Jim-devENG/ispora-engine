@@ -58,11 +58,11 @@ export function CertificateManager({ mentee, projectId }: CertificateManagerProp
       try {
         setIsLoading(true);
         setError(null);
-        // TODO (Supabase migration): Re-enable Supabase-based queries AFTER backend Workroom is 100% stable.
-        // Fetch certificates from backend API
+        // Fetch certificates from Supabase
         let data: any[] = [];
         try {
-          data = await workspaceAPI.getCertificates(projectId);
+          const { getProjectCertificates } = await import('../../src/utils/supabaseQueries');
+          data = await getProjectCertificates(projectId);
         } catch (error) {
           console.error('Failed to fetch certificates:', error);
           setError(error instanceof Error ? error.message : 'Failed to load certificates');
@@ -203,7 +203,8 @@ export function CertificateManager({ mentee, projectId }: CertificateManagerProp
                             return;
                           }
                           try {
-                            await workspaceAPI.updateCertificate(projectId, cert.id, {
+                            const { updateCertificate } = await import('../../src/utils/supabaseMutations');
+                            await updateCertificate(projectId, cert.id, {
                               status: 'issued',
                               issueDate: new Date().toISOString(),
                             });

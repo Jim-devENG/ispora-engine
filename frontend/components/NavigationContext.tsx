@@ -50,18 +50,32 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
     console.log(`Navigating to campaign: ${campaign.title}`);
   };
 
-  const navigateToWorkroom = (projectId?: string, options?: { openWorkspacePanel?: boolean; activeTab?: string }) => {
+  const navigateToWorkroom = async (projectId?: string, options?: { openWorkspacePanel?: boolean; activeTab?: string }) => {
     // Require a valid projectId - never allow undefined
     if (!projectId) {
       // If no projectId provided, try to use existing selectedProject
       if (selectedProject?.id) {
         projectId = selectedProject.id;
       } else {
-        // No project available - redirect to Project Dashboard
-        console.warn('No project ID provided and no selected project. Redirecting to Project Dashboard.');
-        setCurrentPage('Project Dashboard');
-        setActiveItem('Projects');
-        return;
+        // Try to fetch first available project from Supabase
+        try {
+          const { getProjects } = await import('../src/utils/supabaseQueries');
+          const projects = await getProjects();
+          if (projects && projects.length > 0) {
+            projectId = projects[0].id;
+            setSelectedProject(projects[0] as any);
+          } else {
+            console.warn('No projects available. Redirecting to Project Dashboard.');
+            setCurrentPage('Project Dashboard');
+            setActiveItem('Projects');
+            return;
+          }
+        } catch (error) {
+          console.error('Failed to load projects for Workroom:', error);
+          setCurrentPage('Project Dashboard');
+          setActiveItem('Projects');
+          return;
+        }
       }
     }
 
@@ -73,9 +87,25 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    // Set selected project if we only have an ID
+    // Load full project data from Supabase if we only have an ID
     if (!selectedProject || selectedProject.id !== projectId) {
-      setSelectedProject({ id: projectId } as any);
+      try {
+        const { getProject } = await import('../src/utils/supabaseQueries');
+        const project = await getProject(projectId);
+        if (project) {
+          setSelectedProject(project as any);
+        } else {
+          console.error(`Project ${projectId} not found. Redirecting to Project Dashboard.`);
+          setCurrentPage('Project Dashboard');
+          setActiveItem('Projects');
+          return;
+        }
+      } catch (error) {
+        console.error(`Failed to load project ${projectId}:`, error);
+        setCurrentPage('Project Dashboard');
+        setActiveItem('Projects');
+        return;
+      }
     }
 
     setCurrentPage('Workroom');

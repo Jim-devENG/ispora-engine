@@ -269,26 +269,19 @@ export function ForgeLab({ mentee, projectType = 'innovation', projectId }: Forg
             getProjectCoCreationRooms 
           } = await import('../../src/utils/supabaseQueries');
           
-          // Note: ProjectWorkspaces and BuildTools queries need to be added to supabaseQueries
+          // Fetch ideas and co-creation rooms from Supabase
           [ideasData, roomsData] = await Promise.all([
             getProjectIdeas(projectId).catch(() => []),
             getProjectCoCreationRooms(projectId).catch(() => []),
           ]);
           
-          // Fallback to legacy API for workspaces and tools (will be migrated later)
-          [workspacesData, toolsData] = await Promise.all([
-            workspaceAPI.getProjectWorkspaces(projectId).catch(() => []),
-            workspaceAPI.getBuildTools(projectId).catch(() => []),
-          ]);
-        } catch (supabaseError) {
-          console.warn('Supabase queries failed, trying legacy API:', supabaseError);
-          // Fallback to legacy API during migration
-          [ideasData, roomsData, workspacesData, toolsData] = await Promise.all([
-            workspaceAPI.getIdeas(projectId).catch(() => []),
-            workspaceAPI.getCoCreationRooms(projectId).catch(() => []),
-            workspaceAPI.getProjectWorkspaces(projectId).catch(() => []),
-            workspaceAPI.getBuildTools(projectId).catch(() => []),
-          ]);
+          // TODO: Add ProjectWorkspaces and BuildTools to Supabase schema and queries
+          // For now, set empty arrays
+          workspacesData = [];
+          toolsData = [];
+        } catch (error) {
+          console.error('Failed to fetch ForgeLab data:', error);
+          setError(error instanceof Error ? error.message : 'Failed to load ForgeLab data');
         }
 
         // Transform ideas
@@ -534,7 +527,8 @@ export function ForgeLab({ mentee, projectType = 'innovation', projectId }: Forg
         created = await createIdea(projectId, ideaData);
       } catch (supabaseError) {
         console.warn('Supabase mutation failed, trying legacy API:', supabaseError);
-        created = await workspaceAPI.createIdea(projectId, ideaData);
+        const { createIdea } = await import('../../src/utils/supabaseMutations');
+        created = await createIdea(projectId, ideaData);
       }
       
       const newIdeaObj: Idea = {
@@ -605,7 +599,8 @@ export function ForgeLab({ mentee, projectType = 'innovation', projectId }: Forg
         created = await createCoCreationRoom(projectId, roomData);
       } catch (supabaseError) {
         console.warn('Supabase mutation failed, trying legacy API:', supabaseError);
-        created = await workspaceAPI.createCoCreationRoom(projectId, roomData);
+        const { createCoCreationRoom } = await import('../../src/utils/supabaseMutations');
+        created = await createCoCreationRoom(projectId, roomData);
       }
       
       const newRoomObj: CoCreationRoom = {
@@ -664,7 +659,9 @@ export function ForgeLab({ mentee, projectType = 'innovation', projectId }: Forg
         files: [],
       };
 
-      const created = await workspaceAPI.createProjectWorkspace(projectId, workspaceData);
+      // TODO: Add createProjectWorkspace to Supabase mutations
+      // For now, show error
+      throw new Error('Project workspace creation not yet implemented in Supabase');
       
       const newWorkspaceObj: ProjectWorkspace = {
         id: created.id,

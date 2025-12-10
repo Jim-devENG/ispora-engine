@@ -395,7 +395,8 @@ function VideoRecorderPanel({ mentee, onBackToLibrary, projectId }: {
         status: 'processing',
       };
 
-      const created = await workspaceAPI.createRecording(projectId, recordingPayload);
+      const { createRecording } = await import('../../src/utils/supabaseMutations');
+      const created = await createRecording(projectId, recordingPayload);
       
       const newRecording: Recording = {
         id: created.id,
@@ -737,11 +738,11 @@ export function LearningVault({ mentee, projectId }: LearningVaultProps) {
         setIsLoading(true);
         setError(null);
 
-        // TODO (Supabase migration): Re-enable Supabase-based queries AFTER backend Workroom is 100% stable.
-        // Fetch learning content from backend API
+        // Fetch learning content from Supabase
         let contentData: any[] = [];
         try {
-          contentData = await workspaceAPI.getLearningContent(projectId);
+          const { getProjectLearningContent } = await import('../../src/utils/supabaseQueries');
+          contentData = await getProjectLearningContent(projectId);
         } catch (error) {
           console.error('Failed to fetch learning content:', error);
         }
@@ -765,11 +766,11 @@ export function LearningVault({ mentee, projectId }: LearningVaultProps) {
         }));
         setContent(transformedContent);
 
-        // TODO (Supabase migration): Re-enable Supabase-based queries AFTER backend Workroom is 100% stable.
-        // Fetch recordings from backend API
+        // Fetch recordings from Supabase
         let recordingsData: any[] = [];
         try {
-          recordingsData = await workspaceAPI.getRecordings(projectId);
+          const { getProjectRecordings } = await import('../../src/utils/supabaseQueries');
+          recordingsData = await getProjectRecordings(projectId);
         } catch (error) {
           console.error('Failed to fetch recordings:', error);
         }
