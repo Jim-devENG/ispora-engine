@@ -387,13 +387,12 @@ export function VoiceChat({ mentee, projectId }: VoiceChatProps) {
         type: 'text' as const,
       };
 
-      // Try Supabase first
-      let created;
-        const { createMessage } = await import('../../src/utils/supabaseMutations');
-        const created = await createMessage(projectId, {
-          recipientId: mentee.id,
-          content: newMessage.trim(),
-        });
+      // Create message using Supabase
+      const { createMessage } = await import('../../src/utils/supabaseMutations');
+      const created = await createMessage(projectId, {
+        recipientId: mentee.id,
+        content: newMessage.trim(),
+      });
       
       const newMessageObj: Message = {
         id: created.id,
