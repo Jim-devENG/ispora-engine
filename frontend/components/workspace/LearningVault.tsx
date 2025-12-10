@@ -737,14 +737,13 @@ export function LearningVault({ mentee, projectId }: LearningVaultProps) {
         setIsLoading(true);
         setError(null);
 
-        // Fetch learning content from Supabase
+        // TODO (Supabase migration): Re-enable Supabase-based queries AFTER backend Workroom is 100% stable.
+        // Fetch learning content from backend API
         let contentData: any[] = [];
         try {
-          const { getProjectLearningContent } = await import('../../src/utils/supabaseQueries');
-          contentData = await getProjectLearningContent(projectId);
-        } catch (supabaseError) {
-          console.warn('Supabase query failed, trying legacy API:', supabaseError);
           contentData = await workspaceAPI.getLearningContent(projectId);
+        } catch (error) {
+          console.error('Failed to fetch learning content:', error);
         }
         
         const transformedContent: LearningContent[] = (Array.isArray(contentData) ? contentData : []).map((c: any) => ({
@@ -766,14 +765,13 @@ export function LearningVault({ mentee, projectId }: LearningVaultProps) {
         }));
         setContent(transformedContent);
 
-        // Fetch recordings from Supabase
+        // TODO (Supabase migration): Re-enable Supabase-based queries AFTER backend Workroom is 100% stable.
+        // Fetch recordings from backend API
         let recordingsData: any[] = [];
         try {
-          const { getProjectRecordings } = await import('../../src/utils/supabaseQueries');
-          recordingsData = await getProjectRecordings(projectId);
-        } catch (supabaseError) {
-          console.warn('Supabase query failed, trying legacy API:', supabaseError);
           recordingsData = await workspaceAPI.getRecordings(projectId);
+        } catch (error) {
+          console.error('Failed to fetch recordings:', error);
         }
         
         const transformedRecordings: Recording[] = (Array.isArray(recordingsData) ? recordingsData : []).map((r: any) => ({

@@ -625,15 +625,14 @@ export function TaskManager({ mentee, projectMembers: propProjectMembers, projec
         setIsLoading(true);
         setError(null);
 
-        // Fetch tasks from Supabase
+        // TODO (Supabase migration): Re-enable Supabase-based queries AFTER backend Workroom is 100% stable.
+        // Fetch tasks from backend API
         let tasksData: any[] = [];
         try {
-          const { getProjectTasks } = await import('../../src/utils/supabaseQueries');
-          tasksData = await getProjectTasks(projectId);
-        } catch (supabaseError) {
-          console.warn('Supabase query failed, trying legacy API:', supabaseError);
-          // Fallback to legacy API during migration
           tasksData = await workspaceAPI.getTasks(projectId);
+        } catch (error) {
+          console.error('Failed to fetch tasks:', error);
+          setError(error instanceof Error ? error.message : 'Failed to load tasks');
         }
         
         const transformedTasks: Task[] = tasksData.map((t: any) => ({
@@ -678,108 +677,8 @@ export function TaskManager({ mentee, projectMembers: propProjectMembers, projec
 
     fetchData();
 
-    // Subscribe to real-time task updates
-    if (projectId) {
-      let realtimeChannels: any[] = [];
-      const setupRealtime = async () => {
-        try {
-          const { subscribeToProjectTasks, unsubscribeAll } = await import('../../src/utils/supabaseRealtime');
-          
-          const taskChannel = subscribeToProjectTasks(projectId, {
-            onInsert: async () => {
-              // Refresh tasks when a new task is created
-              const { getProjectTasks } = await import('../../src/utils/supabaseQueries');
-              const tasksData = await getProjectTasks(projectId);
-              const transformedTasks: Task[] = tasksData.map((t: any) => ({
-                id: t.id,
-                title: t.title,
-                description: t.description,
-                status: t.status,
-                priority: t.priority,
-                assignee: t.assignee,
-                assignedDate: new Date(t.assignedDate || t.assigned_date),
-                dueDate: (t.dueDate || t.due_date) ? new Date(t.dueDate || t.due_date) : undefined,
-                completedDate: (t.completedDate || t.completed_date) ? new Date(t.completedDate || t.completed_date) : undefined,
-                comments: (t.comments || []).map((c: any) => ({
-                  id: c.id,
-                  author: c.author,
-                  authorAvatar: c.authorAvatar,
-                  content: c.content,
-                  timestamp: new Date(c.timestamp),
-                })),
-                attachments: t.attachments || [],
-                tags: t.tags || [],
-              }));
-              setTasks(transformedTasks);
-            },
-            onUpdate: async () => {
-              // Refresh tasks when a task is updated
-              const { getProjectTasks } = await import('../../src/utils/supabaseQueries');
-              const tasksData = await getProjectTasks(projectId);
-              const transformedTasks: Task[] = tasksData.map((t: any) => ({
-                id: t.id,
-                title: t.title,
-                description: t.description,
-                status: t.status,
-                priority: t.priority,
-                assignee: t.assignee,
-                assignedDate: new Date(t.assignedDate || t.assigned_date),
-                dueDate: (t.dueDate || t.due_date) ? new Date(t.dueDate || t.due_date) : undefined,
-                completedDate: (t.completedDate || t.completed_date) ? new Date(t.completedDate || t.completed_date) : undefined,
-                comments: (t.comments || []).map((c: any) => ({
-                  id: c.id,
-                  author: c.author,
-                  authorAvatar: c.authorAvatar,
-                  content: c.content,
-                  timestamp: new Date(c.timestamp),
-                })),
-                attachments: t.attachments || [],
-                tags: t.tags || [],
-              }));
-              setTasks(transformedTasks);
-            },
-            onDelete: async () => {
-              // Refresh tasks when a task is deleted
-              const { getProjectTasks } = await import('../../src/utils/supabaseQueries');
-              const tasksData = await getProjectTasks(projectId);
-              const transformedTasks: Task[] = tasksData.map((t: any) => ({
-                id: t.id,
-                title: t.title,
-                description: t.description,
-                status: t.status,
-                priority: t.priority,
-                assignee: t.assignee,
-                assignedDate: new Date(t.assignedDate || t.assigned_date),
-                dueDate: (t.dueDate || t.due_date) ? new Date(t.dueDate || t.due_date) : undefined,
-                completedDate: (t.completedDate || t.completed_date) ? new Date(t.completedDate || t.completed_date) : undefined,
-                comments: (t.comments || []).map((c: any) => ({
-                  id: c.id,
-                  author: c.author,
-                  authorAvatar: c.authorAvatar,
-                  content: c.content,
-                  timestamp: new Date(c.timestamp),
-                })),
-                attachments: t.attachments || [],
-                tags: t.tags || [],
-              }));
-              setTasks(transformedTasks);
-            },
-          });
-          
-          realtimeChannels.push(taskChannel);
-        } catch (error) {
-          console.warn('Failed to setup real-time subscriptions:', error);
-        }
-      };
-      
-      setupRealtime();
-      
-      return () => {
-        if (realtimeChannels.length > 0) {
-          unsubscribeAll(realtimeChannels);
-        }
-      };
-    }
+    // TODO (Supabase migration): Re-enable Supabase Realtime subscriptions AFTER backend Workroom is 100% stable.
+    // Real-time updates disabled - using backend API only for now
   }, [projectId, propProjectMembers]);
 
   // Apply filters
@@ -833,14 +732,9 @@ export function TaskManager({ mentee, projectMembers: propProjectMembers, projec
     }
 
     try {
-      // Try Supabase first
-      try {
-        const { deleteTask } = await import('../../src/utils/supabaseMutations');
-        await deleteTask(projectId, taskId);
-      } catch (supabaseError) {
-        console.warn('Supabase mutation failed, trying legacy API:', supabaseError);
-        await workspaceAPI.deleteTask(projectId, taskId);
-      }
+      // TODO (Supabase migration): Re-enable Supabase mutations AFTER backend Workroom is 100% stable.
+      // Use backend API
+      await workspaceAPI.deleteTask(projectId, taskId);
       
       setTasks(prev => prev.filter(t => t.id !== taskId));
       toast.success('Task deleted successfully');
@@ -867,15 +761,9 @@ export function TaskManager({ mentee, projectMembers: propProjectMembers, projec
         updates.completedDate = undefined;
       }
 
-      // Try Supabase first
-      let updated;
-      try {
-        const { updateTask } = await import('../../src/utils/supabaseMutations');
-        updated = await updateTask(projectId, taskId, updates);
-      } catch (supabaseError) {
-        console.warn('Supabase mutation failed, trying legacy API:', supabaseError);
-        updated = await workspaceAPI.updateTask(projectId, taskId, updates);
-      }
+      // TODO (Supabase migration): Re-enable Supabase mutations AFTER backend Workroom is 100% stable.
+      // Use backend API
+      const updated = await workspaceAPI.updateTask(projectId, taskId, updates);
       
       setTasks(prev => prev.map(task => 
         task.id === taskId 
@@ -911,15 +799,9 @@ export function TaskManager({ mentee, projectMembers: propProjectMembers, projec
       };
 
       if (editingTask) {
-        // Update existing task - try Supabase first
-        let updated;
-        try {
-          const { updateTask } = await import('../../src/utils/supabaseMutations');
-          updated = await updateTask(projectId, editingTask.id, taskPayload);
-        } catch (supabaseError) {
-          console.warn('Supabase mutation failed, trying legacy API:', supabaseError);
-          updated = await workspaceAPI.updateTask(projectId, editingTask.id, taskPayload);
-        }
+        // TODO (Supabase migration): Re-enable Supabase mutations AFTER backend Workroom is 100% stable.
+        // Use backend API
+        const updated = await workspaceAPI.updateTask(projectId, editingTask.id, taskPayload);
         
         setTasks(prev => prev.map(task => {
           if (task.id === editingTask.id) {
@@ -935,15 +817,9 @@ export function TaskManager({ mentee, projectMembers: propProjectMembers, projec
         }));
         toast.success('Task updated successfully');
       } else {
-        // Create new task - try Supabase first
-        let created;
-        try {
-          const { createTask } = await import('../../src/utils/supabaseMutations');
-          created = await createTask(projectId, taskPayload);
-        } catch (supabaseError) {
-          console.warn('Supabase mutation failed, trying legacy API:', supabaseError);
-          created = await workspaceAPI.createTask(projectId, taskPayload);
-        }
+        // TODO (Supabase migration): Re-enable Supabase mutations AFTER backend Workroom is 100% stable.
+        // Use backend API
+        const created = await workspaceAPI.createTask(projectId, taskPayload);
         
         const newTask: Task = {
           ...created,

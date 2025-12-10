@@ -257,12 +257,12 @@ function ChatSidebar({
         setIsLoading(true);
         // Fetch messages from Supabase
         let data: any[] = [];
+        // TODO (Supabase migration): Re-enable Supabase-based queries AFTER backend Workroom is 100% stable.
+        // Fetch messages from backend API
         try {
-          const { getProjectMessages } = await import('../../src/utils/supabaseQueries');
-          data = await getProjectMessages(projectId);
-        } catch (supabaseError) {
-          console.warn('Supabase query failed, trying legacy API:', supabaseError);
           data = await workspaceAPI.getMessages(projectId);
+        } catch (error) {
+          console.error('Failed to fetch messages:', error);
         }
         
         const transformed: ChatMessage[] = data.map((m: any) => ({
@@ -324,12 +324,12 @@ function ChatSidebar({
       setTimeout(async () => {
         try {
           let data: any[] = [];
+          // TODO (Supabase migration): Re-enable Supabase-based queries AFTER backend Workroom is 100% stable.
+          // Fetch messages from backend API
           try {
-            const { getProjectMessages } = await import('../../src/utils/supabaseQueries');
-            data = await getProjectMessages(projectId);
-          } catch (supabaseError) {
-            console.warn('Supabase query failed, trying legacy API:', supabaseError);
             data = await workspaceAPI.getMessages(projectId);
+          } catch (error) {
+            console.error('Failed to fetch messages:', error);
           }
           
           const transformed: ChatMessage[] = data.map((m: any) => ({
@@ -539,14 +539,13 @@ export function LiveSession({
 
       try {
         setIsLoading(true);
-        // Fetch live sessions from Supabase
+        // TODO (Supabase migration): Re-enable Supabase-based queries AFTER backend Workroom is 100% stable.
+        // Fetch live sessions from backend API
         let sessions: any[] = [];
         try {
-          const { getProjectLiveSessions } = await import('../../src/utils/supabaseQueries');
-          sessions = await getProjectLiveSessions(projectId);
-        } catch (supabaseError) {
-          console.warn('Supabase query failed, trying legacy API:', supabaseError);
           sessions = await workspaceAPI.getLiveSessions(projectId);
+        } catch (error) {
+          console.error('Failed to fetch live sessions:', error);
         }
         
         let transformedParticipants: Participant[] = [];

@@ -442,33 +442,34 @@ export function ProjectWorkspace({
   };
 
   const handleProjectChange = async (projectId: string) => {
-    // Validate UUID format
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-    if (!uuidRegex.test(projectId)) {
-      console.error(`Invalid project ID format: ${projectId}. Expected UUID.`);
+    // Validate projectId is not empty
+    if (!projectId || projectId.trim() === '') {
+      console.error('Invalid project ID: empty or whitespace');
       return;
     }
 
     try {
-      const { getProject } = await import('../src/utils/supabaseQueries');
-      const project = await getProject(projectId);
+      // TODO (Supabase migration): Re-enable Supabase-based queries AFTER backend Workroom is 100% stable.
+      // Load project from backend API
+      const { projectAPI } = await import('../src/utils/api');
+      const project = await projectAPI.getProject(projectId);
       
       if (!project) {
         console.error(`Project ${projectId} not found`);
         return;
       }
 
-      // Transform Supabase project to ProjectWorkspace format
+      // Transform backend project to ProjectWorkspace format
       const transformedProject: Project = {
         id: project.id,
         title: project.title,
-        type: (project.projectType || 'research') as Project['type'],
-        description: project.description,
+        type: (project.type || project.category || 'research') as Project['type'],
+        description: project.description || '',
         status: project.status === 'active' ? 'active' : project.status === 'closed' ? 'completed' : 'planning',
-        members: (project.teamMembers || []).map((m: any) => ({
-          id: m.id || '',
-          name: m.name || '',
-          avatar: m.avatar,
+        members: (project.team || project.members || []).map((m: any) => ({
+          id: m.id || m.userId || '',
+          name: m.name || m.userName || '',
+          avatar: m.avatar || m.avatarUrl,
           university: m.university || '',
           program: m.program || '',
           year: m.year || '',
@@ -486,7 +487,7 @@ export function ProjectWorkspace({
         })),
         mentorMode: 'group',
         startDate: project.startDate || project.createdAt,
-        endDate: project.deadline,
+        endDate: project.deadline || project.endDate,
         progress: project.progress || 0,
       };
 
@@ -501,7 +502,8 @@ export function ProjectWorkspace({
     }
   };
 
-  // Load project from Supabase on mount
+  // TODO (Supabase migration): Re-enable Supabase-based queries AFTER backend Workroom is 100% stable.
+  // Load project from backend API on mount
   React.useEffect(() => {
     const loadProject = async () => {
       setIsLoadingProject(true);
@@ -514,17 +516,16 @@ export function ProjectWorkspace({
           return;
         }
 
-        // Validate UUID format
-        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-        if (!uuidRegex.test(projectId)) {
-          console.error(`Invalid project ID format: ${projectId}. Expected UUID.`);
+        // Validate projectId is not empty
+        if (!projectId || projectId.trim() === '') {
+          console.error('Invalid project ID: empty or whitespace');
           setIsLoadingProject(false);
           return;
         }
 
-        // Load project from Supabase
-        const { getProject } = await import('../src/utils/supabaseQueries');
-        const project = await getProject(projectId);
+        // Load project from backend API
+        const { projectAPI } = await import('../src/utils/api');
+        const project = await projectAPI.getProject(projectId);
         
         if (!project) {
           console.error(`Project ${projectId} not found`);
@@ -532,17 +533,17 @@ export function ProjectWorkspace({
           return;
         }
 
-        // Transform Supabase project to ProjectWorkspace format
+        // Transform backend project to ProjectWorkspace format
         const transformedProject: Project = {
           id: project.id,
           title: project.title,
-          type: (project.projectType || 'research') as Project['type'],
-          description: project.description,
+          type: (project.type || project.category || 'research') as Project['type'],
+          description: project.description || '',
           status: project.status === 'active' ? 'active' : project.status === 'closed' ? 'completed' : 'planning',
-          members: (project.teamMembers || []).map((m: any) => ({
-            id: m.id || '',
-            name: m.name || '',
-            avatar: m.avatar,
+          members: (project.team || project.members || []).map((m: any) => ({
+            id: m.id || m.userId || '',
+            name: m.name || m.userName || '',
+            avatar: m.avatar || m.avatarUrl,
             university: m.university || '',
             program: m.program || '',
             year: m.year || '',
@@ -560,7 +561,7 @@ export function ProjectWorkspace({
           })),
           mentorMode: 'group',
           startDate: project.startDate || project.createdAt,
-          endDate: project.deadline,
+          endDate: project.deadline || project.endDate,
           progress: project.progress || 0,
         };
 
@@ -579,24 +580,25 @@ export function ProjectWorkspace({
     loadProject();
   }, [initialProjectId, contextSelectedProject?.id]);
 
-  // Load available projects for selector
+  // TODO (Supabase migration): Re-enable Supabase-based queries AFTER backend Workroom is 100% stable.
+  // Load available projects for selector from backend API
   React.useEffect(() => {
     const loadAvailableProjects = async () => {
       try {
-        const { getProjects } = await import('../src/utils/supabaseQueries');
-        const projects = await getProjects();
+        const { projectAPI } = await import('../src/utils/api');
+        const projects = await projectAPI.getProjects();
         
         // Transform to ProjectWorkspace format
         const transformedProjects: Project[] = projects.map((p: any) => ({
           id: p.id,
           title: p.title,
-          type: (p.projectType || 'research') as Project['type'],
-          description: p.description,
+          type: (p.type || p.category || 'research') as Project['type'],
+          description: p.description || '',
           status: p.status === 'active' ? 'active' : p.status === 'closed' ? 'completed' : 'planning',
-          members: (p.teamMembers || []).map((m: any) => ({
-            id: m.id || '',
-            name: m.name || '',
-            avatar: m.avatar,
+          members: (p.team || p.members || []).map((m: any) => ({
+            id: m.id || m.userId || '',
+            name: m.name || m.userName || '',
+            avatar: m.avatar || m.avatarUrl,
             university: m.university || '',
             program: m.program || '',
             year: m.year || '',
@@ -614,7 +616,7 @@ export function ProjectWorkspace({
           })),
           mentorMode: 'group',
           startDate: p.startDate || p.createdAt,
-          endDate: p.deadline,
+          endDate: p.deadline || p.endDate,
           progress: p.progress || 0,
         }));
         

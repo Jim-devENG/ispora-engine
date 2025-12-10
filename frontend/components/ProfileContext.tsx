@@ -384,16 +384,24 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
         const { user, error: userError } = await getCurrentUser();
         
         if (userError || !user) {
-          // Not authenticated - only use localStorage fallback
-          // TODO: REMOVE_AFTER_SUPABASE_MIGRATION - Remove localStorage fallback once all users are migrated
-          const savedProfile = localStorage.getItem('userProfile');
-          if (savedProfile) {
-            try {
-              const parsedProfile = JSON.parse(savedProfile);
-              setProfile(parsedProfile);
-              setOriginalProfile(parsedProfile);
-            } catch (parseError) {
-              console.error('Error loading saved profile:', parseError);
+          // Not authenticated with Supabase - try backend API
+          try {
+            const apiProfile = await userAPI.getProfile();
+            setProfile(apiProfile);
+            setOriginalProfile(apiProfile);
+            localStorage.setItem('userProfile', JSON.stringify(apiProfile));
+            return;
+          } catch (apiError) {
+            // Fallback to localStorage
+            const savedProfile = localStorage.getItem('userProfile');
+            if (savedProfile) {
+              try {
+                const parsedProfile = JSON.parse(savedProfile);
+                setProfile(parsedProfile);
+                setOriginalProfile(parsedProfile);
+              } catch (parseError) {
+                console.error('Error loading saved profile:', parseError);
+              }
             }
           }
           return;

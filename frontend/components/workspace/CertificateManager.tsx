@@ -58,14 +58,14 @@ export function CertificateManager({ mentee, projectId }: CertificateManagerProp
       try {
         setIsLoading(true);
         setError(null);
-        // Fetch certificates from Supabase
+        // TODO (Supabase migration): Re-enable Supabase-based queries AFTER backend Workroom is 100% stable.
+        // Fetch certificates from backend API
         let data: any[] = [];
         try {
-          const { getProjectCertificates } = await import('../../src/utils/supabaseQueries');
-          data = await getProjectCertificates(projectId);
-        } catch (supabaseError) {
-          console.warn('Supabase query failed, trying legacy API:', supabaseError);
           data = await workspaceAPI.getCertificates(projectId);
+        } catch (error) {
+          console.error('Failed to fetch certificates:', error);
+          setError(error instanceof Error ? error.message : 'Failed to load certificates');
         }
         
         const transformed: Certificate[] = data.map((c: any) => {

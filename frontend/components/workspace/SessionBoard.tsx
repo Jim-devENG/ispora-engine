@@ -837,15 +837,14 @@ export function SessionBoard({ mentee, projectId }: SessionBoardProps) {
       try {
         setIsLoading(true);
         setError(null);
-        // Fetch sessions from Supabase
+        // TODO (Supabase migration): Re-enable Supabase-based queries AFTER backend Workroom is 100% stable.
+        // Fetch sessions from backend API
         let data: any[] = [];
         try {
-          const { getProjectSessions } = await import('../../src/utils/supabaseQueries');
-          data = await getProjectSessions(projectId);
-        } catch (supabaseError) {
-          console.warn('Supabase query failed, trying legacy API:', supabaseError);
-          // Fallback to legacy API during migration
           data = await workspaceAPI.getSessions(projectId);
+        } catch (error) {
+          console.error('Failed to fetch sessions:', error);
+          setError(error instanceof Error ? error.message : 'Failed to load sessions');
         }
         
         // Transform API response to match component interface
