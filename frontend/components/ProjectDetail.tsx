@@ -1658,7 +1658,7 @@ export function ProjectDetail({ projectId, onBack, onJoinProject }: ProjectDetai
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => navigateToWorkroom()}
+                              onClick={() => navigateToWorkroom(projectId)}
                               className="border-blue-300 text-blue-700 hover:bg-blue-100"
                             >
                               <ExternalLink className="h-3 w-3 mr-1" />

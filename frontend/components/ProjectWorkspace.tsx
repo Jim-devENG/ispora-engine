@@ -350,12 +350,12 @@ export function ProjectWorkspace({
   onBackToProjects,
   initialProjectId
 }: ProjectWorkspaceProps) {
-  const { navigationOptions, setNavigationOptions } = useNavigation();
+  const { navigationOptions, setNavigationOptions, selectedProject: contextSelectedProject } = useNavigation();
   const [activeTab, setActiveTab] = useState("session-board");
-  const [selectedProject, setSelectedProject] = useState<Project>(
-    mockProjects.find(p => p.id === initialProjectId) || mockProjects[0]
-  );
-  const [selectedMember, setSelectedMember] = useState<ProjectMember>(selectedProject.members[0]);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [isLoadingProject, setIsLoadingProject] = useState(true);
+  const [availableProjects, setAvailableProjects] = useState<Project[]>([]);
+  const [selectedMember, setSelectedMember] = useState<ProjectMember | null>(null);
   const [isRightPanelOpen, setIsRightPanelOpen] = useState(false);
   const [rightPanelContent, setRightPanelContent] = useState<"calendar" | "notifications">("calendar");
   const [memberModalOpen, setMemberModalOpen] = useState(false);
@@ -380,9 +380,7 @@ export function ProjectWorkspace({
   });
   
   // Workspace participants state - always group mode for MVP
-  const [workspaceParticipants, setWorkspaceParticipants] = useState<ProjectMember[]>(
-    selectedProject.members.filter(m => m.status === "active")
-  );
+  const [workspaceParticipants, setWorkspaceParticipants] = useState<ProjectMember[]>([]);
 
   // Handle member changes from ProjectMemberModal
   const handleMemberChange = (members: ProjectMember[]) => {
@@ -431,7 +429,7 @@ export function ProjectWorkspace({
     return [...baseTabs, ...projectSpecificTabs];
   };
 
-  const tabs = getTabsForProjectType(selectedProject.type);
+  const tabs = selectedProject ? getTabsForProjectType(selectedProject.type) : [];
 
   const openRightPanel = (content: "calendar" | "notifications") => {
     setRightPanelContent(content);
@@ -443,15 +441,235 @@ export function ProjectWorkspace({
     setMemberModalOpen(false);
   };
 
-  const handleProjectChange = (projectId: string) => {
-    const project = mockProjects.find(p => p.id === projectId);
-    if (project) {
-      setSelectedProject(project);
-      setSelectedMember(project.members[0]);
-      setWorkspaceParticipants(project.members.filter(m => m.status === "active"));
+  const handleProjectChange = async (projectId: string) => {
+    // Validate UUID format
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(projectId)) {
+      console.error(`Invalid project ID format: ${projectId}. Expected UUID.`);
+      return;
+    }
+
+    try {
+      const { getProject } = await import('../src/utils/supabaseQueries');
+      const project = await getProject(projectId);
+      
+      if (!project) {
+        console.error(`Project ${projectId} not found`);
+        return;
+      }
+
+      // Transform Supabase project to ProjectWorkspace format
+      const transformedProject: Project = {
+        id: project.id,
+        title: project.title,
+        type: (project.projectType || 'research') as Project['type'],
+        description: project.description,
+        status: project.status === 'active' ? 'active' : project.status === 'closed' ? 'completed' : 'planning',
+        members: (project.teamMembers || []).map((m: any) => ({
+          id: m.id || '',
+          name: m.name || '',
+          avatar: m.avatar,
+          university: m.university || '',
+          program: m.program || '',
+          year: m.year || '',
+          role: (m.role || 'participant') as ProjectMember['role'],
+          status: (m.status || 'active') as ProjectMember['status'],
+          progress: m.progress || 0,
+          isOnline: m.isOnline,
+          email: m.email,
+          skills: m.skills,
+          tasksCompleted: m.tasksCompleted,
+          contributionScore: m.contributionScore,
+          projectsInvolved: m.projectsInvolved,
+          joinedDate: m.joinedDate,
+          lastActive: m.lastActive,
+        })),
+        mentorMode: 'group',
+        startDate: project.startDate || project.createdAt,
+        endDate: project.deadline,
+        progress: project.progress || 0,
+      };
+
+      setSelectedProject(transformedProject);
+      if (transformedProject.members.length > 0) {
+        setSelectedMember(transformedProject.members[0]);
+        setWorkspaceParticipants(transformedProject.members.filter(m => m.status === "active"));
+      }
       setShowProjectSelector(false);
+    } catch (error) {
+      console.error('Failed to load project:', error);
     }
   };
+
+  // Load project from Supabase on mount
+  React.useEffect(() => {
+    const loadProject = async () => {
+      setIsLoadingProject(true);
+      try {
+        const projectId = initialProjectId || contextSelectedProject?.id;
+        
+        if (!projectId) {
+          console.error('No project ID provided to ProjectWorkspace');
+          setIsLoadingProject(false);
+          return;
+        }
+
+        // Validate UUID format
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+        if (!uuidRegex.test(projectId)) {
+          console.error(`Invalid project ID format: ${projectId}. Expected UUID.`);
+          setIsLoadingProject(false);
+          return;
+        }
+
+        // Load project from Supabase
+        const { getProject } = await import('../src/utils/supabaseQueries');
+        const project = await getProject(projectId);
+        
+        if (!project) {
+          console.error(`Project ${projectId} not found`);
+          setIsLoadingProject(false);
+          return;
+        }
+
+        // Transform Supabase project to ProjectWorkspace format
+        const transformedProject: Project = {
+          id: project.id,
+          title: project.title,
+          type: (project.projectType || 'research') as Project['type'],
+          description: project.description,
+          status: project.status === 'active' ? 'active' : project.status === 'closed' ? 'completed' : 'planning',
+          members: (project.teamMembers || []).map((m: any) => ({
+            id: m.id || '',
+            name: m.name || '',
+            avatar: m.avatar,
+            university: m.university || '',
+            program: m.program || '',
+            year: m.year || '',
+            role: (m.role || 'participant') as ProjectMember['role'],
+            status: (m.status || 'active') as ProjectMember['status'],
+            progress: m.progress || 0,
+            isOnline: m.isOnline,
+            email: m.email,
+            skills: m.skills,
+            tasksCompleted: m.tasksCompleted,
+            contributionScore: m.contributionScore,
+            projectsInvolved: m.projectsInvolved,
+            joinedDate: m.joinedDate,
+            lastActive: m.lastActive,
+          })),
+          mentorMode: 'group',
+          startDate: project.startDate || project.createdAt,
+          endDate: project.deadline,
+          progress: project.progress || 0,
+        };
+
+        setSelectedProject(transformedProject);
+        if (transformedProject.members.length > 0) {
+          setSelectedMember(transformedProject.members[0]);
+          setWorkspaceParticipants(transformedProject.members.filter(m => m.status === "active"));
+        }
+      } catch (error) {
+        console.error('Failed to load project:', error);
+      } finally {
+        setIsLoadingProject(false);
+      }
+    };
+
+    loadProject();
+  }, [initialProjectId, contextSelectedProject?.id]);
+
+  // Load available projects for selector
+  React.useEffect(() => {
+    const loadAvailableProjects = async () => {
+      try {
+        const { getProjects } = await import('../src/utils/supabaseQueries');
+        const projects = await getProjects();
+        
+        // Transform to ProjectWorkspace format
+        const transformedProjects: Project[] = projects.map((p: any) => ({
+          id: p.id,
+          title: p.title,
+          type: (p.projectType || 'research') as Project['type'],
+          description: p.description,
+          status: p.status === 'active' ? 'active' : p.status === 'closed' ? 'completed' : 'planning',
+          members: (p.teamMembers || []).map((m: any) => ({
+            id: m.id || '',
+            name: m.name || '',
+            avatar: m.avatar,
+            university: m.university || '',
+            program: m.program || '',
+            year: m.year || '',
+            role: (m.role || 'participant') as ProjectMember['role'],
+            status: (m.status || 'active') as ProjectMember['status'],
+            progress: m.progress || 0,
+            isOnline: m.isOnline,
+            email: m.email,
+            skills: m.skills,
+            tasksCompleted: m.tasksCompleted,
+            contributionScore: m.contributionScore,
+            projectsInvolved: m.projectsInvolved,
+            joinedDate: m.joinedDate,
+            lastActive: m.lastActive,
+          })),
+          mentorMode: 'group',
+          startDate: p.startDate || p.createdAt,
+          endDate: p.deadline,
+          progress: p.progress || 0,
+        }));
+        
+        setAvailableProjects(transformedProjects);
+      } catch (error) {
+        console.error('Failed to load available projects:', error);
+      }
+    };
+
+    loadAvailableProjects();
+  }, []);
+
+  // Show loading or empty state if no project
+  if (isLoadingProject) {
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading project...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!selectedProject) {
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <div className="text-center max-w-md">
+          <Target className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">No Project Selected</h2>
+          <p className="text-gray-600 mb-4">Please select a project to open the Workroom.</p>
+          <Button onClick={onBackToProjects} variant="outline">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Projects
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!selectedMember) {
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <div className="text-center max-w-md">
+          <Users className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">No Members Available</h2>
+          <p className="text-gray-600 mb-4">This project has no members yet.</p>
+          <Button onClick={onBackToProjects} variant="outline">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Projects
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   const ProjectIcon = projectTypeIcons[selectedProject.type];
 
@@ -584,7 +802,7 @@ export function ProjectWorkspace({
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {mockProjects.map((project) => {
+                        {availableProjects.map((project) => {
                           const Icon = projectTypeIcons[project.type];
                           return (
                             <SelectItem key={project.id} value={project.id}>

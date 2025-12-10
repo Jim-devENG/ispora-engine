@@ -50,17 +50,75 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
     console.log(`Navigating to campaign: ${campaign.title}`);
   };
 
-  const navigateToWorkroom = (projectId?: string, options?: { openWorkspacePanel?: boolean; activeTab?: string }) => {
-    if (projectId) {
-      setSelectedProject({ id: projectId } as any);
+  const navigateToWorkroom = async (projectId?: string, options?: { openWorkspacePanel?: boolean; activeTab?: string }) => {
+    // Require a valid projectId - never allow undefined
+    if (!projectId) {
+      // If no projectId provided, try to use existing selectedProject
+      if (selectedProject?.id) {
+        projectId = selectedProject.id;
+      } else {
+        // If no selected project, try to fetch first available project from Supabase
+        try {
+          const { getProjects } = await import('../src/utils/supabaseQueries');
+          const projects = await getProjects();
+          if (projects && projects.length > 0) {
+            projectId = projects[0].id;
+            setSelectedProject(projects[0] as any);
+          } else {
+            console.warn('No projects available. Redirecting to Project Dashboard.');
+            setCurrentPage('Project Dashboard');
+            setActiveItem('Projects');
+            return;
+          }
+        } catch (error) {
+          console.error('Failed to load projects for Workroom:', error);
+          // Redirect to Project Dashboard if we can't load projects
+          setCurrentPage('Project Dashboard');
+          setActiveItem('Projects');
+          return;
+        }
+      }
     }
+
+    // Validate projectId is a UUID
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(projectId)) {
+      console.error(`Invalid project ID format: ${projectId}. Expected UUID.`);
+      setCurrentPage('Project Dashboard');
+      setActiveItem('Projects');
+      return;
+    }
+
+    // Load full project data if we only have an ID
+    if (!selectedProject || selectedProject.id !== projectId) {
+      try {
+        const { getProject } = await import('../src/utils/supabaseQueries');
+        const project = await getProject(projectId);
+        if (project) {
+          setSelectedProject(project as any);
+        } else {
+          console.error(`Project ${projectId} not found. Redirecting to Project Dashboard.`);
+          setCurrentPage('Project Dashboard');
+          setActiveItem('Projects');
+          return;
+        }
+      } catch (error) {
+        console.error(`Failed to load project ${projectId}:`, error);
+        setCurrentPage('Project Dashboard');
+        setActiveItem('Projects');
+        return;
+      }
+    }
+
     setCurrentPage('Workroom');
     setActiveItem('Workroom');
     
     // Store additional navigation options in context
     setNavigationOptions(options || {});
     
-    console.log(`Navigating to workroom for project: ${projectId || 'default'}`, options);
+    if (import.meta.env.DEV) {
+      console.log(`Navigating to workroom for project: ${projectId}`, options);
+    }
   };
 
   const navigateToSpecificProject = (projectId: string, params?: any) => {

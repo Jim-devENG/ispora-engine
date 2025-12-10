@@ -79,10 +79,11 @@ export function QuickActions() {
       icon: <MessageSquare className="h-4 w-4" />,
       iconColor: "text-blue-600 bg-blue-100",
       badgeCount: pendingMentorshipRequests,
-      onAction: () => navigateToWorkroom(undefined, { 
-        openWorkspacePanel: true, 
-        activeTab: 'requests' 
-      })
+      onAction: () => {
+        // Navigate to Projects first to select a project, then open Workroom
+        navigate('Projects');
+        // Note: Workroom will be opened after project selection
+      }
     },
     {
       title: "Connect to My Alma Mater",
