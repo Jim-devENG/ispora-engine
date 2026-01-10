@@ -648,16 +648,16 @@ function JoinProjectDialog({ project, onJoin, isOpen, onOpenChange, preSelectedR
 
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-      <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col p-0 overflow-hidden">
+      <DialogContent className="max-w-3xl max-h-[85vh] flex flex-col p-0 overflow-hidden">
         {/* Header Section */}
-        <DialogHeader className="flex-shrink-0 px-8 pt-8 pb-6 border-b bg-gradient-to-r from-blue-50/50 to-purple-50/50 dark:from-blue-950/30 dark:to-purple-950/30">
-          <div className="flex items-start gap-4">
-            <div className="p-3 rounded-xl bg-[#021ff6]/10 border border-[#021ff6]/20">
-              <UserPlus className="h-6 w-6 text-[#021ff6]" />
+        <DialogHeader className="flex-shrink-0 px-6 pt-5 pb-4 border-b bg-gradient-to-r from-blue-50/50 to-purple-50/50 dark:from-blue-950/30 dark:to-purple-950/30">
+          <div className="flex items-start gap-3">
+            <div className="p-2.5 rounded-lg bg-[#021ff6]/10 border border-[#021ff6]/20">
+              <UserPlus className="h-5 w-5 text-[#021ff6]" />
             </div>
-            <div className="flex-1">
-              <DialogTitle className="text-2xl font-bold mb-2">Join This Project</DialogTitle>
-              <DialogDescription className="text-base">
+            <div className="flex-1 min-w-0">
+              <DialogTitle className="text-xl font-bold mb-1">Join This Project</DialogTitle>
+              <DialogDescription className="text-sm line-clamp-2">
                 Become part of <span className="font-semibold text-foreground">"{project.title}"</span> and make a meaningful impact
               </DialogDescription>
             </div>
@@ -666,23 +666,23 @@ function JoinProjectDialog({ project, onJoin, isOpen, onOpenChange, preSelectedR
         
         {/* Scrollable Content */}
         <ScrollArea className="flex-1 min-h-0">
-          <div className="px-8 py-6 space-y-8">
+          <div className="px-6 py-4 space-y-5">
             {/* Step 1: Role Selection */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#021ff6] text-white text-sm font-semibold">
+            <div className="space-y-3">
+              <div className="flex items-center gap-2.5 mb-1">
+                <div className="flex items-center justify-center w-7 h-7 rounded-full bg-[#021ff6] text-white text-xs font-semibold flex-shrink-0">
                   1
                 </div>
                 <div>
-                  <Label className="text-lg font-semibold">Choose Your Role</Label>
-                  <p className="text-sm text-muted-foreground mt-0.5">
-                    Select how you'd like to contribute to this project
+                  <Label className="text-base font-semibold">Choose Your Role</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Select how you'd like to contribute
                   </p>
                 </div>
               </div>
               
               {joinOptions.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {joinOptions.map((option) => {
                     const Icon = option.icon;
                     const isSelected = selectedRole === option.id;
@@ -690,43 +690,43 @@ function JoinProjectDialog({ project, onJoin, isOpen, onOpenChange, preSelectedR
                     return (
                       <div
                         key={option.id}
-                        className={`group relative p-5 border-2 rounded-xl cursor-pointer transition-all duration-200 ${
+                        className={`group relative p-4 border-2 rounded-lg cursor-pointer transition-all duration-200 ${
                           isSelected 
-                            ? 'border-[#021ff6] bg-[#021ff6]/5 shadow-lg shadow-[#021ff6]/10 scale-[1.02]' 
-                            : 'border-border hover:border-[#021ff6]/50 hover:shadow-md bg-card'
+                            ? 'border-[#021ff6] bg-[#021ff6]/5 shadow-md shadow-[#021ff6]/10' 
+                            : 'border-border hover:border-[#021ff6]/50 hover:shadow-sm bg-card'
                         }`}
                         onClick={() => setSelectedRole(option.id)}
                       >
                         {isSelected && (
-                          <div className="absolute top-3 right-3">
-                            <div className="w-6 h-6 rounded-full bg-[#021ff6] flex items-center justify-center">
-                              <CheckCircle className="h-4 w-4 text-white" />
+                          <div className="absolute top-2 right-2">
+                            <div className="w-5 h-5 rounded-full bg-[#021ff6] flex items-center justify-center">
+                              <CheckCircle className="h-3.5 w-3.5 text-white" />
                             </div>
                           </div>
                         )}
                         
-                        <div className="flex items-start gap-4">
-                          <div className={`p-3 rounded-lg transition-colors ${
+                        <div className="flex items-start gap-3">
+                          <div className={`p-2 rounded-lg transition-colors flex-shrink-0 ${
                             isSelected 
-                              ? 'bg-[#021ff6] text-white shadow-md' 
+                              ? 'bg-[#021ff6] text-white shadow-sm' 
                               : 'bg-muted group-hover:bg-[#021ff6]/10'
                           }`}>
-                            <Icon className={`h-5 w-5 ${isSelected ? 'text-white' : 'text-[#021ff6]'}`} />
+                            <Icon className={`h-4 w-4 ${isSelected ? 'text-white' : 'text-[#021ff6]'}`} />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <h5 className={`font-semibold mb-1.5 ${isSelected ? 'text-[#021ff6]' : 'text-foreground'}`}>
+                            <h5 className={`font-semibold text-sm mb-1 ${isSelected ? 'text-[#021ff6]' : 'text-foreground'}`}>
                               {option.label}
                             </h5>
-                            <p className="text-sm text-muted-foreground mb-3 leading-relaxed">
+                            <p className="text-xs text-muted-foreground mb-2 leading-relaxed line-clamp-2">
                               {option.description}
                             </p>
                             {option.requirements && option.requirements.length > 0 && (
-                              <div className="flex flex-wrap gap-1.5">
-                                {option.requirements.slice(0, 3).map((req, idx) => (
+                              <div className="flex flex-wrap gap-1">
+                                {option.requirements.slice(0, 2).map((req) => (
                                   <Badge 
                                     key={req} 
                                     variant="secondary" 
-                                    className={`text-xs px-2 py-0.5 ${
+                                    className={`text-xs px-1.5 py-0.5 ${
                                       isSelected 
                                         ? 'bg-[#021ff6]/10 text-[#021ff6] border-[#021ff6]/20' 
                                         : 'bg-muted'
@@ -735,9 +735,9 @@ function JoinProjectDialog({ project, onJoin, isOpen, onOpenChange, preSelectedR
                                     {req}
                                   </Badge>
                                 ))}
-                                {option.requirements.length > 3 && (
-                                  <Badge variant="secondary" className="text-xs px-2 py-0.5 bg-muted">
-                                    +{option.requirements.length - 3} more
+                                {option.requirements.length > 2 && (
+                                  <Badge variant="secondary" className="text-xs px-1.5 py-0.5 bg-muted">
+                                    +{option.requirements.length - 2}
                                   </Badge>
                                 )}
                               </div>
@@ -749,10 +749,10 @@ function JoinProjectDialog({ project, onJoin, isOpen, onOpenChange, preSelectedR
                   })}
                 </div>
               ) : (
-                <div className="p-8 text-center border-2 border-dashed rounded-xl bg-muted/30">
-                  <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <h5 className="font-semibold text-lg mb-2">No Current Openings</h5>
-                  <p className="text-sm text-muted-foreground mb-4 max-w-md mx-auto">
+                <div className="p-6 text-center border-2 border-dashed rounded-lg bg-muted/30">
+                  <AlertCircle className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+                  <h5 className="font-semibold text-base mb-1">No Current Openings</h5>
+                  <p className="text-xs text-muted-foreground mb-3 max-w-md mx-auto">
                     This project is not currently seeking new contributors, but you can express interest for future opportunities.
                   </p>
                   <Button variant="outline" size="sm">
@@ -764,16 +764,16 @@ function JoinProjectDialog({ project, onJoin, isOpen, onOpenChange, preSelectedR
 
             {/* Step 2: Application Form */}
             {selectedRole && joinOptions.length > 0 && (
-              <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                <Separator className="my-6" />
+              <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                <Separator className="my-4" />
                 
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#021ff6] text-white text-sm font-semibold">
+                <div className="flex items-center gap-2.5 mb-2">
+                  <div className="flex items-center justify-center w-7 h-7 rounded-full bg-[#021ff6] text-white text-xs font-semibold flex-shrink-0">
                     2
                   </div>
                   <div>
-                    <Label className="text-lg font-semibold">Tell Us About Yourself</Label>
-                    <p className="text-sm text-muted-foreground mt-0.5">
+                    <Label className="text-base font-semibold">Tell Us About Yourself</Label>
+                    <p className="text-xs text-muted-foreground">
                       Help us understand your interest and qualifications
                     </p>
                   </div>
@@ -781,36 +781,41 @@ function JoinProjectDialog({ project, onJoin, isOpen, onOpenChange, preSelectedR
 
                 {/* Selected Role Preview */}
                 {selectedOption && (
-                  <div className="p-5 rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/50 dark:to-indigo-950/50 border border-blue-200 dark:border-blue-800">
-                    <div className="flex items-start gap-4">
-                      <div className="p-2.5 rounded-lg bg-[#021ff6] text-white shadow-md">
-                        <selectedOption.icon className="h-5 w-5" />
+                  <div className="p-4 rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/50 dark:to-indigo-950/50 border border-blue-200 dark:border-blue-800">
+                    <div className="flex items-start gap-3">
+                      <div className="p-2 rounded-lg bg-[#021ff6] text-white shadow-sm flex-shrink-0">
+                        <selectedOption.icon className="h-4 w-4" />
                       </div>
-                      <div className="flex-1">
+                      <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                          <h5 className="font-semibold text-blue-900 dark:text-blue-100">
+                          <h5 className="font-semibold text-sm text-blue-900 dark:text-blue-100">
                             {selectedOption.label}
                           </h5>
-                          <Badge variant="secondary" className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 text-xs">
+                          <Badge variant="secondary" className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 text-xs px-1.5 py-0">
                             Selected
                           </Badge>
                         </div>
-                        <p className="text-sm text-blue-800 dark:text-blue-200 mb-3">
+                        <p className="text-xs text-blue-800 dark:text-blue-200 mb-2 line-clamp-2">
                           {selectedOption.description}
                         </p>
                         {selectedOption.requirements && selectedOption.requirements.length > 0 && (
-                          <div className="space-y-2">
+                          <div className="space-y-1.5">
                             <p className="text-xs font-medium text-blue-700 dark:text-blue-300">Expected Qualifications:</p>
-                            <div className="flex flex-wrap gap-1.5">
-                              {selectedOption.requirements.map((req) => (
+                            <div className="flex flex-wrap gap-1">
+                              {selectedOption.requirements.slice(0, 3).map((req) => (
                                 <Badge 
                                   key={req} 
                                   variant="secondary" 
-                                  className="text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 border-blue-200 dark:border-blue-700"
+                                  className="text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 border-blue-200 dark:border-blue-700 px-1.5 py-0"
                                 >
                                   {req}
                                 </Badge>
                               ))}
+                              {selectedOption.requirements.length > 3 && (
+                                <Badge variant="secondary" className="text-xs px-1.5 py-0">
+                                  +{selectedOption.requirements.length - 3}
+                                </Badge>
+                              )}
                             </div>
                           </div>
                         )}
@@ -820,53 +825,53 @@ function JoinProjectDialog({ project, onJoin, isOpen, onOpenChange, preSelectedR
                 )}
                 
                 {/* Form Fields */}
-                <div className="space-y-5">
-                  <div className="space-y-3">
+                <div className="space-y-4">
+                  <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="motivation" className="text-base font-medium">
+                      <Label htmlFor="motivation" className="text-sm font-medium">
                         Why do you want to join this project? *
                       </Label>
                       <span className="text-xs text-muted-foreground">
-                        {motivation.length}/500 characters
+                        {motivation.length}/500
                       </span>
                     </div>
                     <Textarea
                       id="motivation"
-                      placeholder="Share your motivation, what you hope to contribute, and what you'd like to gain from this experience. Be specific about how this aligns with your goals..."
+                      placeholder="Share your motivation, what you hope to contribute, and what you'd like to gain from this experience..."
                       value={motivation}
                       onChange={(e) => setMotivation(e.target.value.slice(0, 500))}
-                      rows={4}
-                      className="resize-none text-base leading-relaxed"
+                      rows={3}
+                      className="resize-none text-sm leading-relaxed"
                       maxLength={500}
                     />
                     {motivation.length > 0 && motivation.length < 10 && (
                       <p className="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1">
                         <AlertCircle className="h-3 w-3" />
-                        Please provide at least 10 characters for your motivation
+                        Please provide at least 10 characters
                       </p>
                     )}
                   </div>
                   
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="experience" className="text-base font-medium">
+                      <Label htmlFor="experience" className="text-sm font-medium">
                         Relevant Experience or Background
                       </Label>
                       <span className="text-xs text-muted-foreground">
-                        {experience.length}/1000 characters
+                        {experience.length}/1000
                       </span>
                     </div>
                     <Textarea
                       id="experience"
-                      placeholder="Briefly describe your relevant experience, skills, education, or background that make you a good fit for this role. Include any notable achievements or certifications..."
+                      placeholder="Briefly describe your relevant experience, skills, education, or background..."
                       value={experience}
                       onChange={(e) => setExperience(e.target.value.slice(0, 1000))}
-                      rows={4}
-                      className="resize-none text-base leading-relaxed"
+                      rows={3}
+                      className="resize-none text-sm leading-relaxed"
                       maxLength={1000}
                     />
                     <p className="text-xs text-muted-foreground">
-                      Optional but recommended - helps project leaders better understand your fit
+                      Optional but recommended
                     </p>
                   </div>
                 </div>
@@ -874,39 +879,41 @@ function JoinProjectDialog({ project, onJoin, isOpen, onOpenChange, preSelectedR
             )}
             
             {/* Bottom spacing */}
-            <div className="pb-4"></div>
+            <div className="pb-2"></div>
           </div>
         </ScrollArea>
         
         {/* Footer Actions */}
-        <DialogFooter className="flex-shrink-0 px-8 py-5 border-t bg-muted/30">
+        <DialogFooter className="flex-shrink-0 px-6 py-4 border-t bg-muted/30">
           <div className="flex items-center justify-between w-full">
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <AlertCircle className="h-3 w-3" />
               <span>* Required fields</span>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               <Button 
                 variant="outline" 
                 onClick={() => setDialogOpen(false)}
                 disabled={isSubmitting}
-                className="min-w-[100px]"
+                size="sm"
+                className="h-9"
               >
                 Cancel
               </Button>
               <Button 
                 onClick={handleJoin}
                 disabled={!isFormValid || isSubmitting}
-                className="bg-[#021ff6] hover:bg-[#021ff6]/90 min-w-[160px] disabled:opacity-50 disabled:cursor-not-allowed"
+                size="sm"
+                className="bg-[#021ff6] hover:bg-[#021ff6]/90 h-9 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? (
                   <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    <div className="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-white mr-2"></div>
                     Submitting...
                   </>
                 ) : (
                   <>
-                    <CheckCircle className="h-4 w-4 mr-2" />
+                    <CheckCircle className="h-3.5 w-3.5 mr-2" />
                     Submit Application
                   </>
                 )}
