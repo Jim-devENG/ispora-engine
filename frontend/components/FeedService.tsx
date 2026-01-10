@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext, createContext, useRef } from 'react';
-import { projectAPI, feedAPI } from '../src/utils/api';
+// Removed projectAPI and feedAPI imports - now using Supabase queries directly
 
 // Removed demo data arrays - feed now only uses data from backend API
 // const realProjects = [ ... ] - REMOVED
@@ -607,6 +607,9 @@ export class FeedService {
   private adminHighlights: AdminHighlight[] = [];
   private userActions: UserAction[] = [];
   private subscribers: Array<() => void> = [];
+  private isLoading = false;
+  private lastFetchTime = 0;
+  private fetchTimeout = 60000; // 1 minute between fetches
 
   public static getInstance(): FeedService {
     if (!FeedService.instance) {
@@ -687,15 +690,25 @@ export class FeedService {
       // Fetch projects from Supabase - only use real projects, no fallback to demo data
       let apiProjects: any[] = [];
       try {
-        const { getProjects } = await import('../src/utils/supabaseQueries');
-        apiProjects = await getProjects();
-      } catch (supabaseError) {
-        // TODO: REMOVE_AFTER_SUPABASE_MIGRATION - Fallback to legacy API
-        // Only log in development to reduce console noise
-        if (import.meta.env.DEV) {
-          console.warn('Supabase query failed, trying legacy API:', supabaseError);
+        // Check if Supabase is configured first
+        const { isSupabaseConfigured } = await import('../src/utils/supabaseClient');
+        if (!isSupabaseConfigured) {
+          console.warn('Supabase not configured, skipping project feed generation');
+          return [];
         }
-        apiProjects = await projectAPI.getProjects();
+
+        // Add timeout to prevent hanging
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Project fetch timeout')), 5000)
+        );
+
+        const { getProjects } = await import('../src/utils/supabaseQueries');
+        const projectsPromise = getProjects();
+        apiProjects = await Promise.race([projectsPromise, timeoutPromise]) as any[];
+      } catch (supabaseError) {
+        // Don't fallback to legacy API - just return empty array
+        console.warn('Failed to fetch projects from Supabase:', supabaseError);
+        return [];
       }
       
       // Only generate feed items if we have API projects
@@ -1009,6 +1022,7 @@ export class FeedService {
     limit?: number;
     visibility?: 'public' | 'authenticated' | 'all';
     includeExpired?: boolean;
+    forceRefresh?: boolean;
   } = {}): Promise<FeedItem[]> {
     const { 
       includeAdminHighlights = true, 
@@ -1017,132 +1031,161 @@ export class FeedService {
       significanceFilter = 'all',
       limit, 
       visibility = 'all',
-      includeExpired = true 
+      includeExpired = true,
+      forceRefresh = false
     } = options;
 
-    // Fetch feed items from Supabase (includes feed items created by backend)
-    let apiFeedItems: FeedItem[] = [];
+    // Prevent too frequent requests
+    const now = Date.now();
+    if (!forceRefresh && this.isLoading) {
+      // Return existing items if already loading
+      return this.feedItems;
+    }
+    if (!forceRefresh && (now - this.lastFetchTime) < this.fetchTimeout) {
+      // Return cached items if recently fetched
+      return this.feedItems;
+    }
+
+    this.isLoading = true;
+    this.lastFetchTime = now;
+
     try {
-      // Try Supabase first
+      // Fetch feed items from Supabase (includes feed items created by backend)
+      let apiFeedItems: FeedItem[] = [];
       try {
-        const { getFeedItems } = await import('../src/utils/supabaseQueries');
-        apiFeedItems = await getFeedItems({ limit: 100 });
-        // Only log if there are items or if it's the first fetch
-        // Only log in development to reduce console noise
-        if (import.meta.env.DEV && apiFeedItems.length > 0) {
-          console.log(`Fetched ${apiFeedItems.length} feed items from Supabase`);
+        // Check if Supabase is configured first
+        const { isSupabaseConfigured } = await import('../src/utils/supabaseClient');
+        if (!isSupabaseConfigured) {
+          console.warn('Supabase not configured, skipping feed fetch');
+          apiFeedItems = [];
+        } else {
+          try {
+            // Add timeout to prevent hanging
+            const timeoutPromise = new Promise((_, reject) => 
+              setTimeout(() => reject(new Error('Feed fetch timeout')), 5000)
+            );
+
+            const { getFeedItems } = await import('../src/utils/supabaseQueries');
+            const feedPromise = getFeedItems({ limit: 100 });
+            apiFeedItems = await Promise.race([feedPromise, timeoutPromise]) as FeedItem[];
+            // Only log if there are items or if it's the first fetch
+            // Only log in development to reduce console noise
+            if (import.meta.env.DEV && apiFeedItems.length > 0) {
+              console.log(`Fetched ${apiFeedItems.length} feed items from Supabase`);
+            }
+          } catch (supabaseError) {
+            // Don't fallback to legacy API - just use empty array
+            console.warn('Failed to fetch feed items from Supabase:', supabaseError);
+            apiFeedItems = [];
+          }
         }
-      } catch (supabaseError) {
-        // TODO: REMOVE_AFTER_SUPABASE_MIGRATION - Fallback to legacy API
-        if (import.meta.env.DEV) {
-          console.warn('Supabase query failed, trying legacy API:', supabaseError);
-        }
-        const feedResponse = await feedAPI.getFeed({ limit: 100 });
-        apiFeedItems = feedResponse.items || [];
-        if (apiFeedItems.length > 0) {
-          console.log(`Fetched ${apiFeedItems.length} feed items from API`);
-        }
+      } catch (error) {
+        console.warn('Failed to fetch feed items:', error);
+        apiFeedItems = [];
       }
-    } catch (error) {
-      console.warn('Failed to fetch feed items:', error);
-    }
 
-    // Always generate feed items from projects (they may not have feed items in DB yet)
-    // This ensures projects show up in the feed even if backend didn't create feed items
-    let projectFeedItems: FeedItem[] = [];
-    let opportunityFeedItems: FeedItem[] = [];
-    
-    projectFeedItems = await this.generateProjectFeedItems();
-    opportunityFeedItems = this.generateOpportunityFeedItems();
-    // Only log once per session when items are first generated (not on every fetch)
-    // This prevents excessive logging when feed is refreshed frequently
-    
-    // Combine: API feed items first (most recent/accurate), then generated, then local
-    // Remove duplicates by ID (API items take precedence)
-    const allGeneratedItems = [...projectFeedItems, ...opportunityFeedItems];
-    const generatedItemIds = new Set(allGeneratedItems.map(item => item.id));
-    const uniqueGeneratedItems = allGeneratedItems.filter((item, index, self) => 
-      index === self.findIndex(i => i.id === item.id)
-    );
-    
-    // Filter out generated items that already exist in API feed items
-    const apiFeedItemIds = new Set(apiFeedItems.map(item => item.id));
-    const filteredGeneratedItems = uniqueGeneratedItems.filter(item => !apiFeedItemIds.has(item.id));
-    
-    // Combine: API feed items first (most recent/accurate), then generated
-    // Removed this.feedItems to prevent demo data from showing
-    // Only use API feed items and generated items from real projects
-    let feedItems = [...apiFeedItems, ...filteredGeneratedItems];
-
-    // Filter by visibility
-    if (visibility !== 'all') {
-      feedItems = feedItems.filter(item => {
-        if (visibility === 'public') {
-          return item.visibility === 'public';
-        }
-        return item.visibility === 'public' || item.visibility === 'authenticated';
-      });
-    }
-
-    // Filter expired highlights
-    if (!includeExpired) {
-      feedItems = feedItems.filter(item => {
-        if (item.isAdminCurated && item.metadata?.expiresAt) {
-          return new Date(item.metadata.expiresAt) > new Date();
-        }
-        return true;
-      });
-    }
-
-    // Filter admin highlights
-    if (!includeAdminHighlights) {
-      feedItems = feedItems.filter(item => !item.isAdminCurated);
-    }
-
-    // Filter by significance
-    if (significanceFilter !== 'all') {
-      const significanceLevels = ['low', 'medium', 'high', 'critical'];
-      const minLevel = significanceLevels.indexOf(significanceFilter);
-      feedItems = feedItems.filter(item => {
-        const itemLevel = significanceLevels.indexOf(item.significance);
-        return itemLevel >= minLevel;
-      });
-    }
-
-    // Apply search filters
-    if (userFilter) {
-      feedItems = feedItems.filter(item => 
-        item.authorName?.toLowerCase().includes(userFilter.toLowerCase()) ||
-        item.title.toLowerCase().includes(userFilter.toLowerCase()) ||
-        item.description?.toLowerCase().includes(userFilter.toLowerCase())
+      // Always generate feed items from projects (they may not have feed items in DB yet)
+      // This ensures projects show up in the feed even if backend didn't create feed items
+      let projectFeedItems: FeedItem[] = [];
+      let opportunityFeedItems: FeedItem[] = [];
+      
+      projectFeedItems = await this.generateProjectFeedItems();
+      opportunityFeedItems = this.generateOpportunityFeedItems();
+      // Only log once per session when items are first generated (not on every fetch)
+      // This prevents excessive logging when feed is refreshed frequently
+      
+      // Combine: API feed items first (most recent/accurate), then generated, then local
+      // Remove duplicates by ID (API items take precedence)
+      const allGeneratedItems = [...projectFeedItems, ...opportunityFeedItems];
+      const generatedItemIds = new Set(allGeneratedItems.map(item => item.id));
+      const uniqueGeneratedItems = allGeneratedItems.filter((item, index, self) => 
+        index === self.findIndex(i => i.id === item.id)
       );
-    }
+      
+      // Filter out generated items that already exist in API feed items
+      const apiFeedItemIds = new Set(apiFeedItems.map(item => item.id));
+      const filteredGeneratedItems = uniqueGeneratedItems.filter(item => !apiFeedItemIds.has(item.id));
+      
+      // Combine: API feed items first (most recent/accurate), then generated
+      // Removed this.feedItems to prevent demo data from showing
+      // Only use API feed items and generated items from real projects
+      let feedItems = [...apiFeedItems, ...filteredGeneratedItems];
 
-    if (categoryFilter) {
-      feedItems = feedItems.filter(item => 
-        item.category.toLowerCase().includes(categoryFilter.toLowerCase())
+      // Filter by visibility
+      if (visibility !== 'all') {
+        feedItems = feedItems.filter(item => {
+          if (visibility === 'public') {
+            return item.visibility === 'public';
+          }
+          return item.visibility === 'public' || item.visibility === 'authenticated';
+        });
+      }
+
+      // Filter expired highlights
+      if (!includeExpired) {
+        feedItems = feedItems.filter(item => {
+          if (item.isAdminCurated && item.metadata?.expiresAt) {
+            return new Date(item.metadata.expiresAt) > new Date();
+          }
+          return true;
+        });
+      }
+
+      // Filter admin highlights
+      if (!includeAdminHighlights) {
+        feedItems = feedItems.filter(item => !item.isAdminCurated);
+      }
+
+      // Filter by significance
+      if (significanceFilter !== 'all') {
+        const significanceLevels = ['low', 'medium', 'high', 'critical'];
+        const minLevel = significanceLevels.indexOf(significanceFilter);
+        feedItems = feedItems.filter(item => {
+          const itemLevel = significanceLevels.indexOf(item.significance);
+          return itemLevel >= minLevel;
+        });
+      }
+
+      // Apply search filters
+      if (userFilter) {
+        feedItems = feedItems.filter(item => 
+          item.authorName?.toLowerCase().includes(userFilter.toLowerCase()) ||
+          item.title.toLowerCase().includes(userFilter.toLowerCase()) ||
+          item.description?.toLowerCase().includes(userFilter.toLowerCase())
+        );
+      }
+
+      if (categoryFilter) {
+        feedItems = feedItems.filter(item => 
+          item.category.toLowerCase().includes(categoryFilter.toLowerCase())
+        );
+      }
+
+      // Remove duplicates based on ID
+      const uniqueItems = feedItems.filter((item, index, self) => 
+        index === self.findIndex(t => t.id === item.id)
       );
+
+      // Sort by priority (pinned first, then by timestamp)
+      uniqueItems.sort((a, b) => {
+        if (a.isPinned && !b.isPinned) return -1;
+        if (!a.isPinned && b.isPinned) return 1;
+        // Sort by creation time for real projects/opportunities, timestamp for others
+        return b.timestamp.localeCompare(a.timestamp);
+      });
+
+      // Cache the results
+      this.feedItems = uniqueItems;
+
+      // Apply limit
+      if (limit) {
+        return uniqueItems.slice(0, limit);
+      }
+
+      return uniqueItems;
+    } finally {
+      this.isLoading = false;
     }
-
-    // Remove duplicates based on ID
-    const uniqueItems = feedItems.filter((item, index, self) => 
-      index === self.findIndex(t => t.id === item.id)
-    );
-
-    // Sort by priority (pinned first, then by timestamp)
-    uniqueItems.sort((a, b) => {
-      if (a.isPinned && !b.isPinned) return -1;
-      if (!a.isPinned && b.isPinned) return 1;
-      // Sort by creation time for real projects/opportunities, timestamp for others
-      return b.timestamp.localeCompare(a.timestamp);
-    });
-
-    // Apply limit
-    if (limit) {
-      return uniqueItems.slice(0, limit);
-    }
-
-    return uniqueItems;
   }
 
   // Get feed statistics
@@ -1215,41 +1258,101 @@ export function useFeedService() {
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
+    let mounted = true;
+    let retryCount = 0;
+    const MAX_RETRIES = 3;
+
     // Initialize feed
     const loadFeed = async () => {
-      const items = await feedService.getFeedItems();
-    setFeedItems(items);
+      if (!mounted) return;
+      
+      try {
+        setLoading(true);
+        const items = await feedService.getFeedItems({ forceRefresh: true });
+        if (mounted) {
+          setFeedItems(items);
+          retryCount = 0; // Reset retry count on success
+        }
+      } catch (error) {
+        console.error('Error loading feed:', error);
+        if (mounted) {
+          setFeedItems([]); // Set empty array on error
+        }
+      } finally {
+        if (mounted) {
+          setLoading(false);
+        }
+      }
     };
     loadFeed();
 
-    // Subscribe to feed service updates
+    // Subscribe to feed service updates (but prevent infinite retries)
     const unsubscribe = feedService.subscribe(async () => {
-      const updatedItems = await feedService.getFeedItems();
-      setFeedItems(updatedItems);
+      if (!mounted || retryCount >= MAX_RETRIES) return;
+      
+      try {
+        retryCount++;
+        const updatedItems = await feedService.getFeedItems();
+        if (mounted) {
+          setFeedItems(updatedItems);
+          retryCount = 0; // Reset on success
+        }
+      } catch (error) {
+        console.error('Error updating feed from subscription:', error);
+        // Don't increment retry count here as this is triggered by external events
+      }
     });
 
     // Setup Supabase Realtime for feed updates
     let realtimeChannels: any[] = [];
     const setupRealtime = async (): Promise<void> => {
       try {
-        const { subscribeToFeed, unsubscribe } = await import('../src/utils/supabaseRealtime');
+        // Check if Supabase is configured first
+        const { isSupabaseConfigured } = await import('../src/utils/supabaseClient');
+        if (!isSupabaseConfigured) {
+          console.warn('Supabase not configured, skipping realtime setup');
+          return;
+        }
+
+        const { subscribeToFeed } = await import('../src/utils/supabaseRealtime');
         
         const feedChannel = subscribeToFeed({
           onInsert: async (payload) => {
+            if (!mounted) return;
             console.log('Real-time feed item added:', payload);
-            // Refresh feed to get latest items
-            const updatedItems = await feedService.getFeedItems();
-            setFeedItems(updatedItems);
+            // Refresh feed to get latest items (but don't force refresh to use cache)
+            try {
+              const updatedItems = await feedService.getFeedItems();
+              if (mounted) {
+                setFeedItems(updatedItems);
+              }
+            } catch (error) {
+              console.error('Error refreshing feed after insert:', error);
+            }
           },
           onUpdate: async (payload) => {
+            if (!mounted) return;
             console.log('Feed item updated:', payload);
-            const updatedItems = await feedService.getFeedItems();
-            setFeedItems(updatedItems);
+            try {
+              const updatedItems = await feedService.getFeedItems();
+              if (mounted) {
+                setFeedItems(updatedItems);
+              }
+            } catch (error) {
+              console.error('Error refreshing feed after update:', error);
+            }
           },
           onDelete: async (payload) => {
+            if (!mounted) return;
             console.log('Feed item deleted:', payload);
-            const updatedItems = await feedService.getFeedItems();
-            setFeedItems(updatedItems);
+            try {
+              const updatedItems = await feedService.getFeedItems();
+              if (mounted) {
+                setFeedItems(updatedItems);
+              }
+            } catch (error) {
+              console.error('Error refreshing feed after delete:', error);
+            }
           },
         });
         
@@ -1258,22 +1361,11 @@ export function useFeedService() {
           console.log('Supabase Realtime connected for feed updates');
         }
       } catch (error) {
-        // TODO: REMOVE_AFTER_SUPABASE_MIGRATION - Fallback to polling
+        // Don't fallback to polling - just log the error to prevent infinite retries
         if (import.meta.env.DEV) {
-          console.warn('Supabase Realtime connection failed, using polling fallback:', error);
+          console.warn('Supabase Realtime connection failed:', error);
         }
-        // Fallback to polling if Realtime fails
-        if (pollingIntervalRef.current) {
-          clearInterval(pollingIntervalRef.current);
-        }
-        pollingIntervalRef.current = setInterval(async () => {
-          try {
-            const updatedItems = await feedService.getFeedItems();
-            setFeedItems(updatedItems);
-          } catch (error) {
-            console.error('Polling feed update failed:', error);
-          }
-        }, 30000); // Poll every 30 seconds
+        // Feed will only update on manual refresh or when user actions trigger updates
       }
     };
 
@@ -1281,18 +1373,27 @@ export function useFeedService() {
 
     // Listen for project creation events (local events)
     const handleProjectCreated = async () => {
-      const updatedItems = await feedService.getFeedItems();
-      setFeedItems(updatedItems);
+      if (!mounted) return;
+      try {
+        const updatedItems = await feedService.getFeedItems({ forceRefresh: true });
+        if (mounted) {
+          setFeedItems(updatedItems);
+        }
+      } catch (error) {
+        console.error('Error refreshing feed after project creation:', error);
+      }
     };
     window.addEventListener('projectCreated', handleProjectCreated);
 
     return () => {
+      mounted = false;
       unsubscribe();
       window.removeEventListener('projectCreated', handleProjectCreated);
       
       // Cleanup polling
       if (pollingIntervalRef.current) {
         clearInterval(pollingIntervalRef.current);
+        pollingIntervalRef.current = null;
       }
       
       // Cleanup Supabase Realtime channels
