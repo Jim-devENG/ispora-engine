@@ -41,7 +41,7 @@ import { Badge } from "./ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
-import { projectAPI } from "../src/utils/api";
+// Removed projectAPI import - now using Supabase queries directly
 import { toast } from "sonner";
 
 interface Project {
@@ -607,10 +607,24 @@ export function ProjectDashboard({ onCreateProject, onViewProject, onProjectCrea
   const fetchProjects = useCallback(async () => {
     try {
       setIsLoading(true);
-      // Try Supabase first
+      // Check if Supabase is configured first
+      const { isSupabaseConfigured } = await import('../src/utils/supabaseClient');
+      if (!isSupabaseConfigured) {
+        console.warn('Supabase not configured, skipping project fetch');
+        setProjects([]);
+        return;
+      }
+
+      // Try Supabase with timeout
       try {
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Project fetch timeout')), 5000)
+        );
+
         const { getProjects } = await import('../src/utils/supabaseQueries');
-        const fetchedProjects = await getProjects();
+        const projectsPromise = getProjects();
+        const fetchedProjects = await Promise.race([projectsPromise, timeoutPromise]) as any[];
+        
         // Transform Supabase projects to match component interface
         const transformedProjects: Project[] = fetchedProjects.map((p: any) => ({
           id: p.id,
@@ -635,34 +649,10 @@ export function ProjectDashboard({ onCreateProject, onViewProject, onProjectCrea
           canStudentsJoin: p.canStudentsJoin !== false,
         }));
         setProjects(transformedProjects);
-        return; // Success, exit early
       } catch (supabaseError) {
-        console.warn('Supabase query failed, trying legacy API:', supabaseError);
-        // Fallback to legacy API during migration
-        const fetchedProjects = await projectAPI.getProjects();
-        const transformedProjects: Project[] = fetchedProjects.map((p: any) => ({
-          id: p.id,
-          title: p.title,
-          description: p.description,
-          status: p.status === 'active' ? 'active' : p.status === 'closed' ? 'closed' : 'still-open',
-          startDate: p.startDate || p.createdAt,
-          deadline: p.deadline,
-          closedDate: p.closedDate,
-          category: p.category || p.projectType,
-          aspiraCategory: p.aspiraCategory || (p.projectType === 'mentorship' ? 'mentorships' : 
-                                              p.projectType === 'academic' ? 'research' :
-                                              p.projectType === 'community' ? 'community-service' : 'university-campaigns'),
-          tags: p.tags || [],
-          team: p.team || [],
-          university: p.university,
-          mentorshipConnection: p.mentorshipConnection,
-          campaignConnection: p.campaignConnection,
-          joinableRoles: p.joinableRoles || [],
-          isPublic: p.isPublic !== false,
-          seekingSupport: p.seekingSupport || [],
-          canStudentsJoin: p.canStudentsJoin !== false,
-        }));
-        setProjects(transformedProjects);
+        // Don't fallback to legacy API - just show empty array
+        console.warn('Failed to fetch projects from Supabase:', supabaseError);
+        setProjects([]);
       }
     } catch (error) {
       console.error('Error fetching projects:', error);

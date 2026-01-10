@@ -48,7 +48,7 @@ import { Separator } from "./ui/separator";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "./ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { useProfile } from "./ProfileContext";
-import { projectAPI } from "../src/utils/api";
+// Removed projectAPI import - now using Supabase mutations directly
 import { toast } from "sonner";
 
 interface CreateProjectProps {
