@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "description": "Impact Engine - Full-stack application",
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
   "scripts": {
     "build": "cd frontend && npm install && npm run build"
   },

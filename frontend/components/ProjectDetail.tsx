@@ -518,7 +518,7 @@ const projectObjectives: ProjectObjective[] = [
   }
 ];
 
-// Join Project Dialog Component
+// Join Project Dialog Component - Rebuilt with modern design
 function JoinProjectDialog({ project, onJoin, isOpen, onOpenChange, preSelectedRole }: { 
   project: any; 
   onJoin?: (projectId: string, role: string, area: string) => void;
@@ -530,10 +530,26 @@ function JoinProjectDialog({ project, onJoin, isOpen, onOpenChange, preSelectedR
   const [motivation, setMotivation] = useState("");
   const [experience, setExperience] = useState("");
   const [internalOpen, setInternalOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { profile } = useProfile();
 
   const dialogOpen = isOpen !== undefined ? isOpen : internalOpen;
   const setDialogOpen = onOpenChange || setInternalOpen;
+
+  // Reset form when dialog closes
+  React.useEffect(() => {
+    if (!dialogOpen) {
+      // Delay reset to allow animations to complete
+      setTimeout(() => {
+        if (!preSelectedRole) {
+          setSelectedRole("");
+        }
+        setMotivation("");
+        setExperience("");
+        setIsSubmitting(false);
+      }, 200);
+    }
+  }, [dialogOpen, preSelectedRole]);
 
   // Update selected role when preSelectedRole changes
   React.useEffect(() => {
@@ -613,40 +629,60 @@ function JoinProjectDialog({ project, onJoin, isOpen, onOpenChange, preSelectedR
 
   const joinOptions = getJoinOptions();
   const selectedOption = joinOptions.find(option => option.id === selectedRole);
+  const isFormValid = selectedRole && motivation.trim().length >= 10;
 
-  const handleJoin = () => {
-    if (selectedRole && selectedOption) {
+  const handleJoin = async () => {
+    if (!selectedRole || !selectedOption || !isFormValid) return;
+
+    setIsSubmitting(true);
+    try {
+      // Simulate API call delay for better UX
+      await new Promise(resolve => setTimeout(resolve, 500));
       onJoin?.(project.id, selectedRole, selectedOption.targetArea);
       setDialogOpen(false);
-      if (!preSelectedRole) {
-        setSelectedRole("");
-      }
-      setMotivation("");
-      setExperience("");
+    } catch (error) {
+      console.error('Error joining project:', error);
+      setIsSubmitting(false);
     }
   };
 
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-      <DialogContent className="max-w-3xl max-h-[80vh] flex flex-col p-0">
-        <DialogHeader className="flex-shrink-0 px-6 pt-6 pb-4">
-          <DialogTitle className="text-xl">Join "{project.title}"</DialogTitle>
-          <DialogDescription>
-            Fill out this application to join the project. Your participation will make a difference!
-          </DialogDescription>
+      <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col p-0 overflow-hidden">
+        {/* Header Section */}
+        <DialogHeader className="flex-shrink-0 px-8 pt-8 pb-6 border-b bg-gradient-to-r from-blue-50/50 to-purple-50/50 dark:from-blue-950/30 dark:to-purple-950/30">
+          <div className="flex items-start gap-4">
+            <div className="p-3 rounded-xl bg-[#021ff6]/10 border border-[#021ff6]/20">
+              <UserPlus className="h-6 w-6 text-[#021ff6]" />
+            </div>
+            <div className="flex-1">
+              <DialogTitle className="text-2xl font-bold mb-2">Join This Project</DialogTitle>
+              <DialogDescription className="text-base">
+                Become part of <span className="font-semibold text-foreground">"{project.title}"</span> and make a meaningful impact
+              </DialogDescription>
+            </div>
+          </div>
         </DialogHeader>
         
+        {/* Scrollable Content */}
         <ScrollArea className="flex-1 min-h-0">
-          <div className="px-6 space-y-6">
-            {/* Role Selection - Browse Mode */}
+          <div className="px-8 py-6 space-y-8">
+            {/* Step 1: Role Selection */}
             <div className="space-y-4">
-              <div>
-                <Label className="text-base">How would you like to contribute?</Label>
-                <p className="text-sm text-muted-foreground mt-1">Select the role that best matches your skills and interests</p>
+              <div className="flex items-center gap-3 mb-2">
+                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#021ff6] text-white text-sm font-semibold">
+                  1
+                </div>
+                <div>
+                  <Label className="text-lg font-semibold">Choose Your Role</Label>
+                  <p className="text-sm text-muted-foreground mt-0.5">
+                    Select how you'd like to contribute to this project
+                  </p>
+                </div>
               </div>
               
               {joinOptions.length > 0 ? (
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {joinOptions.map((option) => {
                     const Icon = option.icon;
                     const isSelected = selectedRole === option.id;
@@ -654,34 +690,54 @@ function JoinProjectDialog({ project, onJoin, isOpen, onOpenChange, preSelectedR
                     return (
                       <div
                         key={option.id}
-                        className={`p-4 border rounded-lg cursor-pointer transition-all ${
+                        className={`group relative p-5 border-2 rounded-xl cursor-pointer transition-all duration-200 ${
                           isSelected 
-                            ? 'border-[#021ff6] bg-blue-50 dark:bg-blue-950 shadow-md' 
-                            : 'border-border hover:border-muted-foreground hover:shadow-sm'
+                            ? 'border-[#021ff6] bg-[#021ff6]/5 shadow-lg shadow-[#021ff6]/10 scale-[1.02]' 
+                            : 'border-border hover:border-[#021ff6]/50 hover:shadow-md bg-card'
                         }`}
                         onClick={() => setSelectedRole(option.id)}
                       >
-                        <div className="flex items-start gap-3">
-                          <div className={`p-2 rounded-lg ${
+                        {isSelected && (
+                          <div className="absolute top-3 right-3">
+                            <div className="w-6 h-6 rounded-full bg-[#021ff6] flex items-center justify-center">
+                              <CheckCircle className="h-4 w-4 text-white" />
+                            </div>
+                          </div>
+                        )}
+                        
+                        <div className="flex items-start gap-4">
+                          <div className={`p-3 rounded-lg transition-colors ${
                             isSelected 
-                              ? 'bg-[#021ff6] text-white' 
-                              : 'bg-muted'
+                              ? 'bg-[#021ff6] text-white shadow-md' 
+                              : 'bg-muted group-hover:bg-[#021ff6]/10'
                           }`}>
-                            <Icon className="h-4 w-4" />
+                            <Icon className={`h-5 w-5 ${isSelected ? 'text-white' : 'text-[#021ff6]'}`} />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <h5 className="font-medium text-sm">{option.label}</h5>
-                            <p className="text-xs text-muted-foreground mb-2 line-clamp-2">{option.description}</p>
-                            {isSelected && option.requirements && (
-                              <div className="flex flex-wrap gap-1">
-                                {option.requirements.slice(0, 2).map((req) => (
-                                  <Badge key={req} variant="secondary" className="text-xs px-1.5 py-0.5">
+                            <h5 className={`font-semibold mb-1.5 ${isSelected ? 'text-[#021ff6]' : 'text-foreground'}`}>
+                              {option.label}
+                            </h5>
+                            <p className="text-sm text-muted-foreground mb-3 leading-relaxed">
+                              {option.description}
+                            </p>
+                            {option.requirements && option.requirements.length > 0 && (
+                              <div className="flex flex-wrap gap-1.5">
+                                {option.requirements.slice(0, 3).map((req, idx) => (
+                                  <Badge 
+                                    key={req} 
+                                    variant="secondary" 
+                                    className={`text-xs px-2 py-0.5 ${
+                                      isSelected 
+                                        ? 'bg-[#021ff6]/10 text-[#021ff6] border-[#021ff6]/20' 
+                                        : 'bg-muted'
+                                    }`}
+                                  >
                                     {req}
                                   </Badge>
                                 ))}
-                                {option.requirements.length > 2 && (
-                                  <Badge variant="secondary" className="text-xs px-1.5 py-0.5">
-                                    +{option.requirements.length - 2}
+                                {option.requirements.length > 3 && (
+                                  <Badge variant="secondary" className="text-xs px-2 py-0.5 bg-muted">
+                                    +{option.requirements.length - 3} more
                                   </Badge>
                                 )}
                               </div>
@@ -693,9 +749,10 @@ function JoinProjectDialog({ project, onJoin, isOpen, onOpenChange, preSelectedR
                   })}
                 </div>
               ) : (
-                <div className="p-6 text-center border rounded-lg bg-muted/30">
-                  <h5 className="font-medium mb-2">No Current Openings</h5>
-                  <p className="text-sm text-muted-foreground mb-3">
+                <div className="p-8 text-center border-2 border-dashed rounded-xl bg-muted/30">
+                  <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <h5 className="font-semibold text-lg mb-2">No Current Openings</h5>
+                  <p className="text-sm text-muted-foreground mb-4 max-w-md mx-auto">
                     This project is not currently seeking new contributors, but you can express interest for future opportunities.
                   </p>
                   <Button variant="outline" size="sm">
@@ -705,83 +762,154 @@ function JoinProjectDialog({ project, onJoin, isOpen, onOpenChange, preSelectedR
               )}
             </div>
 
-            {/* Application Form Fields */}
+            {/* Step 2: Application Form */}
             {selectedRole && joinOptions.length > 0 && (
-              <div className="space-y-5">
-                <Separator />
+              <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                <Separator className="my-6" />
                 
-                <div className="grid grid-cols-1 gap-5">
-                  <div className="space-y-2">
-                    <Label htmlFor="motivation">Why do you want to join this project? *</Label>
-                    <Textarea
-                      id="motivation"
-                      placeholder="Share your motivation and what you hope to contribute or gain from this project..."
-                      value={motivation}
-                      onChange={(e) => setMotivation(e.target.value)}
-                      rows={3}
-                      className="resize-none"
-                    />
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#021ff6] text-white text-sm font-semibold">
+                    2
                   </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="experience">Relevant experience or background</Label>
-                    <Textarea
-                      id="experience"
-                      placeholder="Briefly describe your relevant experience, skills, or background that make you a good fit..."
-                      value={experience}
-                      onChange={(e) => setExperience(e.target.value)}
-                      rows={3}
-                      className="resize-none"
-                    />
+                  <div>
+                    <Label className="text-lg font-semibold">Tell Us About Yourself</Label>
+                    <p className="text-sm text-muted-foreground mt-0.5">
+                      Help us understand your interest and qualifications
+                    </p>
                   </div>
                 </div>
-                
-                {/* Selected Role Summary */}
+
+                {/* Selected Role Preview */}
                 {selectedOption && (
-                  <div className="p-4 rounded-lg bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800">
-                    <div className="flex items-start gap-3">
-                      <div className="p-2 rounded-lg bg-[#021ff6] text-white">
-                        <selectedOption.icon className="h-4 w-4" />
+                  <div className="p-5 rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/50 dark:to-indigo-950/50 border border-blue-200 dark:border-blue-800">
+                    <div className="flex items-start gap-4">
+                      <div className="p-2.5 rounded-lg bg-[#021ff6] text-white shadow-md">
+                        <selectedOption.icon className="h-5 w-5" />
                       </div>
                       <div className="flex-1">
-                        <h5 className="font-medium text-blue-900 dark:text-blue-100">Selected Role: {selectedOption.label}</h5>
-                        <p className="text-sm text-blue-800 dark:text-blue-200 mt-1">{selectedOption.description}</p>
-                        {selectedOption.requirements && (
-                          <div className="flex flex-wrap gap-1 mt-2">
-                            {selectedOption.requirements.map((req) => (
-                              <Badge key={req} variant="secondary" className="text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                                {req}
-                              </Badge>
-                            ))}
+                        <div className="flex items-center gap-2 mb-1">
+                          <h5 className="font-semibold text-blue-900 dark:text-blue-100">
+                            {selectedOption.label}
+                          </h5>
+                          <Badge variant="secondary" className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 text-xs">
+                            Selected
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-blue-800 dark:text-blue-200 mb-3">
+                          {selectedOption.description}
+                        </p>
+                        {selectedOption.requirements && selectedOption.requirements.length > 0 && (
+                          <div className="space-y-2">
+                            <p className="text-xs font-medium text-blue-700 dark:text-blue-300">Expected Qualifications:</p>
+                            <div className="flex flex-wrap gap-1.5">
+                              {selectedOption.requirements.map((req) => (
+                                <Badge 
+                                  key={req} 
+                                  variant="secondary" 
+                                  className="text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 border-blue-200 dark:border-blue-700"
+                                >
+                                  {req}
+                                </Badge>
+                              ))}
+                            </div>
                           </div>
                         )}
                       </div>
                     </div>
                   </div>
                 )}
+                
+                {/* Form Fields */}
+                <div className="space-y-5">
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="motivation" className="text-base font-medium">
+                        Why do you want to join this project? *
+                      </Label>
+                      <span className="text-xs text-muted-foreground">
+                        {motivation.length}/500 characters
+                      </span>
+                    </div>
+                    <Textarea
+                      id="motivation"
+                      placeholder="Share your motivation, what you hope to contribute, and what you'd like to gain from this experience. Be specific about how this aligns with your goals..."
+                      value={motivation}
+                      onChange={(e) => setMotivation(e.target.value.slice(0, 500))}
+                      rows={4}
+                      className="resize-none text-base leading-relaxed"
+                      maxLength={500}
+                    />
+                    {motivation.length > 0 && motivation.length < 10 && (
+                      <p className="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1">
+                        <AlertCircle className="h-3 w-3" />
+                        Please provide at least 10 characters for your motivation
+                      </p>
+                    )}
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="experience" className="text-base font-medium">
+                        Relevant Experience or Background
+                      </Label>
+                      <span className="text-xs text-muted-foreground">
+                        {experience.length}/1000 characters
+                      </span>
+                    </div>
+                    <Textarea
+                      id="experience"
+                      placeholder="Briefly describe your relevant experience, skills, education, or background that make you a good fit for this role. Include any notable achievements or certifications..."
+                      value={experience}
+                      onChange={(e) => setExperience(e.target.value.slice(0, 1000))}
+                      rows={4}
+                      className="resize-none text-base leading-relaxed"
+                      maxLength={1000}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Optional but recommended - helps project leaders better understand your fit
+                    </p>
+                  </div>
+                </div>
               </div>
             )}
             
-            {/* Extra padding at bottom for scroll clearance */}
+            {/* Bottom spacing */}
             <div className="pb-4"></div>
           </div>
         </ScrollArea>
         
-        <DialogFooter className="flex-shrink-0 px-6 pb-6 pt-4 border-t bg-gray-50 dark:bg-gray-900">
+        {/* Footer Actions */}
+        <DialogFooter className="flex-shrink-0 px-8 py-5 border-t bg-muted/30">
           <div className="flex items-center justify-between w-full">
-            <p className="text-xs text-muted-foreground">
-              * Required fields
-            </p>
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <AlertCircle className="h-3 w-3" />
+              <span>* Required fields</span>
+            </div>
             <div className="flex items-center gap-3">
-              <Button variant="outline" onClick={() => setDialogOpen(false)}>
+              <Button 
+                variant="outline" 
+                onClick={() => setDialogOpen(false)}
+                disabled={isSubmitting}
+                className="min-w-[100px]"
+              >
                 Cancel
               </Button>
               <Button 
                 onClick={handleJoin}
-                disabled={!selectedRole || !motivation.trim()}
-                className="bg-[#021ff6] hover:bg-[#021ff6]/90"
+                disabled={!isFormValid || isSubmitting}
+                className="bg-[#021ff6] hover:bg-[#021ff6]/90 min-w-[160px] disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Submit Application
+                {isSubmitting ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Submitting...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    Submit Application
+                  </>
+                )}
               </Button>
             </div>
           </div>
