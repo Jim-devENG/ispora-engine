@@ -377,8 +377,23 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const loadProfile = async () => {
       try {
+        // Check if Supabase is configured
+        const { isSupabaseConfigured } = await import('../src/utils/supabaseClient');
+        if (!isSupabaseConfigured) {
+          console.warn('Supabase not configured, using default profile');
+          setProfile(defaultProfile);
+          setOriginalProfile(defaultProfile);
+          return;
+        }
+
+        // Add timeout to prevent hanging
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Profile load timeout')), 5000)
+        );
+
         // Check for session first (more reliable than getUser)
-        const { data: { session } } = await supabase.auth.getSession();
+        const sessionPromise = supabase.auth.getSession();
+        const { data: { session } } = await Promise.race([sessionPromise, timeoutPromise]) as any;
         
         if (!session || !session.user) {
           // Not authenticated - reset to default profile
@@ -389,12 +404,17 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
 
         const user = session.user;
 
-        // Load profile from Supabase profiles table
-        const { data: profileData, error: profileError } = await (supabase
+        // Load profile from Supabase profiles table with timeout
+        const profilePromise = (supabase
           .from('profiles') as any)
           .select('*')
           .eq('id', user.id)
           .single();
+
+        const { data: profileData, error: profileError } = await Promise.race([
+          profilePromise,
+          timeoutPromise
+        ]) as any;
 
         if (profileError) {
           console.error('Error loading profile from Supabase:', profileError);
@@ -408,6 +428,9 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
             } catch (parseError) {
               console.error('Error loading saved profile:', parseError);
             }
+          } else {
+            setProfile(defaultProfile);
+            setOriginalProfile(defaultProfile);
           }
           return;
         }
@@ -483,28 +506,48 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
             setOriginalProfile(parsedProfile);
           } catch (parseError) {
             console.error('Error loading saved profile:', parseError);
+            // Final fallback to default profile
+            setProfile(defaultProfile);
+            setOriginalProfile(defaultProfile);
           }
+        } else {
+          // No saved profile, use default
+          setProfile(defaultProfile);
+          setOriginalProfile(defaultProfile);
         }
       }
     };
 
     loadProfile();
 
-    // Listen to auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) {
-        // User logged in - reload profile
-        loadProfile();
-      } else {
-        // User logged out - reset to default
-        setProfile(defaultProfile);
-        setOriginalProfile(defaultProfile);
-        localStorage.removeItem('userProfile');
-      }
-    });
+    // Listen to auth state changes (with error handling)
+    let subscription: { unsubscribe: () => void } | null = null;
+    
+    try {
+      const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+        if (session?.user) {
+          // User logged in - reload profile
+          loadProfile();
+        } else {
+          // User logged out - reset to default
+          setProfile(defaultProfile);
+          setOriginalProfile(defaultProfile);
+          localStorage.removeItem('userProfile');
+        }
+      });
+      subscription = data;
+    } catch (error) {
+      console.error('Error setting up profile auth state listener:', error);
+    }
 
     return () => {
-      subscription.unsubscribe();
+      if (subscription) {
+        try {
+          subscription.unsubscribe();
+        } catch (error) {
+          console.error('Error unsubscribing from profile auth state:', error);
+        }
+      }
     };
   }, []);
 

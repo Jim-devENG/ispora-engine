@@ -9,15 +9,20 @@ import type { Database as SupabaseDatabase } from '../types/supabase';
 const supabaseUrl = (import.meta.env as any).VITE_SUPABASE_URL;
 const supabaseAnonKey = (import.meta.env as any).VITE_SUPABASE_ANON_KEY;
 
+// Create Supabase client with fallback values if env vars are missing
+// This allows the app to load even if Supabase isn't configured
+const safeUrl = supabaseUrl || 'https://placeholder.supabase.co';
+const safeKey = supabaseAnonKey || 'placeholder-key';
+
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error(
-    'Missing Supabase environment variables. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY'
+  console.warn(
+    '⚠️ Missing Supabase environment variables. The app will load but authentication will not work. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY'
   );
 }
 
 // Create Supabase client
 // Note: We'll add proper TypeScript types for the database schema later
-export const supabase = createClient<SupabaseDatabase>(supabaseUrl, supabaseAnonKey, {
+export const supabase = createClient<SupabaseDatabase>(safeUrl, safeKey, {
   auth: {
     autoRefreshToken: true,
     persistSession: true,
@@ -28,7 +33,23 @@ export const supabase = createClient<SupabaseDatabase>(supabaseUrl, supabaseAnon
       eventsPerSecond: 10,
     },
   },
+  global: {
+    fetch: (url, options = {}) => {
+      return fetch(url, {
+        ...options,
+        headers: {
+          ...options.headers,
+        },
+      }).catch((error) => {
+        console.error('Supabase request failed:', error);
+        throw error;
+      });
+    },
+  },
 });
+
+// Check if Supabase is properly configured
+export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey);
 
 // Helper to get the current user
 export async function getCurrentUser() {

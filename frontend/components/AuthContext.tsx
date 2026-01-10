@@ -22,23 +22,58 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Check for existing session on mount
   useEffect(() => {
+    let mounted = true;
+    
     checkSession();
 
-    // Listen to auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
+    // Listen to auth state changes (with error handling)
+    let subscription: { unsubscribe: () => void } | null = null;
+    
+    try {
+      const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+        if (mounted) {
+          setUser(session?.user ?? null);
+          setLoading(false);
+        }
+      });
+      subscription = data;
+    } catch (error) {
+      console.error('Error setting up auth state listener:', error);
       setLoading(false);
-    });
+    }
 
     return () => {
-      subscription.unsubscribe();
+      mounted = false;
+      if (subscription) {
+        try {
+          subscription.unsubscribe();
+        } catch (error) {
+          console.error('Error unsubscribing from auth state:', error);
+        }
+      }
     };
   }, []);
 
   const checkSession = async () => {
     try {
+      // Check if Supabase is configured first
+      const { isSupabaseConfigured } = await import('../src/utils/supabaseClient');
+      if (!isSupabaseConfigured) {
+        console.warn('Supabase not configured, skipping session check');
+        setUser(null);
+        setLoading(false);
+        return;
+      }
+
+      // Add timeout to prevent hanging
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Session check timeout')), 5000)
+      );
+
       // Use getSession instead of getUser for initial check (less strict)
-      const { data: { session }, error } = await supabase.auth.getSession();
+      const sessionPromise = supabase.auth.getSession();
+      
+      const { data: { session }, error } = await Promise.race([sessionPromise, timeoutPromise]) as any;
       
       if (error || !session) {
         setUser(null);
