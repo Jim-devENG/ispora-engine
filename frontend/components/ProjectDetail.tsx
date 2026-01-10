@@ -665,7 +665,7 @@ function JoinProjectDialog({ project, onJoin, isOpen, onOpenChange, preSelectedR
         </DialogHeader>
         
         {/* Scrollable Content */}
-        <ScrollArea className="flex-1 min-h-0">
+        <div className="flex-1 min-h-0 overflow-y-auto">
           <div className="px-6 py-4 space-y-5">
             {/* Step 1: Role Selection */}
             <div className="space-y-3">
@@ -881,7 +881,7 @@ function JoinProjectDialog({ project, onJoin, isOpen, onOpenChange, preSelectedR
             {/* Bottom spacing */}
             <div className="pb-2"></div>
           </div>
-        </ScrollArea>
+        </div>
         
         {/* Footer Actions */}
         <DialogFooter className="flex-shrink-0 px-6 py-4 border-t bg-muted/30">
