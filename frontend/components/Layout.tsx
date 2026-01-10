@@ -24,7 +24,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import { Toaster } from "./ui/sonner";
 
 function MainContent() {
-  const { currentPage, setCurrentPage, selectedProject } = useNavigation();
+  const { currentPage, setCurrentPage, selectedProject, navigationParams } = useNavigation();
   
   // Handle campaign navigation from mentorship workspace
   const handleNavigateToCampaign = (campaignId: string) => {
@@ -41,37 +41,59 @@ function MainContent() {
     setCurrentPage('Create Project');
   };
 
-  const handleViewProject = (projectId: string) => {
-    // Store projectId in context or URL params
+  const handleViewProject = async (projectId: string) => {
+    if (!projectId || projectId.trim() === '') {
+      console.error('No project ID provided to handleViewProject');
+      return;
+    }
+    
+    // Store projectId in navigation params first so it's available immediately
+    setNavigationParams({ projectId });
+    
+    // Set page first so ProjectDetail can start loading
     setCurrentPage('Project Detail');
+    
+    try {
+      // Fetch the project data from Supabase
+      const { getProject } = await import('./src/utils/supabaseQueries');
+      const project = await getProject(projectId);
+      if (project) {
+        setSelectedProject(project);
+      } else {
+        console.error('Project not found:', projectId);
+        // Fallback to dashboard if project not found
+        setCurrentPage('Project Dashboard');
+        setNavigationParams({});
+      }
+    } catch (error) {
+      console.error('Error loading project:', error);
+      // Fallback to dashboard on error
+      setCurrentPage('Project Dashboard');
+      setNavigationParams({});
+    }
   };
 
-  const handleJoinProject = (projectId: string, role: string, area: string) => {
-    // Navigate to appropriate area based on role and project type
+  const handleJoinProject = async (projectId: string, role: string, area: string) => {
+    // Join the project using Supabase mutation
     console.log('Joining project:', { projectId, role, area });
     
-    switch (area) {
-      case 'mentorship':
-      case 'workroom':
-        setCurrentPage('Workroom');
-        break;
-      case 'work-opportunities':
-        setCurrentPage('Impact Feed'); // Navigate to Impact Feed for work opportunities
-        break;
-      case 'research':
-        setCurrentPage('Project Dashboard'); // Navigate to Project Dashboard for research
-        break;
-      case 'community':
-        setCurrentPage('Impact Feed'); // Navigate to Impact Feed for community
-        break;
-      case 'partnerships':
-        setCurrentPage('Impact Feed'); // Navigate to Impact Feed for partnerships
-        break;
-      case 'campaigns':
-        setCurrentPage('Impact Feed'); // Navigate to Impact Feed for campaigns
-        break;
-      default:
-        setCurrentPage('Project Dashboard');
+    try {
+      const { joinProject } = await import('./src/utils/supabaseMutations');
+      await joinProject(projectId, { role, area });
+      console.log(`Successfully joined project as ${role} in ${area} area`);
+      
+      // Refresh the project data to reflect the join
+      const { getProject } = await import('./src/utils/supabaseQueries');
+      const updatedProject = await getProject(projectId);
+      if (updatedProject) {
+        setSelectedProject(updatedProject);
+      }
+      
+      // Stay on the project detail page after joining
+      // Don't navigate away - let the ProjectDetail component handle the UI update
+    } catch (error) {
+      console.error('Error joining project:', error);
+      // Show error toast or handle error appropriately
     }
   };
   
@@ -124,8 +146,13 @@ function MainContent() {
         />
       );
     case 'Project Detail':
+      const projectDetailId = selectedProject?.id || navigationParams?.projectId;
+      if (!projectDetailId) {
+        console.error('Project Detail rendered without project ID');
+        return <div className="p-6">Error: No project ID available. <Button onClick={() => setCurrentPage('Project Dashboard')}>Go Back</Button></div>;
+      }
       return <ProjectDetail 
-        projectId={selectedProject?.id || ""} 
+        projectId={projectDetailId} 
         onBack={() => setCurrentPage('Project Dashboard')}
         onJoinProject={handleJoinProject}
       />;

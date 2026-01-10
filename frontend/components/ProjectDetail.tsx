@@ -519,8 +519,9 @@ const projectObjectives: ProjectObjective[] = [
 ];
 
 // Join Project Dialog Component - Rebuilt with modern design
-function JoinProjectDialog({ project, onJoin, isOpen, onOpenChange, preSelectedRole }: { 
-  project: any; 
+function JoinProjectDialog({ project, projectId, onJoin, isOpen, onOpenChange, preSelectedRole }: { 
+  project: any;
+  projectId: string;
   onJoin?: (projectId: string, role: string, area: string) => void;
   isOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
@@ -560,8 +561,8 @@ function JoinProjectDialog({ project, onJoin, isOpen, onOpenChange, preSelectedR
 
   const getJoinOptions = (): JoinOption[] => {
     const options: JoinOption[] = [];
-    const aspiraCategory = project.projectType;
-    const mentorshipConnection = project.mentorshipConnection;
+    const aspiraCategory = project?.projectType || project?.project_type || "collaboration";
+    const mentorshipConnection = project?.mentorshipConnection || project?.mentorship_connection || false;
 
     // Different options based on user's diaspora status
     if (profile.isDiaspora) {
@@ -634,11 +635,23 @@ function JoinProjectDialog({ project, onJoin, isOpen, onOpenChange, preSelectedR
   const handleJoin = async () => {
     if (!selectedRole || !selectedOption || !isFormValid) return;
 
+    if (!projectId || projectId.trim() === '') {
+      console.error('JoinProjectDialog: Invalid projectId:', projectId);
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (!project || !project.id || project.id !== projectId) {
+      console.error('JoinProjectDialog: Project ID mismatch. Expected:', projectId, 'Got:', project?.id);
+      setIsSubmitting(false);
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       // Simulate API call delay for better UX
       await new Promise(resolve => setTimeout(resolve, 500));
-      onJoin?.(project.id, selectedRole, selectedOption.targetArea);
+      onJoin?.(projectId, selectedRole, selectedOption.targetArea);
       setDialogOpen(false);
     } catch (error) {
       console.error('Error joining project:', error);
@@ -658,7 +671,7 @@ function JoinProjectDialog({ project, onJoin, isOpen, onOpenChange, preSelectedR
             <div className="flex-1 min-w-0">
               <DialogTitle className="text-xl font-bold mb-1">Join This Project</DialogTitle>
               <DialogDescription className="text-sm line-clamp-2">
-                Become part of <span className="font-semibold text-foreground">"{project.title}"</span> and make a meaningful impact
+                Become part of <span className="font-semibold text-foreground">"{projectData?.title || 'this project'}"</span> and make a meaningful impact
               </DialogDescription>
             </div>
           </div>
@@ -930,6 +943,8 @@ export function ProjectDetail({ projectId, onBack, onJoinProject }: ProjectDetai
   const [activeTab, setActiveTab] = useState("overview");
   const [activeMembersTab, setActiveMembersTab] = useState("core-team");
   const [activeProgressTab, setActiveProgressTab] = useState("milestones-tasks");
+  const [project, setProject] = useState<any>(null);
+  const [isLoadingProject, setIsLoadingProject] = useState(true);
   const [workspaceData, setWorkspaceData] = useState<{
     tasks: Task[];
     milestones: Milestone[];
@@ -942,9 +957,49 @@ export function ProjectDetail({ projectId, onBack, onJoinProject }: ProjectDetai
   
   // Get user profile to check diaspora status
   const { profile } = useProfile();
+  const { selectedProject, setSelectedProject } = useNavigation();
+
+  // Fetch project data when projectId changes
+  React.useEffect(() => {
+    if (!projectId || projectId.trim() === '') {
+      console.error('ProjectDetail: Invalid projectId provided:', projectId);
+      setIsLoadingProject(false);
+      return;
+    }
+
+    const loadProject = async () => {
+      setIsLoadingProject(true);
+      try {
+        // Try to use selectedProject from context if it matches, otherwise fetch
+        if (selectedProject && selectedProject.id === projectId) {
+          setProject(selectedProject);
+          setIsLoadingProject(false);
+        } else {
+          // Fetch project from Supabase
+          const { getProject } = await import('../src/utils/supabaseQueries');
+          const fetchedProject = await getProject(projectId);
+          if (fetchedProject && fetchedProject.id) {
+            setProject(fetchedProject);
+            setSelectedProject(fetchedProject);
+            setIsLoadingProject(false);
+          } else {
+            console.error('ProjectDetail: Project not found or invalid:', projectId);
+            setIsLoadingProject(false);
+          }
+        }
+      } catch (error) {
+        console.error('ProjectDetail: Error loading project:', error);
+        setIsLoadingProject(false);
+      }
+    };
+
+    loadProject();
+  }, [projectId, selectedProject, setSelectedProject]);
 
   // Connect to workspace data and set up live feed integration
   React.useEffect(() => {
+    if (!project) return;
+
     const loadWorkspaceData = async () => {
       setWorkspaceData(prev => ({ ...prev, isLoading: true }));
       
@@ -969,10 +1024,10 @@ export function ProjectDetail({ projectId, onBack, onJoinProject }: ProjectDetai
           if (milestone.status === 'completed') {
             feedService.trackUserAction({
               id: `milestone_${milestone.id}_${Date.now()}`,
-              userId: project.authorId || "user_sarah_chen",
-              userName: project.authorName || "Dr. Sarah Chen",
+              userId: project.authorId || project.author_id || "user_sarah_chen",
+              userName: project.authorName || project.author_name || "Dr. Sarah Chen",
               userAvatar: "https://images.unsplash.com/photo-1494790108755-2616b25f5e55?w=150&h=150&fit=crop&crop=face",
-              userLocation: project.location || "Stanford, CA",
+              userLocation: project.location || "Unknown",
               actionType: 'milestone_achieved',
               entityId: milestone.id,
               entityType: 'project',
@@ -981,7 +1036,7 @@ export function ProjectDetail({ projectId, onBack, onJoinProject }: ProjectDetai
               timestamp: new Date().toISOString(),
               metadata: {
                 projectId: projectId,
-                projectTitle: project.title,
+                projectTitle: project.title || 'Project',
                 milestoneDescription: milestone.description,
                 progress: milestone.progress,
                 dueDate: milestone.dueDate
@@ -997,6 +1052,7 @@ export function ProjectDetail({ projectId, onBack, onJoinProject }: ProjectDetai
     
     // Set up periodic sync for milestone updates
     const syncInterval = setInterval(() => {
+      if (!project) return;
       // Check for milestone status changes and post to feed
       const feedService = FeedService.getInstance();
       
@@ -1006,10 +1062,10 @@ export function ProjectDetail({ projectId, onBack, onJoinProject }: ProjectDetai
         if (randomMilestone.status !== 'completed') {
           feedService.trackUserAction({
             id: `milestone_progress_${randomMilestone.id}_${Date.now()}`,
-            userId: project.authorId || "user_sarah_chen", 
-            userName: project.authorName || "Dr. Sarah Chen",
+            userId: project.authorId || project.author_id || "user_unknown", 
+            userName: project.authorName || project.author_name || "Unknown User",
             userAvatar: "https://images.unsplash.com/photo-1494790108755-2616b25f5e55?w=150&h=150&fit=crop&crop=face",
-            userLocation: project.location || "Stanford, CA",
+            userLocation: project.location || "Unknown",
             actionType: 'milestone_achieved',
             entityId: randomMilestone.id,
             entityType: 'project',
@@ -1018,7 +1074,7 @@ export function ProjectDetail({ projectId, onBack, onJoinProject }: ProjectDetai
             timestamp: new Date().toISOString(),
             metadata: {
               projectId: projectId,
-              projectTitle: project.title,
+              projectTitle: project.title || 'Project',
               milestoneDescription: `${randomMilestone.description} - ${randomMilestone.progress}% complete`,
               progress: randomMilestone.progress
             },
@@ -1029,7 +1085,7 @@ export function ProjectDetail({ projectId, onBack, onJoinProject }: ProjectDetai
     }, 30000); // Check every 30 seconds
     
     return () => clearInterval(syncInterval);
-  }, [projectId]);
+  }, [project, projectId]);
 
   const [hasJoinedProject, setHasJoinedProject] = useState(false);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
@@ -1037,87 +1093,76 @@ export function ProjectDetail({ projectId, onBack, onJoinProject }: ProjectDetai
   const [preSelectedRole, setPreSelectedRole] = useState("");
   const { navigateToWorkroom } = useNavigation();
 
-  // Project data structure exactly matching CreateProject.tsx output
-  const project = {
-    id: projectId,
-    title: "Stanford AI Ethics Mentorship Program",
-    description: "Developing an AI ethics curriculum with Stanford students and industry mentors to promote responsible AI development and deployment across academic and professional settings.",
-    authorId: "user_sarah_chen",
-    authorName: "Dr. Sarah Chen",
-    location: "Stanford, CA",
-    
-    // Basic Info & Timeline fields from CreateProject.tsx
-    projectType: "mentorship", // From step 1 - Project Type selection
-    category: "education", // From step 2 - Subject Area
-    university: "Stanford University", // From step 2 - University/Institution
-    tags: ["AI", "Ethics", "Mentorship", "Stanford", "Global Diaspora"], // From step 3 - Tags
-    
-    // Timeline fields from CreateProject.tsx step 2
-    startDate: "2024-01-15",
-    endDate: "2024-12-15", 
-    priority: "high",
-    status: "active",
-    
-    // Settings from CreateProject.tsx step 4
-    mentorshipConnection: true,
-    isPublic: true,
-    
-    // Team & Positions from CreateProject.tsx step 3
-    teamMembers: mockTeamMembers,
-    diasporaPositions: [
-      {
-        id: "technical-advisor",
-        title: "Technical Advisor",
-        description: "Provide technical guidance and expertise for the program",
-        responsibilities: ["Technical oversight", "Expert guidance", "Strategic consultation"],
-        requirements: ["Technical expertise", "Advisory experience", "Strong communication"],
-        commitment: "8-12 hours/week",
-        category: "advisory" as const,
-        isActive: true
-      },
-      {
-        id: "diaspora-mentor",
-        title: "Diaspora Mentor",
-        description: "Guide and support project participants with career and academic advice",
-        responsibilities: ["One-on-one mentoring", "Career guidance", "Skill development"],
-        requirements: ["Professional experience", "Mentoring background", "Cultural awareness"],
-        commitment: "3-5 hours/week",
-        category: "mentorship" as const,
-        isActive: true
-      },
-      {
-        id: "industry-expert",
-        title: "Industry Expert",
-        description: "Share industry knowledge and provide real-world perspectives",
-        responsibilities: ["Industry insights", "Market analysis", "Professional networking"],
-        requirements: ["Industry expertise", "Professional network", "Speaking experience"],
-        commitment: "4-6 hours/week",
-        category: "technical" as const,
-        isActive: true
-      },
-      {
-        id: "community-supporter",
-        title: "Community Supporter",
-        description: "Help with outreach, engagement, and community building",
-        responsibilities: ["Community engagement", "Event support", "Promotion"],
-        requirements: ["Community connections", "Communication skills", "Event experience"],
-        commitment: "3-4 hours/week",
-        category: "support" as const,
-        isActive: true
-      }
-    ],
-    
-    // Current project progress and metrics
-    progress: 75,
-    metrics: {
-      tasksCompleted: 18,
-      totalTasks: 24,
-      milestonesHit: 3,
-      totalMilestones: 4,
-      participantsReached: 156,
-      impactScore: 8.7
+  // Transform project data to match the expected format (computed from project state)
+  const projectData = React.useMemo(() => {
+    if (!project || !project.id) {
+      return null;
     }
-  };
+    
+    // Ensure project.id matches the projectId prop
+    if (project.id !== projectId) {
+      console.error('ProjectDetail: Project ID mismatch. Expected:', projectId, 'Got:', project.id);
+      return null;
+    }
+    
+    return {
+      id: project.id,
+      title: project.title,
+      description: project.description,
+      authorId: project.authorId || project.author_id,
+      authorName: project.authorName || project.author_name,
+      location: project.location,
+      projectType: project.projectType || project.project_type || "collaboration",
+      category: project.category || "education",
+      university: project.university,
+      tags: project.tags || [],
+      startDate: project.startDate || project.start_date,
+      endDate: project.endDate || project.deadline || project.end_date,
+      priority: project.priority || "medium",
+      status: project.status || "active",
+      mentorshipConnection: project.mentorshipConnection || project.mentorship_connection || false,
+      isPublic: project.isPublic !== false && project.is_public !== false,
+      teamMembers: project.teamMembers || project.team_members || [],
+      diasporaPositions: project.diasporaPositions || project.diaspora_positions || [],
+      progress: project.progress || 0,
+      metrics: project.metrics || {
+        tasksCompleted: 0,
+        totalTasks: 0,
+        milestonesHit: 0,
+        totalMilestones: 0,
+        participantsReached: 0,
+        impactScore: 0
+      }
+    };
+  }, [project, projectId]);
+
+  // Show loading state while fetching project
+  if (isLoadingProject) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#021ff6] mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading project details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state if project is not loaded or invalid
+  if (!project || !projectData || !projectData.id || projectData.id !== projectId) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center p-6 bg-white rounded-lg shadow-md max-w-md">
+          <h2 className="text-xl font-bold text-red-600 mb-2">Error Loading Project</h2>
+          <p className="text-gray-600 mb-4">Unable to load project details. The project may not exist or you may not have access.</p>
+          <Button onClick={onBack} variant="outline">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Projects
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   const handleJoinProject = (projectId: string, role: string, area: string) => {
     onJoinProject?.(projectId, role, area);
@@ -1183,11 +1228,9 @@ export function ProjectDetail({ projectId, onBack, onJoinProject }: ProjectDetai
     }
   };
 
-
-
   // Get project type info
-  const projectTypeInfo = projectTypes.find(type => type.id === project.projectType);
-  const categoryInfo = allCategories.find(cat => cat.id === project.category);
+  const projectTypeInfo = projectData ? projectTypes.find(type => type.id === projectData.projectType) : null;
+  const categoryInfo = projectData ? allCategories.find(cat => cat.id === projectData.category) : null;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -1241,24 +1284,39 @@ export function ProjectDetail({ projectId, onBack, onJoinProject }: ProjectDetai
               </div>
             ) : (
               <div className="flex items-center gap-2">
-                <JoinProjectDialog 
-                  project={project} 
-                  onJoin={handleJoinProject}
-                  isOpen={joinDialogOpen}
-                  onOpenChange={setJoinDialogOpen}
-                  preSelectedRole={preSelectedRole}
-                />
-                <Button 
-                  className="bg-green-600 hover:bg-green-700 text-white"
-                  size="sm"
-                  onClick={() => {
-                    setPreSelectedRole("");
-                    setJoinDialogOpen(true);
-                  }}
-                >
-                  <UserPlus className="h-4 w-4 mr-2" />
-                  Join Project
-                </Button>
+                {projectData && projectData.id && projectData.id === projectId ? (
+                  <>
+                    <JoinProjectDialog 
+                      project={projectData} 
+                      projectId={projectId}
+                      onJoin={handleJoinProject}
+                      isOpen={joinDialogOpen}
+                      onOpenChange={setJoinDialogOpen}
+                      preSelectedRole={preSelectedRole}
+                    />
+                    <Button 
+                      className="bg-green-600 hover:bg-green-700 text-white"
+                      size="sm"
+                      onClick={() => {
+                        setPreSelectedRole("");
+                        setJoinDialogOpen(true);
+                      }}
+                    >
+                      <UserPlus className="h-4 w-4 mr-2" />
+                      Join Project
+                    </Button>
+                  </>
+                ) : (
+                  <Button 
+                    className="bg-gray-400 text-white cursor-not-allowed"
+                    size="sm"
+                    disabled
+                    title="Project not loaded"
+                  >
+                    <UserPlus className="h-4 w-4 mr-2" />
+                    Join Project
+                  </Button>
+                )}
                 <Button className="bg-[#021ff6] hover:bg-[#021ff6]/90 text-white" size="sm">
                   <Edit className="h-4 w-4 mr-2" />
                   Edit Project
@@ -1273,9 +1331,9 @@ export function ProjectDetail({ projectId, onBack, onJoinProject }: ProjectDetai
       <div className="p-6">
         {/* Project Title and Description */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-3">{project.title}</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-3">{projectData.title}</h1>
           <p className="text-gray-600 leading-relaxed max-w-4xl">
-            {project.description}
+            {projectData.description}
           </p>
           <div className="flex items-center gap-2 mt-4">
             {categoryInfo && (
@@ -1284,13 +1342,13 @@ export function ProjectDetail({ projectId, onBack, onJoinProject }: ProjectDetai
                 {categoryInfo.label}
               </Badge>
             )}
-            {project.university && (
+            {projectData.university && (
               <Badge variant="outline" className="flex items-center gap-1">
                 <Building className="h-3 w-3" />
-                {project.university}
+                {projectData.university}
               </Badge>
             )}
-            {project.tags.map((tag) => (
+            {projectData.tags && projectData.tags.map((tag) => (
               <Badge key={tag} variant="secondary" className="text-xs">
                 {tag}
               </Badge>
@@ -1347,17 +1405,17 @@ export function ProjectDetail({ projectId, onBack, onJoinProject }: ProjectDetai
           </div>
           
           <div className="flex items-center justify-between text-sm text-gray-600 mb-3">
-            <span>Start Date: {new Date(project.startDate).toLocaleDateString()}</span>
-            <span>End Date: {new Date(project.endDate).toLocaleDateString()}</span>
-            <span>Priority: {project.priority.charAt(0).toUpperCase() + project.priority.slice(1)}</span>
+            <span>Start Date: {projectData.startDate ? new Date(projectData.startDate).toLocaleDateString() : 'N/A'}</span>
+            <span>End Date: {projectData.endDate ? new Date(projectData.endDate).toLocaleDateString() : 'N/A'}</span>
+            <span>Priority: {projectData.priority ? projectData.priority.charAt(0).toUpperCase() + projectData.priority.slice(1) : 'Medium'}</span>
           </div>
           
           <div className="relative">
             <div className="w-full bg-gray-200 rounded-full h-3">
-              <div className="bg-blue-600 h-3 rounded-full" style={{width: `${project.progress}%`}}></div>
+              <div className="bg-blue-600 h-3 rounded-full" style={{width: `${projectData.progress || 0}%`}}></div>
             </div>
             <div className="text-xs text-gray-500 mt-1">
-              {project.progress}% complete
+              {projectData.progress || 0}% complete
             </div>
             <div className="text-xs text-gray-500">
               3 months remaining
@@ -1380,7 +1438,7 @@ export function ProjectDetail({ projectId, onBack, onJoinProject }: ProjectDetai
             </p>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {project.diasporaPositions.filter(pos => pos.isActive).map((position) => {
+              {projectData.diasporaPositions && projectData.diasporaPositions.filter((pos: any) => pos.isActive).map((position: any) => {
                 const Icon = getCategoryIcon(position.category);
                 const colorClass = getCategoryColor(position.category);
                 
@@ -1502,29 +1560,29 @@ export function ProjectDetail({ projectId, onBack, onJoinProject }: ProjectDetai
                       <div className="flex items-center gap-2">
                         <span className="font-medium text-sm text-gray-700">Priority:</span>
                         <Badge variant="outline" className={
-                          project.priority === 'high' ? 'bg-red-100 text-red-700' :
-                          project.priority === 'medium' ? 'bg-yellow-100 text-yellow-700' :
+                          projectData.priority === 'high' ? 'bg-red-100 text-red-700' :
+                          projectData.priority === 'medium' ? 'bg-yellow-100 text-yellow-700' :
                           'bg-green-100 text-green-700'
                         }>
-                          {project.priority.charAt(0).toUpperCase() + project.priority.slice(1)}
+                          {projectData.priority ? projectData.priority.charAt(0).toUpperCase() + projectData.priority.slice(1) : 'Medium'}
                         </Badge>
                       </div>
                     </div>
                     <div className="space-y-3">
                       <div className="flex items-center gap-2">
                         <span className="font-medium text-sm text-gray-700">University:</span>
-                        <span className="text-sm text-gray-600">{project.university}</span>
+                        <span className="text-sm text-gray-600">{projectData.university || 'N/A'}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="font-medium text-sm text-gray-700">Status:</span>
                         <Badge variant="outline" className="bg-green-100 text-green-700">
-                          {project.status.charAt(0).toUpperCase() + project.status.slice(1)}
+                          {projectData.status ? projectData.status.charAt(0).toUpperCase() + projectData.status.slice(1) : 'Active'}
                         </Badge>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="font-medium text-sm text-gray-700">Visibility:</span>
                         <Badge variant="outline" className="bg-blue-100 text-blue-700">
-                          {project.isPublic ? 'Public' : 'Private'}
+                          {projectData.isPublic ? 'Public' : 'Private'}
                         </Badge>
                       </div>
                     </div>
@@ -1536,7 +1594,7 @@ export function ProjectDetail({ projectId, onBack, onJoinProject }: ProjectDetai
                 <div>
                   <h4 className="font-medium mb-3">Tags & Keywords</h4>
                   <div className="flex flex-wrap gap-2">
-                    {project.tags.map((tag) => (
+                    {projectData.tags && projectData.tags.map((tag) => (
                       <Badge key={tag} variant="secondary" className="flex items-center gap-1">
                         <Tag className="h-3 w-3" />
                         {tag}
@@ -1735,7 +1793,7 @@ export function ProjectDetail({ projectId, onBack, onJoinProject }: ProjectDetai
                   {/* Progress Summary */}
                   <div className="flex items-center gap-8">
                     <div className="text-center">
-                      <div className="text-3xl font-bold text-[#021ff6] mb-1">{project.progress}%</div>
+                      <div className="text-3xl font-bold text-[#021ff6] mb-1">{projectData.progress || 0}%</div>
                       <div className="text-sm text-gray-600">Overall Progress</div>
                     </div>
                     <div className="text-center">
@@ -1962,7 +2020,7 @@ export function ProjectDetail({ projectId, onBack, onJoinProject }: ProjectDetai
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                         <div className="text-center p-4 bg-blue-50 rounded-lg border border-blue-200">
                           <BarChart3 className="h-6 w-6 text-blue-600 mx-auto mb-2" />
-                          <div className="text-2xl font-semibold text-blue-600">{project.progress}%</div>
+                          <div className="text-2xl font-semibold text-blue-600">{projectData.progress || 0}%</div>
                           <div className="text-xs text-blue-700">Completion Rate</div>
                         </div>
                         <div className="text-center p-4 bg-green-50 rounded-lg border border-green-200">
@@ -1972,12 +2030,12 @@ export function ProjectDetail({ projectId, onBack, onJoinProject }: ProjectDetai
                         </div>
                         <div className="text-center p-4 bg-purple-50 rounded-lg border border-purple-200">
                           <Star className="h-6 w-6 text-purple-600 mx-auto mb-2" />
-                          <div className="text-2xl font-semibold text-purple-600">{project.metrics.impactScore}/10</div>
+                          <div className="text-2xl font-semibold text-purple-600">{projectData.metrics?.impactScore || 0}/10</div>
                           <div className="text-xs text-purple-700">Impact Score</div>
                         </div>
                         <div className="text-center p-4 bg-orange-50 rounded-lg border border-orange-200">
                           <Award className="h-6 w-6 text-orange-600 mx-auto mb-2" />
-                          <div className="text-2xl font-semibold text-orange-600">{project.metrics.participantsReached}</div>
+                          <div className="text-2xl font-semibold text-orange-600">{projectData.metrics?.participantsReached || 0}</div>
                           <div className="text-xs text-orange-700">Students Impacted</div>
                         </div>
                       </div>
