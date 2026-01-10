@@ -55,7 +55,7 @@ function MainContent() {
     
     try {
       // Fetch the project data from Supabase
-      const { getProject } = await import('./src/utils/supabaseQueries');
+      const { getProject } = await import('../src/utils/supabaseQueries');
       const project = await getProject(projectId);
       if (project) {
         setSelectedProject(project);
@@ -78,12 +78,12 @@ function MainContent() {
     console.log('Joining project:', { projectId, role, area });
     
     try {
-      const { joinProject } = await import('./src/utils/supabaseMutations');
+      const { joinProject } = await import('../src/utils/supabaseMutations');
       await joinProject(projectId, { role, area });
       console.log(`Successfully joined project as ${role} in ${area} area`);
       
       // Refresh the project data to reflect the join
-      const { getProject } = await import('./src/utils/supabaseQueries');
+      const { getProject } = await import('../src/utils/supabaseQueries');
       const updatedProject = await getProject(projectId);
       if (updatedProject) {
         setSelectedProject(updatedProject);
