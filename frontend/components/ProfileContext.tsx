@@ -209,21 +209,6 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
   const [isEditing, setIsEditing] = useState(false);
   const [originalProfile, setOriginalProfile] = useState<UserProfile>(defaultProfile);
 
-  // Update computed fields when profile changes
-  useEffect(() => {
-    setProfile(prev => ({
-      ...prev,
-      name: `${prev.firstName} ${prev.lastName}`,
-      title: prev.position,
-      socialLinks: {
-        ...prev.socialLinks,
-        linkedin: prev.linkedIn,
-        email: prev.email,
-        website: prev.website
-      }
-    }));
-  }, [profile.firstName, profile.lastName, profile.position, profile.linkedIn, profile.email, profile.website]);
-
   const updateProfile = (updates: Partial<UserProfile>) => {
     setProfile(prev => ({
       ...prev,
