@@ -881,6 +881,9 @@ function DashboardContent() {
   const [postLikes, setPostLikes] = useState<Record<string, number>>({});
   const [postComments, setPostComments] = useState<Record<string, number>>({});
   
+  // Use a ref to track if we've already done the initial load to prevent redundant flashes
+  const initialLoadDone = useRef(false);
+  
   // Use the navigation context to handle navigation
   const { 
     navigate, 
@@ -894,6 +897,17 @@ function DashboardContent() {
   
   // Use the feed service for dynamic feed management
   const { feedItems, loading, refreshFeed, recordUserAction } = useFeedService();
+
+  useEffect(() => {
+    if (!initialLoadDone.current && !loading && feedItems.length === 0) {
+      initialLoadDone.current = true;
+      // Small delay to let the app settle
+      const timer = setTimeout(() => {
+        refreshFeed?.();
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [loading, feedItems.length, refreshFeed]);
   
   const getPostIcon = (type: string) => {
     switch (type) {
