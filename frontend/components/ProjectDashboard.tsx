@@ -669,18 +669,6 @@ export function ProjectDashboard({ onCreateProject, onViewProject, onProjectCrea
     fetchProjects();
   }, [fetchProjects]);
 
-  // Listen for project creation event to refresh the list
-  useEffect(() => {
-    const handleProjectCreated = () => {
-      fetchProjects();
-    };
-    
-    window.addEventListener('projectCreated', handleProjectCreated);
-    return () => {
-      window.removeEventListener('projectCreated', handleProjectCreated);
-    };
-  }, [fetchProjects]);
-
   const filteredProjects = projects
     .filter(project => {
       const matchesSearch = 
