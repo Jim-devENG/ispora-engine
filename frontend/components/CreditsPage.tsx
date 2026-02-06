@@ -769,7 +769,48 @@ function RecentActivities() {
 }
 
 // Main Component
+import { useProfile } from "./ProfileContext";
+
 export function CreditsPage() {
+  const { profile } = useProfile();
+  const currentUserId = profile.id;
+  
+  // Use profile data for current user state
+  const currentUser = {
+    id: profile.id,
+    name: profile.name,
+    email: profile.email,
+    avatar: profile.avatar || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
+    membershipTier: 'Premium', // Default for now
+    joinDate: new Date(profile.createdAt || Date.now()).toISOString().split('T')[0],
+    location: profile.location || 'Global',
+    university: profile.university || 'N/A',
+    currentLevel: 8, // Derived or mocked for now
+    levelProgress: 75,
+    socialHandles: {
+      linkedin: profile.socialLinks?.linkedin || '',
+      twitter: profile.socialLinks?.twitter || '',
+      instagram: '',
+      youtube: ''
+    }
+  };
+
+  const userStats = {
+    totalPoints: 11250,
+    monthlyPoints: 890,
+    weeklyPoints: 245,
+    currentStreak: 12,
+    longestStreak: 28,
+    referralsSuccessful: 8,
+    projectsLaunched: 3,
+    mentorshipsSessions: 7,
+    opportunitiesShared: 15,
+    socialShares: 42,
+    challengesWon: 0,
+    totalContributions: 127
+  };
+
+  const [credits, setCredits] = useState(1250);
   const [selectedTab, setSelectedTab] = useState("dashboard");
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
   const [selectedTimeframe, setSelectedTimeframe] = useState("month");
@@ -818,7 +859,7 @@ export function CreditsPage() {
                 <div>
                   <p className="text-blue-100 text-sm font-medium">Total Points</p>
                   <p className="text-3xl font-bold mt-1">
-                    <AnimatedCounter value={USER_STATS.totalPoints} />
+                    <AnimatedCounter value={userStats.totalPoints} />
                   </p>
                   <p className="text-blue-100 text-sm mt-1">Ispora Points</p>
                 </div>
@@ -835,11 +876,11 @@ export function CreditsPage() {
                 <div>
                   <p className="text-gray-500 text-sm font-medium">Current Level</p>
                   <p className="text-2xl font-bold text-gray-900 mt-1">
-                    Level <AnimatedCounter value={CURRENT_USER.currentLevel} />
+                    Level <AnimatedCounter value={currentUser.currentLevel} />
                   </p>
                   <p className="text-blue-600 text-sm mt-1 flex items-center gap-1">
                     <TrendingUp className="h-3 w-3" />
-                    {CURRENT_USER.levelProgress}% to next level
+                    {currentUser.levelProgress}% to next level
                   </p>
                 </div>
                 <div className="h-12 w-12 bg-purple-100 rounded-full flex items-center justify-center">
@@ -855,11 +896,11 @@ export function CreditsPage() {
                 <div>
                   <p className="text-gray-500 text-sm font-medium">Monthly Points</p>
                   <p className="text-2xl font-bold text-gray-900 mt-1">
-                    <AnimatedCounter value={USER_STATS.monthlyPoints} prefix="+" />
+                    <AnimatedCounter value={userStats.monthlyPoints} prefix="+" />
                   </p>
                   <p className="text-green-600 text-sm mt-1 flex items-center gap-1">
                     <Flame className="h-3 w-3" />
-                    {USER_STATS.currentStreak} day streak
+                    {userStats.currentStreak} day streak
                   </p>
                 </div>
                 <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center">
@@ -906,8 +947,8 @@ export function CreditsPage() {
             <div className="grid gap-6 md:grid-cols-3">
               {/* Level Progress */}
               <LevelProgress 
-                currentLevel={CURRENT_USER.currentLevel}
-                progress={CURRENT_USER.levelProgress}
+                currentLevel={currentUser.currentLevel}
+                progress={currentUser.levelProgress}
                 nextLevelPoints={1250}
               />
 
