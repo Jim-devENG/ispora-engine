@@ -31,10 +31,13 @@ const NotificationButton = React.forwardRef<
 NotificationButton.displayName = "NotificationButton";
 
 export function DashboardHeader({ 
-  userName = "Dr. Amina", 
+  userName: propUserName, 
   userTitle = "Ready to make an impact today?" 
 }: DashboardHeaderProps) {
   const [searchQuery, setSearchQuery] = useState("");
+  const { profile } = useProfile();
+  
+  const displayUserName = propUserName || profile.firstName || profile.name || "User";
 
   return (
     <TooltipProvider>
@@ -44,7 +47,7 @@ export function DashboardHeader({
             {/* Welcome Message */}
             <div className="flex-1">
               <h1 className="text-2xl font-semibold text-gray-900">
-                Welcome back, {userName}
+                Welcome back, {displayUserName}
               </h1>
               <p className="text-sm text-gray-600 mt-1">
                 {userTitle}
