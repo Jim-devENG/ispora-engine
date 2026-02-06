@@ -35,11 +35,11 @@ export const supabase = createClient<SupabaseDatabase>(safeUrl, safeKey, {
   },
   global: {
     fetch: (url, options = {}) => {
+      const mergedHeaders = new Headers((options as any).headers || undefined);
+
       return fetch(url, {
         ...options,
-        headers: {
-          ...options.headers,
-        },
+        headers: mergedHeaders,
       }).catch((error) => {
         console.error('Supabase request failed:', error);
         throw error;
