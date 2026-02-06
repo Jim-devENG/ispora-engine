@@ -17,19 +17,19 @@ export function UserTypeSelector() {
 
   return (
     <Dialog open={state.userType === null && state.isFirstTime} onOpenChange={() => {}}>
-      <DialogContent className="max-w-4xl p-0 gap-0">
+      <DialogContent className="w-full max-w-md sm:max-w-lg p-0 gap-0">
         <DialogDescription className="sr-only">
           Choose your role to get a personalized experience on Aspora
         </DialogDescription>
         {/* Header */}
-        <div className="text-center p-8 bg-gradient-to-r from-blue-50 to-green-50">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+        <div className="text-center p-4 bg-gradient-to-r from-blue-50 to-green-50">
+          <h1 className="text-xl font-semibold text-gray-900 mb-1">
             Welcome to Aspora
           </h1>
-          <p className="text-lg text-gray-600 mb-6">
+          <p className="text-sm text-gray-600 mb-3">
             Connecting diaspora communities with ambitious youth back home
           </p>
-          <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
+          <div className="flex items-center justify-center gap-2 text-xs text-gray-500">
             <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
             <span>Bridge distances</span>
             <div className="w-2 h-2 bg-green-500 rounded-full"></div>
@@ -40,24 +40,24 @@ export function UserTypeSelector() {
         </div>
 
         {/* Content */}
-        <div className="p-8">
-          <div className="text-center mb-8">
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">
+        <div className="p-4">
+          <div className="text-center mb-4">
+            <h2 className="text-base font-semibold text-gray-900 mb-1">
               How would you like to get started?
             </h2>
-            <p className="text-gray-600">
+            <p className="text-sm text-gray-600">
               Choose your role to get a personalized experience
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-3 mx-auto">
             {/* Diaspora Option */}
             <Card className="group cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border-2 hover:border-blue-200">
               <CardHeader className="text-center pb-4">
-                <div className="w-16 h-16 mx-auto bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                  <Globe className="w-8 h-8" />
+                <div className="w-12 h-12 mx-auto bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
+                  <Globe className="w-6 h-6" />
                 </div>
-                <CardTitle className="text-xl text-blue-900">I'm a Diaspora Member</CardTitle>
+                <CardTitle className="text-base text-blue-900">I'm a Diaspora Member</CardTitle>
                 <p className="text-gray-600 text-sm">
                   Living abroad and want to mentor youth back home
                 </p>
@@ -110,10 +110,10 @@ export function UserTypeSelector() {
             {/* Local User Option */}
             <Card className="group cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border-2 hover:border-green-200">
               <CardHeader className="text-center pb-4">
-                <div className="w-16 h-16 mx-auto bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                  <GraduationCap className="w-8 h-8" />
+                <div className="w-12 h-12 mx-auto bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
+                  <GraduationCap className="w-6 h-6" />
                 </div>
-                <CardTitle className="text-xl text-green-900">I'm a Student/Youth</CardTitle>
+                <CardTitle className="text-base text-green-900">I'm a Student/Youth</CardTitle>
                 <p className="text-gray-600 text-sm">
                   Looking for mentorship and opportunities to grow
                 </p>
@@ -164,7 +164,7 @@ export function UserTypeSelector() {
             </Card>
           </div>
 
-          <div className="text-center mt-8">
+          <div className="text-center mt-4">
             <p className="text-sm text-gray-500 mb-2">
               Don't worry, you can always switch between roles later
             </p>
