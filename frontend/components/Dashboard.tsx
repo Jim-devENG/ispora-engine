@@ -909,6 +909,10 @@ function DashboardContent() {
     }
   }, [loading, feedItems.length, refreshFeed]);
   
+  const { profile } = useProfile();
+  const currentUserId = profile.id;
+  const currentUserName = profile.firstName || profile.name || "User";
+  
   const getPostIcon = (type: string) => {
     switch (type) {
       case 'project': return <Rocket className="h-5 w-5 text-blue-500" />;
@@ -927,7 +931,7 @@ function DashboardContent() {
       case 'collaboration': return <Users className="h-5 w-5 text-teal-500" />;
       default: return <Globe className="h-5 w-5 text-gray-500" />;
     }
-  };
+  };currentserd
 
   // Get story narrative based on post type (shortened versions)
   const getStoryNarrative = (post: any) => {
@@ -1026,7 +1030,7 @@ function DashboardContent() {
         setIsRefreshing(false);
       }, 1000);
     }
-  };
+  };currentserd
 
   // Enhanced navigation logic for feed cards with specific targeting
   const handleFeedCardClick = (post: any) => {
@@ -1442,7 +1446,7 @@ function DashboardContent() {
           {/* Feed Content - Full Height Scrollable with proper overflow */}
           <div className="flex-1 min-h-0 overflow-hidden">
             <PullToRefresh onRefresh={handleRefresh} isRefreshing={isRefreshing}>
-              <div className="h-full w-full overflow-y-auto scrollbar-thin">
+              <div className="h-full w-full overflow-y-autocurrentaserid">
                 <div className="space-y-6 p-6">
                   {feedItems.slice(0, displayedPosts).map((post) => {
                     const story = getStoryNarrative(post);
