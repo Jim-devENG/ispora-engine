@@ -72,7 +72,6 @@ export function SecurityPage() {
   return (
     <div className="h-full">
       <DashboardHeader 
-        userName="John" 
         userTitle="Manage your account security"
       />
       

@@ -89,7 +89,6 @@ export function SettingsPage() {
   return (
     <div className="h-full flex flex-col">
       <DashboardHeader 
-        userName="John" 
         userTitle="Manage your application settings"
       />
       

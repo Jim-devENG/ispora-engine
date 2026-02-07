@@ -55,41 +55,7 @@ interface Mentee {
 }
 
 // Mock mentee data
-const mockMentees: Mentee[] = [
-  {
-    id: "1",
-    name: "Alex Chen",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
-    university: "Stanford University",
-    program: "Computer Science",
-    year: "Junior",
-    status: "active",
-    progress: 75,
-    isOnline: true
-  },
-  {
-    id: "2",
-    name: "Sarah Williams",
-    avatar: "https://images.unsplash.com/photo-1494790108755-2616b25f5e55?w=150&h=150&fit=crop&crop=face",
-    university: "MIT",
-    program: "Electrical Engineering",
-    year: "Sophomore",
-    status: "active",
-    progress: 60,
-    isOnline: false
-  },
-  {
-    id: "3",
-    name: "Jordan Martinez",
-    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
-    university: "UC Berkeley",
-    program: "Business Administration",
-    year: "Senior",
-    status: "completed",
-    progress: 100,
-    isOnline: true
-  }
-];
+const mockMentees: Mentee[] = [];
 
 interface MentorshipWorkspaceProps {
   onNavigateToCampaign?: (campaignId: string) => void;
@@ -147,7 +113,7 @@ function WorkspaceSettings() {
 
 export function MentorshipWorkspace({ onNavigateToCampaign, onCreateCampaign }: MentorshipWorkspaceProps) {
   const [activeTab, setActiveTab] = useState("session-board");
-  const [selectedMentee, setSelectedMentee] = useState<Mentee>(mockMentees[0]);
+  const [selectedMentee, setSelectedMentee] = useState<Mentee | null>(mockMentees[0] || null);
   const [isRightPanelOpen, setIsRightPanelOpen] = useState(false);
   const [rightPanelContent, setRightPanelContent] = useState<"calendar" | "notifications">("calendar");
   const [showMenteeManagement, setShowMenteeManagement] = useState(false);
@@ -180,12 +146,17 @@ export function MentorshipWorkspace({ onNavigateToCampaign, onCreateCampaign }: 
       <MenteeManagement
         onSelectMentee={handleSelectMentee}
         onClose={() => setShowMenteeManagement(false)}
-        selectedMenteeId={selectedMentee.id}
+        selectedMenteeId={selectedMentee?.id || ''}
       />
     );
   }
 
   const renderTabContent = () => {
+    if (!selectedMentee) {
+      return (
+        <div className="p-6 text-gray-600">No mentee selected.</div>
+      );
+    }
     switch (activeTab) {
       case "session-board":
         return <SessionBoard mentee={selectedMentee} />;

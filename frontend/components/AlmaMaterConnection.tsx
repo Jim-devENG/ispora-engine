@@ -107,43 +107,7 @@ const mockUniversities: University[] = [
 ];
 
 // Mock campaign data
-const mockCampaigns: Campaign[] = [
-  {
-    id: "1",
-    title: "Engineering Mentorship Circle",
-    description: "Connect engineering students with diaspora professionals for career guidance and project collaboration.",
-    type: "mentorship",
-    university: "University of Lagos",
-    creator: "Dr. Adaora Okafor",
-    participantsCount: 24,
-    status: "active",
-    endDate: new Date(Date.now() + 45 * 24 * 60 * 60 * 1000)
-  },
-  {
-    id: "2",
-    title: "Startup Innovation Lab",
-    description: "Fund and mentor student entrepreneurs to develop tech solutions for local challenges.",
-    type: "funding",
-    university: "University of Cape Town",
-    creator: "Prof. Sarah Mitchell",
-    participantsCount: 15,
-    goalAmount: 25000,
-    raisedAmount: 18500,
-    status: "active",
-    endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-  },
-  {
-    id: "3",
-    title: "Medical Research Collaboration",
-    description: "Joint research project on tropical diseases with international medical professionals.",
-    type: "research",
-    university: "Makerere University",
-    creator: "Dr. James Mukasa",
-    participantsCount: 8,
-    status: "upcoming",
-    endDate: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000)
-  }
-];
+const mockCampaigns: Campaign[] = [];
 
 interface AlmaMaterConnectionProps {
   isOpen: boolean;

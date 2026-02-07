@@ -110,57 +110,17 @@ export function CampaignDetail() {
   };
 
   // Mock data with multiple admins
-  const mockAdmins = [
-    { id: "1", name: campaign.admin || "Dr. Amina Hassan", role: "Primary Admin", avatar: "/api/placeholder/40/40", university: campaign.university, joinedDate: "Primary Admin" },
-    { id: "2", name: "Prof. Sarah Mitchell", role: "Admin", avatar: "/api/placeholder/40/40", university: "MIT", joinedDate: "Promoted 2 weeks ago" }
-  ];
+  const mockAdmins: Array<{ id: string; name: string; role: string; avatar: string; university: string; joinedDate: string }> = [];
 
-  const mockParticipants = [
-    { id: "3", name: "Ahmed Hassan", role: "Student", avatar: "/api/placeholder/40/40", university: "University of Lagos", canPromote: true },
-    { id: "4", name: "Maria Rodriguez", role: "Student", avatar: "/api/placeholder/40/40", university: "University of Lagos", canPromote: true },
-    { id: "5", name: "Dr. Kumar Patel", role: "Mentor", avatar: "/api/placeholder/40/40", university: "IIT Delhi", canPromote: true },
-    { id: "6", name: "Elena Petrova", role: "Researcher", avatar: "/api/placeholder/40/40", university: "Oxford University", canPromote: true },
-    { id: "7", name: "James Wilson", role: "Industry Expert", avatar: "/api/placeholder/40/40", university: "Stanford University", canPromote: true }
-  ];
+  const mockParticipants: Array<{ id: string; name: string; role: string; avatar: string; university: string; canPromote: boolean }> = [];
 
-  const mockUpdates = [
-    {
-      id: "1",
-      title: "New Mentorship Session Scheduled",
-      content: "We've scheduled a group mentorship session for next Friday at 3 PM GMT. All participants will receive calendar invites.",
-      author: "Dr. Amina Hassan",
-      timestamp: "2 hours ago",
-      type: "announcement"
-    },
-    {
-      id: "2",
-      title: "Milestone Achievement",
-      content: "We've reached 48% of our participant target! Thank you to everyone who has joined so far.",
-      author: "Prof. Sarah Mitchell",
-      timestamp: "1 day ago",
-      type: "milestone"
-    },
-    {
-      id: "3",
-      title: "Resource Library Updated",
-      content: "New career development resources have been added to our shared library. Check out the latest guides and templates.",
-      author: "Dr. Amina Hassan", 
-      timestamp: "3 days ago",
-      type: "resource"
-    }
-  ];
+  const mockUpdates: Array<{ id: string; title: string; content: string; author: string; timestamp: string; type: string }> = [];
 
-  const mockResources = [
-    { id: "1", name: "Engineering Career Guide 2024", type: "PDF", size: "2.4 MB", downloads: 45 },
-    { id: "2", name: "Resume Template", type: "DOCX", size: "156 KB", downloads: 78 },
-    { id: "3", name: "Interview Preparation Checklist", type: "PDF", size: "890 KB", downloads: 62 },
-    { id: "4", name: "Networking Best Practices", type: "PDF", size: "1.2 MB", downloads: 34 }
-  ];
+  const mockResources: Array<{ id: string; name: string; type: string; size: string; downloads: number }> = [];
 
   return (
     <div className="h-full flex flex-col">
       <DashboardHeader 
-        userName="Dr. Amina" 
         userTitle={`Campaign: ${campaign.title}`}
       />
       

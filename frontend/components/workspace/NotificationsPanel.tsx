@@ -58,78 +58,7 @@ interface NotificationsPanelProps {
 }
 
 // Mock notifications data
-const mockNotifications: Notification[] = [
-  {
-    id: "1",
-    type: 'session',
-    title: "Session starting in 30 minutes",
-    description: "AI/ML Career Discussion with Amara Okafor",
-    timestamp: new Date(Date.now() - 5 * 60 * 1000),
-    isRead: false,
-    priority: 'high',
-    relatedMentee: "Amara Okafor"
-  },
-  {
-    id: "2",
-    type: 'submission',
-    title: "New submission received",
-    description: "Portfolio website submitted by David Mensah",
-    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
-    isRead: false,
-    priority: 'medium',
-    relatedMentee: "David Mensah"
-  },
-  {
-    id: "3",
-    type: 'task',
-    title: "Task completed",
-    description: "Machine Learning Project marked as done",
-    timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000),
-    isRead: true,
-    priority: 'low',
-    relatedMentee: "Fatima Al-Rashid"
-  },
-  {
-    id: "4",
-    type: 'message',
-    title: "New message received",
-    description: "Voice note about feature engineering approach",
-    timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000),
-    isRead: false,
-    priority: 'medium',
-    relatedMentee: "Amara Okafor"
-  },
-  {
-    id: "5",
-    type: 'certificate',
-    title: "Certificate ready for review",
-    description: "Machine Learning Fundamentals certificate is ready to issue",
-    timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
-    isRead: true,
-    priority: 'medium',
-    relatedMentee: "Fatima Al-Rashid"
-  },
-  {
-    id: "6",
-    type: 'reminder',
-    title: "Weekly check-in due",
-    description: "Time for your weekly progress review with Emma Thompson",
-    timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-    isRead: false,
-    priority: 'medium',
-    relatedMentee: "Emma Thompson"
-  },
-  {
-    id: "7",
-    type: 'session',
-    title: "Session completed successfully",
-    description: "Data Science Fundamentals session with John Smith",
-    timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
-    isRead: true,
-    priority: 'low',
-    relatedMentee: "John Smith"
-  }
-];
+const mockNotifications: Notification[] = [];
 
 const notificationIcons = {
   session: Video,

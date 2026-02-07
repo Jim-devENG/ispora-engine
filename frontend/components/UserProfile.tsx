@@ -112,100 +112,36 @@ interface UserProfileData {
 
 // Mock detailed user data
 const mockUserProfile: UserProfileData = {
-  id: '1',
-  name: 'Dr. Kwame Asante',
-  avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
-  title: 'Senior AI Research Scientist',
-  company: 'Google DeepMind',
-  location: 'London, UK',
-  university: 'Stanford University',
-  graduationYear: '2015',
-  program: 'PhD Computer Science',
-  bio: 'Leading AI research in natural language processing and machine learning ethics. Passionate about mentoring the next generation of African tech leaders and building ethical AI systems that benefit humanity.',
-  skills: ['Machine Learning', 'Natural Language Processing', 'Python', 'TensorFlow', 'Research', 'Ethics in AI', 'Deep Learning', 'Data Science'],
-  expertise: ['Artificial Intelligence', 'Deep Learning', 'Ethics in AI', 'Natural Language Processing', 'Research Methodology'],
+  id: '0',
+  name: '',
+  avatar: undefined,
+  title: '',
+  company: '',
+  location: '',
+  university: '',
+  graduationYear: '',
+  program: '',
+  bio: '',
+  skills: [],
+  expertise: [],
   role: 'mentor',
-  experience: 8,
+  experience: 0,
   connectionStatus: 'none',
-  mutualConnections: 12,
-  responseRate: 95,
-  isVerified: true,
-  isOnline: true,
-  lastActive: '2 minutes ago',
-  interests: ['AI Ethics', 'Mentorship', 'Tech Leadership', 'Research', 'African Innovation'],
-  socialLinks: {
-    linkedin: 'https://linkedin.com/in/kwameasante',
-    twitter: 'https://twitter.com/kwameasante',
-    email: 'kwame@deepmind.com',
-    website: 'https://kwameasante.com'
-  },
-  achievements: [
-    {
-      title: 'Best Paper Award - NeurIPS 2023',
-      description: 'For groundbreaking research in ethical AI frameworks and bias mitigation techniques',
-      date: '2023-12-15',
-      type: 'award'
-    },
-    {
-      title: 'Google AI Impact Scholar',
-      description: 'Recognized for contributions to responsible AI development',
-      date: '2023-06-01',
-      type: 'award'
-    },
-    {
-      title: 'Certified AI Ethics Practitioner',
-      description: 'Professional certification in AI ethics and responsible ML practices',
-      date: '2022-09-15',
-      type: 'certification'
-    }
-  ],
+  mutualConnections: 0,
+  responseRate: 0,
+  isVerified: false,
+  isOnline: false,
+  lastActive: '',
+  interests: [],
+  socialLinks: {},
+  achievements: [],
   availability: {
-    mentoring: true,
-    collaboration: true,
+    mentoring: false,
+    collaboration: false,
     consultation: false
   },
-  testimonials: [
-    {
-      id: '1',
-      from: {
-        name: 'Sarah Chen',
-        title: 'ML Engineer at Meta',
-        avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face'
-      },
-      content: 'Kwame is an exceptional mentor who guided me through my transition into AI research. His insights on ethical AI practices have shaped my approach to building responsible ML systems.',
-      date: '2024-01-15',
-      type: 'mentorship'
-    },
-    {
-      id: '2',
-      from: {
-        name: 'David Okonkwo',
-        title: 'PhD Student at MIT',
-        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face'
-      },
-      content: 'Working with Kwame on our joint research project was incredible. His expertise in NLP and commitment to ethical AI made our collaboration extremely productive.',
-      date: '2023-11-20',
-      type: 'collaboration'
-    }
-  ],
-  projects: [
-    {
-      id: '1',
-      name: 'Ethical AI Framework for Healthcare',
-      description: 'Developing bias-free AI models for medical diagnosis in underserved communities',
-      role: 'Lead Researcher',
-      status: 'active',
-      technologies: ['Python', 'TensorFlow', 'PyTorch', 'MLflow']
-    },
-    {
-      id: '2',
-      name: 'African Language NLP Models',
-      description: 'Building natural language processing models for African languages',
-      role: 'Principal Investigator',
-      status: 'completed',
-      technologies: ['Transformers', 'Python', 'HuggingFace', 'NLTK']
-    }
-  ],
+  testimonials: [],
+  projects: [],
   publications: [
     {
       title: 'Bias Mitigation in Large Language Models: A Comprehensive Survey',

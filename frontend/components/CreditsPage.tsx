@@ -13,6 +13,7 @@ import { Progress } from "./ui/progress";
 import { Separator } from "./ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { toast } from "sonner";
+import { useProfile } from "./ProfileContext";
 import { 
   CreditCard, 
   Wallet, 
@@ -98,9 +99,9 @@ import {
 
 // Mock data for current user
 const CURRENT_USER = {
-  id: 'user_001',
-  name: 'Dr. Amina Kone',
-  email: 'amina@ispora.com',
+  id: 'current_user',
+  name: 'User',
+  email: 'user@example.com',
   avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
   membershipTier: 'Premium',
   joinDate: '2024-01-15',
@@ -109,10 +110,10 @@ const CURRENT_USER = {
   currentLevel: 8,
   levelProgress: 75,
   socialHandles: {
-    linkedin: 'https://linkedin.com/in/aminakone',
-    twitter: 'https://twitter.com/aminakone',
-    instagram: 'https://instagram.com/aminakone',
-    youtube: 'https://youtube.com/@aminakone'
+    linkedin: '',
+    twitter: '',
+    instagram: '',
+    youtube: ''
   }
 };
 
@@ -256,79 +257,16 @@ const BADGE_SYSTEM = [
 ];
 
 // Leaderboard Data
-const LEADERBOARD_DATA = [
-  {
-    rank: 1,
-    user: {
-      name: 'Dr. Kwame Asante',
-      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
-      location: 'London, UK',
-      university: 'Stanford University'
-    },
-    points: 15420,
-    level: 12,
-    badges: 8,
-    change: 'up',
-    changeValue: 2
-  },
-  {
-    rank: 2,
-    user: {
-      name: 'Amara Okafor',
-      avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
-      location: 'San Francisco, CA',
-      university: 'MIT'
-    },
-    points: 12890,
-    level: 11,
-    badges: 7,
-    change: 'same',
-    changeValue: 0
-  },
-  {
-    rank: 3,
-    user: {
-      name: 'Dr. Amina Kone',
-      avatar: CURRENT_USER.avatar,
-      location: CURRENT_USER.location,
-      university: CURRENT_USER.university
-    },
-    points: 11250,
-    level: 8,
-    badges: 4,
-    change: 'up',
-    changeValue: 1,
-    isCurrentUser: true
-  },
-  {
-    rank: 4,
-    user: {
-      name: 'David Mensah',
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
-      location: 'Oxford, UK',
-      university: 'University of Oxford'
-    },
-    points: 9875,
-    level: 7,
-    badges: 5,
-    change: 'down',
-    changeValue: 2
-  },
-  {
-    rank: 5,
-    user: {
-      name: 'Dr. Fatima Al-Rashid',
-      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
-      location: 'Cairo, Egypt',
-      university: 'Harvard Medical School'
-    },
-    points: 8940,
-    level: 6,
-    badges: 6,
-    change: 'up',
-    changeValue: 3
-  }
-];
+const LEADERBOARD_DATA: Array<{
+  rank: number;
+  user: { name: string; avatar: string; location: string; university: string };
+  points: number;
+  level: number;
+  badges: number;
+  change: string;
+  changeValue: number;
+  isCurrentUser?: boolean;
+}> = [];
 
 // Current user stats
 const USER_STATS = {
@@ -672,13 +610,12 @@ function LevelProgress({ currentLevel, progress, nextLevelPoints }: {
   );
 }
 
-// Recent Activities Component
-function RecentActivities() {
+function RecentActivityCard() {
   const activities = [
     {
       id: 1,
-      type: 'badge_earned',
-      title: 'Earned Innovator Badge!',
+      type: 'idea_shared',
+      title: 'Idea Shared',
       description: 'Your innovative ideas are making an impact',
       points: 750,
       icon: Lightbulb,
@@ -712,7 +649,7 @@ function RecentActivities() {
       id: 4,
       type: 'referral_success',
       title: 'Successful Referral',
-      description: 'Sarah Okafor joined through your invitation',
+      description: 'A new user joined through your invitation',
       points: 300,
       icon: UserPlus,
       color: 'text-green-600',
@@ -745,10 +682,10 @@ function RecentActivities() {
           <div className="space-y-4">
             {activities.map((activity) => (
               <div key={activity.id} className={`flex items-start gap-4 p-3 rounded-lg ${activity.bgColor}`}>
-                <div className={`flex-shrink-0 w-10 h-10 rounded-full bg-white flex items-center justify-center`}>
+                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-white flex items-center justify-center">
                   <activity.icon className={`h-5 w-5 ${activity.color}`} />
                 </div>
-                
+
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between mb-1">
                     <h4 className="font-medium text-gray-900 truncate">{activity.title}</h4>
@@ -768,28 +705,26 @@ function RecentActivities() {
   );
 }
 
-// Main Component
-import { useProfile } from "./ProfileContext";
-
 export function CreditsPage() {
   const { profile } = useProfile();
-  const currentUserId = profile.id;
+  const currentUserId = profile?.id || CURRENT_USER.id;
+  const currentUserName = profile?.firstName || profile?.name || CURRENT_USER.name;
   
   // Use profile data for current user state
   const currentUser = {
-    id: profile.id,
-    name: profile.name,
-    email: profile.email,
-    avatar: profile.avatar || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
+    id: currentUserId,
+    name: currentUserName,
+    email: profile?.email || CURRENT_USER.email,
+    avatar: profile?.avatar || CURRENT_USER.avatar,
     membershipTier: 'Premium', // Default for now
-    joinDate: new Date(profile.createdAt || Date.now()).toISOString().split('T')[0],
-    location: profile.location || 'Global',
-    university: profile.university || 'N/A',
+    joinDate: new Date(profile?.lastActive || Date.now()).toISOString().split('T')[0],
+    location: profile?.location || 'Global',
+    university: profile?.university || 'N/A',
     currentLevel: 8, // Derived or mocked for now
     levelProgress: 75,
     socialHandles: {
-      linkedin: profile.socialLinks?.linkedin || '',
-      twitter: profile.socialLinks?.twitter || '',
+      linkedin: profile?.socialLinks?.linkedin || '',
+      twitter: profile?.socialLinks?.twitter || '',
       instagram: '',
       youtube: ''
     }
@@ -819,7 +754,7 @@ export function CreditsPage() {
     title: "🎉 Just reached Level 8 on Ispora!",
     description: "I'm building impactful projects and connecting with amazing diaspora professionals. Join me on this journey!",
     text: "Just reached Level 8 on Ispora! 🚀 Building the future with fellow diaspora innovators.",
-    url: "https://ispora.com/profile/amina-kone"
+    url: `https://ispora.com/profile/${currentUserId}`
   };
 
   return (
@@ -953,7 +888,7 @@ export function CreditsPage() {
               />
 
               {/* Recent Activities */}
-              <RecentActivities />
+              <RecentActivityCard />
 
               {/* Points Breakdown */}
               <Card>
@@ -1164,7 +1099,7 @@ export function CreditsPage() {
                       <Label className="text-sm font-medium">Your Referral Link</Label>
                       <div className="flex gap-2">
                         <Input 
-                          value="https://ispora.com/invite/amina-kone-2024"
+                          value={`https://ispora.com/invite/${currentUserId}`}
                           readOnly
                           className="font-mono text-sm"
                         />
@@ -1172,7 +1107,7 @@ export function CreditsPage() {
                           variant="outline"
                           size="sm"
                           onClick={() => {
-                            navigator.clipboard.writeText("https://ispora.com/invite/amina-kone-2024");
+                            navigator.clipboard.writeText(`https://ispora.com/invite/${currentUserId}`);
                             toast.success("Referral link copied!");
                           }}
                         >
@@ -1202,11 +1137,7 @@ export function CreditsPage() {
                     <div className="space-y-3">
                       <h4 className="font-medium text-gray-900">Recent Referrals</h4>
                       <div className="space-y-2">
-                        {[
-                          { name: 'Sarah Okafor', date: '2 days ago', status: 'Active' },
-                          { name: 'Michael Chen', date: '1 week ago', status: 'Active' },
-                          { name: 'Kwame Asante', date: '2 weeks ago', status: 'Active' }
-                        ].map((referral, index) => (
+                        {([] as Array<{ name: string; date: string; status: string }>).map((referral, index) => (
                           <div key={index} className="flex items-center justify-between p-2 bg-white rounded border">
                             <div>
                               <p className="font-medium text-sm">{referral.name}</p>
@@ -1244,8 +1175,8 @@ export function CreditsPage() {
                     
                     <div className="space-y-3">
                       {[
-                        { name: 'LinkedIn', icon: Linkedin, color: 'text-blue-600', connected: true, handle: 'aminakone' },
-                        { name: 'Twitter', icon: Twitter, color: 'text-blue-400', connected: true, handle: '@aminakone' },
+                        { name: 'LinkedIn', icon: Linkedin, color: 'text-blue-600', connected: Boolean(currentUser.socialHandles.linkedin), handle: currentUser.socialHandles.linkedin || null },
+                        { name: 'Twitter', icon: Twitter, color: 'text-blue-400', connected: Boolean(currentUser.socialHandles.twitter), handle: currentUser.socialHandles.twitter || null },
                         { name: 'Instagram', icon: Instagram, color: 'text-pink-600', connected: false, handle: null },
                         { name: 'YouTube', icon: Youtube, color: 'text-red-600', connected: false, handle: null }
                       ].map((platform) => (

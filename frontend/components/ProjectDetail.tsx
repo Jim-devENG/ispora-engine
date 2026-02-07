@@ -69,6 +69,7 @@ import { Label } from "./ui/label";
 import { useNavigation } from "./NavigationContext";
 import { FeedService } from "./FeedService";
 import { useProfile } from "./ProfileContext";
+import { getProject } from "../src/utils/supabaseQueries";
 // Placeholder for example image - replace with actual image path
 const exampleImage = '';
 
@@ -214,287 +215,15 @@ const allCategories = [
 ];
 
 // Extended mock data for detailed project view
-const mockTasks: Task[] = [
-  {
-    id: "1",
-    title: "Design ethics curriculum framework",
-    description: "Create comprehensive framework for AI ethics education",
-    status: "completed",
-    priority: "high",
-    assignee: "Dr. Sarah Chen",
-    dueDate: "2024-02-15",
-    milestone: "1",
-    source: 'workroom-task-manager',
-    lastUpdated: new Date().toISOString()
-  },
-  {
-    id: "2",
-    title: "Recruit diaspora mentors",
-    description: "Identify and onboard 15 diaspora professionals as mentors",
-    status: "completed",
-    priority: "high",
-    assignee: "Prof. Amara Okafor",
-    dueDate: "2024-03-01",
-    milestone: "1",
-    source: 'workroom-task-manager',
-    lastUpdated: new Date().toISOString()
-  },
-  {
-    id: "3",
-    title: "Develop Module 1: Introduction to AI Ethics",
-    description: "Create interactive content and assignments",
-    status: "completed",
-    priority: "medium",
-    assignee: "Maria Rodriguez",
-    dueDate: "2024-04-15",
-    milestone: "2",
-    source: 'workroom-task-manager',
-    lastUpdated: new Date().toISOString()
-  },
-  {
-    id: "4",
-    title: "Student assessment rubric",
-    description: "Design evaluation criteria for student progress",
-    status: "in-progress",
-    priority: "medium",
-    assignee: "Dr. Sarah Chen",
-    dueDate: "2024-11-01",
-    milestone: "3",
-    source: 'workroom-task-manager',
-    lastUpdated: new Date().toISOString()
-  },
-  {
-    id: "5",
-    title: "Final program evaluation",
-    description: "Assess overall program effectiveness and impact",
-    status: "todo",
-    priority: "high",
-    assignee: "Dr. Michael Lee",
-    dueDate: "2024-12-15",
-    milestone: "4",
-    source: 'workroom-task-manager',
-    lastUpdated: new Date().toISOString()
-  }
-];
+const mockTasks: Task[] = [];
 
-const mockMilestones: Milestone[] = [
-  {
-    id: "1",
-    title: "Program Foundation",
-    description: "Establish curriculum framework and diaspora mentor network",
-    dueDate: "2024-03-15",
-    status: "completed",
-    progress: 100,
-    tasks: ["1", "2"],
-    source: 'auto-generated-from-activities',
-    lastUpdated: new Date().toISOString()
-  },
-  {
-    id: "2",
-    title: "Content Development",
-    description: "Create interactive learning modules with diaspora input",
-    dueDate: "2024-06-30",
-    status: "completed",
-    progress: 100,
-    tasks: ["3"],
-    source: 'auto-generated-from-activities',
-    lastUpdated: new Date().toISOString()
-  },
-  {
-    id: "3",
-    title: "Program Implementation",
-    description: "Launch pilot program with global diaspora mentors",
-    dueDate: "2024-10-31",
-    status: "in-progress",
-    progress: 75,
-    tasks: ["4"],
-    source: 'auto-generated-from-activities',
-    lastUpdated: new Date().toISOString()
-  },
-  {
-    id: "4",
-    title: "Evaluation & Scale",
-    description: "Assess impact and prepare for global scaling",
-    dueDate: "2024-12-15",
-    status: "upcoming",
-    progress: 0,
-    tasks: ["5"],
-    source: 'auto-generated-from-activities',
-    lastUpdated: new Date().toISOString()
-  }
-];
+const mockMilestones: Milestone[] = [];
 
-const mockTeamMembers: TeamMember[] = [
-  {
-    id: "1",
-    name: "Dr. Sarah Chen",
-    email: "sarah.chen@stanford.edu",
-    role: "Project Host & Lead",
-    avatar: "https://images.unsplash.com/photo-1494790108755-2616b25f5e55?w=150&h=150&fit=crop&crop=face",
-    isOnline: true,
-    contribution: 95
-  },
-  {
-    id: "2",
-    name: "Prof. Amara Okafor",
-    email: "amara.okafor@mit.edu",
-    role: "Diaspora Mentor (MIT)",
-    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
-    isOnline: false,
-    contribution: 92
-  },
-  {
-    id: "3",
-    name: "Dr. Michael Lee",
-    email: "michael.lee@google.com",
-    role: "Industry Expert (Google AI)",
-    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
-    isOnline: true,
-    contribution: 88
-  },
-  {
-    id: "4",
-    name: "Dr. Fatima Al-Rashid",
-    email: "fatima.rashid@microsoft.com",
-    role: "Technical Advisor (Microsoft)",
-    avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop&crop=face",
-    isOnline: true,
-    contribution: 85
-  },
-  {
-    id: "5",
-    name: "Marcus Williams",
-    email: "marcus.w@aspora.com",
-    role: "Community Supporter",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
-    isOnline: true,
-    contribution: 78
-  }
-];
+const mockTeamMembers: TeamMember[] = [];
 
-const mockCommunityMembers: CommunityMember[] = [
-  {
-    id: "1",
-    name: "Prof. David Kumar",
-    role: "Faculty Advisor",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
-    university: "MIT",
-    expertise: ["Machine Learning", "AI Ethics", "Computer Vision"],
-    joinedDate: "2024-01-20",
-    bio: "Professor of AI Ethics at MIT, interested in curriculum development and mentoring"
-  },
-  {
-    id: "2",
-    name: "Emma Thompson",
-    role: "Student Participant",
-    avatar: "https://images.unsplash.com/photo-1494790108755-2616b25f5e55?w=150&h=150&fit=crop&crop=face",
-    university: "Stanford University",
-    expertise: ["Computer Science", "Ethics", "Research"],
-    joinedDate: "2024-02-05",
-    bio: "CS Graduate student passionate about ethical AI development and looking to contribute"
-  },
-  {
-    id: "3",
-    name: "James Wilson",
-    role: "Industry Mentor",
-    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
-    university: "Google",
-    expertise: ["AI Safety", "Product Ethics", "Team Leadership"],
-    joinedDate: "2024-01-28",
-    bio: "Senior AI Ethics Lead at Google, experienced in implementing ethical AI frameworks"
-  },
-  {
-    id: "4",
-    name: "Dr. Lisa Park",
-    role: "Research Collaborator",
-    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
-    university: "Carnegie Mellon",
-    expertise: ["Educational Technology", "Curriculum Design", "Assessment"],
-    joinedDate: "2024-02-10",
-    bio: "Assistant Professor specializing in educational technology and AI curriculum development"
-  },
-  {
-    id: "5",
-    name: "Marcus Rodriguez",
-    role: "Student Participant", 
-    university: "UC Berkeley",
-    expertise: ["Philosophy", "AI Ethics", "Policy"],
-    joinedDate: "2024-02-15",
-    bio: "Philosophy major with focus on AI ethics, following the project to learn about curriculum approaches"
-  },
-  {
-    id: "6",
-    name: "Sarah Kim",
-    role: "Graduate Teaching Assistant",
-    avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop&crop=face",
-    university: "Stanford University",
-    expertise: ["Teaching", "Student Mentoring", "Curriculum Support"],
-    joinedDate: "2024-02-01",
-    bio: "PhD candidate interested in supporting course delivery and student mentoring"
-  },
-  {
-    id: "7",
-    name: "Dr. Robert Chen",
-    role: "External Reviewer",
-    avatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150&h=150&fit=crop&crop=face",
-    university: "Microsoft Research",
-    expertise: ["AI Research", "Ethics Review", "Industry Standards"],
-    joinedDate: "2024-01-25",
-    bio: "Principal Researcher at Microsoft, providing external review and industry perspective"
-  },
-  {
-    id: "8",
-    name: "Ana Gutierrez",
-    role: "Community Advocate",
-    university: "Local Tech Community",
-    expertise: ["Community Outreach", "Diversity & Inclusion", "Public Speaking"],
-    joinedDate: "2024-02-12",
-    bio: "Community leader focused on making AI education more accessible and inclusive"
-  }
-];
+const mockCommunityMembers: CommunityMember[] = [];
 
-const mockRecentActivity = [
-  {
-    id: "1",
-    type: "milestone",
-    title: "Completed Module 3: Bias in AI",
-    user: "Dr. Sarah Chen",
-    timestamp: "2 hours ago",
-    description: "Successfully finished development and review of the bias detection module"
-  },
-  {
-    id: "2",
-    type: "task",
-    title: "Reviewed 15 student submissions",
-    user: "Prof. Amara Okafor",
-    timestamp: "4 hours ago",
-    description: "Provided feedback on ethical case study analyses from diaspora perspective"
-  },
-  {
-    id: "3",
-    type: "comment",
-    title: "Great progress on the bias detection exercise!",
-    user: "Dr. Michael Lee",
-    timestamp: "6 hours ago",
-    description: "Students are really engaging with the real-world scenarios from industry"
-  },
-  {
-    id: "4",
-    type: "update",
-    title: "Added 3 new diaspora mentors",
-    user: "Dr. Sarah Chen",
-    timestamp: "1 day ago",
-    description: "Expanded mentor network with experts from MIT, Google, and Microsoft diaspora"
-  },
-  {
-    id: "5",
-    type: "task",
-    title: "Finalized Module 4 learning objectives",
-    user: "Dr. Fatima Al-Rashid",
-    timestamp: "2 days ago",
-    description: "Outlined goals for AI accountability and transparency section"
-  }
-];
+const mockRecentActivity: Array<{ id: string; type: string; title: string; user: string; timestamp: string; description: string; }> = [];
 
 // Key objectives explaining why this program was created
 const projectObjectives: ProjectObjective[] = [
@@ -544,7 +273,7 @@ function JoinProjectDialog({ project, onJoin, isOpen, onOpenChange, preSelectedR
 
   const getJoinOptions = (): JoinOption[] => {
     const options: JoinOption[] = [];
-    const aspiraCategory = project.projectType;
+    const aspiraCategory = project.projectType || 'mentorship';
     const mentorshipConnection = project.mentorshipConnection;
 
     // Different options based on user's diaspora status
@@ -795,6 +524,9 @@ export function ProjectDetail({ projectId, onBack, onJoinProject }: ProjectDetai
   const [activeTab, setActiveTab] = useState("overview");
   const [activeMembersTab, setActiveMembersTab] = useState("core-team");
   const [activeProgressTab, setActiveProgressTab] = useState("milestones-tasks");
+  const [projectData, setProjectData] = useState<any | null>(null);
+  const [projectLoading, setProjectLoading] = useState(true);
+  const [projectError, setProjectError] = useState<string | null>(null);
   const [workspaceData, setWorkspaceData] = useState<{
     tasks: Task[];
     milestones: Milestone[];
@@ -808,92 +540,75 @@ export function ProjectDetail({ projectId, onBack, onJoinProject }: ProjectDetai
   // Get user profile to check diaspora status
   const { profile } = useProfile();
 
+  React.useEffect(() => {
+    let cancelled = false;
+
+    const loadProject = async () => {
+      try {
+        setProjectLoading(true);
+        setProjectError(null);
+        const data = await getProject(projectId);
+        if (cancelled) return;
+        setProjectData(data);
+      } catch (e: any) {
+        if (cancelled) return;
+        setProjectError(e?.message || 'Failed to load project');
+        setProjectData(null);
+      } finally {
+        if (!cancelled) setProjectLoading(false);
+      }
+    };
+
+    loadProject();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [projectId]);
+
+  if (projectLoading) {
+    return (
+      <div className="p-6">
+        <Button variant="outline" onClick={onBack} className="mb-4">
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back
+        </Button>
+        <div className="text-gray-600">Loading project...</div>
+      </div>
+    );
+  }
+
+  if (projectError || !projectData) {
+    return (
+      <div className="p-6">
+        <Button variant="outline" onClick={onBack} className="mb-4">
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back
+        </Button>
+        <div className="text-gray-900 font-semibold mb-2">Project unavailable</div>
+        <div className="text-gray-600">{projectError || 'No project found for this ID.'}</div>
+      </div>
+    );
+  }
+
+  const project = projectData as any;
+
   // Connect to workspace data and set up live feed integration
   React.useEffect(() => {
     const loadWorkspaceData = async () => {
       setWorkspaceData(prev => ({ ...prev, isLoading: true }));
       
-      // In a real app, this would fetch from the workspace APIs
-      // For now, we're using the mock data but indicating it comes from workspace
-      const workspaceTasks = mockTasks;
-      const workspaceMilestones = mockMilestones;
-      
-      // Simulate API delay
-      setTimeout(() => {
-        const newWorkspaceData = {
-          tasks: workspaceTasks,
-          milestones: workspaceMilestones,
-          isLoading: false
-        };
-        
-        setWorkspaceData(newWorkspaceData);
-        
-        // Auto-post milestone updates to live feed
-        const feedService = FeedService.getInstance();
-        workspaceMilestones.forEach(milestone => {
-          if (milestone.status === 'completed') {
-            feedService.trackUserAction({
-              id: `milestone_${milestone.id}_${Date.now()}`,
-              userId: project.authorId || "user_sarah_chen",
-              userName: project.authorName || "Dr. Sarah Chen",
-              userAvatar: "https://images.unsplash.com/photo-1494790108755-2616b25f5e55?w=150&h=150&fit=crop&crop=face",
-              userLocation: project.location || "Stanford, CA",
-              actionType: 'milestone_achieved',
-              entityId: milestone.id,
-              entityType: 'project',
-              entityTitle: milestone.title,
-              entityCategory: project.category || 'Education',
-              timestamp: new Date().toISOString(),
-              metadata: {
-                projectId: projectId,
-                projectTitle: project.title,
-                milestoneDescription: milestone.description,
-                progress: milestone.progress,
-                dueDate: milestone.dueDate
-              },
-              visibility: 'public'
-            });
-          }
-        });
-      }, 500);
+      // TODO: Fetch tasks/milestones from backend workspace tables.
+      // For now, return empty data (no demo identities).
+      setWorkspaceData({
+        tasks: [],
+        milestones: [],
+        isLoading: false,
+      });
     };
 
     loadWorkspaceData();
-    
-    // Set up periodic sync for milestone updates
-    const syncInterval = setInterval(() => {
-      // Check for milestone status changes and post to feed
-      const feedService = FeedService.getInstance();
-      
-      // Simulate milestone completion events
-      if (Math.random() < 0.1) { // 10% chance every 30 seconds
-        const randomMilestone = mockMilestones[Math.floor(Math.random() * mockMilestones.length)];
-        if (randomMilestone.status !== 'completed') {
-          feedService.trackUserAction({
-            id: `milestone_progress_${randomMilestone.id}_${Date.now()}`,
-            userId: project.authorId || "user_sarah_chen", 
-            userName: project.authorName || "Dr. Sarah Chen",
-            userAvatar: "https://images.unsplash.com/photo-1494790108755-2616b25f5e55?w=150&h=150&fit=crop&crop=face",
-            userLocation: project.location || "Stanford, CA",
-            actionType: 'milestone_achieved',
-            entityId: randomMilestone.id,
-            entityType: 'project',
-            entityTitle: `${randomMilestone.title} - Progress Update`,
-            entityCategory: project.category || 'Education',
-            timestamp: new Date().toISOString(),
-            metadata: {
-              projectId: projectId,
-              projectTitle: project.title,
-              milestoneDescription: `${randomMilestone.description} - ${randomMilestone.progress}% complete`,
-              progress: randomMilestone.progress
-            },
-            visibility: 'public'
-          });
-        }
-      }
-    }, 30000); // Check every 30 seconds
-    
-    return () => clearInterval(syncInterval);
+    return () => {};
   }, [projectId]);
 
   const [hasJoinedProject, setHasJoinedProject] = useState(false);
@@ -901,88 +616,6 @@ export function ProjectDetail({ projectId, onBack, onJoinProject }: ProjectDetai
   const [joinDialogOpen, setJoinDialogOpen] = useState(false);
   const [preSelectedRole, setPreSelectedRole] = useState("");
   const { navigateToWorkroom } = useNavigation();
-
-  // Project data structure exactly matching CreateProject.tsx output
-  const project = {
-    id: projectId,
-    title: "Stanford AI Ethics Mentorship Program",
-    description: "Developing an AI ethics curriculum with Stanford students and industry mentors to promote responsible AI development and deployment across academic and professional settings.",
-    authorId: "user_sarah_chen",
-    authorName: "Dr. Sarah Chen",
-    location: "Stanford, CA",
-    
-    // Basic Info & Timeline fields from CreateProject.tsx
-    projectType: "mentorship", // From step 1 - Project Type selection
-    category: "education", // From step 2 - Subject Area
-    university: "Stanford University", // From step 2 - University/Institution
-    tags: ["AI", "Ethics", "Mentorship", "Stanford", "Global Diaspora"], // From step 3 - Tags
-    
-    // Timeline fields from CreateProject.tsx step 2
-    startDate: "2024-01-15",
-    endDate: "2024-12-15", 
-    priority: "high",
-    status: "active",
-    
-    // Settings from CreateProject.tsx step 4
-    mentorshipConnection: true,
-    isPublic: true,
-    
-    // Team & Positions from CreateProject.tsx step 3
-    teamMembers: mockTeamMembers,
-    diasporaPositions: [
-      {
-        id: "technical-advisor",
-        title: "Technical Advisor",
-        description: "Provide technical guidance and expertise for the program",
-        responsibilities: ["Technical oversight", "Expert guidance", "Strategic consultation"],
-        requirements: ["Technical expertise", "Advisory experience", "Strong communication"],
-        commitment: "8-12 hours/week",
-        category: "advisory" as const,
-        isActive: true
-      },
-      {
-        id: "diaspora-mentor",
-        title: "Diaspora Mentor",
-        description: "Guide and support project participants with career and academic advice",
-        responsibilities: ["One-on-one mentoring", "Career guidance", "Skill development"],
-        requirements: ["Professional experience", "Mentoring background", "Cultural awareness"],
-        commitment: "3-5 hours/week",
-        category: "mentorship" as const,
-        isActive: true
-      },
-      {
-        id: "industry-expert",
-        title: "Industry Expert",
-        description: "Share industry knowledge and provide real-world perspectives",
-        responsibilities: ["Industry insights", "Market analysis", "Professional networking"],
-        requirements: ["Industry expertise", "Professional network", "Speaking experience"],
-        commitment: "4-6 hours/week",
-        category: "technical" as const,
-        isActive: true
-      },
-      {
-        id: "community-supporter",
-        title: "Community Supporter",
-        description: "Help with outreach, engagement, and community building",
-        responsibilities: ["Community engagement", "Event support", "Promotion"],
-        requirements: ["Community connections", "Communication skills", "Event experience"],
-        commitment: "3-4 hours/week",
-        category: "support" as const,
-        isActive: true
-      }
-    ],
-    
-    // Current project progress and metrics
-    progress: 75,
-    metrics: {
-      tasksCompleted: 18,
-      totalTasks: 24,
-      milestonesHit: 3,
-      totalMilestones: 4,
-      participantsReached: 156,
-      impactScore: 8.7
-    }
-  };
 
   const handleJoinProject = (projectId: string, role: string, area: string) => {
     onJoinProject?.(projectId, role, area);
@@ -1051,7 +684,7 @@ export function ProjectDetail({ projectId, onBack, onJoinProject }: ProjectDetai
 
 
   // Get project type info
-  const projectTypeInfo = projectTypes.find(type => type.id === project.projectType);
+  const projectTypeInfo = projectTypes.find(type => type.id === (project.projectType || ''));
   const categoryInfo = allCategories.find(cat => cat.id === project.category);
 
   return (
@@ -1245,7 +878,7 @@ export function ProjectDetail({ projectId, onBack, onJoinProject }: ProjectDetai
             </p>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {project.diasporaPositions.filter(pos => pos.isActive).map((position) => {
+              {(project.diasporaPositions || []).filter(pos => pos.isActive).map((position) => {
                 const Icon = getCategoryIcon(position.category);
                 const colorClass = getCategoryColor(position.category);
                 

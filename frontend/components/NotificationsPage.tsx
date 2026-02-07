@@ -407,7 +407,7 @@ export function NotificationsPage() {
       id: "4",
       type: "message",
       title: "New Message",
-      description: "Dr. Amina Hassan sent you a message about the Medical Research Collaboration project. She wants to discuss the next phase.",
+      description: "You received a message about the Medical Research Collaboration project.",
       timestamp: "1 day ago",
       read: true,
       category: "Messages",
@@ -426,7 +426,7 @@ export function NotificationsPage() {
         secondary: {
           label: "Reply",
           action: "compose_reply",
-          params: { messageId: "msg_001", recipient: "Dr. Amina Hassan" }
+          params: { messageId: "msg_001" }
         }
       }
     },
@@ -680,7 +680,6 @@ export function NotificationsPage() {
   return (
     <div className="h-full">
       <DashboardHeader 
-        userName="John" 
         userTitle="Stay updated with your notifications"
       />
       

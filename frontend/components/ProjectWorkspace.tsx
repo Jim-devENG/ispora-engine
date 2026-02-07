@@ -89,170 +89,7 @@ interface Project {
 }
 
 // Mock project data
-const mockProjects: Project[] = [
-  {
-    id: "1",
-    title: "AI Ethics Research Initiative",
-    type: "research",
-    description: "Collaborative research on ethical AI implementation",
-    status: "active",
-    mentorMode: "group",
-    startDate: "2024-01-15",
-    progress: 65,
-    members: [
-      {
-        id: "1",
-        name: "Alex Chen",
-        email: "alex.chen@stanford.edu",
-        avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
-        university: "Stanford University",
-        program: "Computer Science",
-        year: "Junior",
-        role: "researcher",
-        status: "active",
-        progress: 75,
-        isOnline: true,
-        tasksCompleted: 23,
-        contributionScore: 87,
-        projectsInvolved: 3,
-        joinedDate: "2024-01-20",
-        lastActive: "1 hour ago",
-        skills: ["Computer Science", "Python", "Data Analysis"]
-      },
-      {
-        id: "2",
-        name: "Sarah Williams",
-        email: "sarah.williams@mit.edu",
-        avatar: "https://images.unsplash.com/photo-1494790108755-2616b25f5e55?w=150&h=150&fit=crop&crop=face",
-        university: "MIT",
-        program: "Electrical Engineering",
-        year: "Sophomore",
-        role: "researcher",
-        status: "active",
-        progress: 60,
-        isOnline: false,
-        tasksCompleted: 31,
-        contributionScore: 79,
-        projectsInvolved: 2,
-        joinedDate: "2024-01-25",
-        lastActive: "5 hours ago",
-        skills: ["Design", "UX Research", "Psychology"]
-      }
-    ]
-  },
-  {
-    id: "2",
-    title: "Youth Leadership Mentorship",
-    type: "mentorship",
-    description: "One-on-one mentorship for leadership development",
-    status: "active",
-    mentorMode: "individual",
-    startDate: "2024-02-01",
-    progress: 80,
-    members: [
-      {
-        id: "3",
-        name: "Jordan Martinez",
-        email: "jordan.martinez@berkeley.edu",
-        avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
-        university: "UC Berkeley",
-        program: "Business Administration",
-        year: "Senior",
-        role: "mentee",
-        status: "active",
-        progress: 80,
-        isOnline: true,
-        tasksCompleted: 45,
-        contributionScore: 98,
-        projectsInvolved: 8,
-        joinedDate: "2024-01-15",
-        lastActive: "2 minutes ago",
-        skills: ["AI Ethics", "Machine Learning", "Research"]
-      }
-    ]
-  },
-  {
-    id: "3",
-    title: "Climate Innovation Challenge",
-    type: "innovation",
-    description: "Developing sustainable solutions for climate change",
-    status: "active",
-    mentorMode: "group",
-    startDate: "2024-01-20",
-    progress: 45,
-    members: [
-      {
-        id: "4",
-        name: "Emma Thompson",
-        email: "emma.thompson@oxford.edu",
-        avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
-        university: "Oxford University",
-        program: "Environmental Science",
-        year: "Graduate",
-        role: "participant",
-        status: "active",
-        progress: 45,
-        isOnline: true,
-        tasksCompleted: 67,
-        contributionScore: 95,
-        projectsInvolved: 12,
-        joinedDate: "2024-02-01",
-        lastActive: "30 minutes ago",
-        skills: ["Product Management", "Strategy", "Mentoring"]
-      }
-    ]
-  },
-  {
-    id: "4",
-    title: "Rural Health Community Outreach",
-    type: "community",
-    description: "Building healthcare capacity in underserved rural communities",
-    status: "active",
-    mentorMode: "group",
-    startDate: "2024-01-10",
-    progress: 72,
-    members: [
-      {
-        id: "5",
-        name: "Dr. Amina Hassan",
-        email: "amina.hassan@unilag.edu.ng",
-        avatar: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop&crop=face",
-        university: "University of Lagos",
-        program: "Public Health",
-        year: "Faculty",
-        role: "leader",
-        status: "active",
-        progress: 85,
-        isOnline: true,
-        tasksCompleted: 34,
-        contributionScore: 92,
-        projectsInvolved: 5,
-        joinedDate: "2024-01-10",
-        lastActive: "15 minutes ago",
-        skills: ["Public Health", "Community Medicine", "Project Management"]
-      },
-      {
-        id: "6",
-        name: "Michael Okafor",
-        email: "michael.okafor@nsu.edu.ng",
-        avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
-        university: "Niger State University",
-        program: "Community Development",
-        year: "Senior",
-        role: "participant",
-        status: "active",
-        progress: 68,
-        isOnline: false,
-        tasksCompleted: 28,
-        contributionScore: 78,
-        projectsInvolved: 3,
-        joinedDate: "2024-01-15",
-        lastActive: "2 hours ago",
-        skills: ["Community Engagement", "Social Work", "Data Collection"]
-      }
-    ]
-  }
-];
+const mockProjects: Project[] = [];
 
 const projectTypeIcons = {
   mentorship: Users,
@@ -491,9 +328,9 @@ export function ProjectWorkspace({
       };
 
       setSelectedProject(transformedProject);
-      if (transformedProject.members.length > 0) {
-        setSelectedMember(transformedProject.members[0]);
-        setWorkspaceParticipants(transformedProject.members.filter(m => m.status === "active"));
+      if ((transformedProject.members || []).length > 0) {
+        setSelectedMember((transformedProject.members || [])[0] || null);
+        setWorkspaceParticipants((transformedProject.members || []).filter(m => m.status === "active"));
       }
       setShowProjectSelector(false);
     } catch (error) {
@@ -567,9 +404,9 @@ export function ProjectWorkspace({
         };
 
         setSelectedProject(transformedProject);
-        if (transformedProject.members.length > 0) {
-          setSelectedMember(transformedProject.members[0]);
-          setWorkspaceParticipants(transformedProject.members.filter(m => m.status === "active"));
+        if ((transformedProject.members || []).length > 0) {
+          setSelectedMember((transformedProject.members || [])[0] || null);
+          setWorkspaceParticipants((transformedProject.members || []).filter(m => m.status === "active"));
         }
       } catch (error) {
         console.error('Failed to load project:', error);

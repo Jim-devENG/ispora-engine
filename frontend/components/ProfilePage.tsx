@@ -242,7 +242,6 @@ export function ProfilePage() {
   return (
     <div className="h-full flex flex-col">
       <DashboardHeader 
-        userName={profile.firstName} 
         userTitle="Manage your profile information"
       />
       

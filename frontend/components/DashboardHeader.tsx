@@ -3,6 +3,7 @@ import { Search, Bell } from "lucide-react";
 import { Input } from "./ui/input";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 import { LiveSessionsWidget } from "./LiveSessionsWidget";
+import { useProfile } from "./ProfileContext";
 
 interface DashboardHeaderProps {
   userName?: string;

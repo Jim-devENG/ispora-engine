@@ -168,42 +168,6 @@ const mockPrograms: Program[] = [
 ];
 
 const mockUpdates: Update[] = [
-  {
-    id: "1",
-    programId: "1",
-    type: "milestone",
-    title: "Completed Module 3: Bias in AI Systems",
-    content: "Successfully completed the third module of our AI Ethics curriculum focusing on identifying and mitigating bias in AI systems. 45 mentor-mentee pairs participated in intensive workshops.",
-    date: "2024-06-15",
-    author: "Dr. Sarah Chen",
-    likes: 23,
-    comments: 8,
-    isPublished: true
-  },
-  {
-    id: "2",
-    programId: "2",
-    type: "achievement",
-    title: "Reached 75% of Fundraising Goal",
-    content: "Excited to announce that our healthcare innovation campaign has reached 75% of our $50,000 fundraising goal! Thank you to all our supporters.",
-    date: "2024-06-10",
-    author: "Campaign Team",
-    likes: 67,
-    comments: 15,
-    isPublished: true
-  },
-  {
-    id: "3",
-    programId: "3",
-    type: "announcement",
-    title: "New Industry Partnership with TechCorp",
-    content: "We're thrilled to announce a new partnership with TechCorp, which will provide guaranteed internships for our top-performing bootcamp graduates.",
-    date: "2024-06-08",
-    author: "Program Director",
-    likes: 34,
-    comments: 12,
-    isPublished: true
-  }
 ];
 
 const categoryConfig = {

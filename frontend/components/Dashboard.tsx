@@ -20,6 +20,7 @@ import { Separator } from "./ui/separator";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import { useFeedService } from "./FeedService";
 import { AdminFeedManager } from "./AdminFeedManager";
+import { useProfile } from "./ProfileContext";
 import { toast } from "sonner";
 import { 
   MessageSquare, 
@@ -77,10 +78,6 @@ import {
   X
 } from "lucide-react";
 
-// Mock current user for demo
-const CURRENT_USER_ID = 'user_001';
-const CURRENT_USER_NAME = 'Dr. Amina';
-
 // Mock global impact stats
 const mockGlobalStats = {
   totalProjects: 1247,
@@ -118,6 +115,9 @@ function CommentsDialog({
   const [comments, setComments] = useState<SocialInteraction[]>([]);
   const [newComment, setNewComment] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const { profile } = useProfile();
+  const currentUserId = profile?.id || 'anonymous';
+  const currentUserName = profile?.firstName || profile?.name || "User";
 
   // Mock comments data
   useEffect(() => {
@@ -125,35 +125,7 @@ function CommentsDialog({
       // Simulate loading comments
       setIsLoading(true);
       setTimeout(() => {
-        const mockComments: SocialInteraction[] = [
-          {
-            postId,
-            userId: 'user_002',
-            userName: 'Sarah Okafor',
-            userAvatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&h=100&fit=crop&crop=face',
-            type: 'comment',
-            content: 'This is such an inspiring initiative! I\'d love to contribute my expertise in digital marketing to help amplify the reach.',
-            timestamp: '2 hours ago'
-          },
-          {
-            postId,
-            userId: 'user_003',
-            userName: 'Dr. Michael Kwame',
-            userAvatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face',
-            type: 'comment',
-            content: 'Fantastic work! I\'ve seen similar projects succeed in Ghana. Happy to share some best practices and lessons learned.',
-            timestamp: '4 hours ago'
-          },
-          {
-            postId,
-            userId: 'user_004',
-            userName: 'Fatima Al-Rashid',
-            userAvatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face',
-            type: 'comment',
-            content: 'Count me in! I can help with the technical implementation and training materials.',
-            timestamp: '6 hours ago'
-          }
-        ];
+        const mockComments: SocialInteraction[] = [];
         setComments(mockComments);
         setIsLoading(false);
       }, 800);
@@ -165,8 +137,8 @@ function CommentsDialog({
 
     const comment: SocialInteraction = {
       postId,
-      userId: CURRENT_USER_ID,
-      userName: CURRENT_USER_NAME,
+      userId: currentUserId,
+      userName: currentUserName,
       type: 'comment',
       content: newComment.trim(),
       timestamp: 'just now'
@@ -211,7 +183,7 @@ function CommentsDialog({
             <div className="flex gap-3">
               <Avatar className="h-8 w-8">
                 <AvatarFallback className="bg-blue-600 text-white text-sm">
-                  {CURRENT_USER_NAME.charAt(0)}
+                  {currentUserName.charAt(0)}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1">
@@ -898,6 +870,10 @@ function DashboardContent() {
   // Use the feed service for dynamic feed management
   const { feedItems, loading, refreshFeed, recordUserAction } = useFeedService();
 
+  const { profile } = useProfile();
+  const currentUserId = profile?.id || 'anonymous';
+  const currentUserName = profile?.firstName || profile?.name || "User";
+
   useEffect(() => {
     if (!initialLoadDone.current && !loading && feedItems.length === 0) {
       initialLoadDone.current = true;
@@ -908,10 +884,6 @@ function DashboardContent() {
       return () => clearTimeout(timer);
     }
   }, [loading, feedItems.length, refreshFeed]);
-  
-  const { profile } = useProfile();
-  const currentUserId = profile.id;
-  const currentUserName = profile.firstName || profile.name || "User";
   
   const getPostIcon = (type: string) => {
     switch (type) {
@@ -931,11 +903,11 @@ function DashboardContent() {
       case 'collaboration': return <Users className="h-5 w-5 text-teal-500" />;
       default: return <Globe className="h-5 w-5 text-gray-500" />;
     }
-  };currentserd
+  };
 
   // Get story narrative based on post type (shortened versions)
   const getStoryNarrative = (post: any) => {
-    const isOwnContent = post.authorId === CURRENT_USER_ID;
+    const isOwnContent = post.authorId === currentUserId;
     
     switch (post.type) {
       case 'project':
@@ -1030,11 +1002,11 @@ function DashboardContent() {
         setIsRefreshing(false);
       }, 1000);
     }
-  };currentserd
+  };
 
   // Enhanced navigation logic for feed cards with specific targeting
   const handleFeedCardClick = (post: any) => {
-    const isOwnContent = post.authorId === CURRENT_USER_ID;
+    const isOwnContent = post.authorId === currentUserId;
     
     console.log('Feed card clicked:', { 
       type: post.type, 
@@ -1290,8 +1262,8 @@ function DashboardContent() {
     const actionData = actionMap[actionType];
     if (actionData) {
       recordUserAction({
-        userId: CURRENT_USER_ID,
-        userName: CURRENT_USER_NAME,
+        userId: currentUserId,
+        userName: currentUserName,
         userLocation: 'Global',
         actionType: actionData.actionType,
         entityId: actionData.entityId,
@@ -1329,7 +1301,7 @@ function DashboardContent() {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-2xl font-semibold text-gray-900">
-                Welcome back, {CURRENT_USER_NAME}
+                Welcome back, {currentUserName}
               </h1>
               <p className="text-gray-600 mt-1">
                 Here's what's happening in your diaspora community today
@@ -1446,11 +1418,11 @@ function DashboardContent() {
           {/* Feed Content - Full Height Scrollable with proper overflow */}
           <div className="flex-1 min-h-0 overflow-hidden">
             <PullToRefresh onRefresh={handleRefresh} isRefreshing={isRefreshing}>
-              <div className="h-full w-full overflow-y-autocurrentaserid">
+              <div className="h-full w-full overflow-y-auto">
                 <div className="space-y-6 p-6">
                   {feedItems.slice(0, displayedPosts).map((post) => {
                     const story = getStoryNarrative(post);
-                    const isOwnContent = post.authorId === CURRENT_USER_ID;
+                    const isOwnContent = post.authorId === currentUserId;
                     const isLiked = likedPosts.has(post.id);
                     const currentLikes = postLikes[post.id] || post.likes;
                     const currentComments = postComments[post.id] || post.metadata?.comments || Math.floor(post.likes / 4);
@@ -1828,7 +1800,6 @@ function MentorshipContent() {
     <div className="min-h-full">
       {/* Header for Mentorship */}
       <DashboardHeader 
-        userName="Dr. Amina" 
         userTitle="Mentoring the next generation of innovators"
       />
       
@@ -1941,7 +1912,7 @@ function MentorshipContent() {
             <div className="flex items-start space-x-3 p-3 bg-blue-50 rounded-lg">
               <div className="h-2 w-2 bg-blue-500 rounded-full mt-2"></div>
               <div className="flex-1">
-                <p className="text-sm font-medium">New mentorship request from Amara Okafor</p>
+                <p className="text-sm font-medium">New mentorship request received</p>
                 <p className="text-xs text-muted-foreground">AI/ML Career Guidance • 2 hours ago</p>
               </div>
             </div>
@@ -1949,7 +1920,7 @@ function MentorshipContent() {
             <div className="flex items-start space-x-3 p-3 bg-green-50 rounded-lg">
               <div className="h-2 w-2 bg-green-500 rounded-full mt-2"></div>
               <div className="flex-1">
-                <p className="text-sm font-medium">Session completed with David Mensah</p>
+                <p className="text-sm font-medium">Session completed</p>
                 <p className="text-xs text-muted-foreground">Graduate School Guidance • 1 day ago</p>
               </div>
             </div>
@@ -1957,7 +1928,7 @@ function MentorshipContent() {
             <div className="flex items-start space-x-3 p-3 bg-purple-50 rounded-lg">
               <div className="h-2 w-2 bg-purple-500 rounded-full mt-2"></div>
               <div className="flex-1">
-                <p className="text-sm font-medium">Received 5-star rating from Fatima Al-Rashid</p>
+                <p className="text-sm font-medium">Received a 5-star rating</p>
                 <p className="text-xs text-muted-foreground">Data Science Project • 3 days ago</p>
               </div>
             </div>
@@ -1965,7 +1936,7 @@ function MentorshipContent() {
             <div className="flex items-start space-x-3 p-3 bg-orange-50 rounded-lg">
               <div className="h-2 w-2 bg-orange-500 rounded-full mt-2"></div>
               <div className="flex-1">
-                <p className="text-sm font-medium">Started new mentorship with Zara Mohamed</p>
+                <p className="text-sm font-medium">Started new mentorship</p>
                 <p className="text-xs text-muted-foreground">Entrepreneurship Guidance • 5 days ago</p>
               </div>
             </div>
@@ -2018,7 +1989,6 @@ function PlaceholderContent({ title }: { title: string }) {
     <div className="min-h-full">
       {/* Header for other sections */}
       <DashboardHeader 
-        userName="Dr. Amina" 
         userTitle={`Explore ${title.toLowerCase()} features`}
       />
       

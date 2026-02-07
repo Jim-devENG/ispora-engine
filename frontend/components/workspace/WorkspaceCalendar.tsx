@@ -69,60 +69,10 @@ interface ProgressMetric {
 }
 
 // Mock data for calendar events
-const mockEvents: CalendarEvent[] = [
-  {
-    id: "1",
-    title: "AI/ML Career Discussion",
-    time: "2:00 PM",
-    date: "Today",
-    type: "session",
-    status: "upcoming",
-    mentee: "Amara Okafor"
-  },
-  {
-    id: "2",
-    title: "Project Review Session",
-    time: "10:00 AM",
-    date: "Tomorrow",
-    type: "session",
-    status: "upcoming",
-    mentee: "David Mensah"
-  },
-  {
-    id: "3",
-    title: "Weekly Progress Review",
-    time: "3:00 PM",
-    date: "Friday",
-    type: "review",
-    status: "upcoming",
-    mentee: "Fatima Al-Rashid"
-  }
-];
+const mockEvents: CalendarEvent[] = [];
 
 // Mock task summaries
-const mockTasks: TaskSummary[] = [
-  {
-    id: "1",
-    title: "Complete ML Project",
-    status: "in-progress",
-    dueDate: "2 days",
-    priority: "high"
-  },
-  {
-    id: "2",
-    title: "Read Chapter 3",
-    status: "todo",
-    dueDate: "5 days",
-    priority: "medium"
-  },
-  {
-    id: "3",
-    title: "Portfolio Update",
-    status: "done",
-    dueDate: "Completed",
-    priority: "low"
-  }
-];
+const mockTasks: TaskSummary[] = [];
 
 const eventTypeColors = {
   session: "bg-blue-100 text-blue-800",

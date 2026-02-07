@@ -27,6 +27,7 @@ import { Badge } from "../ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
 import { Separator } from "../ui/separator";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
+import { useProfile } from "../ProfileContext";
 
 interface Message {
   id: string;
@@ -300,9 +301,11 @@ export function VoiceChat({ mentee, projectId }: VoiceChatProps) {
   const [activeTab, setActiveTab] = useState<'chat' | 'voice-notes'>('chat');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const { profile } = useProfile();
+
   // Get current user from auth (simplified - should come from auth context)
-  const currentUser = "Dr. Amina Hassan"; // TODO: Get from auth context
-  const currentUserAvatar = "https://images.unsplash.com/photo-1494790108755-2616b25f5e55?w=150&h=150&fit=crop&crop=face"; // TODO: Get from auth context
+  const currentUser = profile?.name || profile?.firstName || '';
+  const currentUserAvatar = (profile as any)?.avatar || '';
 
   // Fetch messages and voice notes from API
   useEffect(() => {

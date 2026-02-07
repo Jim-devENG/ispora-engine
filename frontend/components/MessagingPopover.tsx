@@ -47,35 +47,7 @@ interface MessagingPopoverProps {
 }
 
 // Mock message data
-const mockMessages: Message[] = [
-  {
-    id: '1',
-    senderId: 'other',
-    senderName: 'Dr. Kwame Asante',
-    content: 'Hi! Thanks for reaching out. I\'d be happy to discuss your research interests.',
-    timestamp: '2025-01-17T10:30:00Z',
-    status: 'read',
-    isCurrentUser: false
-  },
-  {
-    id: '2',
-    senderId: 'current',
-    senderName: 'You',
-    content: 'Thank you so much! I\'m particularly interested in your work on AI ethics and would love to learn more about your research methodology.',
-    timestamp: '2025-01-17T10:35:00Z',
-    status: 'delivered',
-    isCurrentUser: true
-  },
-  {
-    id: '3',
-    senderId: 'other',
-    senderName: 'Dr. Kwame Asante',
-    content: 'Absolutely! I\'m currently working on a framework for ethical AI decision-making. Would you like to schedule a brief call to discuss this further?',
-    timestamp: '2025-01-17T10:40:00Z',
-    status: 'read',
-    isCurrentUser: false
-  }
-];
+const mockMessages: Message[] = [];
 
 function MessagingPopover({ user, trigger, onClose }: MessagingPopoverProps) {
   const [isOpen, setIsOpen] = useState(false);

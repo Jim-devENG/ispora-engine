@@ -141,7 +141,7 @@ function VideoArea({
                 <div className="text-center text-white">
                   <Monitor className="h-16 w-16 mx-auto mb-4" />
                   <p className="text-lg">Screen Share Active</p>
-                  <p className="text-sm text-gray-300">Dr. Jane is sharing her screen</p>
+                  <p className="text-sm text-gray-300">A participant is sharing their screen</p>
                 </div>
               </div>
             ) : (

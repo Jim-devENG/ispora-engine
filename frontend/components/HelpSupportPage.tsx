@@ -94,7 +94,6 @@ export function HelpSupportPage() {
   return (
     <div className="h-full">
       <DashboardHeader 
-        userName="John" 
         userTitle="Get help and support"
       />
       
