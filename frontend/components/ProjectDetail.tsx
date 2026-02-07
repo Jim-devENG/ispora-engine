@@ -593,6 +593,24 @@ export function ProjectDetail({ projectId, onBack, onJoinProject }: ProjectDetai
 
   const project = projectData as any;
 
+  // Create safe project object with defaults to prevent undefined errors
+  const safeProject = {
+    title: project.title || 'Untitled Project',
+    description: project.description || 'No description available',
+    university: project.university || 'Unknown University',
+    category: project.category || 'other',
+    projectType: project.projectType || 'mentorship',
+    startDate: project.startDate || new Date(),
+    endDate: project.endDate || new Date(),
+    progress: project.progress || 0,
+    priority: project.priority || 'medium',
+    status: project.status || 'active',
+    isPublic: project.isPublic || false,
+    tags: project.tags || [],
+    diasporaPositions: project.diasporaPositions || [],
+    metrics: project.metrics || { impactScore: 0, participantsReached: 0 }
+  };
+
   // Connect to workspace data and set up live feed integration
   React.useEffect(() => {
     const loadWorkspaceData = async () => {
@@ -684,8 +702,8 @@ export function ProjectDetail({ projectId, onBack, onJoinProject }: ProjectDetai
 
 
   // Get project type info
-  const projectTypeInfo = projectTypes.find(type => type.id === (project.projectType || ''));
-  const categoryInfo = allCategories.find(cat => cat.id === project.category);
+  const projectTypeInfo = projectTypes.find(type => type.id === safeProject.projectType);
+  const categoryInfo = allCategories.find(cat => cat.id === safeProject.category);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -740,7 +758,7 @@ export function ProjectDetail({ projectId, onBack, onJoinProject }: ProjectDetai
             ) : (
               <div className="flex items-center gap-2">
                 <JoinProjectDialog 
-                  project={project} 
+                  project={safeProject} 
                   onJoin={handleJoinProject}
                   isOpen={joinDialogOpen}
                   onOpenChange={setJoinDialogOpen}
@@ -771,9 +789,9 @@ export function ProjectDetail({ projectId, onBack, onJoinProject }: ProjectDetai
       <div className="p-6">
         {/* Project Title and Description */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-3">{project.title}</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-3">{safeProject.title}</h1>
           <p className="text-gray-600 leading-relaxed max-w-4xl">
-            {project.description}
+            {safeProject.description}
           </p>
           <div className="flex items-center gap-2 mt-4">
             {categoryInfo && (
@@ -782,13 +800,13 @@ export function ProjectDetail({ projectId, onBack, onJoinProject }: ProjectDetai
                 {categoryInfo.label}
               </Badge>
             )}
-            {project.university && (
+            {safeProject.university && (
               <Badge variant="outline" className="flex items-center gap-1">
                 <Building className="h-3 w-3" />
-                {project.university}
+                {safeProject.university}
               </Badge>
             )}
-            {project.tags.map((tag) => (
+            {(safeProject.tags || []).map((tag) => (
               <Badge key={tag} variant="secondary" className="text-xs">
                 {tag}
               </Badge>
@@ -845,17 +863,17 @@ export function ProjectDetail({ projectId, onBack, onJoinProject }: ProjectDetai
           </div>
           
           <div className="flex items-center justify-between text-sm text-gray-600 mb-3">
-            <span>Start Date: {new Date(project.startDate).toLocaleDateString()}</span>
-            <span>End Date: {new Date(project.endDate).toLocaleDateString()}</span>
-            <span>Priority: {project.priority.charAt(0).toUpperCase() + project.priority.slice(1)}</span>
+            <span>Start Date: {new Date(safeProject.startDate).toLocaleDateString()}</span>
+            <span>End Date: {new Date(safeProject.endDate).toLocaleDateString()}</span>
+            <span>Priority: {(safeProject.priority).charAt(0).toUpperCase() + (safeProject.priority).slice(1)}</span>
           </div>
           
           <div className="relative">
             <div className="w-full bg-gray-200 rounded-full h-3">
-              <div className="bg-blue-600 h-3 rounded-full" style={{width: `${project.progress}%`}}></div>
+              <div className="bg-blue-600 h-3 rounded-full" style={{width: `${safeProject.progress}%`}}></div>
             </div>
             <div className="text-xs text-gray-500 mt-1">
-              {project.progress}% complete
+              {safeProject.progress}% complete
             </div>
             <div className="text-xs text-gray-500">
               3 months remaining
@@ -878,7 +896,7 @@ export function ProjectDetail({ projectId, onBack, onJoinProject }: ProjectDetai
             </p>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {(project.diasporaPositions || []).filter(pos => pos.isActive).map((position) => {
+              {safeProject.diasporaPositions.filter((pos: any) => pos?.isActive).map((position: any) => {
                 const Icon = getCategoryIcon(position.category);
                 const colorClass = getCategoryColor(position.category);
                 
@@ -973,7 +991,7 @@ export function ProjectDetail({ projectId, onBack, onJoinProject }: ProjectDetai
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-3 bg-gray-100 rounded-none border-b">
               <TabsTrigger value="overview" className="text-gray-600 data-[state=active]:text-[#021ff6] data-[state=active]:bg-white">Overview</TabsTrigger>
-              <TabsTrigger value="members" className="text-gray-600 data-[state=active]:text-[#021ff6] data-[state=active]:bg-white">Members ({mockTeamMembers.length + mockCommunityMembers.length})</TabsTrigger>
+              <TabsTrigger value="members" className="text-gray-600 data-[state=active]:text-[#021ff6] data-[state=active]:bg-white">Members</TabsTrigger>
               <TabsTrigger value="progress" className="text-gray-600 data-[state=active]:text-[#021ff6] data-[state=active]:bg-white">Progress</TabsTrigger>
             </TabsList>
 
@@ -1000,29 +1018,29 @@ export function ProjectDetail({ projectId, onBack, onJoinProject }: ProjectDetai
                       <div className="flex items-center gap-2">
                         <span className="font-medium text-sm text-gray-700">Priority:</span>
                         <Badge variant="outline" className={
-                          project.priority === 'high' ? 'bg-red-100 text-red-700' :
-                          project.priority === 'medium' ? 'bg-yellow-100 text-yellow-700' :
+                          (safeProject.priority) === 'high' ? 'bg-red-100 text-red-700' :
+                          (safeProject.priority) === 'medium' ? 'bg-yellow-100 text-yellow-700' :
                           'bg-green-100 text-green-700'
                         }>
-                          {project.priority.charAt(0).toUpperCase() + project.priority.slice(1)}
+                          {(safeProject.priority).charAt(0).toUpperCase() + (safeProject.priority).slice(1)}
                         </Badge>
                       </div>
                     </div>
                     <div className="space-y-3">
                       <div className="flex items-center gap-2">
                         <span className="font-medium text-sm text-gray-700">University:</span>
-                        <span className="text-sm text-gray-600">{project.university}</span>
+                        <span className="text-sm text-gray-600">{safeProject.university}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="font-medium text-sm text-gray-700">Status:</span>
                         <Badge variant="outline" className="bg-green-100 text-green-700">
-                          {project.status.charAt(0).toUpperCase() + project.status.slice(1)}
+                          {(safeProject.status).charAt(0).toUpperCase() + (safeProject.status).slice(1)}
                         </Badge>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="font-medium text-sm text-gray-700">Visibility:</span>
                         <Badge variant="outline" className="bg-blue-100 text-blue-700">
-                          {project.isPublic ? 'Public' : 'Private'}
+                          {safeProject.isPublic ? 'Public' : 'Private'}
                         </Badge>
                       </div>
                     </div>
@@ -1034,7 +1052,7 @@ export function ProjectDetail({ projectId, onBack, onJoinProject }: ProjectDetai
                 <div>
                   <h4 className="font-medium mb-3">Tags & Keywords</h4>
                   <div className="flex flex-wrap gap-2">
-                    {project.tags.map((tag) => (
+                    {(safeProject.tags || []).map((tag) => (
                       <Badge key={tag} variant="secondary" className="flex items-center gap-1">
                         <Tag className="h-3 w-3" />
                         {tag}
@@ -1050,21 +1068,15 @@ export function ProjectDetail({ projectId, onBack, onJoinProject }: ProjectDetai
                   {/* Summary Counts */}
                   <div className="flex items-center gap-8">
                     <div className="text-center">
-                      <div className="text-3xl font-bold text-[#021ff6] mb-1">
-                        {mockTeamMembers.length + mockCommunityMembers.length}
-                      </div>
+                      <div className="text-3xl font-bold text-[#021ff6] mb-1">0</div>
                       <div className="text-sm text-gray-600">Total Members</div>
                     </div>
                     <div className="text-center">
-                      <div className="text-2xl font-bold text-green-600 mb-1">
-                        {mockTeamMembers.length}
-                      </div>
+                      <div className="text-2xl font-bold text-green-600 mb-1">0</div>
                       <div className="text-sm text-gray-600">Core Team</div>
                     </div>
                     <div className="text-center">
-                      <div className="text-2xl font-bold text-blue-600 mb-1">
-                        {mockCommunityMembers.length}
-                      </div>
+                      <div className="text-2xl font-bold text-blue-600 mb-1">0</div>
                       <div className="text-sm text-gray-600">Participants</div>
                     </div>
                   </div>
@@ -1078,7 +1090,7 @@ export function ProjectDetail({ projectId, onBack, onJoinProject }: ProjectDetai
                       className={activeMembersTab === "core-team" ? "bg-[#021ff6] hover:bg-[#021ff6]/90" : ""}
                     >
                       <Users className="h-4 w-4 mr-2" />
-                      Core Team ({mockTeamMembers.length})
+                      Core Team (0)
                     </Button>
                     <Button
                       variant={activeMembersTab === "participants" ? "default" : "outline"}
@@ -1087,7 +1099,7 @@ export function ProjectDetail({ projectId, onBack, onJoinProject }: ProjectDetai
                       className={activeMembersTab === "participants" ? "bg-[#021ff6] hover:bg-[#021ff6]/90" : ""}
                     >
                       <UserPlus className="h-4 w-4 mr-2" />
-                      Participants ({mockCommunityMembers.length})
+                      Participants (0)
                     </Button>
                   </div>
                 </div>
@@ -1103,7 +1115,9 @@ export function ProjectDetail({ projectId, onBack, onJoinProject }: ProjectDetai
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {mockTeamMembers.map((member) => {
+                      {mockTeamMembers.length === 0 ? (
+                        <div className="col-span-2 text-center text-gray-600 py-8">No members yet.</div>
+                      ) : mockTeamMembers.map((member) => {
                         // Determine role-based styling
                         const getRoleColor = (role: string) => {
                           if (role.includes('Host') || role.includes('Lead')) return 'bg-orange-100 text-orange-800 border-orange-200';
@@ -1169,7 +1183,9 @@ export function ProjectDetail({ projectId, onBack, onJoinProject }: ProjectDetai
                     </div>
                     
                     <div className="space-y-4">
-                      {mockCommunityMembers.map((member) => (
+                      {mockCommunityMembers.length === 0 ? (
+                        <div className="text-center text-gray-600 py-8">No participants yet.</div>
+                      ) : mockCommunityMembers.map((member) => (
                         <div key={member.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
                           <div className="flex items-start gap-4">
                             <Avatar className="h-12 w-12 flex-shrink-0">
@@ -1233,7 +1249,7 @@ export function ProjectDetail({ projectId, onBack, onJoinProject }: ProjectDetai
                   {/* Progress Summary */}
                   <div className="flex items-center gap-8">
                     <div className="text-center">
-                      <div className="text-3xl font-bold text-[#021ff6] mb-1">{project.progress}%</div>
+                      <div className="text-3xl font-bold text-[#021ff6] mb-1">{safeProject.progress}%</div>
                       <div className="text-sm text-gray-600">Overall Progress</div>
                     </div>
                     <div className="text-center">
@@ -1460,22 +1476,22 @@ export function ProjectDetail({ projectId, onBack, onJoinProject }: ProjectDetai
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                         <div className="text-center p-4 bg-blue-50 rounded-lg border border-blue-200">
                           <BarChart3 className="h-6 w-6 text-blue-600 mx-auto mb-2" />
-                          <div className="text-2xl font-semibold text-blue-600">{project.progress}%</div>
+                          <div className="text-2xl font-semibold text-blue-600">{safeProject.progress}%</div>
                           <div className="text-xs text-blue-700">Completion Rate</div>
                         </div>
                         <div className="text-center p-4 bg-green-50 rounded-lg border border-green-200">
                           <TrendingUp className="h-6 w-6 text-green-600 mx-auto mb-2" />
-                          <div className="text-2xl font-semibold text-green-600">{mockTeamMembers.length + mockCommunityMembers.length}</div>
+                          <div className="text-2xl font-semibold text-green-600">0</div>
                           <div className="text-xs text-green-700">Active Contributors</div>
                         </div>
                         <div className="text-center p-4 bg-purple-50 rounded-lg border border-purple-200">
                           <Star className="h-6 w-6 text-purple-600 mx-auto mb-2" />
-                          <div className="text-2xl font-semibold text-purple-600">{project.metrics.impactScore}/10</div>
+                          <div className="text-2xl font-semibold text-purple-600">{safeProject.metrics.impactScore}/10</div>
                           <div className="text-xs text-purple-700">Impact Score</div>
                         </div>
                         <div className="text-center p-4 bg-orange-50 rounded-lg border border-orange-200">
                           <Award className="h-6 w-6 text-orange-600 mx-auto mb-2" />
-                          <div className="text-2xl font-semibold text-orange-600">{project.metrics.participantsReached}</div>
+                          <div className="text-2xl font-semibold text-orange-600">{safeProject.metrics.participantsReached}</div>
                           <div className="text-xs text-orange-700">Students Impacted</div>
                         </div>
                       </div>
@@ -1487,7 +1503,9 @@ export function ProjectDetail({ projectId, onBack, onJoinProject }: ProjectDetai
                     <div>
                       <h5 className="font-medium mb-4">Recent Activity</h5>
                       <div className="space-y-4">
-                        {mockRecentActivity.map((activity) => (
+                        {mockRecentActivity.length === 0 ? (
+                          <div className="text-center text-gray-600 py-8">No recent activity.</div>
+                        ) : mockRecentActivity.map((activity) => (
                           <div key={activity.id} className="flex gap-3">
                             <div className="flex-shrink-0 mt-1">
                               <Activity className="h-4 w-4 text-blue-500" />
